@@ -1,11 +1,11 @@
 <?php
-// @loom-file release=0.15.09 revision=10 policy=package-priority
+// @loom-file release=0.15.13 revision=11 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
 function scan_admin_modules(string $project): array {
   $dir=project_dir($project); if(!$dir)return [];
-  $out=loom_scan_project_core_modules();$coreIds=[];foreach($out as $cm)$coreIds[$cm['actionId']]=true;$root=$dir.'/actions';
+  $out=loom_scan_project_core_modules($project);$coreIds=[];foreach($out as $cm)$coreIds[$cm['actionId']]=true;$root=$dir.'/actions';
   if(is_dir($root)){
     $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
     foreach($it as $file){

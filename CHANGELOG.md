@@ -1,3 +1,15 @@
+# LOOM 0.15.13 - Project Branding + Instance Delivery + Reload Warning
+
+- Promoted **Logo Text**, **Footer Bar**, and **Orb Dock** into release-managed project-scoped core modules so existing Instance Projects receive fixes without LOOM mutating their persistent project trees.
+- Every project now has Logo Text automatically. With no explicit override, LOOM balances the canonical project name across up to two lines; punctuation separators such as `Lint-Away` become `LINT` / `AWAY`.
+- Project names now support up to **140 characters**.
+- Project creation and identity editing now support optional **Main** and **Accent** brand colors with color pickers and hex fields. Logo Text inherits them; project-default Social Links inherit the main color.
+- Fixed Admin **Open Project** URLs by returning installation-root-aware absolute app paths instead of page-relative paths.
+- Added a path-preserving Instance Project virtual filesystem route (`/api/project-file/<project>/<path>`) so relative ES imports, `import.meta.url`, CSS assets, fonts, and avatar/default-image assets resolve correctly. This fixes missing profile avatars in Instance Project shells.
+- Orb Dock now suppresses the entire **More Tools** footer row when no tools are captured.
+- Live Release Reload now gives users a **60-second warning countdown by default**, with a `Reload now` control, instead of an almost immediate refresh. Admin can configure 5–300 seconds.
+- Showcase continues to follow the canonical Project Bio by default; Admin may use the existing Showcase custom-bio override and return to Project Bio at any time.
+
 # LOOM 0.15.12 - Session Liveness
 
 - Fixed sessions that could become stale and permanently stop tracking while the same browser tab was still usable.

@@ -28,26 +28,26 @@
     ".htaccess": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.08",
-      "revision": 3,
-      "sha256": "da8c5747052d8111b8b157bef897b96582c75a802a0f51c015f50f45ec3807a3",
-      "size": 1416
+      "release": "0.15.13",
+      "revision": 4,
+      "sha256": "9b5d167fd28a5d69a39e25448928fdfeb7e04f859dbd0a3cd5ebcf7ba7efbfbc",
+      "size": 1758
     },
     "BLUEPRINT.md": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 24,
-      "sha256": "b250f31f9ba0760bba1c2a624da70f1ca8c1c49e4fb41ed73ee2d72460ad6650",
-      "size": 34465
+      "release": "0.15.13",
+      "revision": 25,
+      "sha256": "5ef8acb8fe6a3a0451162168908d73aa41422c5a6bd56388c26412d67eeed515",
+      "size": 35564
     },
     "CHANGELOG.md": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 29,
-      "sha256": "0f2449d8ac2e6b68af3703c4fe59babc1e3893338d8665f93f52ee6859080155",
-      "size": 92324
+      "release": "0.15.13",
+      "revision": 30,
+      "sha256": "5a083eb341d94652cf64ea01453ec845300c6895d832f9db6dcc911fcb96839c",
+      "size": 93928
     },
     "LOGO-VALIDATION.txt": {
       "embedded_header": false,
@@ -58,12 +58,12 @@
       "size": 360
     },
     "README.md": {
-      "embedded_header": true,
+      "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 28,
-      "sha256": "00daec6cbf20628a5fe03305fa5fa8d0deac3897f961144038a04a6be4b20a34",
-      "size": 35539
+      "release": "0.15.13",
+      "revision": 29,
+      "sha256": "aaebbcf0996e211d94e405b1501bdc798e643bb5a54ae8972bee5999ebb7072c",
+      "size": 36007
     },
     "admin/.htaccess": {
       "embedded_header": true,
@@ -84,25 +84,25 @@
     "admin/activity/index.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 3,
-      "sha256": "0fb4074e1903a270200008111c582cd80c95954343eee09170f034a833d85d0a",
+      "release": "0.15.13",
+      "revision": 4,
+      "sha256": "d188004bf0d77047aa78513bd2adeb6c2f2957313dd82adfc36fed2a4467d5af",
       "size": 13015
     },
     "admin/index.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 28,
-      "sha256": "db0cb2f6485d927c763aea7550c5b38ebd05e6c5fc9e186541a5424f1dea8477",
-      "size": 87631
+      "release": "0.15.13",
+      "revision": 29,
+      "sha256": "b7941fdb2e56e24d830e9aaedfc8c865ea514e84f1bdc02b9a8584e08c39b677",
+      "size": 89408
     },
     "admin/setup/index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 11,
-      "sha256": "15119e3d85c57fa21d8febf9cbc2052dfd7c491b0a181ce60793a2250ccee57d",
+      "release": "0.15.13",
+      "revision": 12,
+      "sha256": "d1246fea166aaa8e03d405c389e2f011b1a49dfdc7bd8a6ca1f37ecd83ce5b90",
       "size": 10481
     },
     "api/_accounts.php": {
@@ -140,10 +140,10 @@
     "api/_common.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.09",
-      "revision": 16,
-      "sha256": "4d4cef56ace57e13955bc96e3f89c524056ddff0aa51aa9120d57c3f793872c2",
-      "size": 46525
+      "release": "0.15.13",
+      "revision": 17,
+      "sha256": "d83b78662601a00e328a569a3c4eced16767caa097eaf04ad6de9d379380cbae",
+      "size": 51842
     },
     "api/_database.php": {
       "embedded_header": true,
@@ -268,10 +268,10 @@
     "api/admin.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.09",
-      "revision": 10,
-      "sha256": "e1592900232ef4f052bd407243edfd13242897c0730f3fc6b57645df4c843177",
-      "size": 22113
+      "release": "0.15.13",
+      "revision": 11,
+      "sha256": "b5e2f4635342897bfa15e8d8401a3808085b354f85e72793d43b79b78293e2ba",
+      "size": 22121
     },
     "api/audit.php": {
       "embedded_header": true,
@@ -404,10 +404,10 @@
     "api/modules.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.09",
-      "revision": 10,
-      "sha256": "faa9558da71492327335fa5925af540d02d5923add21529b7d9fde7ca9edce7b",
-      "size": 7492
+      "release": "0.15.13",
+      "revision": 11,
+      "sha256": "e2db991dc3d47805f84841ed0cc81b4dfe0f9e67cfcce06b8d2d845fadff5db5",
+      "size": 7671
     },
     "api/profile-avatar.php": {
       "embedded_header": true,
@@ -428,10 +428,10 @@
     "api/project-file.php": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.00",
-      "revision": 1,
-      "sha256": "64d8483300ea2f11da170e22269adb406cadc0ade5bbca8ea24b05efb13a816d",
-      "size": 1712
+      "release": "0.15.13",
+      "revision": 2,
+      "sha256": "b7197abfa179e3fd798c2e5b5653624f1bbb28a34c2bb1b10ea09182a99dedf4",
+      "size": 2009
     },
     "api/project-manager.php": {
       "embedded_header": true,
@@ -452,10 +452,10 @@
     "api/projects.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.08",
-      "revision": 13,
-      "sha256": "378ebefd06cdca9e2eb79181e770728a6f0f8ccdc42b753668b6e12ce2cb188b",
-      "size": 4145
+      "release": "0.15.13",
+      "revision": 14,
+      "sha256": "4d0c51385351a52dc980b82aaa18074175685990395a2b691f647ee975e1160c",
+      "size": 4301
     },
     "api/replay.php": {
       "embedded_header": true,
@@ -508,9 +508,9 @@
     "api/version.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 22,
-      "sha256": "ba16e2dce4331c921ce5b10b3316272a4c147dc153ee9c9a92f78bb0a279f82b",
+      "release": "0.15.13",
+      "revision": 23,
+      "sha256": "df8e2f7b4747906d9ea37a850b4f88061e077d184461a6b734879fa174e1e9a0",
       "size": 1523
     },
     "api/visitor.php": {
@@ -641,6 +641,38 @@
       "sha256": "0042b4fc4bea925f06846b7b54429ef6ed878a98a56798a68a8f070f8fb9ada7",
       "size": 988
     },
+    "core-modules/footer-bar/README.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "6f2e345a66e396eb140b00d6ea0755a54516dff45576e7dd0f4a98938e09dd92",
+      "size": 315
+    },
+    "core-modules/footer-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "8d44204c35f28c39809ce1e840006395a871de3b49a445609ad6898fdb769721",
+      "size": 4832
+    },
+    "core-modules/footer-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "f29604e94c81209b7331b6d09e4cdf602ad9e4be1520259ed82b3a686745893b",
+      "size": 6944
+    },
+    "core-modules/footer-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "8b0fd8a3abc8192e1a816474a32e2205c0e27b657c6a4bdb8e33c9c404651c45",
+      "size": 9507
+    },
     "core-modules/home-update-log/manifest.json": {
       "embedded_header": false,
       "policy": "package-priority",
@@ -689,6 +721,62 @@
       "sha256": "47713e4d094cba036bfbde33f3e9eacc1c94eba3f08f663761f6198ccae63e1e",
       "size": 1375
     },
+    "core-modules/logo-text/README.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "3b020fa68b6cde6b53617ecd5b30e01940d38fc8ac26ab50ba33277f6d47fb76",
+      "size": 656
+    },
+    "core-modules/logo-text/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "379bae6772c5c4973c868a904e85f9cfbeedd890dda3ecbf9aacaa60dc505548",
+      "size": 9915
+    },
+    "core-modules/logo-text/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "eb79607a725f1fdecf0ec994657e88b248f6852a199ccdf2f37d6040228b449a",
+      "size": 3338
+    },
+    "core-modules/orb-dock/README.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "546846db358c9eae85334508a70304667b7fe832ef3e6ff636ff7d0bf774722c",
+      "size": 293
+    },
+    "core-modules/orb-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "ad59c5f038d64df97c3141b7257853e1b5fff6823c2b2a280182372bded0e6aa",
+      "size": 3067
+    },
+    "core-modules/orb-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "a69f6ef5fedde9abea13cc76b3142e3e3240eae61526a83a1b592a04afe055a8",
+      "size": 5903
+    },
+    "core-modules/orb-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.13",
+      "revision": 1,
+      "sha256": "c0ffd59b94bc1b9a54f92ab99f9400460a17dc142cd93231ae45a8291b56bdf3",
+      "size": 4137
+    },
     "core-modules/page-styling/action.js": {
       "embedded_header": true,
       "policy": "package-priority",
@@ -708,10 +796,10 @@
     "core-modules/release-watch/manifest.json": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.03",
-      "revision": 1,
-      "sha256": "92b22c7a8c0f1b96512334f66099a98f5ff250898376f87e7617fdce0973b140",
-      "size": 1573
+      "release": "0.15.13",
+      "revision": 2,
+      "sha256": "ea0a197d9e390199dc27d7d6cc4ac81fa9a82ef7110ace16971f245025149cef",
+      "size": 1746
     },
     "core-modules/showcase/README.md": {
       "embedded_header": true,
@@ -828,10 +916,10 @@
     "docs/BRANDING-STANDARD.md": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.12.04",
-      "revision": 2,
-      "sha256": "113a83014f398536a830bc39a01ae9c7e72c4dc5684cc74d75fddad6951e9906",
-      "size": 1036
+      "release": "0.15.13",
+      "revision": 3,
+      "sha256": "c0ca8a845a0ddc008c2fe426340c5e7c1532af19d69e4709c7f2f9b93aa0fa7c",
+      "size": 1749
     },
     "docs/CACHE-BUSTING-STANDARD.md": {
       "embedded_header": true,
@@ -1284,9 +1372,9 @@
     "engine/config.js": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 28,
-      "sha256": "f3da5c2058e63c8a01d3a814e71574fb16b0493376d36f9572b9eb7f301d7002",
+      "release": "0.15.13",
+      "revision": 29,
+      "sha256": "f22e98946528289340ee2a827abd56284f5405aa034c24f1147949a8c1b8ee7c",
       "size": 1240
     },
     "engine/event-bus.js": {
@@ -1324,10 +1412,10 @@
     "engine/loom-brand.js": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 20,
-      "sha256": "5ba3d9d3854822519328923422c3269952b89f67182396f2301c2326e55281d2",
-      "size": 20422
+      "release": "0.15.13",
+      "revision": 21,
+      "sha256": "0a2aba5f9e0e21639961625b28b4e212878dcdde9b9de462dfed33e211a0d38b",
+      "size": 21615
     },
     "engine/loom-design.css": {
       "embedded_header": true,
@@ -1396,10 +1484,10 @@
     "index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 29,
-      "sha256": "b47b84d88bcd72abe59f154b070c3b6aaa86fed40df6c9d38a63d947dc4bfd3a",
-      "size": 30043
+      "release": "0.15.13",
+      "revision": 30,
+      "sha256": "7282ce88f097f4b13d98f5c128bc7532931365d2da8cf11b60189cd2bb070eef",
+      "size": 32645
     },
     "index.php": {
       "embedded_header": true,
@@ -1452,9 +1540,9 @@
     "pegboard/index.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 23,
-      "sha256": "8b9f695fdfc3bb7b61ddcf438945b06792ee42831b4b7c1621a54b9ae33fa335",
+      "release": "0.15.13",
+      "revision": 24,
+      "sha256": "6445edd0e5f39f6e64691d2e17f245fd5a731450bf5154177fc521006e73e359",
       "size": 5226
     },
     "pegboard/pegboard.css": {
@@ -1476,9 +1564,9 @@
     "projects/_instance/app/index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 13,
-      "sha256": "6de301aabd85b586859cf3226f96b412466269ff2ac6d83565ca90acf77c6bd2",
+      "release": "0.15.13",
+      "revision": 14,
+      "sha256": "6662fa43ca474631672dc97892285385497a7e457339f49cd09fd71390a9ea5d",
       "size": 11043
     },
     "projects/_instance/registry.fallback.json": {
@@ -1900,9 +1988,9 @@
     "projects/green-beans/app/index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 27,
-      "sha256": "3a7c5144ea17e44e7c4a60f33754a6ff674fd4adcbcf67caebe1b886ae2db0d4",
+      "release": "0.15.13",
+      "revision": 28,
+      "sha256": "0038aadcba18b90d6504354e0c573c342caed8182e6606199fa26585e4fe40b5",
       "size": 11125
     },
     "projects/green-beans/assets/README.txt": {
@@ -1924,9 +2012,9 @@
     "projects/green-beans/project.default.json": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 18,
-      "sha256": "56598232aa3246d87e9406ca95b7edd9f60ee851f9c48b4246eb8f057ea3ab47",
+      "release": "0.15.13",
+      "revision": 19,
+      "sha256": "a51a98767db9efadb87fc89c7f193c614a86c0a55bcae8b775308a0a6533b3f8",
       "size": 1204
     },
     "projects/green-beans/registry.fallback.json": {
@@ -1948,9 +2036,9 @@
     "registry/index.php": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 23,
-      "sha256": "84fb3bd92c79d2b9bbadf3a226f2b0d0265ce1726afc78ed709da15c3a80781d",
+      "release": "0.15.13",
+      "revision": 24,
+      "sha256": "1cbf6d20589c361e4b8bc7c7ee74b4fd564926a8cefc6be86a18dbd327247207",
       "size": 6398
     },
     "reusable-modules/background-orbs/README.md": {
@@ -2556,9 +2644,9 @@
     "templates/projects/baseline/app/index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 26,
-      "sha256": "70ed413e68ab3f59474999dcc57a5b0f8979947e116f568c333a1ed9730ed2f4",
+      "release": "0.15.13",
+      "revision": 27,
+      "sha256": "d51f0e7df57ec5afcc38f033fa04b6883218981f66426d59be42a7890a95f397",
       "size": 11043
     },
     "templates/projects/baseline/assets/.gitkeep": {
@@ -2572,9 +2660,9 @@
     "templates/projects/baseline/project.default.json": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 18,
-      "sha256": "03599ff725153cc547e07575967f2108d4015a0c97d2fca20a60a22154f67bdd",
+      "release": "0.15.13",
+      "revision": 19,
+      "sha256": "da556b4ee977f34ba693787880bd8280026acb6b7a5a3457fa6401287032a3c7",
       "size": 437
     },
     "templates/projects/baseline/registry.fallback.json": {
@@ -2996,9 +3084,9 @@
     "templates/projects/green-beans/app/index.html": {
       "embedded_header": true,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 27,
-      "sha256": "3a7c5144ea17e44e7c4a60f33754a6ff674fd4adcbcf67caebe1b886ae2db0d4",
+      "release": "0.15.13",
+      "revision": 28,
+      "sha256": "0038aadcba18b90d6504354e0c573c342caed8182e6606199fa26585e4fe40b5",
       "size": 11125
     },
     "templates/projects/green-beans/assets/README.txt": {
@@ -3020,9 +3108,9 @@
     "templates/projects/green-beans/project.default.json": {
       "embedded_header": false,
       "policy": "package-priority",
-      "release": "0.15.12",
-      "revision": 18,
-      "sha256": "cd844bd07dc6f7c4f742e27fe327d2bb1e34abcf905976328af29a9acd62f257",
+      "release": "0.15.13",
+      "revision": 19,
+      "sha256": "1bb47f3fa95dc86866a568aeb3a371e8ccafeda0f7ee87ca3d8d707764647e22",
       "size": 1238
     },
     "templates/projects/green-beans/registry.fallback.json": {
@@ -3035,14 +3123,14 @@
     }
   },
   "format": "loom-deployment-manifest/v4",
-  "generated_at": "2026-09-23T18:04:30.134041+00:00",
-  "loom_release": "0.15.12",
+  "generated_at": "2026-09-23T18:38:47.023590+00:00",
+  "loom_release": "0.15.13",
   "manifest_self": {
     "note": "Hash is intentionally SELF because the manifest cannot contain a stable hash of its own complete bytes.",
     "path": ".loom-deployment.json",
     "policy": "package-priority",
-    "release": "0.15.12",
-    "revision": 32,
+    "release": "0.15.13",
+    "revision": 33,
     "sha256": "SELF"
   },
   "policy_rules": [

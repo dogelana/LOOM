@@ -4,24 +4,25 @@
   "action": {
     "id": "loom.release.watch",
     "name": "Live Release Reload",
-    "description": "Detects completed LOOM deployments and refreshes connected browser sessions onto the newly committed release.",
+    "description": "Detects completed LOOM deployments, gives connected sessions a configurable warning countdown, then refreshes them onto the newly committed release.",
     "kind": "system",
     "behavior": "stateful",
     "category": "loom/global/deployment"
   },
   "module": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scope": "global",
     "order": "00030"
   },
   "config": {
     "autoReload": "on",
     "pollSeconds": 8,
-    "noticeMs": 1200
+    "noticeMs": 1200,
+    "warningSeconds": 60
   },
   "admin_settings": {
     "title": "Live Release Reload",
-    "description": "Keeps open LOOM browser sessions on the current completed deployment. The deployment manifest remains the commit marker, so clients never refresh merely because one release file arrived early.",
+    "description": "Keeps open LOOM browser sessions on the current completed deployment. Once the deployment manifest confirms a healthy release, LOOM warns users before refreshing instead of hard-reloading immediately.",
     "fields": [
       {
         "id": "autoReload",
@@ -48,13 +49,14 @@
         "unit": "s"
       },
       {
-        "id": "noticeMs",
-        "label": "Refresh notice duration",
+        "id": "warningSeconds",
+        "label": "Reload warning countdown",
         "type": "range",
-        "min": 500,
-        "max": 5000,
-        "step": 100,
-        "unit": "ms"
+        "min": 5,
+        "max": 300,
+        "step": 5,
+        "unit": "s",
+        "help": "Default is 60 seconds. Users see a visible countdown and can choose Reload now."
       }
     ]
   }

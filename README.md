@@ -1,3 +1,7 @@
+## v0.15.13 - Project Branding + Instance Delivery + Reload Warning
+
+This release makes new and existing Instance Projects inherit core branding/footer fixes from LOOM itself. Project creation now establishes a usable two-color brand immediately, Instance Project module assets use a path-preserving virtual filesystem, empty More Tools sections disappear, Admin Open Project works from any route depth, and release refreshes provide a one-minute warning by default.
+
 ## v0.15.12 - Session Liveness
 
 This maintenance release hardens LOOM presence and tracking continuity. Browser lifecycle transitions and transient heartbeat failures can no longer permanently strand an otherwise usable tab in a stale state. The runtime self-recovers, retries heartbeat transport, and restarts interaction capture when necessary.

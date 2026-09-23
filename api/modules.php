@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.09 revision=10 policy=package-priority
+// @loom-file release=0.15.13 revision=11 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -37,7 +37,10 @@ function build_runtime_module_descriptor(string $project,array $manifest,string 
   if(!$entry||!$allowed||!str_starts_with($entry,$allowed.DIRECTORY_SEPARATOR))return null;
   $isInstance=loom_project_is_instance_owned($project)&&$source==='project';
   $urlFor=function(string $absolute)use($project,$allowed,$isInstance): string {
-    if(!$isInstance)return rel_url($absolute);$relative=str_replace('\\','/',substr($absolute,strlen($allowed)+1));return web_base_path().'/api/project-file.php?project='.rawurlencode(safe_slug($project)).'&path='.rawurlencode($relative);
+    if(!$isInstance)return rel_url($absolute);
+    $relative=ltrim(str_replace('\\','/',substr($absolute,strlen($allowed)+1)),'/');
+    $segments=array_map('rawurlencode',array_values(array_filter(explode('/',$relative),fn($x)=>$x!=='')));
+    return web_base_path().'/api/project-file/'.rawurlencode(safe_slug($project)).'/'.implode('/',$segments);
   };
   $styles=[];
   foreach(($module['styles']??[]) as $style){$sp=realpath($folder.'/'.$style);if($sp&&str_starts_with($sp,$allowed.DIRECTORY_SEPARATOR))$styles[]=$urlFor($sp);}
@@ -62,7 +65,7 @@ function build_runtime_module_descriptor(string $project,array $manifest,string 
 // LOOM-owned project-scoped core modules are physically global but receive
 // independent per-project Admin overrides and run inside every project.
 foreach(loom_core_module_records('project') as $record){
-  $manifest=$record['manifest'];$folder=$record['folder'];$coreId=(string)($manifest['action']['id']??'');if($coreId!==''&&!loom_project_module_enabled(safe_slug((string)$project),$coreId,(bool)($manifest['enabled']??true)))continue;
+  $manifest=loom_project_core_manifest_for_project(safe_slug((string)$project),$record['manifest']);$folder=$record['folder'];$coreId=(string)($manifest['action']['id']??'');if($coreId!==''&&!loom_project_module_enabled(safe_slug((string)$project),$coreId,(bool)($manifest['enabled']??true)))continue;
   $descriptor=build_runtime_module_descriptor($project,$manifest,$record['manifestFile'],$folder,$folder,'core-modules/'.basename($folder),'core-project');
   if($descriptor){$modules[]=$descriptor;$coreProjectIds[(string)$manifest['action']['id']]=true;}
 }

@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.12 revision=24 policy=package-priority -->
+<!-- @loom-file release=0.15.13 revision=25 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -386,3 +386,14 @@ The Activity Explorer is a LOOM-owned Admin surface and therefore follows the sa
 ## v0.15.12 — Session liveness and recovery
 
 Presence is now treated as a recoverable lease rather than a fragile timer. The runtime uses acknowledged, self-scheduling heartbeats with retry, lifecycle recovery hooks, and a longer mobile-tolerant lease. A transient pagehide may close the server-side runtime snapshot, but it does not permanently destroy the in-document tracker; restoration reopens the logical session with a fresh runtime ID and restarts interaction capture.
+
+
+## v0.15.13 — Core branding inheritance and Instance Project virtual filesystem
+
+Release-managed project-scoped core modules are the upgrade boundary for LOOM-owned behavior. `core.ui.load-logo-text`, `core.ui.footer-bar`, and `core.ui.orb-dock` now live under `core-modules/**`; project-local copies may contribute project-specific default configuration but no longer pin old implementation code inside an Instance Project.
+
+Project identity now includes optional main/accent brand colors. Logo Text derives a balanced one/two-line wordmark from the canonical project name when no explicit module override exists. A project name may contain up to 140 characters.
+
+Instance Project static files are served through a path-preserving virtual namespace so normal browser-relative semantics remain intact even though the persistent bytes live in `instance/projects/<slug>/project/**`.
+
+Live Release Reload warns before refreshing. The default warning is sixty seconds and emits `loom:release-will-reload` immediately with the intended reload time so modules can save drafts or present their own UX.

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 $project=safe_slug((string)($_GET['project']??''));$path=ltrim(str_replace('\\','/',(string)($_GET['path']??'')),'/');$clientId=safe_token((string)($_GET['clientId']??''));
+if(($project===''||$path==='')&&!empty($_SERVER['PATH_INFO'])){$parts=array_values(array_filter(explode('/',trim((string)$_SERVER['PATH_INFO'],'/')),fn($x)=>$x!==''));if(count($parts)>=2){$project=safe_slug(rawurldecode(array_shift($parts)));$path=implode('/',array_map('rawurldecode',$parts));}}
 if($project===''||$path===''||str_contains($path,'..')||!loom_project_is_instance_owned($project)){http_response_code(404);exit;}
 loom_enforce_project_access($project,$clientId);
 $root=project_dir($project);$candidate=$root.'/'.$path;$realRoot=realpath($root);$real=realpath($candidate);

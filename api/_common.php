@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.09 revision=16 policy=package-priority
+// @loom-file release=0.15.13 revision=17 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -70,6 +70,61 @@ function loom_project_overlay_dir(string $project): string {
 }
 function safe_slug(string $value): string { return preg_replace('/[^a-z0-9_-]/', '', strtolower($value)) ?: ''; }
 function safe_token(string $value): string { return preg_replace('/[^a-zA-Z0-9_.-]/','',$value) ?: ''; }
+function loom_brand_hex(mixed $value,string $fallback): string {
+  $v=strtoupper(trim((string)$value));return preg_match('/^#[0-9A-F]{6}$/',$v)?$v:$fallback;
+}
+function loom_project_brand_colors(string $project): array {
+  $data=loom_project_effective_data($project);$legacy=is_array($data['brand_defaults']??null)?$data['brand_defaults']:[];
+  $primary=loom_brand_hex($data['brand_primary_color']??null,'');
+  if($primary==='')$primary=loom_brand_hex($legacy['dark_bean']??null,'');
+  if($primary==='')$primary=loom_brand_hex($data['social_color']??null,'#111111');
+  $accent=loom_brand_hex($data['brand_accent_color']??null,'');
+  if($accent==='')$accent=loom_brand_hex($legacy['light_bean']??null,'#168346');
+  return ['primary'=>$primary?:'#111111','accent'=>$accent?:'#168346'];
+}
+function loom_project_wordmark_lines(string $name): array {
+  $display=trim(preg_replace('/[\s_\-–—]+/u',' ',trim($name))??'');
+  if($display==='')return ['line1'=>'PROJECT','line2'=>''];
+  $words=preg_split('/\s+/u',$display,-1,PREG_SPLIT_NO_EMPTY)?:[];
+  if(count($words)<=1)return ['line1'=>$words[0]??$display,'line2'=>''];
+  $best=1;$bestScore=PHP_INT_MAX;
+  for($i=1;$i<count($words);$i++){
+    $a=implode(' ',array_slice($words,0,$i));$b=implode(' ',array_slice($words,$i));
+    $la=function_exists('mb_strlen')?mb_strlen($a,'UTF-8'):strlen($a);$lb=function_exists('mb_strlen')?mb_strlen($b,'UTF-8'):strlen($b);
+    $score=abs($la-$lb)+(max($la,$lb)>42?(max($la,$lb)-42)*3:0);
+    if($score<$bestScore){$bestScore=$score;$best=$i;}
+  }
+  return ['line1'=>implode(' ',array_slice($words,0,$best)),'line2'=>implode(' ',array_slice($words,$best))];
+}
+function loom_project_legacy_action_manifest(string $project,string $actionId): ?array {
+  $dir=project_dir($project);if(!$dir)return null;$root=$dir.'/actions';if(!is_dir($root))return null;
+  $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
+  foreach($it as $file){if(!$file->isFile()||strtolower($file->getFilename())!=='manifest.json')continue;$m=read_json_file($file->getPathname());if($m&&(string)($m['action']['id']??'')===$actionId)return $m;}
+  return null;
+}
+function loom_project_core_manifest_for_project(string $project,array $manifest): array {
+  $id=(string)($manifest['action']['id']??'');if($id==='')return $manifest;
+  // A legacy project-local copy may contribute project-specific defaults, but
+  // implementation code/module version stays release-managed from core-modules.
+  $legacy=loom_project_legacy_action_manifest($project,$id);
+  if($legacy){
+    if(is_array($legacy['config']??null))$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacy['config']);
+    if(is_array($legacy['presentation']??null))$manifest['presentation']=array_replace_recursive(is_array($manifest['presentation']??null)?$manifest['presentation']:[],$legacy['presentation']);
+  }
+  if($id==='core.ui.load-logo-text'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$legacyCfg=is_array($legacy['config']??null)?$legacy['config']:[];
+    $data=loom_project_effective_data($project);$name=(string)($data['name']??humanize_project_slug($project));$lines=loom_project_wordmark_lines($name);$colors=loom_project_brand_colors($project);
+    if(!array_key_exists('line1',$legacyCfg))$cfg['line1']=$lines['line1'];
+    if(!array_key_exists('line2',$legacyCfg))$cfg['line2']=$lines['line2'];
+    if(!array_key_exists('greenColor',$legacyCfg))$cfg['greenColor']=$colors['primary'];
+    if(!array_key_exists('beanColor',$legacyCfg))$cfg['beanColor']=$colors['accent'];
+    $manifest['config']=$cfg;
+  }
+  return $manifest;
+}
+function loom_project_core_effective_config(string $project,string $actionId): ?array {
+  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];if((string)($m['action']['id']??'')!==$actionId)continue;$m=loom_project_core_manifest_for_project($project,$m);return loom_module_config_with_admin_overrides($project,$m);}return null;
+}
 function loom_instance_projects_root_path(): string { return loom_instance_root().'/projects'; }
 function loom_instance_project_storage_path(string $project): string { $slug=safe_slug($project);return $slug!==''?loom_instance_projects_root_path().'/'.$slug:''; }
 function loom_instance_project_runtime_path(string $project): string { $base=loom_instance_project_storage_path($project);return $base!==''?$base.'/project':''; }
@@ -96,13 +151,13 @@ function loom_all_project_slugs(): array {
   $out=array_keys($slugs);sort($out,SORT_NATURAL|SORT_FLAG_CASE);return $out;
 }
 function loom_project_app_url(string $project): string {
-  $slug=safe_slug($project);$dir=project_dir($slug);if(!$dir)return '#';
+  $slug=safe_slug($project);$dir=project_dir($slug);if(!$dir)return '#';$base=web_base_path();
   if(loom_project_is_instance_owned($slug)){
     $shell=root_dir().'/projects/_instance/app/index.html';$v=is_file($shell)?file_cache_version($shell):loom_release_version();
-    return 'projects/_instance/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
+    return $base.'/projects/_instance/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
   }
   $app=$dir.'/app/index.html';$v=is_file($app)?file_cache_version($app):file_cache_version($dir.'/project.default.json');
-  return 'projects/'.$slug.'/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
+  return $base.'/projects/'.$slug.'/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
 }
 function json_out(array $payload, int $status=200): never { http_response_code($status); echo json_encode($payload, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); exit; }
 function web_base_path(): string {
@@ -493,9 +548,9 @@ function loom_scan_global_core_modules(): array {
   foreach(loom_core_module_records('global') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'defaults'=>is_array($m['config']??null)?$m['config']:[],'manifestEnabled'=>(bool)($m['enabled']??true)];}
   return $out;
 }
-function loom_scan_project_core_modules(): array {
+function loom_scan_project_core_modules(?string $project=null): array {
   $out=[];
-  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project','manifestEnabled'=>(bool)($m['enabled']??true),'manifestHideOnMobile'=>(bool)($m['presentation']['responsive']['hideOnMobile']??false)];}
+  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];if($project!==null&&safe_slug($project)!=='')$m=loom_project_core_manifest_for_project(safe_slug($project),$m);$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project','version'=>(string)($m['module']['version']??'core'),'manifestEnabled'=>(bool)($m['enabled']??true),'manifestHideOnMobile'=>(bool)($m['presentation']['responsive']['hideOnMobile']??false)];}
   return $out;
 }
 function loom_global_settings_payload(): array {
@@ -572,7 +627,9 @@ function loom_project_profile_payload(string $project): ?array {
     'theme'=>(string)($data['theme']??'default'),
     'version'=>(string)($data['version']??'0.1.0'),
     'engine'=>(string)($data['engine']??'LOOM'),
-    'social_color'=>preg_match('/^#[0-9A-Fa-f]{6}$/',(string)($data['social_color']??''))?strtoupper((string)$data['social_color']):'#000000',
+    'brand_primary_color'=>loom_project_brand_colors($slug)['primary'],
+    'brand_accent_color'=>loom_project_brand_colors($slug)['accent'],
+    'social_color'=>loom_brand_hex($data['social_color']??null,loom_project_brand_colors($slug)['primary']),
     'branding'=>[
       'logo_asset'=>$asset?:'assets/logo.png',
       'logo_alt'=>(string)($branding['logo_alt']??($data['name']??humanize_project_slug($slug))),
@@ -583,11 +640,16 @@ function loom_project_profile_payload(string $project): ?array {
 function loom_write_project_profile(string $project,array $incoming): array {
   $slug=safe_slug($project);$dir=project_dir($slug);if(!$dir)throw new RuntimeException('Project not found');
   $data=loom_project_override_data($slug);
-  if(array_key_exists('name',$incoming)){$name=loom_clean_project_text($incoming['name'],80);if($name==='')throw new RuntimeException('Project name is required');$data['name']=$name;}
+  if(array_key_exists('name',$incoming)){$name=loom_clean_project_text($incoming['name'],140);if($name==='')throw new RuntimeException('Project name is required');$data['name']=$name;}
   if(array_key_exists('tagline',$incoming))$data['tagline']=loom_clean_project_text($incoming['tagline'],140);
   if(array_key_exists('description',$incoming))$data['description']=loom_clean_project_text($incoming['description'],500);
   if(array_key_exists('bio',$incoming))$data['bio']=loom_clean_project_text($incoming['bio'],1800);
+  if(array_key_exists('version',$incoming)){$version=loom_clean_project_text($incoming['version'],40);if($version!=='')$data['version']=$version;}
+  $primaryProvided=array_key_exists('brand_primary_color',$incoming);
+  if($primaryProvided){$c=strtoupper(trim((string)$incoming['brand_primary_color']));if($c==='')unset($data['brand_primary_color']);elseif(!preg_match('/^#[0-9A-F]{6}$/',$c))throw new RuntimeException('Project main color must be a 6-digit hex color');else $data['brand_primary_color']=$c;}
+  if(array_key_exists('brand_accent_color',$incoming)){$c=strtoupper(trim((string)$incoming['brand_accent_color']));if($c==='')unset($data['brand_accent_color']);elseif(!preg_match('/^#[0-9A-F]{6}$/',$c))throw new RuntimeException('Project accent color must be a 6-digit hex color');else $data['brand_accent_color']=$c;}
   if(array_key_exists('social_color',$incoming)){$c=strtoupper(trim((string)$incoming['social_color']));if(!preg_match('/^#[0-9A-F]{6}$/',$c))throw new RuntimeException('Project social color must be a 6-digit hex color');$data['social_color']=$c;}
+  elseif($primaryProvided&&isset($data['brand_primary_color']))$data['social_color']=$data['brand_primary_color'];
   if(array_key_exists('theme',$incoming)){$theme=preg_replace('/[^a-zA-Z0-9_.-]/','',loom_clean_project_text($incoming['theme'],60));$data['theme']=$theme!==''?$theme:'default';}
   $effective=loom_project_effective_data($slug);
   $branding=is_array($data['branding']??null)?$data['branding']:[];
