@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.16 revision=20 policy=package-priority
+// @loom-file release=0.15.17 revision=22 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -134,10 +134,22 @@ function loom_project_brand_identity(string $project): array {
   ];
 }
 function loom_project_legacy_action_manifest(string $project,string $actionId): ?array {
-  $dir=project_dir($project);if(!$dir)return null;$root=$dir.'/actions';if(!is_dir($root))return null;
-  $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
-  foreach($it as $file){if(!$file->isFile()||strtolower($file->getFilename())!=='manifest.json')continue;$m=read_json_file($file->getPathname());if($m&&(string)($m['action']['id']??'')===$actionId)return $m;}
-  return null;
+  $slug=safe_slug($project);if($slug===''||$actionId==='')return null;
+  if(!isset($GLOBALS['loom_project_legacy_manifest_cache'])||!is_array($GLOBALS['loom_project_legacy_manifest_cache']))$GLOBALS['loom_project_legacy_manifest_cache']=[];
+  $cache=&$GLOBALS['loom_project_legacy_manifest_cache'];
+  if(!array_key_exists($slug,$cache)){
+    $map=[];$dir=project_dir($slug);$root=$dir?$dir.'/actions':'';
+    if($root!==''&&is_dir($root)){
+      $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
+      foreach($it as $file){
+        if(!$file->isFile()||strtolower($file->getFilename())!=='manifest.json')continue;
+        $m=read_json_file($file->getPathname());$id=is_array($m)?(string)($m['action']['id']??''):'';
+        if($id!==''&&!array_key_exists($id,$map))$map[$id]=$m;
+      }
+    }
+    $cache[$slug]=$map;
+  }
+  $hit=$cache[$slug][$actionId]??null;return is_array($hit)?$hit:null;
 }
 function loom_project_core_manifest_for_project(string $project,array $manifest): array {
   $id=(string)($manifest['action']['id']??'');if($id==='')return $manifest;
@@ -184,6 +196,11 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
   if($id==='loom.showcase'){
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
     $cfg['projectPrimary']=$theme['primary'];$cfg['projectAccent']=$theme['accent'];$cfg['projectThemeProvided']=$theme['provided'];
+    $manifest['config']=$cfg;
+  }
+  if($id==='loom.social-links'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$data=loom_project_effective_data($project);
+    $cfg['projectColor']=loom_brand_hex($data['social_color']??null,$brand['primary']);
     $manifest['config']=$cfg;
   }
   if($id==='core.ui.loader'){
@@ -665,10 +682,26 @@ function loom_project_base_data(string $project): array {
 function loom_project_override_data(string $project): array {
   $x=read_json_file(loom_project_override_file($project));return is_array($x)?$x:[];
 }
+function loom_project_effective_cache_forget(string $project): void {
+  $slug=safe_slug($project);if($slug==='')return;
+  if(isset($GLOBALS['loom_project_effective_cache'])&&is_array($GLOBALS['loom_project_effective_cache']))unset($GLOBALS['loom_project_effective_cache'][$slug]);
+}
 function loom_project_effective_data(string $project): array {
-  $base=loom_project_base_data($project);
-  $override=loom_project_override_data($project);
-  return array_replace_recursive($base,$override);
+  $slug=safe_slug($project);if($slug==='')return [];
+  if(!isset($GLOBALS['loom_project_effective_cache'])||!is_array($GLOBALS['loom_project_effective_cache']))$GLOBALS['loom_project_effective_cache']=[];
+  $cache=&$GLOBALS['loom_project_effective_cache'];$baseFile=loom_project_base_file($slug);$overrideFile=loom_project_override_file($slug);
+  clearstatcache(true,$baseFile?:'');clearstatcache(true,$overrideFile);
+  $sig=($baseFile&&is_file($baseFile)?((string)@filemtime($baseFile).':'.(string)@filesize($baseFile)):'0').':'.(is_file($overrideFile)?((string)@filemtime($overrideFile).':'.(string)@filesize($overrideFile)):'0');
+  if(isset($cache[$slug])&&($cache[$slug]['sig']??null)===$sig)return $cache[$slug]['data'];
+  $base=$baseFile?(read_json_file($baseFile)?:[]):[];$override=is_file($overrideFile)?(read_json_file($overrideFile)?:[]):[];
+  $data=array_replace_recursive($base,$override);$cache[$slug]=['sig'=>$sig,'data'=>$data];return $data;
+}
+function loom_project_fallback_bio_from_data(array $data,string $slug=''): string {
+  $name=loom_clean_project_text($data['name']??humanize_project_slug($slug),140);if($name==='')$name=humanize_project_slug($slug)?:'This project';
+  return $name.' is powered by LOOM.';
+}
+function loom_project_effective_bio(string $project): string {
+  $slug=safe_slug($project);$data=loom_project_effective_data($slug);$raw=trim((string)($data['bio']??''));return $raw!==''?$raw:loom_project_fallback_bio_from_data($data,$slug);
 }
 function loom_project_overlay_asset(string $project,string $relative): ?string {
   $relative=ltrim(str_replace('\\','/',$relative),'/');
@@ -690,18 +723,22 @@ function loom_project_asset_url(string $project,string $relative): ?string {
   $prefix=rtrim((string)realpath($dir),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
   return ($candidate&&is_file($candidate)&&str_starts_with($candidate,$prefix))?versioned_rel_url($candidate):null;
 }
+function loom_default_project_logo_url(): ?string {
+  $file=root_dir().'/assets/loom-logo.png';return is_file($file)?versioned_rel_url($file):null;
+}
 function loom_project_profile_payload(string $project): ?array {
   $slug=safe_slug($project);$dir=project_dir($slug);if(!$dir)return null;
   $data=loom_project_effective_data($slug);$branding=is_array($data['branding']??null)?$data['branding']:[];
   $asset=ltrim(str_replace('\\','/',(string)($branding['logo_asset']??'assets/logo.png')),'/');
-  $logoUrl=$asset!==''&&!str_contains($asset,'..')?loom_project_asset_url($slug,$asset):null;
-  $wordmark=loom_project_brand_identity($slug);
+  $logoUrl=$asset!==''&&!str_contains($asset,'..')?loom_project_asset_url($slug,$asset):null;$logoIsLoomDefault=false;
+  if(!$logoUrl){$logoUrl=loom_default_project_logo_url();$logoIsLoomDefault=$logoUrl!==null;}
+  $wordmark=loom_project_brand_identity($slug);$rawBio=trim((string)($data['bio']??''));$effectiveBio=$rawBio!==''?$rawBio:loom_project_fallback_bio_from_data($data,$slug);
   return [
     'slug'=>$slug,
     'name'=>(string)($data['name']??humanize_project_slug($slug)),
     'tagline'=>(string)($data['tagline']??''),
     'description'=>(string)($data['description']??''),
-    'bio'=>(string)($data['bio']??''),
+    'bio'=>$effectiveBio,'bio_custom'=>$rawBio,'bio_is_fallback'=>$rawBio==='',
     'theme'=>(string)($data['theme']??'default'),
     'version'=>(string)($data['version']??'0.1.0'),
     'engine'=>(string)($data['engine']??'LOOM'),
@@ -712,7 +749,7 @@ function loom_project_profile_payload(string $project): ?array {
     'branding'=>[
       'logo_asset'=>$asset?:'assets/logo.png',
       'logo_alt'=>(string)($branding['logo_alt']??($data['name']??humanize_project_slug($slug))),
-      'logo_url'=>$logoUrl
+      'logo_url'=>$logoUrl,'logo_is_loom_default'=>$logoIsLoomDefault
     ]
   ];
 }
@@ -750,6 +787,7 @@ function loom_write_project_profile(string $project,array $incoming): array {
   $file=loom_project_override_file($slug);ensure_dir(dirname($file));
   $json=json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
   if($json===false||@file_put_contents($file,$json."\n",LOCK_EX)===false)throw new RuntimeException('Could not save project profile overrides');
+  loom_project_effective_cache_forget($slug);
   return loom_project_profile_payload($slug)?:[];
 }
 function loom_decode_png_payload(string $payload): string {
@@ -771,6 +809,7 @@ function loom_save_project_logo(string $project,string $pngPayload): array {
   $data['branding']=$branding;$data['updated_at']=server_timestamp();
   $file=loom_project_override_file($slug);ensure_dir(dirname($file));
   @file_put_contents($file,json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n",LOCK_EX);
+  loom_project_effective_cache_forget($slug);
   return loom_project_profile_payload($slug)?:[];
 }
 

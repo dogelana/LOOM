@@ -1,5 +1,9 @@
-<!-- @loom-file release=0.15.16 revision=28 policy=package-priority -->
+<!-- @loom-file release=0.15.17 revision=29 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
+
+## v0.15.17 — Non-blocking project boot + live identity defaults
+
+Project identity is cheap to resolve and remains canonical. Broad project discovery and user analytics must not sit on the critical module-activation path. Project-facing fallback copy is derived at read time from canonical identity, so renames propagate without copying text into modules. A missing project logo resolves to the static LOOM logo; explicit project assets always win.
 
 ## v0.15.16 — Project-first theming + canonical Admin chrome
 

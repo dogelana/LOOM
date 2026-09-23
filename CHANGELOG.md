@@ -1,3 +1,14 @@
+# LOOM Changelog
+
+## v0.15.17 — Fast project boot + live project identity defaults
+
+- Removed the Social Links startup dependency on a full `projects.php` request. Project social color is now injected into the module configuration by LOOM, so projects with many links no longer hold the bootstrap loader on **Preparing Social Links**.
+- Reworked `projects.php` for fast project-card loading: optional single-project queries, no recursive action-tree scan for every logo, one release-version lookup per request, and request-local project-profile caching.
+- Hardened `user-profile.php` against 503/timeouts by streaming telemetry logs instead of loading them into memory, eliminating the second analytics scan, and caching analytics snapshots for 60 seconds. Updated profile clients mount from a lightweight identity response first and hydrate analytics in the background.
+- Blank project bios now resolve live to **`<Project Name> is powered by LOOM.`**. The generated fallback follows project renames automatically while explicitly written bios remain untouched.
+- Showcase now requests only its current project and continues to render its title from the canonical live project name rather than a copied Showcase title.
+- New baseline projects now receive the static LOOM logo as their actual default `assets/logo.png`. Existing projects with no logo also fall back to the static LOOM logo, contained and centered in project branding slots instead of showing the small star fallback.
+
 # LOOM 0.15.16 - Project Theme Inheritance + Shared Admin Chrome
 
 - Project Identity colors now seed the project page background, highlight/edge tones, text/accent/muted tokens, borders, shared surfaces, module-frame headings, header background, and project-facing footer surfaces. Per-module Admin overrides still win.

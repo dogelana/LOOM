@@ -1760,7 +1760,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "2.5.0",
+        "version": "2.5.2",
         "dependencies": [],
         "styles": [],
         "order": "00010"
@@ -1779,7 +1779,7 @@
         }
       },
       "config": {
-        "refreshMs": 10000,
+        "refreshMs": 60000,
         "maxRecentSessions": 8,
         "title": "Your Profile"
       },

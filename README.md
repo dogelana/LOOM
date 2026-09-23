@@ -1,3 +1,7 @@
+## v0.15.17 - Faster Boot + Live Project Identity
+
+LOOM now keeps expensive analytics and broad project discovery off the critical project-loading path. Social Links no longer waits on a full project-list request, project cards avoid recursive module scans, and user analytics are streamed/cached and hydrated after the profile UI is already usable. Blank project bios are live name-aware fallbacks, Showcase uses canonical live project identity, and the static LOOM logo is the default icon for new or logo-less projects.
+
 ## v0.15.16 - Project Theme Inheritance + Shared Admin Chrome
 
 LOOM now treats Project Identity colors as the default visual source across project-facing page backgrounds, module headers, shared surfaces, header/footer chrome, and Showcase while preserving local module overrides. Empty UI regions collapse correctly, Showcase media is transparent/contained by default, Powered by LOOM branding is fit-content by default, the Admin toolbar is canonical across LOOM pages, and generated usernames are human-readable maker names.
@@ -28,7 +32,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.16 revision=32 policy=package-priority -->
+<!-- @loom-file release=0.15.17 revision=33 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

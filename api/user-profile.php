@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.02 revision=4 policy=package-priority
+// @loom-file release=0.15.17 revision=5 policy=package-priority
 require __DIR__.'/_common.php';
 
 function user_profiles_dir(): string { return loom_data_dir().'/users'; }
@@ -56,43 +56,46 @@ function collect_log_sources(): array {
   if(is_dir($archives))foreach(glob($archives.'/*')?:[] as $a){if(!is_dir($a))continue;$slug=basename($a);$dir=$a.'/data/logs';if(!is_dir($dir))continue;foreach(glob($dir.'/*.jsonl')?:[] as $f)$out[]=['project'=>$slug,'file'=>$f,'archived'=>true];}
   return $out;
 }
-function analytics_for_client(string $clientId,string $currentProject,string $currentSession=''): array {
-  $sessions=[];$projects=[];$allActions=[];$allDays=[];$top=[];
+function loom_user_analytics_cache_file(string $clientId,string $project): string {
+  $dir=loom_data_dir().'/cache/user-analytics';ensure_dir($dir);return $dir.'/'.hash('sha256',$clientId.'|'.$project).'.json';
+}
+function analytics_for_client_compute(string $clientId,string $currentProject,string $currentSession=''): array {
+  $sessions=[];$projects=[];$allActions=[];$allDays=[];$top=[];$currentActions=[];$currentDays=[];$currentProjects=[];
   foreach(collect_log_sources() as $source){
-    $lines=@file($source['file'],FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)?:[];
-    foreach($lines as $line){$e=json_decode($line,true);if(!is_array($e)||(string)($e['clientId']??'')!==$clientId)continue;
+    $fh=@fopen($source['file'],'rb');if(!$fh)continue;
+    while(($line=fgets($fh))!==false){$e=json_decode($line,true);if(!is_array($e)||(string)($e['clientId']??'')!==$clientId)continue;
       $project=(string)$source['project'];$session=(string)($e['sessionId']??'');if($session==='')$session='unknown';$key=$project.'|'.$session;
       if(!isset($sessions[$key]))$sessions[$key]=['project'=>$project,'sessionId'=>$session,'firstSeen'=>null,'lastSeen'=>null,'eventCount'=>0,'userActionCount'=>0,'failureCount'=>0,'status'=>'historical','archived'=>(bool)$source['archived'],'actions'=>[]];
-      $s=&$sessions[$key];$ts=event_ts($e);if($ts){$s['firstSeen']=$s['firstSeen']===null?$ts:min($s['firstSeen'],$ts);$s['lastSeen']=$s['lastSeen']===null?$ts:max($s['lastSeen'],$ts);$day=substr($ts,0,10);if($day)$allDays[$day]=true;}
-      $s['eventCount']++;
-      $aid=(string)($e['actionId']??'');if($aid!==''){$s['actions'][$aid]=true;$allActions[$aid]=true;}
-      $isUser=(($e['type']??'')==='action.state'&&($e['kind']??'')==='user'&&($e['state']??'')==='active');
-      if($isUser){$s['userActionCount']++;if($aid!=='')$top[$aid]=($top[$aid]??0)+1;}
+      $s=&$sessions[$key];$ts=event_ts($e);if($ts){$s['firstSeen']=$s['firstSeen']===null?$ts:min($s['firstSeen'],$ts);$s['lastSeen']=$s['lastSeen']===null?$ts:max($s['lastSeen'],$ts);$day=substr($ts,0,10);if($day)$allDays[$day]=true;if($project===$currentProject&&$day)$currentDays[$day]=true;}
+      $s['eventCount']++;$aid=(string)($e['actionId']??'');if($aid!==''){$s['actions'][$aid]=true;$allActions[$aid]=true;if($project===$currentProject)$currentActions[$aid]=true;}
+      $isUser=(($e['type']??'')==='action.state'&&($e['kind']??'')==='user'&&($e['state']??'')==='active');if($isUser){$s['userActionCount']++;if($aid!=='')$top[$aid]=($top[$aid]??0)+1;}
       if(($e['state']??'')==='failed'||str_contains((string)($e['type']??''),'error'))$s['failureCount']++;
-      if(($e['type']??'')==='session.end')$s['status']='closed';
-      if(($e['type']??'')==='session.stale')$s['status']='stale';
-      if(($e['type']??'')==='session.resumed')$s['status']='historical';
-      $projects[$project]=true;unset($s);
+      if(($e['type']??'')==='session.end')$s['status']='closed';if(($e['type']??'')==='session.stale')$s['status']='stale';if(($e['type']??'')==='session.resumed')$s['status']='historical';
+      $projects[$project]=true;if($project===$currentProject)$currentProjects[$project]=true;unset($s);
     }
+    fclose($fh);
   }
-  // Presence is authoritative for current active/stale state.
   $pdir=presence_dir($currentProject);
   if(is_dir($pdir))foreach(glob($pdir.'/*.json')?:[] as $f){$p=read_json_file($f);if(!$p||(string)($p['clientId']??'')!==$clientId)continue;$sid=(string)($p['sessionId']??'');if($sid==='')continue;$key=$currentProject.'|'.$sid;
     if(!isset($sessions[$key]))$sessions[$key]=['project'=>$currentProject,'sessionId'=>$sid,'firstSeen'=>$p['serverTimestamp']??null,'lastSeen'=>$p['lastHeartbeatAt']??$p['serverTimestamp']??null,'eventCount'=>0,'userActionCount'=>0,'failureCount'=>0,'status'=>'historical','archived'=>false,'actions'=>[]];
-    $sessions[$key]['status']=(($p['status']??'')==='active')?'live':(string)($p['status']??'historical');$sessions[$key]['lastSeen']=$p['lastHeartbeatAt']??$sessions[$key]['lastSeen'];$projects[$currentProject]=true;
+    $sessions[$key]['status']=(($p['status']??'')==='active')?'live':(string)($p['status']??'historical');$sessions[$key]['lastSeen']=$p['lastHeartbeatAt']??$sessions[$key]['lastSeen'];$projects[$currentProject]=true;$currentProjects[$currentProject]=true;
   }
-  $all=make_stats();$current=make_stats();$currentActions=[];$currentDays=[];$currentProjects=[];
+  $all=make_stats();$current=make_stats();
   foreach($sessions as &$s){$a=ts_epoch($s['firstSeen']);$b=ts_epoch($s['lastSeen']);$s['durationSeconds']=($a!==null&&$b!==null)?max(0,$b-$a):0;$s['uniqueActionCount']=count($s['actions']);unset($s['actions']);
     $all['sessionCount']++;$all['eventCount']+=$s['eventCount'];$all['userActionCount']+=$s['userActionCount'];$all['failureCount']+=$s['failureCount'];$all['trackedSeconds']+=$s['durationSeconds'];
     if($s['firstSeen'])$all['firstSeen']=$all['firstSeen']===null?$s['firstSeen']:min($all['firstSeen'],$s['firstSeen']);if($s['lastSeen'])$all['lastSeen']=$all['lastSeen']===null?$s['lastSeen']:max($all['lastSeen'],$s['lastSeen']);
-    if($s['project']===$currentProject){$current['sessionCount']++;$current['eventCount']+=$s['eventCount'];$current['userActionCount']+=$s['userActionCount'];$current['failureCount']+=$s['failureCount'];$current['trackedSeconds']+=$s['durationSeconds'];$currentProjects[$s['project']]=true;if($s['firstSeen']){$current['firstSeen']=$current['firstSeen']===null?$s['firstSeen']:min($current['firstSeen'],$s['firstSeen']);$currentDays[substr($s['firstSeen'],0,10)]=true;}if($s['lastSeen']){$current['lastSeen']=$current['lastSeen']===null?$s['lastSeen']:max($current['lastSeen'],$s['lastSeen']);$currentDays[substr($s['lastSeen'],0,10)]=true;}}
+    if($s['project']===$currentProject){$current['sessionCount']++;$current['eventCount']+=$s['eventCount'];$current['userActionCount']+=$s['userActionCount'];$current['failureCount']+=$s['failureCount'];$current['trackedSeconds']+=$s['durationSeconds'];if($s['firstSeen'])$current['firstSeen']=$current['firstSeen']===null?$s['firstSeen']:min($current['firstSeen'],$s['firstSeen']);if($s['lastSeen'])$current['lastSeen']=$current['lastSeen']===null?$s['lastSeen']:max($current['lastSeen'],$s['lastSeen']);}
   }unset($s);
-  foreach(collect_log_sources() as $source){if($source['project']!==$currentProject)continue;$lines=@file($source['file'],FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)?:[];foreach($lines as $line){$e=json_decode($line,true);if(!is_array($e)||(string)($e['clientId']??'')!==$clientId)continue;$aid=(string)($e['actionId']??'');if($aid!=='')$currentActions[$aid]=true;$ts=event_ts($e);if($ts)$currentDays[substr($ts,0,10)]=true;}}
   $all['projectCount']=count($projects);$all['uniqueActionCount']=count($allActions);$all['activeDays']=count($allDays);
   $current['projectCount']=count($currentProjects);$current['uniqueActionCount']=count($currentActions);$current['activeDays']=count(array_filter($currentDays,fn($k)=>$k!=='',ARRAY_FILTER_USE_KEY));
   uasort($top,fn($a,$b)=>$b<=>$a);$topRows=[];foreach(array_slice($top,0,12,true) as $id=>$count)$topRows[]=['actionId'=>$id,'count'=>$count];
   $sessionRows=array_values($sessions);usort($sessionRows,fn($a,$b)=>strcmp((string)($b['lastSeen']??''),(string)($a['lastSeen']??'')));
-  return ['currentProject'=>$current,'allLoom'=>$all,'recentSessions'=>array_slice($sessionRows,0,12),'topUserActions'=>$topRows,'currentSessionId'=>$currentSession];
+  return ['currentProject'=>$current,'allLoom'=>$all,'recentSessions'=>array_slice($sessionRows,0,12),'topUserActions'=>$topRows,'currentSessionId'=>$currentSession,'cached'=>false,'generatedAt'=>server_timestamp()];
+}
+function analytics_for_client(string $clientId,string $currentProject,string $currentSession='',bool $force=false): array {
+  $file=loom_user_analytics_cache_file($clientId,$currentProject);$ttl=60;
+  if(!$force&&is_file($file)){clearstatcache(true,$file);$age=time()-(int)@filemtime($file);if($age>=0&&$age<$ttl){$cached=read_json_file($file);if(is_array($cached)){$cached['cached']=true;return $cached;}}}
+  $data=analytics_for_client_compute($clientId,$currentProject,$currentSession);@file_put_contents($file,json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE),LOCK_EX);return $data;
 }
 
 $method=$_SERVER['REQUEST_METHOD']??'GET';
@@ -119,8 +122,11 @@ $clientId=safe_token((string)($_GET['clientId']??''));$project=safe_slug((string
 if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['error'=>'Invalid client identity'],400);
 if($project===''||!project_dir($project))json_out(['error'=>'Invalid project'],400);
 loom_capture_request_ip($clientId,$project);loom_enforce_project_access($project,$clientId);
+$forceAnalytics=((string)($_GET['analyticsFresh']??''))==='1';
+if(((string)($_GET['analyticsOnly']??''))==='1')json_out(['ok'=>true,'analytics'=>analytics_for_client($clientId,$project,$sessionId,$forceAnalytics)]);
+$light=((string)($_GET['light']??''))==='1';
 $profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,false);$profile['privilege']=$priv['privilege'];$network=loom_network_state_for_client($clientId,$project);
-$analytics=analytics_for_client($clientId,$project,$sessionId);
+$analytics=$light?['currentProject'=>make_stats(),'allLoom'=>make_stats(),'recentSessions'=>[],'topUserActions'=>[],'currentSessionId'=>$sessionId,'deferred'=>true]:analytics_for_client($clientId,$project,$sessionId,$forceAnalytics);
 $beforeCreated=(string)($profile['createdAt']??'');$beforeUpdated=(string)($profile['updatedAt']??'');
 $profile=hydrate_profile_timestamps($clientId,$profile,$analytics);
 

@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "scope": "project",
     "dependencies": [],
     "styles": [
@@ -60,7 +60,7 @@
     "orb": {
       "label": "Showcase",
       "defaultCaptured": false,
-      "defaultEmoji": "\ud83d\uddbc\ufe0f"
+      "defaultEmoji": "🖼️"
     }
   },
   "pegboard": {
@@ -79,11 +79,11 @@
         "options": [
           {
             "value": "contain",
-            "label": "Contain \u00b7 Show Full Image"
+            "label": "Contain · Show Full Image"
           },
           {
             "value": "cover",
-            "label": "Cover \u00b7 Fill / Crop"
+            "label": "Cover · Fill / Crop"
           }
         ]
       },
@@ -98,11 +98,11 @@
           },
           {
             "value": "project-accent-soft",
-            "label": "Project Accent \u00b7 Soft"
+            "label": "Project Accent · Soft"
           },
           {
             "value": "project-primary-soft",
-            "label": "Project Primary \u00b7 Soft"
+            "label": "Project Primary · Soft"
           },
           {
             "value": "page",

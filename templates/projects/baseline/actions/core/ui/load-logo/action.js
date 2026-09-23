@@ -1,4 +1,4 @@
-// @loom-file release=0.12.08 revision=3 policy=package-priority
+// @loom-file release=0.15.17 revision=4 policy=package-priority
 export async function createModule(ctx) {
   let logoWrap = null;
   let host = null;
@@ -52,8 +52,9 @@ export async function createModule(ctx) {
     async mount() {},
     async activate() {
       ctx.step('resolve-asset', 'active', { assetPath });
-      const url = await ctx.resolveAssetPath(assetPath, ctx.config.assetScope || 'project');
-      ctx.step('resolve-asset', url ? 'completed' : 'failed', { resolvedUrl:url, serverResolved:!!url, assetPath });
+      let url = await ctx.resolveAssetPath(assetPath, ctx.config.assetScope || 'project');
+      let usingLoomDefault=false;if(!url){url=new URL('../../../assets/loom-logo.png',location.href).href;usingLoomDefault=true;}
+      ctx.step('resolve-asset','completed',{resolvedUrl:url,serverResolved:!usingLoomDefault,usingLoomDefault,assetPath});
 
       ctx.step('create-element', 'active');
       logoWrap = document.createElement('div');
@@ -110,7 +111,8 @@ export async function createModule(ctx) {
       await ctx.log('logo.mounted', {
         assetPath,
         resolvedUrl:url,
-        explicitPath:true,
+        explicitPath:!usingLoomDefault,
+        usingLoomDefault,
         shineEnabled:ctx.config.shineEnabled !== false,
         shineMask:'image-alpha',
         presentation:ctx.presentation

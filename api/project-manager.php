@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.08 revision=6 policy=package-priority
+// @loom-file release=0.15.17 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 if(!loom_request_is_admin())json_out(['ok'=>false,'error'=>'admin-access-required'],403);
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
@@ -17,7 +17,7 @@ if($action==='create'){
   if(!install_project_template('baseline',$slug))json_out(['ok'=>false,'error'=>'baseline-template-install-failed'],500);
   $dir=project_dir($slug);if(!$dir)json_out(['ok'=>false,'error'=>'project-create-verification-failed'],500);
   $file=$dir.'/project.default.json';$data=read_json_file($file)?:[];$data['slug']=$slug;$data['project_generation']='instance-baseline-v1';$data['engine_version']=loom_release_version();
-  @file_put_contents($file,json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n",LOCK_EX);
+  @file_put_contents($file,json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n",LOCK_EX);loom_project_effective_cache_forget($slug);
   $fallbackFile=$dir.'/registry.fallback.json';$fallback=read_json_file($fallbackFile);if(is_array($fallback)){
     $fallback['project']=$slug;
     $rewrite=function(mixed $value)use($slug,&$rewrite): mixed {

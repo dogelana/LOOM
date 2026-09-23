@@ -1,4 +1,4 @@
-// @loom-file release=0.15.16 revision=2 policy=package-priority
+// @loom-file release=0.15.17 revision=3 policy=package-priority
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function cleanBio(v){return String(v??'').trim().slice(0,1800)}
 function hex(v,f){const s=String(v||'').trim();return /^#[0-9a-f]{6}$/i.test(s)?s.toUpperCase():f}
@@ -7,10 +7,10 @@ export function createModule(ctx){
   let root=null,project=null;
   async function loadProject(){
     try{
-      const q=new URLSearchParams({_ : Date.now().toString()});
+      const q=new URLSearchParams({project:ctx.project,_:Date.now().toString()});
       if(ctx.identity?.clientId)q.set('clientId',ctx.identity.clientId);
       const r=await ctx.fetchApi(`projects.php?${q.toString()}`,{cache:'no-store'}),j=await r.json();
-      if(r.ok)project=(j.projects||[]).find(p=>p.slug===ctx.project)||null;
+      if(r.ok)project=(j.projects||[])[0]||null;
     }catch{project=null}
   }
   function imageUrl(){
@@ -19,7 +19,7 @@ export function createModule(ctx){
     const q=new URLSearchParams({project:ctx.project,path:asset,v:String(ctx.config?.imageVersion||Date.now())});
     return ctx.apiUrl(`project-asset.php?${q.toString()}`);
   }
-  function effectiveBio(){return ctx.config?.bioMode==='custom'?cleanBio(ctx.config?.bioOverride):cleanBio(project?.bio)}
+  function effectiveBio(){if(ctx.config?.bioMode==='custom')return cleanBio(ctx.config?.bioOverride);const live=cleanBio(project?.bio);return live||`${cleanBio(project?.name||ctx.project||'This project')} is powered by LOOM.`}
   function mediaBackground(){
     const mode=String(ctx.config?.imageBackgroundMode||'transparent');
     const primary=hex(ctx.config?.projectPrimary,'#111111'),accent=hex(ctx.config?.projectAccent,'#168346');
