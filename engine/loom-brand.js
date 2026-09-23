@@ -1,6 +1,9 @@
-// @loom-file release=0.15.00 revision=10 policy=package-priority
+// @loom-file release=0.15.03 revision=11 policy=package-priority
 (()=>{
-  const VERSION=String(window.LoomConfig?.engineVersion||'unknown');
+  const CLIENT_RELEASE='0.15.03';
+  const VERSION=String(window.LoomConfig?.engineVersion||CLIENT_RELEASE);
+  const BRAND_SCRIPT_URL=(()=>{try{return new URL(document.currentScript?.src||'engine/loom-brand.js',location.href)}catch{return null}})();
+  const BRAND_API_BASE=(()=>{try{return new URL('../api/',BRAND_SCRIPT_URL||location.href).href.replace(/\/$/,'')}catch{return 'api'}})();
   const HERO_X=-35.26438968,HERO_Y=315,HOLD_MS=3000,SPIN_MS=7000,LOOP_MS=10000;
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
   const motionState=ms=>{const c=Math.max(0,Math.min(LOOP_MS,ms));if(c<HOLD_MS)return{active:false,p:0,e:0,env:0,env2:0,fluid:0,fluid2:0,fluid3:0,whip:0};const p=Math.min(1,(c-HOLD_MS)/SPIN_MS),e=ease(p),env=Math.sin(Math.PI*p);return{active:true,p,e,env,env2:env*env,fluid:Math.sin(2*Math.PI*p),fluid2:Math.sin(4*Math.PI*p),fluid3:Math.cos(2*Math.PI*p),whip:env*(1-p)}};
@@ -24,6 +27,7 @@
     .loom-cube{position:relative;width:var(--loom-cube-size);height:var(--loom-cube-size);transform-style:preserve-3d;transform-origin:50% 50%;will-change:transform}
     .loom-cube-face{position:absolute;inset:0;width:var(--loom-cube-size);height:var(--loom-cube-size);background:var(--loom-cube-face,#fff);backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d;overflow:visible;box-shadow:inset 0 0 0 1px rgba(0,0,0,.025)}
     .loom-cube-face svg{display:block;width:100%;height:100%;shape-rendering:crispEdges;overflow:visible}.loom-cube-front{transform:translateZ(var(--loom-cube-half))}.loom-cube-back{transform:rotateY(180deg) translateZ(var(--loom-cube-half))}.loom-cube-right{transform:rotateY(90deg) translateZ(var(--loom-cube-half))}.loom-cube-left{transform:rotateY(-90deg) translateZ(var(--loom-cube-half))}.loom-cube-top{transform:rotateX(90deg) translateZ(var(--loom-cube-half))}.loom-cube-bottom{transform:rotateX(-90deg) translateZ(var(--loom-cube-half))}.loom-cube-mirror-x{transform:scaleX(-1);transform-origin:50% 50%}.loom-cube-mirror-y{transform:scaleY(-1);transform-origin:50% 50%}
+    .loom-release-refresh{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:rgba(244,249,245,.92);backdrop-filter:blur(16px) saturate(125%);-webkit-backdrop-filter:blur(16px) saturate(125%);font-family:Inter,system-ui,sans-serif}.loom-release-refresh-card{width:min(430px,calc(100% - 32px));padding:24px 26px;border:1px solid #cfe0d3;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 28px 80px rgba(19,63,31,.16);text-align:center;color:#173722}.loom-release-refresh-mark{font-size:28px;line-height:1;margin-bottom:9px}.loom-release-refresh-card strong{display:block;font-size:16px;letter-spacing:-.02em}.loom-release-refresh-card span{display:block;margin-top:7px;font-size:11px;line-height:1.55;color:#66766c}.loom-release-refresh-fallback{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147482999;max-width:min(650px,calc(100% - 24px));padding:10px 14px;border:1px solid #dfd39c;border-radius:12px;background:#fff9df;color:#5d4c11;font:800 10px/1.45 Inter,system-ui;box-shadow:0 12px 35px rgba(62,48,4,.14)}
     .loom-powered{display:inline-flex;align-items:center;gap:7px;color:inherit}.loom-powered img{width:18px;height:18px;object-fit:contain}.loom-brand-version{font:850 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
     .loom-shell-chrome-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px max(16px,calc((100vw - 1240px)/2));border-bottom:1px solid rgba(194,214,199,.78);background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(248,252,249,.88));backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);position:relative;z-index:500;box-sizing:border-box;box-shadow:0 10px 34px rgba(21,63,32,.06),inset 0 1px rgba(255,255,255,.9)}
     .loom-shell-chrome-brand{display:flex;align-items:center;gap:11px;min-width:0}.loom-shell-chrome-cube{width:58px;height:58px;flex:0 0 58px;display:grid;place-items:center;padding:11px;overflow:hidden;border:1px solid rgba(201,218,205,.72);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(243,249,245,.88));box-shadow:0 8px 24px rgba(22,68,35,.07),inset 0 1px #fff}.loom-shell-chrome-text{min-width:0}.loom-shell-chrome-title{font:950 13px/1.05 Inter,system-ui;color:#183522;letter-spacing:-.018em}.loom-shell-chrome-sub{margin-top:4px;font:800 9px/1.1 Inter,system-ui;color:#77867c;letter-spacing:.08em;text-transform:uppercase}
@@ -38,9 +42,79 @@
   function cubeMarkup(){return `<div class="loom-cube" aria-hidden="true">${face('loom-cube-front',lo)}${face('loom-cube-back',lo,'loom-cube-mirror-x')}${face('loom-cube-right',mm)}${face('loom-cube-left',mm,'loom-cube-mirror-x')}${face('loom-cube-top',`<g transform="rotate(90 2.5 2.5)">${lo}</g>`)}${face('loom-cube-bottom',`<g transform="rotate(90 2.5 2.5)">${lo}</g>`,'loom-cube-mirror-y')}</div>`}
 
   function mountCube(host,opts={}){injectStyle();if(!host)return()=>{};const size=Math.max(24,Number(opts.size||96)),path=String(opts.path||'hero-orbit'),speed=Math.max(.1,Number(opts.speed||1)),animate=opts.animate!==false&&!matchMedia('(prefers-reduced-motion: reduce)').matches;host.classList.add('loom-cube-host');if(opts.sizeHost===true)host.classList.add('loom-cube-host-size-to-content');else host.classList.remove('loom-cube-host-size-to-content');host.style.setProperty('--loom-cube-size',`${size}px`);host.style.color=opts.color||'#050505';host.style.setProperty('--loom-cube-face',opts.faceColor||'#fff');host.innerHTML=cubeMarkup();const cube=host.querySelector('.loom-cube');let raf=0,start=performance.now();const p=preset(path);function frame(now){const t=((now-start)*speed)%LOOP_MS,q=p.pose(t);cube.style.transform=`rotateX(${q.rx}deg) rotateY(${q.ry}deg) rotateZ(${q.rz}deg) scale3d(${q.sx},${q.sy},${q.sz})`;raf=requestAnimationFrame(frame)}if(animate)raf=requestAnimationFrame(frame);else{const q=p.pose(0);cube.style.transform=`rotateX(${q.rx}deg) rotateY(${q.ry}deg) rotateZ(${q.rz}deg)`}return()=>{if(raf)cancelAnimationFrame(raf);host.innerHTML='';host.classList.remove('loom-cube-host');host.classList.remove('loom-cube-host-size-to-content')}}
-  async function fetchSettings(apiBase='api'){try{const base=String(apiBase||'api').replace(/\/$/,'');const r=await fetch(`${base}/global-settings.php?_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw 0;return await r.json()}catch{return{ok:false,settings:{'loom.brand.motion':{animationPath:'hero-orbit',animationSpeedPercent:100,animationEnabled:'on'},'loom.loader.experience':{showTips:'on',tipIntervalSeconds:4,minimumVisibleMs:320},'loom.home.update-log':{maxReleases:12,expandedReleases:1}}}}}
+  async function fetchSettings(apiBase='api'){try{const base=String(apiBase||'api').replace(/\/$/,'');const r=await fetch(`${base}/global-settings.php?_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw 0;return await r.json()}catch{return{ok:false,settings:{'loom.brand.motion':{animationPath:'hero-orbit',animationSpeedPercent:100,animationEnabled:'on'},'loom.loader.experience':{showTips:'on',tipIntervalSeconds:4,minimumVisibleMs:320},'loom.release.watch':{autoReload:'on',pollSeconds:8,noticeMs:1200},'loom.home.update-log':{maxReleases:12,expandedReleases:1}}}}}
   async function fetchRelease(apiBase='api'){try{const base=String(apiBase||'api').replace(/\/$/,'');const r=await fetch(`${base}/version.php?_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw 0;return await r.json()}catch{return{ok:false,canonicalVersion:VERSION,health:{status:'unknown'}}}}
   function brandConfig(data){const x=data?.settings?.['loom.brand.motion']||{},enabled=data?.moduleStates?.['loom.brand.motion']?.enabled!==false;return{path:x.animationPath||'hero-orbit',speed:Math.max(.1,Number(x.animationSpeedPercent||100)/100),animate:enabled&&x.animationEnabled!=='off'}}
+
+
+  function numericVersion(v){return String(v||'').split(/[.+-]/).slice(0,3).map(x=>Number.parseInt(x,10)||0)}
+  function compareVersions(a,b){const aa=numericVersion(a),bb=numericVersion(b);for(let i=0;i<3;i++){if(aa[i]>bb[i])return 1;if(aa[i]<bb[i])return -1}return 0}
+  function releaseFingerprint(payload){return String(payload?.deploymentFingerprint||`${payload?.canonicalVersion||''}|${payload?.health?.manifestUpdatedAt||''}`)}
+  function releaseWatchConfig(settings){
+    const enabled=settings?.moduleStates?.['loom.release.watch']?.enabled!==false;
+    const cfg=settings?.settings?.['loom.release.watch']||{};
+    return{enabled,autoReload:cfg.autoReload!=='off',pollSeconds:Math.max(4,Math.min(60,Number(cfg.pollSeconds||8))),noticeMs:Math.max(500,Math.min(5000,Number(cfg.noticeMs||1200)))};
+  }
+  function releaseIsHealthy(payload){return !!(payload?.ok&&payload?.deploymentComplete&&payload?.canonicalVersion&&payload?.health?.status==='healthy')}
+  async function fetchReleaseWatch(){
+    try{const r=await fetch(`${BRAND_API_BASE}/version.php?watch=${Date.now()}`,{cache:'no-store',headers:{'Accept':'application/json'}});if(!r.ok)throw 0;return await r.json()}catch{return null}
+  }
+  function showReleaseFallback(version){
+    if(document.getElementById('loom-release-refresh-fallback'))return;
+    const el=document.createElement('div');el.id='loom-release-refresh-fallback';el.className='loom-release-refresh-fallback';el.textContent=`LOOM v${version||'new'} is available. Automatic refresh was paused to avoid a reload loop; refresh this page manually.`;document.body?.appendChild(el);
+  }
+  function reloadIntoRelease(payload,cfg){
+    if(window.__loomReleaseReloading)return;
+    window.__loomReleaseReloading=true;
+    const fp=releaseFingerprint(payload),version=String(payload?.canonicalVersion||'new');
+    try{
+      const prior=JSON.parse(sessionStorage.getItem('loom:last-release-reload')||'null');
+      if(prior?.fingerprint===fp&&Date.now()-Number(prior.at||0)<90000){window.__loomReleaseReloading=false;showReleaseFallback(version);return}
+      sessionStorage.setItem('loom:last-release-reload',JSON.stringify({fingerprint:fp,version,at:Date.now()}));
+    }catch{}
+    injectStyle();
+    const overlay=document.createElement('div');overlay.className='loom-release-refresh';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','assertive');overlay.innerHTML=`<div class="loom-release-refresh-card"><div class="loom-release-refresh-mark">⬡</div><strong>LOOM was updated to v${String(version).replace(/[<>]/g,'')}</strong><span>The deployment finished successfully. Refreshing this open session onto the new release…</span></div>`;
+    document.body?.appendChild(overlay);
+    try{window.dispatchEvent(new CustomEvent('loom:release-will-reload',{detail:{version,fingerprint:fp}}))}catch{}
+    setTimeout(()=>{
+      const u=new URL(location.href);u.searchParams.set('_loom_release',version);u.searchParams.set('_loom_reload',Date.now().toString(36));location.replace(u.href)
+    },cfg.noticeMs);
+  }
+  async function startReleaseWatch(){
+    if(window.__loomReleaseWatchStarted)return;
+    window.__loomReleaseWatchStarted=true;
+    let settings=await fetchSettings(BRAND_API_BASE),cfg=releaseWatchConfig(settings);
+    if(!cfg.enabled||!cfg.autoReload)return;
+    let baselineFingerprint=null,baselineVersion=null,confirmingFingerprint=null,timer=null;
+    const isChange=(payload)=>{
+      if(!releaseIsHealthy(payload))return false;
+      const server=String(payload.canonicalVersion||''),fp=releaseFingerprint(payload);
+      if(compareVersions(server,CLIENT_RELEASE)>0)return true;
+      if(compareVersions(server,CLIENT_RELEASE)<0)return false; // client file can arrive before the manifest commit
+      return !!(baselineFingerprint&&fp&&fp!==baselineFingerprint);
+    };
+    const verifyAndReload=async(expectedFp)=>{
+      await new Promise(r=>setTimeout(r,1800));
+      const again=await fetchReleaseWatch();
+      confirmingFingerprint=null;
+      if(!releaseIsHealthy(again))return;
+      const fp=releaseFingerprint(again);
+      if(fp!==expectedFp||!isChange(again))return;
+      reloadIntoRelease(again,cfg);
+    };
+    const check=async()=>{
+      const payload=await fetchReleaseWatch();
+      if(!releaseIsHealthy(payload))return;
+      const fp=releaseFingerprint(payload),server=String(payload.canonicalVersion||'');
+      if(baselineFingerprint===null){baselineFingerprint=fp;baselineVersion=server;if(compareVersions(server,CLIENT_RELEASE)>0&&!confirmingFingerprint){confirmingFingerprint=fp;verifyAndReload(fp)}return}
+      if(isChange(payload)&&confirmingFingerprint!==fp){confirmingFingerprint=fp;verifyAndReload(fp)}
+    };
+    await check();
+    timer=setInterval(check,cfg.pollSeconds*1000);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});
+    window.addEventListener('focus',check);
+    window.addEventListener('beforeunload',()=>{if(timer)clearInterval(timer)},{once:true});
+  }
 
   async function mountShellHeader(host,opts={}){
     injectStyle();if(!host)return()=>{};
@@ -70,8 +144,10 @@
 
   window.LoomBrand=Object.freeze({
     version:VERSION,
+    clientRelease:CLIENT_RELEASE,
     motionPresets:PRESETS.map(({id,name})=>({id,name})),
-    mountCube,fetchSettings,fetchRelease,brandConfig,mountShellHeader,mountShellFooter,
+    mountCube,fetchSettings,fetchRelease,brandConfig,mountShellHeader,mountShellFooter,startReleaseWatch,
     staticLogoUrl:'assets/loom-logo.png'
   });
+  Promise.resolve().then(startReleaseWatch).catch(()=>{});
 })();

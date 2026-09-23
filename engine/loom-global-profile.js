@@ -1,4 +1,4 @@
-// @loom-file release=0.12.08 revision=2 policy=package-priority
+// @loom-file release=0.15.02 revision=3 policy=package-priority
 (() => {
   'use strict';
 
@@ -22,7 +22,7 @@
     s.dataset.loomGlobalProfile='1';
     s.textContent=`
       .loom-global-profile-button{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #d8e5da;border-radius:9px;background:#fff;color:#345c40;font:900 10px/1 Inter,system-ui;cursor:pointer}
-      .loom-global-profile-button:hover{background:#f3faf5}.loom-global-profile-button .pic{font-size:15px}
+      .loom-global-profile-button:hover{background:#f3faf5}.loom-global-profile-button .pic{font-size:15px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
       .loom-global-profile-overlay{position:fixed;inset:0;z-index:20000;display:none;place-items:center;padding:18px;background:rgba(8,27,14,.57);backdrop-filter:blur(10px)}
       .loom-global-profile-overlay.open{display:grid}
       .loom-global-profile-dialog{width:min(880px,100%);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;border:1px solid #d9e6dc;border-radius:28px;background:#f7faf7;box-shadow:0 32px 110px rgba(9,38,17,.28)}

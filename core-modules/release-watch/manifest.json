@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "loom.release.watch",
+    "name": "Live Release Reload",
+    "description": "Detects completed LOOM deployments and refreshes connected browser sessions onto the newly committed release.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/deployment"
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00030"
+  },
+  "config": {
+    "autoReload": "on",
+    "pollSeconds": 8,
+    "noticeMs": 1200
+  },
+  "admin_settings": {
+    "title": "Live Release Reload",
+    "description": "Keeps open LOOM browser sessions on the current completed deployment. The deployment manifest remains the commit marker, so clients never refresh merely because one release file arrived early.",
+    "fields": [
+      {
+        "id": "autoReload",
+        "label": "Automatic browser refresh",
+        "type": "select",
+        "options": [
+          {
+            "value": "on",
+            "label": "On · refresh connected sessions"
+          },
+          {
+            "value": "off",
+            "label": "Off · do not auto-refresh"
+          }
+        ]
+      },
+      {
+        "id": "pollSeconds",
+        "label": "Release check interval",
+        "type": "range",
+        "min": 4,
+        "max": 60,
+        "step": 1,
+        "unit": "s"
+      },
+      {
+        "id": "noticeMs",
+        "label": "Refresh notice duration",
+        "type": "range",
+        "min": 500,
+        "max": 5000,
+        "step": 100,
+        "unit": "ms"
+      }
+    ]
+  }
+}

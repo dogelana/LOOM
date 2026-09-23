@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.01 revision=13 policy=package-priority -->
+<!-- @loom-file release=0.15.03 revision=15 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -314,3 +314,17 @@ Manifest `enabled` is the package default. Admin enable/disable choices are inst
 ## 0.15.00 source-control boundary
 
 Git may own the replaceable release tree. Git must not own real `instance/**`. Bridge/Git deployment must preserve Instance Projects and all Instance Vault state.
+
+## v0.15.02 — First-run identity and Administrator ownership
+
+A new LOOM installation must establish human identity before exposing project Home. A browser with no guest profiles presents a first-run acknowledgement surface that explains guest-profile separation, accepts an optional initial username, and creates the first guest with the canonical LOOM default avatar. Blank usernames are resolved server-side into unique `LOOMUser-*` names.
+
+Administrator authority is an explicit ownership transition, never a side effect of reading account/profile status. The only bootstrap path is a deliberate claim through Admin status with `claim=true`. The guided `admin/setup/` surface binds that claim to the currently selected LOOM identity and, when a permanent account is authenticated, persists Admin authority onto that account.
+
+Shell navigation uses fixed semantic full-color emoji rather than font-dependent monochrome glyphs for the three common identity/navigation affordances: Home, Switch User and User Profile.
+
+## v0.15.03 — Completed-deployment client convergence
+
+LOOM clients may remain open while a release is deployed. Client convergence is therefore a platform concern rather than a deployment-transport concern. `loom.release.watch` observes only the canonical deployment commit marker: the deployment manifest fingerprint returned by `api/version.php`. Because compatible Deployer behavior commits that manifest last, clients ignore partially transferred release state and refresh only after canonical health is coherent.
+
+The release watcher lives in the shared LOOM brand/runtime surface so Home, Admin, developer surfaces and project shells participate without project-specific code. It is globally configurable and default-on. A release transition emits `loom:release-will-reload` before cache-busted navigation so stateful modules can snapshot ephemeral drafts.

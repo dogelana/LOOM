@@ -1,4 +1,4 @@
-/* @loom-file release=0.12.15 revision=3 policy=package-priority */
+/* @loom-file release=0.15.02 revision=4 policy=package-priority */
 
 .loom-profile-dock-button{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;
@@ -7,7 +7,7 @@
   cursor:pointer;box-shadow:0 4px 16px rgba(22,74,38,.05);
 }
 .loom-profile-dock-button:hover{background:#f3faf5;border-color:#bfd8c5}
-.loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px}
+.loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
 .loom-profile-dock-overlay{
   position:fixed;inset:0;z-index:10000;display:none;place-items:center;
   padding:22px;background:rgba(10,29,16,.55);backdrop-filter:blur(9px);

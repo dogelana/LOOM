@@ -1,6 +1,6 @@
 {
   "project": "baseline",
-  "generated_at": "2026-09-23T04:55:44.368134+00:00",
+  "generated_at": "2026-09-23T06:52:18.713526+00:00",
   "discovery": {
     "source": "filesystem-scan",
     "action_root": "projects/baseline/actions + core-modules(scope=project)",
@@ -235,7 +235,7 @@
         "dismissDelayMs": 80,
         "logoActionId": "core.ui.load-logo",
         "logoTextActionId": "core.ui.load-logo-text",
-        "logoFallback": "\u2726",
+        "logoFallback": "✦",
         "background": "rgba(246,250,246,.96)",
         "blurPx": 18
       },
@@ -245,7 +245,7 @@
       },
       "admin_settings": {
         "title": "Project Loader",
-        "description": "Project-specific Loader settings are system-owned. Global Loader behavior is configured under Admin \u2192 LOOM Settings.",
+        "description": "Project-specific Loader settings are system-owned. Global Loader behavior is configured under Admin → LOOM Settings.",
         "fields": []
       },
       "admin_overrides": {},
@@ -339,7 +339,7 @@
         "assetScope": "project",
         "mountSelector": "#feature-stage",
         "alt": "Project logo",
-        "fallbackMark": "\u2726",
+        "fallbackMark": "✦",
         "scalePercent": 50,
         "shineEnabled": true
       },
@@ -432,7 +432,7 @@
       },
       "config": {
         "tagline": "",
-        "titleSeparator": " \u00b7 ",
+        "titleSeparator": " · ",
         "faviconMode": "logo",
         "customFaviconPath": "assets/favicon.ico",
         "logoActionId": "core.ui.load-logo"
@@ -1551,7 +1551,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "dependencies": [],
         "styles": [
           "action.css"
@@ -1571,7 +1571,7 @@
       },
       "config": {
         "label": "User Profile",
-        "icon": "\ud83d\udc64",
+        "icon": "👤",
         "targetActionId": "core.user.profile"
       },
       "pegboard": {

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.12.11 revision=3 policy=package-priority
+// @loom-file release=0.15.02 revision=4 policy=package-priority
 require __DIR__.'/_common.php';
 
 function user_profiles_dir(): string { return loom_data_dir().'/users'; }
@@ -111,7 +111,7 @@ if($method==='POST'){
     elseif($mode==='global'){$identity=loom_project_identity_set_username_mode($project,$clientId,'global');$global=loom_global_profile_ensure($clientId);}
     else{$identity=loom_project_identity_set_username($project,$clientId,$username);$global=loom_global_profile_ensure($clientId);}
   }catch(Throwable $e){json_out(['error'=>$e->getMessage()],409);}
-  $profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,true);$profile['privilege']=$priv['privilege'];
+  $profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,false);$profile['privilege']=$priv['privilege'];
   json_out(['ok'=>true,'profile'=>$profile,'globalProfile'=>$global??loom_global_profile_ensure($clientId),'projectIdentity'=>$identity,'identities'=>loom_project_identity_list_for_client($clientId),'privilege'=>$priv,'account'=>loom_account_public_status($clientId,$project)]);
 }
 if($method!=='GET')json_out(['error'=>'GET or POST required'],405);
@@ -119,7 +119,7 @@ $clientId=safe_token((string)($_GET['clientId']??''));$project=safe_slug((string
 if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['error'=>'Invalid client identity'],400);
 if($project===''||!project_dir($project))json_out(['error'=>'Invalid project'],400);
 loom_capture_request_ip($clientId,$project);loom_enforce_project_access($project,$clientId);
-$profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,true);$profile['privilege']=$priv['privilege'];$network=loom_network_state_for_client($clientId,$project);
+$profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,false);$profile['privilege']=$priv['privilege'];$network=loom_network_state_for_client($clientId,$project);
 $analytics=analytics_for_client($clientId,$project,$sessionId);
 $beforeCreated=(string)($profile['createdAt']??'');$beforeUpdated=(string)($profile['updatedAt']??'');
 $profile=hydrate_profile_timestamps($clientId,$profile,$analytics);

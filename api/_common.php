@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.01 revision=11 policy=package-priority
+// @loom-file release=0.15.02 revision=12 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -274,7 +274,7 @@ function loom_client_is_admin(string $clientId): bool {
   }
   return false;
 }
-function loom_bootstrap_or_privilege(string $clientId,bool $allowBootstrap=true): array {
+function loom_bootstrap_or_privilege(string $clientId,bool $allowBootstrap=false): array {
   $clientId=safe_token($clientId);
   if($clientId===''||!str_starts_with($clientId,'client_'))return ['privilege'=>'User','isAdmin'=>false,'bootstrapped'=>false,'bootstrapAvailable'=>loom_admin_identity()===null];
   $state=loom_admin_identity();
@@ -285,18 +285,22 @@ function loom_bootstrap_or_privilege(string $clientId,bool $allowBootstrap=true)
     $state=loom_admin_identity(); // re-check while holding the bootstrap lock
     if(!$state){
       $token='adm_'.bin2hex(random_bytes(32));
+      $auth=function_exists('loom_auth_user')?loom_auth_user():null;
+      $authId=(string)($auth['user_id']??$auth['userId']??'');
       $state=[
         'schemaVersion'=>'1.0',
         'clientId'=>$clientId,
+        'userId'=>$authId!==''?$authId:null,
         'tokenHash'=>password_hash($token,PASSWORD_DEFAULT),
         'createdAt'=>server_timestamp(),
         'createdEpochMs'=>server_epoch_ms(),
-        'bootstrapMethod'=>'first-client'
+        'bootstrapMethod'=>'explicit-first-admin'
       ];
       loom_write_admin_identity($state);
       loom_set_admin_cookie($token);
+      if($authId!==''&&function_exists('loom_link_admin_to_user_if_applicable'))loom_link_admin_to_user_if_applicable($clientId,$authId);
       if($lock){@flock($lock,LOCK_UN);@fclose($lock);}
-      return ['privilege'=>'Admin','isAdmin'=>true,'bootstrapped'=>true];
+      return ['privilege'=>'Admin','isAdmin'=>true,'bootstrapped'=>true,'bootstrapAvailable'=>false,'linkedUserId'=>$authId!==''?$authId:null];
     }
     if($lock){@flock($lock,LOCK_UN);@fclose($lock);}
   }

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.00 revision=9 policy=package-priority
+// @loom-file release=0.15.02 revision=10 policy=package-priority
 (() => {
   'use strict';
 
@@ -36,7 +36,7 @@
       });
 
       const nav=header.querySelector('.loom-shell-chrome-links');
-      if(nav && window.LoomIdentityEntry){const switchBtn=document.createElement('button');switchBtn.type='button';switchBtn.className='loom-global-profile-button';switchBtn.innerHTML='<span class="pic" aria-hidden="true">◫</span><span>Switch User</span>';switchBtn.onclick=()=>window.LoomIdentityEntry.show?.();nav.prepend(switchBtn);}
+      if(nav && window.LoomIdentityEntry){const switchBtn=document.createElement('button');switchBtn.type='button';switchBtn.className='loom-global-profile-button';switchBtn.innerHTML='<span class="pic" aria-hidden="true">🔄</span><span>Switch User</span>';switchBtn.onclick=()=>window.LoomIdentityEntry.show?.();nav.prepend(switchBtn);}
       if(opts.profile!==false && nav && window.LoomGlobalProfile && identity){
         const btn=document.createElement('button');
         btn.type='button';

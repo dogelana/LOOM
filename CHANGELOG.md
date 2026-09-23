@@ -1,3 +1,32 @@
+# LOOM 0.15.03 - Live Release Reload
+
+- Added global `loom.release.watch` core module, enabled by default.
+- Open LOOM browser sessions now poll canonical deployment state and auto-refresh after a completed deployment.
+- `api/version.php` now exposes a deployment fingerprint derived from the committed deployment manifest.
+- Release checks require canonical health to be `healthy` and confirm a changed fingerprint before refresh.
+- Manifest-last deployment semantics prevent refreshes during partially transferred releases.
+- Same-version hot patches can trigger refresh because the watcher compares deployment fingerprints, not only version numbers.
+- Added a short full-screen LOOM update notice before refresh.
+- Refresh preserves route/query state and adds cache-bust parameters.
+- Added `loom:release-will-reload` browser event for modules that need to preserve transient draft state.
+- Added a loop guard that falls back to a manual-refresh banner if stale caches repeatedly serve old client code.
+- Admin can disable automatic refresh or tune polling/notice timing through the Live Release Reload global module.
+- Updated stale Pegboard/Action Registry cache-bust tokens to the current release.
+
+# LOOM 0.15.02 - First-Run Identity + Guided Admin Setup
+
+- Added mandatory first-guest onboarding on truly new browser installations.
+- First guest can choose an initial username or leave it blank for a unique `LOOMUser-XXXXXX` default.
+- New guest profiles use the canonical LOOM default avatar instead of synthetic preset/avatar choices.
+- Explained shared-browser guest separation and future **Switch User** guest creation before the first profile is created.
+- Removed accidental implicit Admin bootstrap from account/profile status endpoints and made bootstrap opt-in by default.
+- Added guided `/admin/setup/` ownership flow that clearly shows which LOOM identity will receive Administrator authority.
+- Explicit Admin claim now links/promotes an already signed-in permanent account immediately; a bootstrap guest can create a permanent Admin account from the setup page.
+- Fresh `/admin/` requests redirect to guided setup until the first Admin exists.
+- Replaced broken/missing shell glyphs with fixed full-color emoji: 🏠 LOOM Home, 🔄 Switch User, 👤 User Profile.
+- LOOM Home project-branding strips now use fit-content width inside each project card.
+- Profile Dock advanced to 1.0.2.
+
 # LOOM 0.15.01 - Showcase Core Module
 
 - Added `loom.showcase`, a universal project-scoped core content module.
@@ -150,7 +179,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.00 revision=16 policy=package-priority -->
+<!-- @loom-file release=0.15.03 revision=19 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

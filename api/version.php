@@ -1,10 +1,10 @@
 <?php
-// @loom-file release=0.15.01 revision=11 policy=package-priority
+// @loom-file release=0.15.03 revision=13 policy=package-priority
 require __DIR__.'/_common.php';
 
 $manifestPath=root_dir().'/.loom-deployment.json';
 $manifest=is_file($manifestPath)?read_json_file($manifestPath):[];
-$canonical=loom_release_version('0.15.01');
+$canonical=loom_release_version('0.15.03');
 
 function loom_extract_version(string $file,string $pattern): ?string {
   if(!is_file($file))return null;
@@ -15,12 +15,14 @@ function loom_extract_version(string $file,string $pattern): ?string {
 $engine=loom_extract_version(root_dir().'/engine/config.js',"/engineVersion\\s*:\\s*['\\\"]([^'\\\"]+)['\\\"]/u");
 $manifestOk=$canonical!=='';
 $engineOk=$manifestOk&&$engine===$canonical;
+$deploymentFingerprint=is_file($manifestPath)?substr((string)hash_file('sha256',$manifestPath),0,24):null;
 
 json_out([
   'ok'=>$manifestOk,
   'canonicalVersion'=>$canonical?:null,
   'source'=>'.loom-deployment.json',
   'deploymentComplete'=>$manifestOk,
+  'deploymentFingerprint'=>$deploymentFingerprint,
   'health'=>[
     'status'=>($manifestOk&&$engineOk)?'healthy':'mixed-release',
     'engineVersion'=>$engine,
