@@ -1,5 +1,9 @@
-<!-- @loom-file release=0.15.00 revision=12 policy=package-priority -->
+<!-- @loom-file release=0.15.01 revision=13 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
+
+## v0.15.01 — Showcase core module
+
+`loom.showcase` establishes a reusable project-content pattern: release-owned presentation code, project-scoped Admin configuration, canonical project-profile inheritance, and persistent uploaded media stored only beneath the Instance Vault overlay. The default summary source is the project profile `bio`; a Showcase-only override may be enabled without mutating that canonical profile, and Admin can return to inherited mode at any time.
 
 ## v0.8.1 Standard: module actions + semantic user actions + resilient presence
 

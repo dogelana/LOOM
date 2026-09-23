@@ -1,3 +1,14 @@
+# LOOM 0.15.01 - Showcase Core Module
+
+- Added `loom.showcase`, a universal project-scoped core content module.
+- Showcase displays a project image plus summary in the normal LOOM content flow.
+- Showcase follows the project's canonical LOOM bio by default, so project-profile bio edits flow through automatically.
+- Added a Showcase-only custom bio override and one-click **Use Project Bio** reset in Admin.
+- Added image drag/drop and file-picker upload in Admin.
+- Showcase images persist at `instance/projects/<project>/overlay/assets/showcase.png` and remain outside release ZIPs/Git.
+- Showcase appears in Module Control and can be enabled/disabled independently per project.
+- Clean Instance Protocol, Instance Projects, HTML Framer, Git compatibility, and explicit Admin consent remain unchanged.
+
 # LOOM 0.15.00 - Project Studio + Module Control + Git Era
 
 - Added first-class Instance Project creation from LOOM Home.

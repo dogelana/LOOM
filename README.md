@@ -1,4 +1,8 @@
-<!-- @loom-file release=0.15.00 revision=16 policy=package-priority -->
+<!-- @loom-file release=0.15.01 revision=17 policy=package-priority -->
+
+## v0.15.01 - Showcase Core Module
+
+LOOM now includes `loom.showcase`, a universal project-scoped core module for a project image and summary. Showcase follows the project's canonical LOOM bio by default, supports a project-local Showcase bio override, and provides a one-click **Use Project Bio** reset. Admin can drag/drop or upload the Showcase image; the image is stored in the persistent project overlay under `instance/**`, so release/Git updates cannot overwrite it.
 
 ## v0.15.00 - Project Studio + Module Control + Git Era
 
@@ -56,7 +60,7 @@ Release ZIPs are now code-first: live users, guest records, sessions, logs, pres
 - Header wordmark fitting no longer observes/resizes itself.
 - Logo host dimensions are CSS-responsive and stable across the mobile breakpoint.
 
-# LOOM v0.15.00 — Modular Application Engine
+# LOOM v0.15.01 — Modular Application Engine
 
 ## v0.12.13 — Clean Instance Protocol
 

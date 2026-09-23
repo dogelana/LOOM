@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.showcase",
+    "name": "Showcase",
+    "description": "LOOM project showcase card with a persistent image and project-bio-aware summary.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "loom/core/content",
+    "tags": [
+      "loom",
+      "core",
+      "project",
+      "showcase",
+      "summary",
+      "bio",
+      "image"
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00020",
+    "order_locked": true
+  },
+  "config": {
+    "bioMode": "project",
+    "bioOverride": "",
+    "hasImage": false,
+    "imageAsset": "assets/showcase.png",
+    "imageVersion": ""
+  },
+  "presentation": {
+    "role": "content",
+    "collapsible": true,
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 20
+    },
+    "orb": {
+      "label": "Showcase",
+      "defaultCaptured": false,
+      "defaultEmoji": "🖼️"
+    }
+  },
+  "pegboard": {
+    "preferredDepth": 1,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Showcase",
+    "description": "A project-facing image + summary card. The summary follows the project's canonical LOOM bio by default, or can be overridden only for Showcase. The image lives in the persistent project overlay.",
+    "fields": [],
+    "tools": [
+      {
+        "type": "showcase-manager",
+        "label": "Showcase Content"
+      }
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "loom.showcase",
+        "description": "Project showcase presentation using persistent project-owned media and profile-aware copy"
+      }
+    ],
+    "requires": [],
+    "permissions": []
+  }
+}

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.00 revision=10 policy=package-priority
+// @loom-file release=0.15.01 revision=11 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -426,6 +426,7 @@ function loom_project_overlay_asset(string $project,string $relative): ?string {
   $relative=ltrim(str_replace('\\','/',$relative),'/');
   if($relative===''||str_contains($relative,'..'))return null;
   $base=loom_project_overlay_dir($project);$candidate=$base.'/'.$relative;
+  ensure_dir(dirname($candidate));
   $parent=realpath(dirname($candidate));$realBase=realpath($base);
   if(!$parent||!$realBase||!str_starts_with($parent,$realBase))return null;
   return $candidate;

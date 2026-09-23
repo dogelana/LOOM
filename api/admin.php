@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.00 revision=6 policy=package-priority
+// @loom-file release=0.15.01 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -166,6 +166,26 @@ if($action==='project-profile-save'){
 if($action==='project-logo-upload'){
   try{$profile=loom_save_project_logo($project,(string)($body['pngBase64']??''));}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
   json_out(['ok'=>true,'message'=>'Project logo saved in persistent instance overlay','profile'=>$profile]+settings_payload($project));
+}
+
+
+if($action==='showcase-bio-save'){
+  $moduleId='loom.showcase';$mode=(string)($body['bioMode']??'project');if(!in_array($mode,['project','custom'],true))json_out(['ok'=>false,'error'=>'invalid-showcase-bio-mode'],400);
+  $bio=loom_clean_project_text((string)($body['bioOverride']??''),1800);
+  $settings=loom_read_admin_settings($project);$cur=$settings['modules'][$moduleId]??[];if(!is_array($cur))$cur=[];$cur['bioMode']=$mode;if($mode==='custom')$cur['bioOverride']=$bio;$settings['modules'][$moduleId]=$cur;loom_write_admin_settings($project,$settings);
+  json_out(['ok'=>true,'message'=>$mode==='project'?'Showcase now follows the project bio':'Custom Showcase bio saved']+settings_payload($project));
+}
+if($action==='showcase-image-upload'){
+  $moduleId='loom.showcase';
+  try{$png=loom_decode_png_payload((string)($body['pngBase64']??''));$target=loom_project_asset_target($project,'assets/showcase.png');if(@file_put_contents($target,$png,LOCK_EX)===false)throw new RuntimeException('Could not write Showcase image');}
+  catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
+  $settings=loom_read_admin_settings($project);$cur=$settings['modules'][$moduleId]??[];if(!is_array($cur))$cur=[];$cur['hasImage']=true;$cur['imageAsset']='assets/showcase.png';$cur['imageVersion']=file_cache_version($target);$settings['modules'][$moduleId]=$cur;loom_write_admin_settings($project,$settings);
+  json_out(['ok'=>true,'message'=>'Showcase image saved in persistent project overlay']+settings_payload($project));
+}
+if($action==='showcase-image-remove'){
+  $moduleId='loom.showcase';$target=loom_project_overlay_asset($project,'assets/showcase.png');if($target&&is_file($target)&&!@unlink($target))json_out(['ok'=>false,'error'=>'could-not-remove-showcase-image'],500);
+  $settings=loom_read_admin_settings($project);$cur=$settings['modules'][$moduleId]??[];if(!is_array($cur))$cur=[];$cur['hasImage']=false;$cur['imageVersion']=server_timestamp();$settings['modules'][$moduleId]=$cur;loom_write_admin_settings($project,$settings);
+  json_out(['ok'=>true,'message'=>'Showcase image removed']+settings_payload($project));
 }
 
 if($action==='favicon-upload'){
