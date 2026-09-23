@@ -1,10 +1,18 @@
+## v0.15.21 architecture note — direct Showcase branding
+
+Showcase inherits canonical Project Identity colors without automatic color transformation. Headline 1 defaults to the project primary color and Headline 2 defaults to the project accent color. Local Showcase overrides may select primary, accent, or a custom color. Legacy shifted color-mode values are compatibility aliases only and do not alter hue.
+
+## v0.15.20 architecture note — edge admin chrome + bounded concurrent boot
+
+Admin Tools are canonical shared chrome: the drawer's viewport-facing gripper is a persistent control, while project quicklinks are derived from capability-filtered canonical Admin destinations. Project/LOOM settings and delegated-access reads are request-local memoized primitives. Runtime boot treats region modules as structural dependencies, then prepares ordinary modules with bounded concurrency; remote layout hydration and cached registry/brand/admin-state revalidation stay off the critical first-paint path.
+
 ## 0.15.19 Architecture Addendum
 
 LOOM treats module presentation chrome as policy, not hardcoded UI. Global defaults are declared by `loom.module-presentation`; projects inherit or override them; individual modules may inherit or override the project. Effective policy is resolved server-side into each runtime descriptor and enforced by the runtime. Hiding a title bar removes collapse interaction to avoid invisible controls.
 
 Bootstrap loading is fail-open. Registry discovery and each module stage are bounded so a noncritical endpoint or broken module cannot indefinitely hold the application loader. Loader progress identifies the module currently starting, not the module that previously completed. Social-link canonicalization is local string/URL parsing and must never perform destination health checks during project bootstrap.
 
-Showcase is a Project Identity projection: live project name, dynamic fallback bio, project font, project colors with an optional hue offset, and a deterministic generated badge when no project Showcase image exists. Generated art is presentation-only and does not create persistent files.
+Showcase is a Project Identity projection: live project name, dynamic fallback bio, project font, project colors directly, and a deterministic generated badge when no project Showcase image exists. Generated art is presentation-only and does not create persistent files.
 
 ## 0.15.18 Architecture Addendum
 
@@ -13,7 +21,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.19 revision=31 policy=package-priority -->
+<!-- @loom-file release=0.15.21 revision=33 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

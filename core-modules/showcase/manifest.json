@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "scope": "project",
     "dependencies": [],
     "styles": [
@@ -46,9 +46,8 @@
     "projectThemeProvided": false,
     "header2": "",
     "bio2": "",
-    "hueShiftPercent": 10,
-    "header1ColorMode": "shifted-primary",
-    "header2ColorMode": "shifted-accent",
+    "header1ColorMode": "primary",
+    "header2ColorMode": "accent",
     "header1CustomColor": "#111111",
     "header2CustomColor": "#168346",
     "bio1Color": "#000000",
@@ -82,7 +81,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Showcase",
-    "description": "Project-facing showcase. Project name and primary bio stay live; optional second headline/bio, shifted branding colors, and a generated LOOM badge give every project a polished default.",
+    "description": "Project-facing showcase. Project name and primary bio stay live; optional second headline/bio, direct project branding colors, and a generated LOOM badge give every project a polished default.",
     "fields": [
       {
         "id": "header2",
@@ -99,27 +98,17 @@
         "help": "Optional second paragraph. Blank means it is not rendered."
       },
       {
-        "id": "hueShiftPercent",
-        "label": "Showcase branding hue shift",
-        "type": "range",
-        "min": 0,
-        "max": 100,
-        "step": 1,
-        "unit": "%",
-        "help": "Default 10%. Rotates project branding colors clockwise on the color wheel; 0% matches project branding exactly."
-      },
-      {
         "id": "header1ColorMode",
         "label": "Primary headline color",
         "type": "select",
         "options": [
           {
-            "value": "shifted-primary",
-            "label": "Project primary + hue shift (Default)"
+            "value": "primary",
+            "label": "Project primary (Default)"
           },
           {
-            "value": "primary",
-            "label": "Project primary exactly"
+            "value": "accent",
+            "label": "Project accent"
           },
           {
             "value": "custom",
@@ -142,12 +131,12 @@
         "type": "select",
         "options": [
           {
-            "value": "shifted-accent",
-            "label": "Project accent + hue shift (Default)"
+            "value": "accent",
+            "label": "Project accent (Default)"
           },
           {
-            "value": "accent",
-            "label": "Project accent exactly"
+            "value": "primary",
+            "label": "Project primary"
           },
           {
             "value": "custom",

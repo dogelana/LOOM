@@ -1,4 +1,4 @@
-// @loom-file release=0.15.19 revision=5 policy=package-priority
+// @loom-file release=0.15.20 revision=6 policy=package-priority
 (() => {
   'use strict';
   function normalizeProject(project) {
@@ -37,25 +37,42 @@
       this.project = normalizeProject(project);
       this.apiBase = apiBase.replace(/\/$/, '');
       this.fallbackUrl = fallbackUrl;
-      this.lastSource = 'unknown';this.cacheKey=`loom:registry-cache:${window.LoomConfig?.engineVersion||'current'}:${this.project}`;this.cachedEtag=null;
+      this.lastSource = 'unknown';this.cacheKey=`loom:registry-cache:${window.LoomConfig?.engineVersion||'current'}:${this.project}`;this.cachedEtag=null;this.revalidateInFlight=null;
     }
-    async load() {
-      const clientId=window.LoomIdentity?.get?.(this.project)?.clientId||'';
-      const liveUrl = `${this.apiBase}/modules.php?project=${encodeURIComponent(this.project)}&clientId=${encodeURIComponent(clientId)}`;
-      let cached=null;try{cached=JSON.parse(sessionStorage.getItem(this.cacheKey)||'null')}catch{}
+    _clone(data){try{return structuredClone(data)}catch{try{return JSON.parse(JSON.stringify(data))}catch{return data}}}
+    _readCache(){try{return JSON.parse(sessionStorage.getItem(this.cacheKey)||'null')}catch{return null}}
+    _writeCache(etag,data){try{sessionStorage.setItem(this.cacheKey,JSON.stringify({etag,data,storedAt:Date.now()}))}catch{}}
+    async _fetchLive(liveUrl,cached=null){
       const headers={};if(cached?.etag)headers['If-None-Match']=cached.etag;
-      try {
-        const controller=new AbortController();
-        const timer=setTimeout(()=>controller.abort('registry-timeout'),8000);
-        let response;
-        try{response=await fetch(liveUrl,{cache:'no-cache',headers,signal:controller.signal})}finally{clearTimeout(timer)}
-        if(response.status===304&&cached?.data){this.lastSource='validated-session-cache';return normalizeAndSortRegistry(cached.data)}
+      const controller=typeof AbortController!=='undefined'?new AbortController():null;
+      const timeout=Math.max(1500,Number(window.LoomConfig?.performance?.registryFetchTimeoutMs||5000));
+      const timer=controller?setTimeout(()=>controller.abort('registry-timeout'),timeout):null;
+      try{
+        const response=await fetch(liveUrl,{cache:'no-cache',headers,...(controller?{signal:controller.signal}:{})});
+        if(response.status===304&&cached?.data){cached.storedAt=Date.now();this._writeCache(cached.etag,cached.data);return {data:this._clone(cached.data),source:'validated-session-cache'}}
         if(!response.ok){const err=new Error(`${response.status} ${response.statusText}`);err.status=response.status;throw err}
         const data=await response.json();if(!data||!Array.isArray(data.modules))throw new Error('Invalid module registry payload');
-        const etag=response.headers.get('ETag')||data.registry_etag||null;try{sessionStorage.setItem(this.cacheKey,JSON.stringify({etag,data,storedAt:Date.now()}))}catch{}
-        this.lastSource='live-server-scan';return normalizeAndSortRegistry(data);
+        const etag=response.headers.get('ETag')||data.registry_etag||null;this._writeCache(etag,data);return {data,source:'live-server-scan'};
+      }finally{if(timer)clearTimeout(timer)}
+    }
+    _revalidate(liveUrl,cached){
+      if(this.revalidateInFlight)return this.revalidateInFlight;
+      this.revalidateInFlight=this._fetchLive(liveUrl,cached).catch(()=>null).finally(()=>{this.revalidateInFlight=null});
+      return this.revalidateInFlight;
+    }
+    async load({startup=false}={}) {
+      const clientId=window.LoomIdentity?.get?.(this.project)?.clientId||'';
+      const liveUrl = `${this.apiBase}/modules.php?project=${encodeURIComponent(this.project)}&clientId=${encodeURIComponent(clientId)}`;
+      const cached=this._readCache();
+      const startupMaxAge=Math.max(5000,Number(window.LoomConfig?.performance?.registryStartupCacheMaxAgeMs||120000));
+      if(startup&&cached?.data&&Date.now()-Number(cached.storedAt||0)<=startupMaxAge){
+        this.lastSource='startup-session-cache';this._revalidate(liveUrl,cached);
+        const data=this._clone(cached.data);data.discovery={...(data.discovery||{}),source:'startup-session-cache'};return normalizeAndSortRegistry(data);
+      }
+      try {
+        const live=await this._fetchLive(liveUrl,cached);this.lastSource=live.source;return normalizeAndSortRegistry(live.data);
       } catch (liveError) {
-        if(cached?.data){cached.data.discovery={...(cached.data.discovery||{}),source:'session-cache-fallback',liveError:String(liveError.message||liveError)};this.lastSource='session-cache-fallback';return normalizeAndSortRegistry(cached.data)}
+        if(cached?.data){const data=this._clone(cached.data);data.discovery={...(data.discovery||{}),source:'session-cache-fallback',liveError:String(liveError.message||liveError)};this.lastSource='session-cache-fallback';return normalizeAndSortRegistry(data)}
         if (Number(liveError?.status)===403) throw liveError;
         if (!this.fallbackUrl) throw liveError;
         const data = await jsonFetch(`${this.fallbackUrl}${this.fallbackUrl.includes('?')?'&':'?'}_=${Date.now()}`);

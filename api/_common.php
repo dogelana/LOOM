@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.19 revision=24 policy=package-priority
+// @loom-file release=0.15.20 revision=25 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -482,16 +482,22 @@ function loom_admin_settings_file(string $project): string {
   return loom_admin_settings_dir().'/'.safe_slug($project).'.json';
 }
 function loom_read_admin_settings(string $project): array {
+  $slug=safe_slug($project);
+  if(!isset($GLOBALS['loom_admin_settings_request_cache'])||!is_array($GLOBALS['loom_admin_settings_request_cache']))$GLOBALS['loom_admin_settings_request_cache']=[];
+  if(array_key_exists($slug,$GLOBALS['loom_admin_settings_request_cache']))return $GLOBALS['loom_admin_settings_request_cache'][$slug];
+  $value=null;
   if(function_exists('loom_db_read_module_settings')&&function_exists('loom_db_ready')&&loom_db_ready()){
-    $db=loom_db_read_module_settings(safe_slug($project));if(is_array($db))return $db;
+    $db=loom_db_read_module_settings($slug);if(is_array($db))$value=$db;
   }
-  return read_json_file(loom_admin_settings_file($project))?:['schemaVersion'=>'1.0','project'=>safe_slug($project),'modules'=>[]];
+  if(!is_array($value))$value=read_json_file(loom_admin_settings_file($slug))?:['schemaVersion'=>'1.0','project'=>$slug,'modules'=>[]];
+  $GLOBALS['loom_admin_settings_request_cache'][$slug]=$value;return $value;
 }
 function loom_write_admin_settings(string $project,array $settings): void {
-  ensure_dir(loom_admin_settings_dir());
-  $settings['schemaVersion']='1.0';$settings['project']=safe_slug($project);$settings['updatedAt']=server_timestamp();
-  @file_put_contents(loom_admin_settings_file($project),json_encode($settings,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);
-  if(function_exists('loom_db_write_module_settings')&&function_exists('loom_db_ready')&&loom_db_ready())loom_db_write_module_settings(safe_slug($project),$settings);
+  ensure_dir(loom_admin_settings_dir());$slug=safe_slug($project);
+  $settings['schemaVersion']='1.0';$settings['project']=$slug;$settings['updatedAt']=server_timestamp();
+  @file_put_contents(loom_admin_settings_file($slug),json_encode($settings,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);
+  if(function_exists('loom_db_write_module_settings')&&function_exists('loom_db_ready')&&loom_db_ready())loom_db_write_module_settings($slug,$settings);
+  if(!isset($GLOBALS['loom_admin_settings_request_cache'])||!is_array($GLOBALS['loom_admin_settings_request_cache']))$GLOBALS['loom_admin_settings_request_cache']=[];$GLOBALS['loom_admin_settings_request_cache'][$slug]=$settings;
 }
 function loom_project_module_enabled(string $project,string $actionId,bool $default=true): bool {
   $s=loom_read_admin_settings($project);$row=$s['moduleStates'][$actionId]??null;
@@ -521,16 +527,20 @@ function loom_global_settings_file(): string {
   return loom_admin_dir().'/global-settings.json';
 }
 function loom_read_global_settings(): array {
+  if(isset($GLOBALS['loom_global_settings_request_cache'])&&is_array($GLOBALS['loom_global_settings_request_cache']))return $GLOBALS['loom_global_settings_request_cache'];
+  $value=null;
   if(function_exists('loom_db_read_global_settings')&&function_exists('loom_db_ready')&&loom_db_ready()){
-    $db=loom_db_read_global_settings();if(is_array($db))return $db;
+    $db=loom_db_read_global_settings();if(is_array($db))$value=$db;
   }
-  return read_json_file(loom_global_settings_file())?:['schemaVersion'=>'1.0','modules'=>[]];
+  if(!is_array($value))$value=read_json_file(loom_global_settings_file())?:['schemaVersion'=>'1.0','modules'=>[]];
+  $GLOBALS['loom_global_settings_request_cache']=$value;return $value;
 }
 function loom_write_global_settings(array $settings): void {
   ensure_dir(loom_admin_dir());
   $settings['schemaVersion']='1.0';$settings['updatedAt']=server_timestamp();
   @file_put_contents(loom_global_settings_file(),json_encode($settings,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);
   if(function_exists('loom_db_write_global_settings')&&function_exists('loom_db_ready')&&loom_db_ready())loom_db_write_global_settings($settings);
+  $GLOBALS['loom_global_settings_request_cache']=$settings;
 }
 function loom_global_module_effective_config(string $actionId): array {
   $defaults=[];foreach(loom_scan_global_core_modules() as $m)if(($m['actionId']??'')===$actionId){$defaults=is_array($m['defaults']??null)?$m['defaults']:[];break;}
@@ -693,15 +703,17 @@ function loom_project_public_url(string $project): string {
 }
 function loom_global_core_modules_dir(): string { return root_dir().'/core-modules'; }
 function loom_core_module_records(?string $scope=null): array {
-  $root=loom_global_core_modules_dir();$out=[];if(!is_dir($root))return $out;
-  foreach(glob($root.'/*/manifest.json')?:[] as $file){
-    $m=read_json_file($file);if(!$m)continue;
-    $moduleScope=(string)($m['module']['scope']??'global');if($scope!==null&&$moduleScope!==$scope)continue;
-    $id=(string)($m['action']['id']??'');if($id==='')continue;
-    $out[]=['manifest'=>$m,'manifestFile'=>$file,'folder'=>dirname($file),'scope'=>$moduleScope,'manifestEnabled'=>(bool)($m['enabled']??true)];
+  if(!isset($GLOBALS['loom_core_module_records_request_cache'])||!is_array($GLOBALS['loom_core_module_records_request_cache'])){
+    $root=loom_global_core_modules_dir();$all=[];
+    if(is_dir($root))foreach(glob($root.'/*/manifest.json')?:[] as $file){
+      $m=read_json_file($file);if(!$m)continue;$moduleScope=(string)($m['module']['scope']??'global');$id=(string)($m['action']['id']??'');if($id==='')continue;
+      $all[]=['manifest'=>$m,'manifestFile'=>$file,'folder'=>dirname($file),'scope'=>$moduleScope,'manifestEnabled'=>(bool)($m['enabled']??true)];
+    }
+    usort($all,fn($a,$b)=>strcmp((string)($a['manifest']['module']['order']??'50000'),(string)($b['manifest']['module']['order']??'50000'))?:strcmp((string)($a['manifest']['action']['id']??''),(string)($b['manifest']['action']['id']??'')));
+    $GLOBALS['loom_core_module_records_request_cache']=$all;
   }
-  usort($out,fn($a,$b)=>strcmp((string)($a['manifest']['module']['order']??'50000'),(string)($b['manifest']['module']['order']??'50000'))?:strcmp((string)($a['manifest']['action']['id']??''),(string)($b['manifest']['action']['id']??'')));
-  return $out;
+  $all=$GLOBALS['loom_core_module_records_request_cache'];if($scope===null)return $all;
+  return array_values(array_filter($all,fn($row)=>(string)($row['scope']??'global')===$scope));
 }
 function loom_scan_global_core_modules(): array {
   $out=[];

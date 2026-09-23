@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.17 revision=17 policy=package-priority
+// @loom-file release=0.15.20 revision=18 policy=package-priority
 require __DIR__.'/_common.php';
 $requestClientId=safe_token((string)($_GET['clientId']??''));if($requestClientId!=='')loom_capture_request_ip($requestClientId,'');
 $onlyProject=safe_slug((string)($_GET['project']??''));
@@ -34,7 +34,10 @@ foreach($slugs as $slug){
   $data=loom_project_effective_data($slug);if(!$data)continue;
   if(!loom_request_is_admin()&&$requestClientId!==''&&!loom_project_access_status($slug,$requestClientId)['allowed'])continue;
   $colors=loom_project_brand_colors($slug);$socialColor=loom_brand_hex($data['social_color']??null,$colors['primary']);$rawBio=trim((string)($data['bio']??''));$bio=$rawBio!==''?$rawBio:loom_project_fallback_bio_from_data($data,$slug);
-  $projects[]=['slug'=>$slug,'name'=>$data['name']??humanize_project_slug($slug),'tagline'=>$data['tagline']??'','description'=>$data['description']??'','bio'=>$bio,'bio_custom'=>$rawBio,'bio_is_fallback'=>$rawBio==='','brand_primary_color'=>$colors['primary'],'brand_accent_color'=>$colors['accent'],'social_color'=>$socialColor,'wordmark'=>loom_project_brand_identity($slug),'theme'=>$data['theme']??'default','version'=>$data['version']??'0.0.0','source'=>loom_project_source($slug),'branding'=>loom_home_project_branding($slug,$dir,$data),'app_url'=>loom_project_public_url($slug),'canonical_app_url'=>loom_project_app_url($slug),'domain_landing'=>loom_project_is_domain_landing($slug),'pegboard_url'=>"pegboard/?project=$slug&v=".rawurlencode($release),'registry_url'=>"registry/?project=$slug&v=".rawurlencode($release)];
+  $projectRole=$requestClientId!==''?loom_access_project_role($requestClientId,$slug):(loom_request_is_admin()?'system-owner':'member');
+  $projectCaps=$requestClientId!==''?loom_access_effective_capabilities($requestClientId,$slug):[];
+  $canProjectAdmin=in_array($projectRole,['system-owner','loom-admin','project-admin','project-manager'],true)||array_intersect($projectCaps,['project.settings','project.modules','project.content','project.users','project.access']);
+  $projects[]=['slug'=>$slug,'name'=>$data['name']??humanize_project_slug($slug),'tagline'=>$data['tagline']??'','description'=>$data['description']??'','bio'=>$bio,'bio_custom'=>$rawBio,'bio_is_fallback'=>$rawBio==='','brand_primary_color'=>$colors['primary'],'brand_accent_color'=>$colors['accent'],'social_color'=>$socialColor,'wordmark'=>loom_project_brand_identity($slug),'theme'=>$data['theme']??'default','version'=>$data['version']??'0.0.0','source'=>loom_project_source($slug),'branding'=>loom_home_project_branding($slug,$dir,$data),'app_url'=>loom_project_public_url($slug),'canonical_app_url'=>loom_project_app_url($slug),'domain_landing'=>loom_project_is_domain_landing($slug),'project_role'=>$projectRole,'project_capabilities'=>$projectCaps,'can_project_admin'=>(bool)$canProjectAdmin,'pegboard_url'=>"pegboard/?project=$slug&v=".rawurlencode($release),'registry_url'=>"registry/?project=$slug&v=".rawurlencode($release)];
 }
 usort($projects,fn($a,$b)=>strcasecmp($a['name'],$b['name']));
 $isAdmin=function_exists('loom_request_is_admin')&&loom_request_is_admin();

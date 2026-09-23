@@ -1,4 +1,4 @@
-// @loom-file release=0.15.19 revision=8 policy=package-priority
+// @loom-file release=0.15.20 revision=9 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -43,7 +43,7 @@
     async start(){
       if(this.running)return;this.running=true;this.closed=false;
       await this._log({type:'session.start',runtimeId:this.runtimeId,meta:this.identity.meta,userLabel:this.identity.userLabel});
-      await this._loadModuleLayoutState();this._bindResponsiveModuleVisibility();
+      this._loadModuleLayoutState();this._bindResponsiveModuleVisibility();
       this._emitAction('session.presence','active',{kind:'system',behavior:'stateful',name:'Session Presence'});
       this._emitAction('core.load','active',{kind:'system',behavior:'stateful',name:'Load Core'});
       await this._coreStep('discover-project',async()=>{});
@@ -176,17 +176,33 @@
       return node;
     }
     _moduleLayoutStorageKey(){return `loom:${this.project}:module-layout:${this.identity.clientId}`}
-    async _loadModuleLayoutState(){
-      try{
-        const local=JSON.parse(localStorage.getItem(this._moduleLayoutStorageKey())||'null');
-        if(local&&typeof local==='object')this.moduleLayoutState=local;
-      }catch{}
-      try{
-        const r=await fetch(`${this.apiBase}/project-state.php`,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({action:'get',project:this.project,moduleId:'core.ui.module-layout',clientId:this.identity.clientId})});
-        if(r.ok){const j=await r.json();if(j?.state&&typeof j.state==='object'){this.moduleLayoutState={collapsed:{},...j.state};try{localStorage.setItem(this._moduleLayoutStorageKey(),JSON.stringify(this.moduleLayoutState))}catch{}}}
-      }catch{}
+    _normalizeModuleLayoutState(){
       if(!this.moduleLayoutState||typeof this.moduleLayoutState!=='object')this.moduleLayoutState={collapsed:{}};
       if(!this.moduleLayoutState.collapsed||typeof this.moduleLayoutState.collapsed!=='object')this.moduleLayoutState.collapsed={};
+    }
+    _applyHydratedModuleLayoutState(){
+      for(const frame of document.querySelectorAll('[data-loom-frame-for]')){
+        const id=frame.dataset.loomFrameFor,record=this.modules.get(id);if(!record)continue;
+        const policy=this._moduleFramePolicy(record.descriptor,this.mountRoot);if(!policy.collapseEnabled){frame.classList.remove('is-collapsed');continue}
+        const saved=Object.prototype.hasOwnProperty.call(this.moduleLayoutState?.collapsed||{},id);const collapsed=saved?!!this.moduleLayoutState.collapsed[id]:policy.initialCollapsed;
+        frame.classList.toggle('is-collapsed',collapsed);frame.querySelector('.loom-module-frame-head')?.setAttribute('aria-expanded',collapsed?'false':'true');
+      }
+    }
+    _loadModuleLayoutState(){
+      let hasLocal=false;
+      try{const local=JSON.parse(localStorage.getItem(this._moduleLayoutStorageKey())||'null');if(local&&typeof local==='object'){this.moduleLayoutState=local;hasLocal=true}}catch{}
+      this._normalizeModuleLayoutState();
+      if(hasLocal)return;
+      this._hydrateModuleLayoutStateRemote();
+    }
+    async _hydrateModuleLayoutStateRemote(){
+      const controller=typeof AbortController!=='undefined'?new AbortController():null;
+      const timeout=Math.max(1000,Number(CFG?.performance?.moduleLayoutHydrateTimeoutMs||2500));
+      const timer=controller?setTimeout(()=>controller.abort('module-layout-timeout'),timeout):null;
+      try{
+        const r=await fetch(`${this.apiBase}/project-state.php`,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',...(controller?{signal:controller.signal}:{}),body:JSON.stringify({action:'get',project:this.project,moduleId:'core.ui.module-layout',clientId:this.identity.clientId})});
+        if(r.ok){const j=await r.json();if(j?.state&&typeof j.state==='object'){this.moduleLayoutState={collapsed:{},...j.state};this._normalizeModuleLayoutState();try{localStorage.setItem(this._moduleLayoutStorageKey(),JSON.stringify(this.moduleLayoutState))}catch{}this._applyHydratedModuleLayoutState()}}
+      }catch{}finally{if(timer)clearTimeout(timer)}
     }
     _persistModuleLayoutState(){
       try{localStorage.setItem(this._moduleLayoutStorageKey(),JSON.stringify(this.moduleLayoutState))}catch{}
@@ -264,9 +280,14 @@
         const link=document.createElement('link');link.rel='modulepreload';link.href=href;link.crossOrigin='anonymous';link.dataset.loomPreload=descriptor.action?.id||'';document.head.appendChild(link);
       }
     }
+    async _loadModuleBatch(descriptors=[],options={}){
+      const list=[...descriptors];if(!list.length)return;
+      const limit=Math.max(1,Math.min(8,Number(CFG?.performance?.moduleLoadConcurrency||4))),workers=Math.min(limit,list.length);let cursor=0;
+      await Promise.all(Array.from({length:workers},async()=>{while(true){const i=cursor++;if(i>=list.length)return;await this._addModule(list[i],options)}}));
+    }
     async refresh(isBoot=false){
       if(isBoot)await this._coreStep('discover-modules',async()=>{});
-      const payload=await this.registry.load();
+      const payload=await this.registry.load({startup:isBoot});
       payload.modules=this._sortDescriptors(payload.modules||[]);
       this.discoveredDescriptors=payload.modules;
       const runtimeModules=payload.modules.filter(descriptor=>this._moduleAllowedForViewport(descriptor));
@@ -280,9 +301,14 @@
         if(!next)await this._removeModule(id,'module-removed');
         else if(next.fingerprint!==current.descriptor.fingerprint){await this._removeModule(id,'module-changed',false);await this._addModule(next,{skipProgress:!isBoot})}
       }
-      for(const descriptor of runtimeModules){
-        if(isBoot&&this._isBootstrapLoader(descriptor))continue;
-        if(!this.modules.has(descriptor.action.id))await this._addModule(descriptor,{skipProgress:!isBoot});
+      const additions=runtimeModules.filter(descriptor=>!(isBoot&&this._isBootstrapLoader(descriptor))&&!this.modules.has(descriptor.action.id));
+      if(isBoot){
+        /* Region providers establish mount targets first; independent modules then load concurrently. */
+        const structural=additions.filter(d=>d?.presentation?.role==='region'),ordinary=additions.filter(d=>d?.presentation?.role!=='region');
+        for(const descriptor of structural)await this._addModule(descriptor,{skipProgress:false});
+        await this._loadModuleBatch(ordinary,{skipProgress:false});
+      }else{
+        for(const descriptor of additions)await this._addModule(descriptor,{skipProgress:true});
       }
       this._reflowModuleOrder();
       this.bus.emit({type:'registry.snapshot',runtimeId:this.runtimeId,source:this.registry.lastSource,mobileViewport:this._isMobileViewport(),modules:payload.modules.map(m=>({id:m.action.id,fingerprint:m.fingerprint,order:this._moduleOrder(m),orderDisplay:this._moduleOrderDisplay(m),bootstrap:this._isBootstrapLoader(m),hideOnMobile:this._hideOnMobile(m),suppressedForMobile:!this._moduleAllowedForViewport(m),userActions:(m.user_actions||[]).map(a=>a.id)}))});
@@ -322,12 +348,12 @@
         const record={descriptor,instance:null,styles:[],cleanup:null};this.modules.set(id,record);
         if(descriptor.styles?.length)this._attachStyles(descriptor);
         const moduleUrl=this._cacheBustUrl(this._resolveRuntimeUrl(descriptor.entry_url),descriptor.fingerprint||Date.now());
-        const imported=await this._withTimeout(import(moduleUrl),12000,`Module import ${id}`),factory=imported.createModule||imported.default;
+        const imported=await this._withTimeout(import(moduleUrl),Math.max(2000,Number(CFG?.performance?.moduleImportTimeoutMs||8000)),`Module import ${id}`),factory=imported.createModule||imported.default;
         if(typeof factory!=='function')throw new Error(`Module ${id} must export createModule(ctx)`);
-        const ctx=this._createContext(descriptor,record);record.instance=await this._withTimeout(factory(ctx),8000,`Module factory ${id}`);if(record.instance?.mount)await this._withTimeout(record.instance.mount(),10000,`Module mount ${id}`);
+        const ctx=this._createContext(descriptor,record);record.instance=await this._withTimeout(factory(ctx),Math.max(1500,Number(CFG?.performance?.moduleFactoryTimeoutMs||5000)),`Module factory ${id}`);if(record.instance?.mount)await this._withTimeout(record.instance.mount(),Math.max(2000,Number(CFG?.performance?.moduleMountTimeoutMs||7000)),`Module mount ${id}`);
         this.bus.emit({type:'module.available',actionId:id,name:descriptor.action.name,kind:descriptor.action.kind,behavior:descriptor.action.behavior,parent:descriptor.action.parent||'core.load',fingerprint:descriptor.fingerprint,order:this._moduleOrder(descriptor),orderDisplay:this._moduleOrderDisplay(descriptor),bootstrap:this._isBootstrapLoader(descriptor)});
         await this._log({type:'module.available',actionId:id,name:descriptor.action.name,kind:descriptor.action.kind,behavior:descriptor.action.behavior,order:this._moduleOrder(descriptor),orderDisplay:this._moduleOrderDisplay(descriptor),bootstrap:this._isBootstrapLoader(descriptor)});
-        if(descriptor.action.autostart||options.bootstrap)await this._withTimeout(this.activate(id,{trigger:options.bootstrap?'bootstrap':'autostart'}),12000,`Module activation ${id}`);
+        if(descriptor.action.autostart||options.bootstrap)await this._withTimeout(this.activate(id,{trigger:options.bootstrap?'bootstrap':'autostart'}),Math.max(2000,Number(CFG?.performance?.moduleActivationTimeoutMs||7000)),`Module activation ${id}`);
         if(!options.skipProgress)await this._bootstrapProgress(descriptor,'loaded');
         return true;
       }catch(err){

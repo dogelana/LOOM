@@ -1,3 +1,11 @@
+## v0.15.21 - Straightforward Showcase Colors
+
+Showcase now follows Project Identity colors directly: the first headline uses the project's primary color and the optional second headline uses the project's accent color. The automatic hue-shift control has been removed to keep branding predictable. Either headline can still be switched to primary, accent, or a custom color in Showcase settings. Legacy shifted modes resolve safely to the corresponding unshifted project color.
+
+## v0.15.20 - Admin Drawer + Complete Project Tools + Faster Startup
+
+The Admin Tools drawer now behaves like a true edge drawer: its gripper is always visible, remains in front of the panel, and stays reachable while the drawer is hidden. LOOM Home exposes the complete project-scoped admin toolset according to effective capabilities. Startup was also reworked around request-local server caches, stale-while-revalidate client caches, non-blocking layout hydration, and bounded parallel module preparation so one slow path cannot serially hold the whole project loader.
+
 ## v0.15.19 - Social Fast Path + Showcase Identity + Module Chrome
 
 This release hardens project startup and turns module chrome into a first-class LOOM setting. Social profile fields are handle-first and purely local at startup; module loading is fail-open with bounded timeouts; Showcase inherits Project Identity more deeply and creates its own deterministic project badge when no image has been uploaded. Admin settings are browser-local accordions by default, while collapse/title-bar behavior is configurable globally, per project, and per module.
@@ -42,7 +50,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.19 revision=35 policy=package-priority -->
+<!-- @loom-file release=0.15.21 revision=37 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

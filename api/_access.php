@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.18 revision=1 policy=package-priority
+// @loom-file release=0.15.20 revision=2 policy=package-priority
 // LOOM delegated administration: immutable System Owner, delegated LOOM Admins,
 // and project-scoped Admin/Manager grants for permanent accounts or guest profiles.
 declare(strict_types=1);
@@ -9,17 +9,18 @@ function loom_access_defaults(): array {
   return ['schemaVersion'=>'1.0','loomAdmins'=>[],'projectGrants'=>[],'updatedAt'=>null];
 }
 function loom_access_store(): array {
+  $cached=$GLOBALS['loom_access_request_cache']??null;if(is_array($cached))return $cached;
   $s=read_json_file(loom_access_file()); if(!is_array($s))$s=[];
   $s=array_replace(loom_access_defaults(),$s);
   if(!is_array($s['loomAdmins']??null))$s['loomAdmins']=[];
   if(!is_array($s['projectGrants']??null))$s['projectGrants']=[];
-  return $s;
+  $GLOBALS['loom_access_request_cache']=$s;return $s;
 }
 function loom_access_write(array $s): void {
   $s=array_replace(loom_access_defaults(),$s);$s['schemaVersion']='1.0';$s['updatedAt']=server_timestamp();
   $json=json_encode($s,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
   if($json===false||@file_put_contents(loom_access_file(),$json."\n",LOCK_EX)===false)throw new RuntimeException('Could not save delegated access settings.');
-  @chmod(loom_access_file(),0600);
+  @chmod(loom_access_file(),0600);$GLOBALS['loom_access_request_cache']=$s;
 }
 function loom_access_system_owner_state(): ?array { $s=loom_admin_identity(); return is_array($s)?$s:null; }
 function loom_access_system_owner_user_id(): string { $s=loom_access_system_owner_state(); return safe_token((string)($s['userId']??'')); }

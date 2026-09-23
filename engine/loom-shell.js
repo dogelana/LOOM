@@ -1,4 +1,4 @@
-// @loom-file release=0.15.18 revision=14 policy=package-priority
+// @loom-file release=0.15.20 revision=15 policy=package-priority
 (() => {
   'use strict';
 
@@ -27,6 +27,10 @@
       {label:'🧬 Action Registry',href:new URL(`registry/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href}
     ];
   }
+  function projectAdminQuickLinks({apiBase='api',project=''}={}){
+    const wanted=['Project Settings','Users','Access','Activity','Pegboard','Action Registry'];
+    return canonicalAdminLinks({apiBase,project}).filter(item=>wanted.some(label=>item.label.includes(label)));
+  }
   function adminLinksForStatus({apiBase='api',project='',status=null}={}){
     const all=canonicalAdminLinks({apiBase,project});
     if(!status)return all;
@@ -34,9 +38,11 @@
     if(status?.isAdmin||role==='system-owner'||role==='loom-admin')return all;
     const caps=new Set(Array.isArray(status?.capabilities)?status.capabilities:[]);
     const allowed=[];
-    if(caps.has('project.view')||caps.has('project.settings')||caps.has('project.modules')||caps.has('project.content'))allowed.push('Project Settings');
+    if(caps.has('project.settings')||caps.has('project.content'))allowed.push('Project Settings');
     if(caps.has('project.users'))allowed.push('Users');
     if(caps.has('project.access'))allowed.push('Access');
+    if(caps.has('project.view'))allowed.push('Activity');
+    if(caps.has('project.modules'))allowed.push('Pegboard','Action Registry');
     return all.filter(item=>allowed.some(label=>item.label.includes(label)));
   }
   function navConfig(settings){
@@ -62,15 +68,17 @@
       .loom-global-nav-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
       .loom-shell-admin-zone{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 7px;border:1px solid rgba(78,92,82,.16);border-radius:14px;background:rgba(255,255,255,.62)}
       .loom-shell-admin-zone .loom-shell-admin-label{font-size:8px;font-weight:950;letter-spacing:.11em;color:#718077;padding:0 3px;white-space:nowrap}.loom-shell-admin-zone a{white-space:nowrap}
-      .loom-admin-drawer{position:fixed;z-index:2147482500;top:50%;transform:translateY(-50%);display:flex;align-items:stretch;transition:.22s ease;filter:drop-shadow(0 16px 28px rgba(18,48,27,.14))}
-      .loom-admin-drawer[data-side="right"]{right:0;flex-direction:row}.loom-admin-drawer[data-side="left"]{left:0;flex-direction:row-reverse}
-      .loom-admin-drawer-panel{width:min(280px,calc(100vw - 54px));padding:12px;border:1px solid rgba(198,218,203,.95);background:rgba(250,253,250,.98);backdrop-filter:blur(18px);display:grid;gap:6px;max-height:min(78vh,680px);overflow:auto}
+      .loom-admin-drawer{--loom-admin-tab-visible:38px;position:fixed;z-index:2147482500;top:50%;transform:translateY(-50%);display:flex;align-items:stretch;transition:transform .22s cubic-bezier(.2,.75,.25,1);filter:drop-shadow(0 16px 28px rgba(18,48,27,.14));isolation:isolate}
+      /* The gripper must be the viewport-facing edge in both orientations. */
+      .loom-admin-drawer[data-side="right"]{right:0;flex-direction:row-reverse}.loom-admin-drawer[data-side="left"]{left:0;flex-direction:row}
+      .loom-admin-drawer-panel{position:relative;z-index:1;width:min(280px,calc(100vw - 54px));padding:12px;border:1px solid rgba(198,218,203,.95);background:rgba(250,253,250,.98);backdrop-filter:blur(18px);display:grid;gap:6px;max-height:min(78vh,680px);overflow:auto;box-shadow:0 18px 48px rgba(18,48,27,.12)}
       .loom-admin-drawer[data-side="right"] .loom-admin-drawer-panel{border-radius:18px 0 0 18px}.loom-admin-drawer[data-side="left"] .loom-admin-drawer-panel{border-radius:0 18px 18px 0}
-      .loom-admin-drawer-tab{align-self:center;border:1px solid rgba(198,218,203,.95);background:#173f27;color:#fff;font:950 10px/1 system-ui;padding:12px 8px;cursor:pointer;writing-mode:vertical-rl;letter-spacing:.08em;min-height:98px}
-      .loom-admin-drawer[data-side="right"] .loom-admin-drawer-tab{border-radius:12px 0 0 12px}.loom-admin-drawer[data-side="left"] .loom-admin-drawer-tab{border-radius:0 12px 12px 0;transform:rotate(180deg)}
+      .loom-admin-drawer-tab{position:relative;z-index:3;align-self:center;flex:0 0 var(--loom-admin-tab-visible);width:var(--loom-admin-tab-visible);border:1px solid rgba(198,218,203,.95);background:#173f27;color:#fff;font:950 10px/1 system-ui;padding:12px 8px;cursor:pointer;writing-mode:vertical-rl;letter-spacing:.08em;min-height:108px;box-shadow:0 8px 24px rgba(18,48,27,.18);opacity:1!important;visibility:visible!important}
+      .loom-admin-drawer[data-side="right"] .loom-admin-drawer-tab{border-radius:12px 0 0 12px;margin-right:-1px}.loom-admin-drawer[data-side="left"] .loom-admin-drawer-tab{border-radius:0 12px 12px 0;transform:rotate(180deg);margin-left:-1px}
       .loom-admin-drawer-panel .loom-shell-admin-label{font:950 9px/1.2 system-ui;letter-spacing:.12em;color:#718077;padding:4px 5px 6px}.loom-admin-drawer-panel a{display:block;text-decoration:none;color:#234b30;background:#fff;border:1px solid #d9e7dc;border-radius:10px;padding:9px 10px;font:850 10px/1.2 system-ui}
-      .loom-admin-drawer:not([data-open="true"])[data-side="right"]{transform:translate(calc(100% - 34px),-50%)}.loom-admin-drawer:not([data-open="true"])[data-side="left"]{transform:translate(calc(-100% + 34px),-50%)}
-      @media(max-width:760px){.loom-shell-admin-zone{width:100%;justify-content:center}.loom-shell-admin-zone .loom-shell-admin-label{width:100%;text-align:center}.loom-admin-drawer{top:auto;bottom:12px;transform:none!important}.loom-admin-drawer-panel{max-height:62vh}}
+      /* Hide only the panel. Keep the ADMIN TOOLS gripper fully visible and in front. */
+      .loom-admin-drawer:not([data-open="true"])[data-side="right"]{transform:translate(calc(100% - var(--loom-admin-tab-visible)),-50%)}.loom-admin-drawer:not([data-open="true"])[data-side="left"]{transform:translate(calc(-100% + var(--loom-admin-tab-visible)),-50%)}
+      @media(max-width:760px){.loom-shell-admin-zone{width:100%;justify-content:center}.loom-shell-admin-zone .loom-shell-admin-label{width:100%;text-align:center}.loom-admin-drawer{--loom-admin-tab-visible:40px}.loom-admin-drawer-panel{width:min(300px,calc(100vw - 48px));max-height:66vh}}
     `;document.head.appendChild(style);
   }
   function renderAdminLinks(host,{apiBase='api',project='',target='_self',withLabel=false,status=null}={}){
@@ -78,12 +86,26 @@
     if(withLabel){const label=document.createElement('span');label.className='loom-shell-admin-label';label.textContent='ADMIN-ONLY TOOLS';host.appendChild(label)}
     for(const item of links){const a=document.createElement('a');a.href=item.href;a.textContent=item.label;if(target)a.target=target;if(target==='_blank')a.rel='noopener';host.appendChild(a)}return links;
   }
+  function adminStatusCacheKey(identity,project=''){return `loom:admin-status:${identity?.clientId||'anon'}:${String(project||'global')}`}
+  async function fetchAdminStatus(apiBase,identity,project=''){
+    const fallback={isAdmin:false,projectRole:'member',capabilities:[]};
+    if(!identity?.clientId)return fallback;
+    const controller=typeof AbortController!=='undefined'?new AbortController():null;
+    const timer=controller?setTimeout(()=>controller.abort('admin-status-timeout'),3500):null;
+    try{
+      const r=await fetch(`${String(apiBase||'api').replace(/\/$/,'')}/admin.php`,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',...(controller?{signal:controller.signal}:{}),body:JSON.stringify({action:'status',clientId:identity.clientId,project,claim:false})});
+      const j=await r.json();if(!r.ok)return fallback;
+      try{sessionStorage.setItem(adminStatusCacheKey(identity,project),JSON.stringify({storedAt:Date.now(),value:j}))}catch{}
+      return j;
+    }catch{return fallback}finally{if(timer)clearTimeout(timer)}
+  }
   async function adminStatus(apiBase,identity,project=''){
     if(!identity?.clientId)return {isAdmin:false,projectRole:'member',capabilities:[]};
-    try{
-      const r=await fetch(`${String(apiBase||'api').replace(/\/$/,'')}/admin.php`,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({action:'status',clientId:identity.clientId,project,claim:false})});
-      const j=await r.json();return r.ok?j:{isAdmin:false,projectRole:'member',capabilities:[]};
-    }catch{return {isAdmin:false,projectRole:'member',capabilities:[]}}
+    let cached=null;try{cached=JSON.parse(sessionStorage.getItem(adminStatusCacheKey(identity,project))||'null')}catch{}
+    if(cached?.value&&Date.now()-Number(cached.storedAt||0)<120000){fetchAdminStatus(apiBase,identity,project).catch(()=>{});return cached.value}
+    const fresh=await fetchAdminStatus(apiBase,identity,project);
+    if((fresh?.isAdmin||fresh?.projectRole!=='member')||!cached?.value)return fresh;
+    return cached.value;
   }
   function removeExistingAdminChrome(){document.querySelectorAll('[data-loom-admin-drawer="1"]').forEach(x=>x.remove())}
   function mountAdminTools({apiBase='api',project='',target='_self',settings=null,host=null,status=null}={}){
@@ -124,5 +146,5 @@
     return {settings,identity,profile,navigation:cfg};
   }
 
-  window.LoomShell=Object.freeze({mount,adminStatus,canonicalAdminLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
+  window.LoomShell=Object.freeze({mount,adminStatus,canonicalAdminLinks,projectAdminQuickLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
 })();

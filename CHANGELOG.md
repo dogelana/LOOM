@@ -1,3 +1,18 @@
+## v0.15.21 - Showcase Color Simplification
+
+- Removed Showcase's automatic hue-shift system entirely. Headline 1 now inherits the project primary color exactly by default, and Headline 2 inherits the project accent color exactly by default.
+- Showcase headline colors remain independently editable: each headline can use project primary, project accent, or a custom color.
+- Existing projects that previously stored `shifted-primary` / `shifted-accent` modes are treated as their direct primary/accent equivalents so upgrades do not produce surprise colors.
+
+## v0.15.20 - Admin Drawer Edge Grip + Complete Project Tools + Startup Fast Path
+
+- Rebuilt the Admin Tools drawer geometry so its **ADMIN TOOLS** gripper stays permanently visible on the viewport edge when closed, sits in front of the panel, and remains the outside-facing control on either left or right placement.
+- Expanded LOOM Home project-admin quicklinks to the complete project-scoped set: Project Settings, Users, Access, Activity, Pegboard, and Action Registry, while preserving owner-only identity/archive actions and capability-filtering delegated Project Admin/Manager links.
+- Added project role/capability metadata to the LOOM Home project feed so delegated project administrators receive only the project tools they are actually allowed to use.
+- Removed several startup bottlenecks: project/global settings and delegated-access stores are request-memoized, core-module manifests are scanned once per request, repeated registry/settings responses use bounded session-cache fast paths, shell admin status is bounded/cached, and project-state layout hydration no longer blocks first paint.
+- Module boot now loads structural region modules first, then prepares ordinary modules with bounded parallelism instead of serially stacking every module's import/factory/mount/activation waits. Per-stage timeouts remain fail-open.
+- LOOM Home now paints a recent session-cached project list immediately and refreshes it in the background; identity, settings, privilege, shell, updates, and visitor work are no longer needlessly serialized.
+
 ## v0.15.19 - Social Fast Path + Showcase Identity + Module Chrome
 
 - Fixed bootstrap progress so the loader names the module currently being prepared rather than the module that just finished. A slow module can no longer falsely make Social Links look guilty.
@@ -359,7 +374,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.19 revision=36 policy=package-priority -->
+<!-- @loom-file release=0.15.21 revision=38 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
