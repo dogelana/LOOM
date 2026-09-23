@@ -1,7 +1,7 @@
-<!-- @loom-file release=0.12.08 revision=1 policy=package-priority -->
+<!-- @loom-file release=0.15.22 revision=2 policy=package-priority -->
 # LOOM Deployment Transaction Standard
 
-LOOM release: **0.12.06**
+LOOM release: **0.15.22**
 
 `/.loom-deployment.json` is the single canonical platform release authority. A deployment is not complete until the server copy of that manifest is committed.
 
@@ -22,3 +22,17 @@ If source files have begun updating but the manifest has not been committed, the
 ## Runtime authority
 
 LOOM Home, Admin, shell/footer branding, and release-history current-version labels must use the canonical release endpoint rather than independently maintained version strings. Hard-coded strings are permitted only as offline/failure fallbacks and cache-bust tokens.
+## Live deployment gate (0.15.22+)
+
+`/.loom-deploying.json` is an **ephemeral transport lease**, not release authority. Bridge/Deployer may create it before the first production mutation and must refresh its expiry while work continues. LOOM ignores an expired lease.
+
+While an unexpired gate exists:
+
+1. API requests fail with `503 Service Unavailable`, `Retry-After`, and `X-LOOM-Deploying: 1`.
+2. `api/deployment-status.php` remains available as the one dependency-free readiness probe.
+3. Browser runtime traffic pauses after the first deployment 503 rather than starting independent retry loops.
+4. LOOM-owned PHP pages may render a minimal auto-refreshing maintenance surface.
+5. The deployment transport should stage individual remote files beside their destination and server-rename them into place so clients never read a file while its body is still uploading.
+
+The gate is removed only after the new canonical deployment manifest has been committed and verified. If Deployer disappears, the lease expiry returns LOOM to service automatically; the stale marker alone is never sufficient to keep LOOM offline.
+

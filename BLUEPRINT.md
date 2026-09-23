@@ -1,3 +1,9 @@
+## v0.15.22 architecture note — deployment gate
+
+A LOOM release has two distinct safety boundaries. The canonical `.loom-deployment.json` remains the **commit-last release authority**, while `.loom-deploying.json` is a short-lived operational lease owned by the deployment transport. The lease never becomes release content or persistent Instance state.
+
+When the lease is active, LOOM must fail closed for application traffic with `503 Service Unavailable`, not authorization-shaped 403 errors. The browser must stop ordinary polling/retry loops, use only the dependency-free deployment-status probe, and perform one clean reload after the lease disappears. Lease expiry is mandatory so a crashed deployer cannot create permanent maintenance mode.
+
 ## v0.15.21 architecture note — direct Showcase branding
 
 Showcase inherits canonical Project Identity colors without automatic color transformation. Headline 1 defaults to the project primary color and Headline 2 defaults to the project accent color. Local Showcase overrides may select primary, accent, or a custom color. Legacy shifted color-mode values are compatibility aliases only and do not alter hue.
@@ -21,7 +27,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.21 revision=33 policy=package-priority -->
+<!-- @loom-file release=0.15.22 revision=34 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

@@ -1,3 +1,9 @@
+## v0.15.22 - Transaction-Safe Live Deployment
+
+LOOM now cooperates directly with Bridge 8.3 during production releases. While Deployer holds its short-lived server deployment lease, APIs return a deployment-specific 503 and browser traffic collapses into one quiet status poll instead of repeatedly retrying authorization/module endpoints. Once the verified manifest-last transaction finishes, open pages reload the clean release automatically.
+
+The browser guard is loaded before normal LOOM engine code on Home, project shells, Admin, Pegboard, Registry, and Activity. PHP-owned pages show the same update state server-side, while `api/deployment-status.php` remains available as the single health probe during the transaction.
+
 ## v0.15.21 - Straightforward Showcase Colors
 
 Showcase now follows Project Identity colors directly: the first headline uses the project's primary color and the optional second headline uses the project's accent color. The automatic hue-shift control has been removed to keep branding predictable. Either headline can still be switched to primary, accent, or a custom color in Showcase settings. Legacy shifted modes resolve safely to the corresponding unshifted project color.
@@ -50,7 +56,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.21 revision=37 policy=package-priority -->
+<!-- @loom-file release=0.15.22 revision=38 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

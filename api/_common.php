@@ -1,10 +1,49 @@
 <?php
-// @loom-file release=0.15.20 revision=25 policy=package-priority
+// @loom-file release=0.15.22 revision=26 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
 function root_dir(): string { return realpath(__DIR__ . '/..') ?: dirname(__DIR__); }
+
+
+function loom_deployment_gate_status(): ?array {
+  $marker=root_dir().'/.loom-deploying.json';
+  if(!is_file($marker))return null;
+  $raw=@file_get_contents($marker);if(!is_string($raw)||$raw==='')return null;
+  $data=json_decode($raw,true);if(!is_array($data)||!$data)return null;
+  $expires=(float)($data['expires_at_epoch']??0);
+  if($expires>0&&$expires<=microtime(true))return null;
+  return $data;
+}
+function loom_enforce_deployment_gate(): void {
+  $gate=loom_deployment_gate_status();if(!$gate)return;
+  $retry=max(1,min(10,(int)($gate['retry_after']??3)));
+  http_response_code(503);
+  header('Retry-After: '.$retry);
+  header('X-LOOM-Deploying: 1');
+  $target=trim((string)($gate['target_release']??''));
+  if($target!=='')header('X-LOOM-Target-Release: '.$target);
+  $script=str_replace('\\','/',(string)($_SERVER['SCRIPT_NAME']??''));
+  $isApi=str_contains($script,'/api/');
+  if(!$isApi){
+    header('Content-Type: text/html; charset=utf-8');
+    $label=$target!==''?'LOOM '.htmlspecialchars($target,ENT_QUOTES,'UTF-8'):'LOOM';
+    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="'.$retry.'"><title>LOOM is updating</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#edf4fb;color:#172231;font-family:Inter,system-ui,sans-serif}.c{width:min(560px,calc(100% - 36px));padding:24px;border:1px solid #c9d9e8;border-radius:20px;background:#fff;box-shadow:0 24px 70px #17223122}.m{font-weight:950;color:#2878d7;letter-spacing:.1em;font-size:11px}.c h1{margin:8px 0 5px;font-size:24px}.c p{margin:0;color:#66778a;line-height:1.5;font-size:13px}</style></head><body><div class="c"><div class="m">'.$label.'</div><h1>LOOM is updating…</h1><p>This page is temporarily paused while a verified deployment completes. It will retry automatically.</p></div></body></html>';
+    exit;
+  }
+  echo json_encode([
+    'ok'=>false,
+    'error'=>'deployment-in-progress',
+    'message'=>'LOOM is updating. Requests are paused until the transactional deployment completes.',
+    'deploying'=>true,
+    'targetRelease'=>$target,
+    'retryAfter'=>$retry,
+    'serverTimestamp'=>gmdate('c')
+  ],JSON_UNESCAPED_SLASHES);
+  exit;
+}
+loom_enforce_deployment_gate();
 
 /**
  * LOOM Clean Instance Protocol (0.12.13+)

@@ -1,3 +1,12 @@
+## v0.15.22 - Deployment Gate + Retry-Storm Protection
+
+- Added a server-side deployment gate driven by the Bridge's short-lived `.loom-deploying.json` lease. During an active release, normal LOOM API requests return **503 Service Unavailable** with `Retry-After` and `X-LOOM-Deploying: 1` instead of running against mixed old/new authorization code.
+- Added `api/deployment-status.php`, a tiny dependency-free status probe that remains readable while the rest of LOOM is gated. Expired gate leases are treated as ready so a crashed deployer cannot leave an installation permanently offline.
+- Added `engine/deployment-guard.js`. It wraps same-origin `fetch`, catches the first deployment 503, blocks further LOOM requests behind one shared pending promise, shows a clean **LOOM is updating…** overlay, polls only the status endpoint, and reloads exactly once after the gate clears.
+- LOOM-owned PHP pages that load `_common.php` now show a lightweight auto-refreshing maintenance view during deployment rather than raw authorization/API failures. Static project/Home pages load the deployment guard before their normal engine scripts.
+- Project shells, templates, Admin, Activity, Pegboard, Registry, and LOOM Home all load the same deployment guard. Project config cache-busting advances to 0.15.22.
+- This release is designed to pair with **LOOM Bridge Suite 8.3 / Deployer 5.3**, which stages remote uploads and keeps the deployment gate active until the canonical manifest commit verifies.
+
 ## v0.15.21 - Showcase Color Simplification
 
 - Removed Showcase's automatic hue-shift system entirely. Headline 1 now inherits the project primary color exactly by default, and Headline 2 inherits the project accent color exactly by default.
@@ -374,7 +383,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.21 revision=38 policy=package-priority -->
+<!-- @loom-file release=0.15.22 revision=39 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
