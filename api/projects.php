@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.04 revision=12 policy=package-priority
+// @loom-file release=0.15.08 revision=13 policy=package-priority
 require __DIR__.'/_common.php';
 $requestClientId=safe_token((string)($_GET['clientId']??''));if($requestClientId!=='')loom_capture_request_ip($requestClientId,'');
 
@@ -55,8 +55,8 @@ foreach(loom_all_project_slugs() as $slug){
   $data=loom_project_effective_data($slug);if(!$data)continue;
   if(!loom_request_is_admin()&&$requestClientId!==''&&!loom_project_access_status($slug,$requestClientId)['allowed'])continue;
   $socialColor=(string)($data['social_color']??'#000000');if(!preg_match('/^#[0-9A-Fa-f]{6}$/',$socialColor))$socialColor='#000000';$socialColor=strtoupper($socialColor);
-  $projects[]=['slug'=>$slug,'name'=>$data['name']??$slug,'tagline'=>$data['tagline']??'','description'=>$data['description']??'','bio'=>$data['bio']??'','social_color'=>$socialColor,'theme'=>$data['theme']??'default','version'=>$data['version']??'0.0.0','source'=>loom_project_source($slug),'branding'=>loom_home_project_branding($slug,$dir),'app_url'=>loom_project_app_url($slug),'pegboard_url'=>"pegboard/?project=$slug&v=".rawurlencode(loom_release_version()),'registry_url'=>"registry/?project=$slug&v=".rawurlencode(loom_release_version())];
+  $projects[]=['slug'=>$slug,'name'=>$data['name']??$slug,'tagline'=>$data['tagline']??'','description'=>$data['description']??'','bio'=>$data['bio']??'','social_color'=>$socialColor,'theme'=>$data['theme']??'default','version'=>$data['version']??'0.0.0','source'=>loom_project_source($slug),'branding'=>loom_home_project_branding($slug,$dir),'app_url'=>loom_project_public_url($slug),'canonical_app_url'=>loom_project_app_url($slug),'domain_landing'=>loom_project_is_domain_landing($slug),'pegboard_url'=>"pegboard/?project=$slug&v=".rawurlencode(loom_release_version()),'registry_url'=>"registry/?project=$slug&v=".rawurlencode(loom_release_version())];
 }
 usort($projects,fn($a,$b)=>strcasecmp($a['name'],$b['name']));
 $isAdmin=function_exists('loom_request_is_admin')&&loom_request_is_admin();
-json_out(['engine'=>'LOOM','engine_version'=>loom_release_version(),'projects'=>$projects,'archived_projects'=>$isAdmin?list_archived_projects():[],'admin'=>$isAdmin]);
+json_out(['engine'=>'LOOM','engine_version'=>loom_release_version(),'domain_routing'=>loom_domain_routing_payload(),'projects'=>$projects,'archived_projects'=>$isAdmin?list_archived_projects():[],'admin'=>$isAdmin]);

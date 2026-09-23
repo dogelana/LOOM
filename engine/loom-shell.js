@@ -1,10 +1,10 @@
-// @loom-file release=0.15.02 revision=10 policy=package-priority
+// @loom-file release=0.15.08 revision=11 policy=package-priority
 (() => {
   'use strict';
 
   function ensureFavicon(apiBase){
     try{
-      const apiUrl=new URL(String(apiBase||'api').replace(/\/?$/,'/') ,location.href);
+      const apiUrl=new URL(String(apiBase||'api').replace(/\/?$/,'/') ,document.baseURI||location.href);
       const href=new URL('../assets/loom-logo.png',apiUrl);
       href.searchParams.set('v',window.LoomBrand?.version||window.LoomConfig?.engineVersion||'unknown');
 

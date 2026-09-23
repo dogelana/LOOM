@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.06 revision=14 policy=package-priority
+// @loom-file release=0.15.08 revision=15 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -364,6 +364,110 @@ function loom_write_global_settings(array $settings): void {
   @file_put_contents(loom_global_settings_file(),json_encode($settings,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);
   if(function_exists('loom_db_write_global_settings')&&function_exists('loom_db_ready')&&loom_db_ready())loom_db_write_global_settings($settings);
 }
+// ---- LOOM Domain Landing / project-at-installation-root (v0.15.08) ----
+function loom_domain_routing_file(): string {
+  return loom_config_dir().'/domain-routing.json';
+}
+function loom_domain_routing_defaults(): array {
+  return [
+    'schemaVersion'=>'1.0',
+    'homePath'=>'home',
+    'landing'=>['mode'=>'loom-home','project'=>''],
+    'hostBindings'=>[]
+  ];
+}
+function loom_read_domain_routing(): array {
+  $defaults=loom_domain_routing_defaults();
+  $saved=read_json_file(loom_domain_routing_file());
+  if(!is_array($saved))return $defaults;
+  $mode=(string)($saved['landing']['mode']??'loom-home');
+  if(!in_array($mode,['loom-home','project'],true))$mode='loom-home';
+  $project=safe_slug((string)($saved['landing']['project']??''));
+  $homePath=safe_slug((string)($saved['homePath']??'home'))?:'home';
+  if($homePath!=='home')$homePath='home'; // reserved stable recovery route in v1
+  return [
+    'schemaVersion'=>'1.0',
+    'homePath'=>$homePath,
+    'landing'=>['mode'=>$mode,'project'=>$project],
+    'hostBindings'=>is_array($saved['hostBindings']??null)?$saved['hostBindings']:[],
+    'updatedAt'=>$saved['updatedAt']??null
+  ];
+}
+function loom_write_domain_routing(string $mode,string $project=''): array {
+  $mode=in_array($mode,['loom-home','project'],true)?$mode:'loom-home';
+  $project=safe_slug($project);
+  if($mode==='project'){
+    if($project===''||!project_dir($project))throw new RuntimeException('Choose an active LOOM project for the base URL.');
+  }else{$project='';}
+  $current=loom_read_domain_routing();
+  $next=[
+    'schemaVersion'=>'1.0',
+    'homePath'=>'home',
+    'landing'=>['mode'=>$mode,'project'=>$project],
+    'hostBindings'=>is_array($current['hostBindings']??null)?$current['hostBindings']:[],
+    'updatedAt'=>server_timestamp()
+  ];
+  $file=loom_domain_routing_file();
+  $json=json_encode($next,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n";
+  if(@file_put_contents($file,$json,LOCK_EX)===false)throw new RuntimeException('LOOM could not save Domain Landing configuration.');
+  return $next;
+}
+function loom_domain_available_projects(): array {
+  $out=[];
+  foreach(loom_all_project_slugs() as $slug){
+    $dir=project_dir($slug);if(!$dir)continue;
+    $data=loom_project_effective_data($slug);
+    $out[]=[
+      'slug'=>$slug,
+      'name'=>(string)($data['name']??humanize_project_slug($slug)),
+      'source'=>loom_project_source($slug)??'unknown'
+    ];
+  }
+  usort($out,fn($a,$b)=>strcasecmp((string)$a['name'],(string)$b['name'])?:strcmp((string)$a['slug'],(string)$b['slug']));
+  return $out;
+}
+function loom_domain_routing_effective(): array {
+  $saved=loom_read_domain_routing();
+  $moduleEnabled=loom_global_module_enabled('loom.domain-landing',true);
+  if(!$moduleEnabled)return ['mode'=>'loom-home','project'=>'','reason'=>'module-disabled','saved'=>$saved];
+  $mode=(string)($saved['landing']['mode']??'loom-home');
+  $project=safe_slug((string)($saved['landing']['project']??''));
+  if($mode==='project'){
+    if($project!==''&&project_dir($project))return ['mode'=>'project','project'=>$project,'reason'=>null,'saved'=>$saved];
+    return ['mode'=>'loom-home','project'=>'','reason'=>'project-unavailable','saved'=>$saved];
+  }
+  return ['mode'=>'loom-home','project'=>'','reason'=>null,'saved'=>$saved];
+}
+function loom_domain_routing_payload(): array {
+  $effective=loom_domain_routing_effective();
+  $saved=$effective['saved'];
+  return [
+    'schemaVersion'=>'1.0',
+    'saved'=>[
+      'mode'=>(string)($saved['landing']['mode']??'loom-home'),
+      'project'=>safe_slug((string)($saved['landing']['project']??'')),
+      'updatedAt'=>$saved['updatedAt']??null
+    ],
+    'effective'=>[
+      'mode'=>$effective['mode'],
+      'project'=>$effective['project'],
+      'reason'=>$effective['reason']
+    ],
+    'homePath'=>'home',
+    'availableProjects'=>loom_domain_available_projects()
+  ];
+}
+function loom_project_is_domain_landing(string $project): bool {
+  $slug=safe_slug($project);$effective=loom_domain_routing_effective();
+  return $slug!==''&&$effective['mode']==='project'&&$effective['project']===$slug;
+}
+function loom_project_public_url(string $project): string {
+  $slug=safe_slug($project);if($slug==='')return '#';
+  if(loom_project_is_domain_landing($slug)){
+    $base=web_base_path();return ($base===''?'/':$base.'/');
+  }
+  return loom_project_app_url($slug);
+}
 function loom_global_core_modules_dir(): string { return root_dir().'/core-modules'; }
 function loom_core_module_records(?string $scope=null): array {
   $root=loom_global_core_modules_dir();$out=[];if(!is_dir($root))return $out;
@@ -389,7 +493,7 @@ function loom_scan_project_core_modules(): array {
 function loom_global_settings_payload(): array {
   $saved=loom_read_global_settings();$mods=loom_scan_global_core_modules();$effective=[];$states=[];
   foreach($mods as &$m){$id=$m['actionId'];$override=$saved['modules'][$id]??[];$m['overrides']=is_array($override)?$override:[];$m['values']=array_replace_recursive($m['defaults'],$m['overrides']);$m['enabled']=loom_global_module_enabled($id,(bool)($m['manifestEnabled']??true));$states[$id]=['enabled'=>$m['enabled']];$effective[$id]=$m['values'];}unset($m);
-  return ['modules'=>$mods,'settings'=>$effective,'moduleStates'=>$states,'updatedAt'=>$saved['updatedAt']??null];
+  return ['modules'=>$mods,'settings'=>$effective,'moduleStates'=>$states,'domainRouting'=>loom_domain_routing_payload(),'updatedAt'=>$saved['updatedAt']??null];
 }
 
 function loom_module_admin_overrides(string $project,string $actionId): array {

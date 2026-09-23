@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.00 revision=5 policy=package-priority
+// @loom-file release=0.15.08 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
 if(!loom_request_is_admin())json_out(['ok'=>false,'error'=>'admin-access-required'],403);
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
@@ -33,7 +33,7 @@ if($action==='create'){
     $saved=loom_write_project_profile($slug,$profile);
     $logo=(string)($body['logoPngBase64']??'');if($logo!=='')$saved=loom_save_project_logo($slug,$logo);
   }catch(RuntimeException $e){recursive_remove($dir);json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
-  json_out(['ok'=>true,'action'=>'create','slug'=>$slug,'source'=>'instance','app_url'=>loom_project_app_url($slug),'profile'=>$saved]);
+  json_out(['ok'=>true,'action'=>'create','slug'=>$slug,'source'=>'instance','app_url'=>loom_project_public_url($slug),'canonical_app_url'=>loom_project_app_url($slug),'profile'=>$saved]);
 }
 
 $slug=safe_slug((string)($body['slug']??''));

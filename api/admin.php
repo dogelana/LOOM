@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.06 revision=8 policy=package-priority
+// @loom-file release=0.15.08 revision=9 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -129,6 +129,15 @@ loom_require_admin($clientId);
 
 if($action==='global-settings'){
   json_out(['ok'=>true,'privilege'=>'Admin']+loom_global_settings_payload());
+}
+if($action==='domain-landing-save'){
+  $mode=(string)($body['mode']??'loom-home');$project=safe_slug((string)($body['project']??''));
+  try{loom_write_domain_routing($mode,$project);}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
+  json_out(['ok'=>true,'message'=>'Domain Landing updated']+loom_global_settings_payload());
+}
+if($action==='domain-landing-home'){
+  try{loom_write_domain_routing('loom-home','');}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],500);}
+  json_out(['ok'=>true,'message'=>'LOOM Home restored to the installation base URL']+loom_global_settings_payload());
 }
 if($action==='global-save'){
   $moduleId=safe_token((string)($body['moduleId']??''));$incoming=$body['values']??[];

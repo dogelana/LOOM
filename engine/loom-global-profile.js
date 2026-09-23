@@ -1,4 +1,4 @@
-// @loom-file release=0.15.02 revision=3 policy=package-priority
+// @loom-file release=0.15.08 revision=4 policy=package-priority
 (() => {
   'use strict';
 
@@ -80,7 +80,7 @@
       this.boundButtons=[];
     }
     api(path){return `${this.apiBase}/${path}`}
-    defaultAvatar(){return new URL('../assets/loom-default-avatar.svg',this.apiBase.endsWith('/api')?this.apiBase+'/':location.href).href}
+    defaultAvatar(){return new URL('../assets/loom-default-avatar.svg',this.apiBase.endsWith('/api')?this.apiBase+'/':(document.baseURI||location.href)).href}
     avatarUrl(){
       const a=this.data?.profile?.avatar;
       if(a?.mode==='custom'&&a?.customAvailable){
@@ -90,7 +90,7 @@
     }
     _rootAsset(rel){
       try{
-        const apiUrl=new URL(this.apiBase+'/',location.href);
+        const apiUrl=new URL(this.apiBase+'/',document.baseURI||location.href);
         return new URL('../'+rel,apiUrl).href;
       }catch{return rel}
     }

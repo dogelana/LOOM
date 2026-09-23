@@ -1,3 +1,20 @@
+# LOOM 0.15.08 - Domain Landing Goes Live
+
+- Added global core capability `loom.domain-landing`.
+- Added persistent `instance/config/domain-routing.json` authority with LOOM Home as the safe default.
+- Added a root `index.php` front controller that can render one selected release project or Instance Project at the exact installation base URL without a visible redirect.
+- Added permanent `/home/` LOOM Home recovery route.
+- Added `LOOM_MOUNT_CONTEXT` injection for root-mounted project shells and made project-shell identity resolve from mount context first.
+- Made LOOM-owned Home buttons target the permanent `/home/` route so they remain semantically correct while a project owns `/`.
+- Added Admin -> LOOM Settings -> Domain Landing manager with project selector, URL previews, save/restore controls, confirmation, and server validation.
+- Disabling Domain Landing or losing/archiving the selected project safely falls back to LOOM Home without deleting the saved preference.
+- Project discovery now marks the landing project and advertises its base URL as the public `app_url` while retaining `canonical_app_url`.
+- Hardened LoomShell and LOOM Profile relative URL resolution to respect `document.baseURI`, allowing the shared Home shell to run correctly at `/home/`.
+- Added explicit `/home/` rewrite fallback for hosting environments with inherited DirectoryIndex quirks.
+- Activated and updated `docs/DOMAIN-LANDING-STANDARD.md`.
+- Verified domain-root, `/home/`, release-project landing, Instance Project landing, missing-project fallback, module-disabled fallback, and subdirectory installation routing.
+- Re-ran mobile viewport, PHP/JS syntax, deployment-manifest integrity and Instance Vault hot-drop checks.
+
 # LOOM 0.15.07 - Mobile Identity Entry + Domain Landing Plan
 
 - Rebuilt the narrow-screen first-run / Switch User layout around `100dvh` and a `minmax(0,1fr)` scrolling content region.
@@ -230,7 +247,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.07 revision=24 policy=package-priority -->
+<!-- @loom-file release=0.15.08 revision=25 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

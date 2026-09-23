@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.07 revision=19 policy=package-priority -->
+<!-- @loom-file release=0.15.08 revision=20 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -356,3 +356,7 @@ Identity switching must expose guest creation regardless of whether the active b
 Identity entry is a platform-level full-screen dialog. Mobile implementations must use dynamic viewport sizing, safe-area-aware padding, a bounded scrolling content region, and reachable touch actions across first guest, guest chooser, create guest, account login and permanent-account switch states.
 
 Domain landing is planned as global server-side LOOM infrastructure with an Admin-facing core control. A project selected as the installation landing target may eventually render at the exact LOOM base URL while LOOM Home moves to the reserved `/home/` path. Mutable routing authority belongs under `instance/config/`; project shells must use an explicit mount context instead of assuming a fixed `../../../` physical depth. See `docs/DOMAIN-LANDING-STANDARD.md`.
+
+## v0.15.08 — Domain Landing is active
+
+The LOOM installation base is now a server-routed mount point. `loom.domain-landing` controls whether that mount point serves LOOM Home or one active project; mutable authority is persisted under `instance/config/domain-routing.json`. `/home/` is reserved permanently for LOOM Home. Root-mounted projects retain their canonical project shell as their resource base and receive explicit `LOOM_MOUNT_CONTEXT`, avoiding duplicated runtime shells and preserving module-relative paths. Release projects and Instance Projects share the same routing contract.

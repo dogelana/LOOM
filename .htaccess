@@ -1,8 +1,11 @@
-# @loom-file release=0.12.08 revision=2 policy=package-priority
+# @loom-file release=0.15.08 revision=3 policy=package-priority
 DirectoryIndex index.php index.html
 Options -MultiViews
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Permanent LOOM Home recovery route. The installation base may be owned by a project.
+  RewriteRule ^home/?$ home/index.php [L]
 
   # LOOM project app directory route.
   # This is explicit even though DirectoryIndex normally handles it, so hosts

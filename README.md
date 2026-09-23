@@ -1,4 +1,10 @@
-<!-- @loom-file release=0.15.07 revision=23 policy=package-priority -->
+<!-- @loom-file release=0.15.08 revision=24 policy=package-priority -->
+
+## v0.15.08 - Live Domain Landing / Project at Base URL
+
+Domain Landing is now live. The global `loom.domain-landing` capability lets an Admin make the exact LOOM installation base open LOOM Home or one selected active project. LOOM Home remains permanently available at `/home/`. The selection persists at `instance/config/domain-routing.json`, supports release projects and Instance Projects, and safely falls back to Home when the module is disabled or the selected project is unavailable.
+
+The implementation uses a stable root PHP front controller rather than dynamically rewriting `.htaccess`. Root-mounted projects reuse their canonical shell through an injected `<base>` and `LOOM_MOUNT_CONTEXT`, so the address bar stays on the domain/install base while normal module/API/assets continue to resolve. The same routing works when LOOM is installed in a subdirectory such as `/LOOM/`.
 
 ## v0.15.07 - Mobile Identity Entry + Domain Landing Plan
 

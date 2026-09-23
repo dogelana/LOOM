@@ -1,6 +1,6 @@
 # LOOM Git Workflow
 
-LOOM 0.15.07 is Git-compatible by design. Git owns the replaceable release tree. The Instance Vault remains outside source control.
+LOOM 0.15.08 is Git-compatible by design. Git owns the replaceable release tree. The Instance Vault remains outside source control.
 
 ## Repository boundary
 
