@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.08 revision=20 policy=package-priority -->
+<!-- @loom-file release=0.15.10 revision=22 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -360,3 +360,19 @@ Domain landing is planned as global server-side LOOM infrastructure with an Admi
 ## v0.15.08 — Domain Landing is active
 
 The LOOM installation base is now a server-routed mount point. `loom.domain-landing` controls whether that mount point serves LOOM Home or one active project; mutable authority is persisted under `instance/config/domain-routing.json`. `/home/` is reserved permanently for LOOM Home. Root-mounted projects retain their canonical project shell as their resource base and receive explicit `LOOM_MOUNT_CONTEXT`, avoiding duplicated runtime shells and preserving module-relative paths. Release projects and Instance Projects share the same routing contract.
+
+
+## v0.15.09 — Responsive module visibility
+
+Module Control now owns a second project-scoped state dimension beside `enabled`: `hideOnMobile`. The value persists under each module's `moduleStates` record in the Instance Vault and is merged into the runtime descriptor's `presentation.responsive.hideOnMobile` value. Action Runtime uses a 767px viewport media query to suppress eligible modules without importing or activating them, and reconciles live when the viewport crosses the boundary.
+
+Background Orbs are enabled by default again. The core orb module and project orb provider default to `hideOnMobile: true`; all other modules default false unless an Admin chooses otherwise.
+
+
+## v0.15.10 — Framed Action Reader + Activity Explorer
+
+HTML Framer's compatibility boundary now includes an Action Reader. Import-time analysis inventories stable interactive surfaces and JavaScript function/listener hints. Serve-time sandbox instrumentation observes UI interactions and posts them to the parent frame runtime, which emits normal declared LOOM user-action lifecycle events. Dynamic/unseen controls use generic framed action descriptors, preserving compatibility with applications that create UI after load.
+
+This deliberately stops short of wrapping arbitrary foreign JavaScript functions. LOOM can reliably observe externally meaningful UI behavior without mutating foreign execution semantics.
+
+Admin Activity Explorer is the historical observability counterpart to live Pegboard. It reads the existing project event stream plus privacy-scrubbed interaction replay and supports project, subject, session, category, date and text filters.

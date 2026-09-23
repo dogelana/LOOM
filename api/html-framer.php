@@ -50,6 +50,7 @@ try{
   if($action==='update'){
     if(array_key_exists('title',$raw)){$title=loom_clean_project_text($raw['title'],80);if($title==='')throw new RuntimeException('Frame title cannot be empty.');$frame['title']=$title;}
     if(array_key_exists('enabled',$raw))$frame['enabled']=(bool)$raw['enabled'];
+    if(array_key_exists('actionReaderEnabled',$raw))$frame['actionReaderEnabled']=(bool)$raw['actionReaderEnabled'];
     if(array_key_exists('height',$raw))$frame['height']=max(200,min(1600,(int)$raw['height']));
     $frame['revision']=max(1,(int)($frame['revision']??1)+1);$frame['updatedAt']=server_timestamp();
     $registry['frames'][$frameId]=$frame;loom_html_framer_write_registry($project,$registry);

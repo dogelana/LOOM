@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.06 revision=9 policy=package-priority
+// @loom-file release=0.15.09 revision=10 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -44,10 +44,14 @@ function build_runtime_module_descriptor(string $project,array $manifest,string 
   $fingerParts=[(string)filemtime($manifestFile),(string)filemtime($entry),hash_file('sha1',$manifestFile)?:'',hash_file('sha1',$entry)?:'',is_file(loom_admin_settings_file($project))?(hash_file('sha1',loom_admin_settings_file($project))?:''):'' ];
   foreach($styles as $url){$abs=root_dir().substr($url,strlen(web_base_path()));if(is_file($abs))$fingerParts[]=hash_file('sha1',$abs)?:'';}
   $effectiveOrder=effective_module_order($manifest);
+  $presentation=is_array($manifest['presentation']??null)?$manifest['presentation']:[];
+  if(!is_array($presentation['responsive']??null))$presentation['responsive']=[];
+  $defaultHideOnMobile=(bool)($presentation['responsive']['hideOnMobile']??false);
+  $presentation['responsive']['hideOnMobile']=loom_project_module_hide_on_mobile($project,(string)$action['id'],$defaultHideOnMobile);
   return [
     'schema_version'=>$manifest['schema_version']??'1.0','enabled'=>true,'action'=>$action,'user_actions'=>array_values($manifest['user_actions']??[]),'module'=>$module,
     'config'=>loom_module_config_with_admin_overrides($project,$manifest),'admin_overrides'=>loom_module_admin_overrides($project,(string)$action['id']),'admin_settings'=>$manifest['admin_settings']??new stdClass(),
-    'extensions'=>$manifest['extensions']??new stdClass(),'capabilities'=>$manifest['capabilities']??['provides'=>[],'requires'=>[],'permissions'=>[]],'presentation'=>$manifest['presentation']??new stdClass(),'pegboard'=>$manifest['pegboard']??new stdClass(),
+    'extensions'=>$manifest['extensions']??new stdClass(),'capabilities'=>$manifest['capabilities']??['provides'=>[],'requires'=>[],'permissions'=>[]],'presentation'=>$presentation,'pegboard'=>$manifest['pegboard']??new stdClass(),
     'order_effective'=>$effectiveOrder,'order_display'=>is_bootstrap_loader($manifest)?'BOOT':str_pad((string)$effectiveOrder,5,'0',STR_PAD_LEFT),
     'order_locked'=>(bool)($module['order_locked']??false)||(is_bootstrap_loader($manifest)||in_array((string)($action['id']??''),['core.ui.header-bar','core.user.profile','project.system.update-log'],true)),
     'bootstrap'=>$manifest['module']['bootstrap']??new stdClass(),'entry_url'=>$urlFor($entry),'styles'=>$styles,'manifest_url'=>$urlFor($manifestFile),

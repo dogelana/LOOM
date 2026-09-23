@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.08 revision=15 policy=package-priority
+// @loom-file release=0.15.09 revision=16 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -339,14 +339,22 @@ function loom_project_module_enabled(string $project,string $actionId,bool $defa
 }
 function loom_set_project_module_enabled(string $project,string $actionId,bool $enabled): void {
   $s=loom_read_admin_settings($project);if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];
-  $s['moduleStates'][$actionId]=['enabled'=>$enabled,'updatedAt'=>server_timestamp()];loom_write_admin_settings($project,$s);
+  $row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];$row['enabled']=$enabled;$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
+}
+function loom_project_module_hide_on_mobile(string $project,string $actionId,bool $default=false): bool {
+  $s=loom_read_admin_settings($project);$row=$s['moduleStates'][$actionId]??null;
+  return is_array($row)&&array_key_exists('hideOnMobile',$row)?(bool)$row['hideOnMobile']:$default;
+}
+function loom_set_project_module_hide_on_mobile(string $project,string $actionId,bool $hide): void {
+  $s=loom_read_admin_settings($project);if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];
+  $row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];$row['hideOnMobile']=$hide;$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
 }
 function loom_global_module_enabled(string $actionId,bool $default=true): bool {
   $s=loom_read_global_settings();$row=$s['moduleStates'][$actionId]??null;return is_array($row)&&array_key_exists('enabled',$row)?(bool)$row['enabled']:$default;
 }
 function loom_set_global_module_enabled(string $actionId,bool $enabled): void {
   $s=loom_read_global_settings();if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];
-  $s['moduleStates'][$actionId]=['enabled'=>$enabled,'updatedAt'=>server_timestamp()];loom_write_global_settings($s);
+  $row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];$row['enabled']=$enabled;$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_global_settings($s);
 }
 function loom_global_settings_file(): string {
   ensure_dir(loom_admin_dir());
@@ -487,7 +495,7 @@ function loom_scan_global_core_modules(): array {
 }
 function loom_scan_project_core_modules(): array {
   $out=[];
-  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project','manifestEnabled'=>(bool)($m['enabled']??true)];}
+  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project','manifestEnabled'=>(bool)($m['enabled']??true),'manifestHideOnMobile'=>(bool)($m['presentation']['responsive']['hideOnMobile']??false)];}
   return $out;
 }
 function loom_global_settings_payload(): array {

@@ -1,4 +1,16 @@
-<!-- @loom-file release=0.15.08 revision=24 policy=package-priority -->
+## v0.15.10 - Framed Actions + Activity Explorer
+
+LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an Action Reader that turns observable interactions in foreign static HTML bundles into declared LOOM user actions without requiring the foreign package to know LOOM. Admin also gains Activity Explorer for searchable historical user/session/action/interaction review.
+
+Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
+
+<!-- @loom-file release=0.15.10 revision=26 policy=package-priority -->
+
+## v0.15.09 - Responsive Module Visibility
+
+LOOM 0.15.09 adds a project-scoped **Hide on mobile** policy to Module Control. Modules stay enabled for normal project sessions while Action Runtime suppresses selected modules at 767px and narrower. Background Orbs are enabled by default again and are the first module family to ship with Hide on mobile enabled by default.
+
+The policy is generic, persists in the Instance Vault, reacts live when the viewport crosses the mobile boundary, and keeps enable/disable state independent from responsive visibility. See `docs/RESPONSIVE-MODULE-VISIBILITY-STANDARD.md`.
 
 ## v0.15.08 - Live Domain Landing / Project at Base URL
 

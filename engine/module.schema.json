@@ -307,6 +307,16 @@
               "type": "string"
             }
           }
+        },
+        "responsive": {
+          "type": "object",
+          "description": "Responsive runtime visibility hints. Admin project state may override manifest defaults.",
+          "properties": {
+            "hideOnMobile": {
+              "type": "boolean",
+              "description": "When true, Action Runtime suppresses the module at 767 CSS pixels wide or narrower."
+            }
+          }
         }
       }
     },

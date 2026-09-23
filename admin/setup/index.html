@@ -1,11 +1,11 @@
 <!doctype html>
-<!-- @loom-file release=0.15.08 revision=7 policy=package-priority -->
+<!-- @loom-file release=0.15.10 revision=9 policy=package-priority -->
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <title>LOOM · First Administrator Setup</title>
-<link rel="icon" type="image/png" data-loom-favicon="1" href="../../assets/loom-logo.png?v=0.15.08">
-<link rel="stylesheet" href="../../engine/loom-design.css?v=0.15.08">
+<link rel="icon" type="image/png" data-loom-favicon="1" href="../../assets/loom-logo.png?v=0.15.10">
+<link rel="stylesheet" href="../../engine/loom-design.css?v=0.15.10">
 <style>
 :root{--ink:#132018;--muted:#6b7b70;--line:#d9e6dc;--green:#168346;--gold:#725609}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui;background:radial-gradient(circle at 14% -8%,rgba(169,223,79,.22),transparent 30%),radial-gradient(circle at 88% 0,rgba(39,158,56,.13),transparent 28%),linear-gradient(180deg,#f7faf7,#edf4ef);color:var(--ink)}.wrap{width:min(900px,calc(100% - 28px));margin:34px auto 60px}.hero,.panel{border:1px solid var(--line);background:rgba(255,255,255,.95);border-radius:26px;box-shadow:0 24px 70px rgba(23,60,36,.10)}.hero{padding:28px}.eyebrow{font-size:9px;letter-spacing:.15em;font-weight:950;text-transform:uppercase;color:var(--green)}h1{font-size:38px;letter-spacing:-.045em;margin:7px 0 8px}p{font-size:12px;line-height:1.65;color:var(--muted)}.identity{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-top:20px;padding:15px;border:1px solid #dce8df;border-radius:18px;background:#f8fbf8}.identity img{width:68px;height:68px;border-radius:18px;background:#eef5ef;border:1px solid #d7e5da;padding:5px}.identity strong{font-size:17px}.mono{font:800 9px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#728078;word-break:break-all}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:11px;padding:10px 13px;font-weight:900;font-size:11px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}.btn.primary{background:#147b40;color:white}.btn.secondary{background:#edf5ef;color:#31573c}.btn.gold{background:#725609;color:white}.btn:disabled{opacity:.45;cursor:not-allowed}.panel{padding:22px;margin-top:14px}.panel[hidden]{display:none}.ack{display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px;border:1px solid #e4d7a6;border-radius:13px;background:#fffaf0;color:#6b5a2a;font-size:10px;line-height:1.55}.ack input{margin-top:2px}.form{display:grid;gap:10px;margin-top:14px}.form input{width:100%;border:1px solid #d6e4d9;border-radius:11px;padding:11px 12px;font:inherit}.msg{min-height:18px;margin-top:9px;font-size:10px;color:#4c6d57}.ready{border-color:#b9d8c1;background:linear-gradient(145deg,#fff,#f6fbf7)}.warn{border-color:#e8d6a3;background:#fffaf0}@media(max-width:600px){.wrap{width:calc(100% - 16px);margin:16px auto 36px}h1{font-size:30px}.hero,.panel{padding:19px;border-radius:20px}.identity{grid-template-columns:1fr}.identity img{width:60px;height:60px}.actions{width:100%}.actions .btn{min-height:42px;justify-content:center;flex:1 1 180px}}@media(max-width:380px){h1{font-size:27px}.hero,.panel{padding:16px}.identity{padding:12px}.actions .btn{flex-basis:100%}}
 </style></head><body>
@@ -18,11 +18,11 @@
 <section id="ownedElsewherePanel" class="panel warn" hidden><div class="eyebrow">ADMINISTRATOR ALREADY EXISTS</div><h2>This identity is not the current Administrator.</h2><p>Switch to the LOOM identity/account that owns Admin access. LOOM will not transfer Administrator authority merely because this setup page was opened.</p><div class="actions"><button id="switchUser2" class="btn secondary" type="button">🔄 Switch User</button><a class="btn secondary" href="../../home/">🏠 LOOM Home</a></div></section>
 </main>
 <div id="loomShellFooter"></div>
-<script src="../../engine/identity.js?v=0.15.08"></script>
-<script src="../../engine/identity-entry.js?v=0.15.08"></script>
-<script src="../../engine/loom-brand.js?v=0.15.08"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.08"></script>
-<script src="../../engine/loom-shell.js?v=0.15.08"></script>
+<script src="../../engine/identity.js?v=0.15.10"></script>
+<script src="../../engine/identity-entry.js?v=0.15.10"></script>
+<script src="../../engine/loom-brand.js?v=0.15.10"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.10"></script>
+<script src="../../engine/loom-shell.js?v=0.15.10"></script>
 <script>
 const $=s=>document.querySelector(s);let identity=null,lastAccount=null,lastAdmin=null;
 async function json(url,options={}){const r=await fetch(url,{cache:'no-store',...options});let d={};try{d=await r.json()}catch{}if(!r.ok||d.ok===false)throw new Error(d.error||d.message||`Request failed (${r.status})`);return d}

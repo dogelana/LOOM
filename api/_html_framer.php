@@ -60,6 +60,196 @@ function loom_html_framer_is_html(string $path): bool { return in_array(strtolow
 function loom_html_framer_is_css(string $path): bool { return strtolower(pathinfo($path,PATHINFO_EXTENSION))==='css'; }
 function loom_html_framer_is_js(string $path): bool { return in_array(strtolower(pathinfo($path,PATHINFO_EXTENSION)),['js','mjs','cjs'],true); }
 
+function loom_html_framer_reader_clean(string $value,string $fallback='Control'): string {
+  $value=html_entity_decode(strip_tags($value),ENT_QUOTES|ENT_HTML5,'UTF-8');
+  $value=preg_replace('/\s+/u',' ',trim($value))??'';
+  if($value==='')$value=$fallback;
+  return substr($value,0,80);
+}
+function loom_html_framer_reader_slug(string $value): string {
+  $value=strtolower($value);
+  $value=preg_replace('/[^a-z0-9]+/','-',trim($value))??'';
+  return trim(substr($value,0,32),'-')?:'control';
+}
+function loom_html_framer_action_reader_scan_html(string $html): array {
+  $actions=[];$functions=[];$warnings=[];$ordinal=0;
+  if(class_exists('DOMDocument')){
+    $prev=libxml_use_internal_errors(true);
+    try{
+      $doc=new DOMDocument();
+      $ok=@$doc->loadHTML($html,LIBXML_NOWARNING|LIBXML_NOERROR|LIBXML_NONET);
+      if($ok){
+        $xp=new DOMXPath($doc);
+        $nodes=$xp->query('//button | //a[@href] | //form | //input[not(translate(@type,"HIDDEN","hidden")="hidden")] | //select | //textarea | //*[@role="button"]');
+        if($nodes){
+          foreach($nodes as $node){
+            if(!($node instanceof DOMElement))continue;
+            $ordinal++;
+            $tag=strtolower($node->tagName);
+            $type=strtolower(trim($node->getAttribute('type')));
+            $role=strtolower(trim($node->getAttribute('role')));
+            $id=trim($node->getAttribute('id'));
+            $name=trim($node->getAttribute('name'));
+            $event='click';
+            if($tag==='form')$event='submit';
+            elseif($tag==='a')$event='navigate';
+            elseif(in_array($tag,['select','textarea'],true))$event='change';
+            elseif($tag==='input'&&!in_array($type,['button','submit','reset','image'],true))$event='change';
+            $label=trim($node->getAttribute('aria-label'));
+            if($label==='')$label=trim($node->getAttribute('title'));
+            if($label===''&&in_array($tag,['button','a'],true))$label=trim($node->textContent??'');
+            if($label===''&&$tag==='input'&&in_array($type,['button','submit','reset'],true))$label=trim($node->getAttribute('value'));
+            if($label==='')$label=$id?:($name?:ucfirst($tag));
+            $label=loom_html_framer_reader_clean($label,ucfirst($tag));
+            $handler='';
+            foreach(['click','submit','change'] as $ev){
+              $raw=trim($node->getAttribute('on'.$ev));
+              if($raw!==''&&preg_match('/([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/',$raw,$m)){
+                $handler=$m[1];$functions[$handler]=true;break;
+              }
+            }
+            $seed=implode('|',[$event,$tag,$id,$name,$type,$role,$label,(string)$ordinal]);
+            $key=$event.'.'.loom_html_framer_reader_slug($label).'.'.substr(hash('sha256',$seed),0,8);
+            $verb=['click'=>'Click','navigate'=>'Open','submit'=>'Submit','change'=>'Change'][$event]??'Use';
+            $actions[]=[
+              'key'=>$key,'event'=>$event,'name'=>$verb.' '.$label,
+              'description'=>'Auto-discovered framed HTML interaction.',
+              'match'=>['tag'=>$tag,'id'=>$id?:null,'name'=>$name?:null,'type'=>$type?:null,'role'=>$role?:null,'ordinal'=>$ordinal],
+              'handler'=>$handler?:null
+            ];
+            if(count($actions)>=160)break;
+          }
+        }
+      }else $warnings[]='Action Reader could not parse the entry HTML DOM; generic interaction capture remains available.';
+    }catch(Throwable $e){$warnings[]='Action Reader DOM scan fell back to generic interaction capture.';}
+    finally{libxml_clear_errors();libxml_use_internal_errors($prev);}
+  }else{
+    // Minimal regex fallback for hosts without the PHP DOM extension.
+    // Runtime generic capture would still work without this, but the fallback
+    // lets LOOM predeclare common controls in Action Registry too.
+    if(preg_match_all('~<(button|a|form|input|select|textarea)\b([^>]*)>(.*?)</\1\s*>|<(input)\b([^>]*)/?>~is',$html,$matches,PREG_SET_ORDER)){
+      foreach($matches as $m){
+        if(count($actions)>=160)break;
+        $tag=strtolower((string)($m[1]?:$m[4]?:''));
+        $attrs=(string)($m[2]?:$m[5]?:'');
+        $inner=(string)($m[3]??'');
+        $attr=function(string $name)use($attrs): string {
+          if(preg_match('~\b'.preg_quote($name,'~').'\s*=\s*(["\'])(.*?)\1~is',$attrs,$mm))return html_entity_decode($mm[2],ENT_QUOTES|ENT_HTML5,'UTF-8');
+          if(preg_match('~\b'.preg_quote($name,'~').'\s*=\s*([^\s>]+)~is',$attrs,$mm))return trim($mm[1],"'\"");
+          return '';
+        };
+        $type=strtolower(trim($attr('type')));if($tag==='input'&&$type==='hidden')continue;
+        $role=strtolower(trim($attr('role')));$id=trim($attr('id'));$name=trim($attr('name'));$ordinal++;
+        $event='click';
+        if($tag==='form')$event='submit';
+        elseif($tag==='a')$event='navigate';
+        elseif(in_array($tag,['select','textarea'],true))$event='change';
+        elseif($tag==='input'&&!in_array($type,['button','submit','reset','image'],true))$event='change';
+        $label=trim($attr('aria-label'));if($label==='')$label=trim($attr('title'));
+        if($label===''&&in_array($tag,['button','a'],true))$label=trim(strip_tags($inner));
+        if($label===''&&$tag==='input'&&in_array($type,['button','submit','reset'],true))$label=trim($attr('value'));
+        if($label==='')$label=$id?:($name?:ucfirst($tag));
+        $label=loom_html_framer_reader_clean($label,ucfirst($tag));
+        $handler='';
+        foreach(['click','submit','change'] as $ev){
+          $raw=trim($attr('on'.$ev));
+          if($raw!==''&&preg_match('/([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/',$raw,$hm)){$handler=$hm[1];$functions[$handler]=true;break;}
+        }
+        $seed=implode('|',[$event,$tag,$id,$name,$type,$role,$label,(string)$ordinal]);
+        $key=$event.'.'.loom_html_framer_reader_slug($label).'.'.substr(hash('sha256',$seed),0,8);
+        $verb=['click'=>'Click','navigate'=>'Open','submit'=>'Submit','change'=>'Change'][$event]??'Use';
+        $actions[]=['key'=>$key,'event'=>$event,'name'=>$verb.' '.$label,'description'=>'Auto-discovered framed HTML interaction.','match'=>['tag'=>$tag,'id'=>$id?:null,'name'=>$name?:null,'type'=>$type?:null,'role'=>$role?:null,'ordinal'=>$ordinal],'handler'=>$handler?:null];
+      }
+    }
+    $warnings[]='PHP DOMDocument is unavailable; Action Reader used its compatibility HTML scanner.';
+  }
+
+  return [
+    'schema'=>'loom-framed-action-reader/v1',
+    'trackableActions'=>$actions,
+    'functionCandidates'=>array_keys($functions),
+    'listenerEvents'=>[],
+    'warnings'=>$warnings,
+    'trackableCount'=>count($actions)
+  ];
+}
+function loom_html_framer_action_reader_scan_js(array $paths,array $inventory,string $zipPath,array $base): array {
+  $functions=array_fill_keys(array_values($base['functionCandidates']??[]),true);
+  $listeners=[];
+  foreach($paths as $path){
+    if(!loom_html_framer_is_js($path)||!isset($inventory[$path]))continue;
+    $raw=loom_html_framer_zip_read($zipPath,$inventory[$path]);
+    if(!loom_html_framer_text_ok($raw))continue;
+    if(preg_match_all('/\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/',$raw,$m))
+      foreach($m[1] as $name)if(count($functions)<160)$functions[$name]=true;
+    if(preg_match_all('/\b(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s*)?(?:function\b|\([^)]*\)\s*=>|[A-Za-z_$][A-Za-z0-9_$]*\s*=>)/',$raw,$m))
+      foreach($m[1] as $name)if(count($functions)<160)$functions[$name]=true;
+    if(preg_match_all('/addEventListener\s*\(\s*["\']([A-Za-z0-9:_-]+)["\']/',$raw,$m))
+      foreach($m[1] as $event)$listeners[$event]=($listeners[$event]??0)+1;
+  }
+  ksort($listeners);
+  $base['functionCandidates']=array_slice(array_keys($functions),0,160);
+  $base['listenerEvents']=$listeners;
+  $base['functionCandidateCount']=count($base['functionCandidates']);
+  $base['listenerEventCount']=array_sum($listeners);
+  return $base;
+}
+function loom_html_framer_action_reader_enabled(string $project,array $frame): bool {
+  if(($frame['actionReaderEnabled']??true)===false)return false;
+  $manager=read_json_file(root_dir().'/core-modules/html-framer/manifest.json')?:[];
+  $cfg=loom_module_config_with_admin_overrides($project,$manager);
+  return ($cfg['actionReaderEnabled']??true)!==false;
+}
+function loom_html_framer_action_reader_user_actions(array $frame): array {
+  $id=(string)($frame['id']??'');if($id==='')return [];
+  $reader=is_array($frame['actionReader']??null)?$frame['actionReader']:[];
+  $out=[];
+  foreach(($reader['trackableActions']??[]) as $a){
+    if(!is_array($a)||empty($a['key']))continue;
+    $out[]=[
+      'id'=>'html.frame.'.$id.'.ui.'.preg_replace('/[^a-zA-Z0-9._-]+/','-',(string)$a['key']),
+      'name'=>(string)($a['name']??'Framed interaction'),
+      'description'=>(string)($a['description']??'Auto-discovered framed HTML interaction.'),
+      'behavior'=>'transient','events'=>[]
+    ];
+  }
+  foreach(['click'=>'Dynamic click','navigate'=>'Dynamic navigation','submit'=>'Dynamic form submit','change'=>'Dynamic field change'] as $event=>$name)
+    $out[]=['id'=>'html.frame.'.$id.'.dynamic.'.$event,'name'=>$name,'description'=>'Runtime-observed framed HTML interaction not present in the import-time static catalog.','behavior'=>'transient','events'=>[]];
+  return $out;
+}
+function loom_html_framer_action_reader_client_config(array $frame): array {
+  $id=(string)($frame['id']??'');$reader=is_array($frame['actionReader']??null)?$frame['actionReader']:[];
+  $catalog=[];
+  foreach(($reader['trackableActions']??[]) as $a){
+    if(!is_array($a)||empty($a['key']))continue;
+    $catalog[]=[
+      'actionId'=>'html.frame.'.$id.'.ui.'.preg_replace('/[^a-zA-Z0-9._-]+/','-',(string)$a['key']),
+      'event'=>(string)($a['event']??'click'),'name'=>(string)($a['name']??'Framed interaction'),
+      'match'=>is_array($a['match']??null)?$a['match']:[]
+    ];
+  }
+  $generic=[];foreach(['click','navigate','submit','change'] as $e)$generic[$e]='html.frame.'.$id.'.dynamic.'.$e;
+  return ['schema'=>'loom-framed-action-reader/v1','frameId'=>$id,'catalog'=>$catalog,'generic'=>$generic];
+}
+function loom_html_framer_action_reader_script(array $frame): string {
+  $cfg=loom_html_framer_action_reader_client_config($frame);
+  $json=json_encode($cfg,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+  if($json===false)$json='{}';
+  return '<script data-loom-framed-action-reader="1">(function(){' .
+    'const C='.$json.';const SEL="button,a[href],form,input:not([type=hidden]),select,textarea,[role=button]";' .
+    'const clean=v=>String(v||"").replace(/\\s+/g," ").trim().slice(0,80);' .
+    'function meta(el){if(!el||el.nodeType!==1)return null;const tag=el.tagName.toLowerCase(),type=String(el.getAttribute("type")||"").toLowerCase();return{tag,id:el.id||null,name:el.getAttribute("name")||null,type:type||null,role:el.getAttribute("role")||null,ordinal:[...document.querySelectorAll(SEL)].indexOf(el)+1}}' .
+    'function label(el){if(!el)return"Control";let v=el.getAttribute("aria-label")||el.getAttribute("title")||"";if(!v&&(el.matches("button,a[href]")))v=el.textContent||"";if(!v&&el.id)v=el.id;if(!v&&el.getAttribute("name"))v=el.getAttribute("name");return clean(v)||el.tagName.toLowerCase()}' .
+    'function pick(type,el){const m=meta(el)||{};let best=null,score=-1;for(const a of C.catalog||[]){if(a.event!==type)continue;const x=a.match||{};let s=0;if(x.id&&m.id===x.id)s+=100;else if(x.id)continue;if(x.name&&m.name===x.name)s+=40;if(x.tag&&m.tag===x.tag)s+=10;if(x.type&&m.type===x.type)s+=8;if(x.role&&m.role===x.role)s+=6;if(x.ordinal&&m.ordinal===Number(x.ordinal))s+=2;if(s>score){score=s;best=a}}return best||{actionId:(C.generic||{})[type]||"",name:"Framed "+type}}' .
+    'function hrefInfo(el){try{const raw=el&&el.href?new URL(el.href,location.href):null;if(!raw)return null;return{host:raw.host,path:raw.pathname.slice(0,180),external:raw.origin!==location.origin}}catch{return null}}' .
+    'function emit(type,el,extra){const a=pick(type,el),m=meta(el);if(!a.actionId)return;parent.postMessage({__loomFramedAction:"v1",frameId:C.frameId,actionId:a.actionId,eventType:type,actionName:a.name,label:label(el),target:m,href:type==="navigate"?hrefInfo(el):null,...(extra||{})},"*")}' .
+    'addEventListener("click",e=>{const el=e.target&&e.target.closest?e.target.closest("button,a[href],[role=button],input[type=button],input[type=submit],input[type=reset],input[type=image]"):null;if(!el)return;emit(el.matches("a[href]")?"navigate":"click",el,{x:Math.round(e.clientX||0),y:Math.round(e.clientY||0),button:Number(e.button||0)})},true);' .
+    'addEventListener("submit",e=>{if(e.target&&e.target.matches&&e.target.matches("form"))emit("submit",e.target,{method:String(e.target.method||"get").toUpperCase()})},true);' .
+    'addEventListener("change",e=>{const el=e.target;if(!el||!el.matches||!el.matches("input,select,textarea"))return;const x={};if(el.matches("input[type=checkbox],input[type=radio]"))x.checked=!!el.checked;if(el.matches("select"))x.selectedIndex=el.selectedIndex;if(el.matches("input[type=file]"))x.fileCount=el.files?el.files.length:0;emit("change",el,x)},true);' .
+    'parent.postMessage({__loomFramedAction:"v1",frameId:C.frameId,eventType:"reader-ready",catalogCount:(C.catalog||[]).length},"*");' .
+    '})();</script>';
+}
+
 function loom_html_framer_zip_supported(): bool {
   return class_exists('ZipArchive')||class_exists('PharData');
 }
@@ -226,17 +416,19 @@ function loom_html_framer_analyze_zip(string $zipPath,?string $entrypoint=null):
     if($js&&!$entryRefs&&!$autoJs){sort($js,SORT_NATURAL|SORT_FLAG_CASE);$autoJs[]=$js[0];$syntaxWarnings[]='JavaScript dependency cycle detected; LOOM selected '.$js[0].' as the root script.';}
   }
   sort($autoCss,SORT_NATURAL|SORT_FLAG_CASE);sort($autoJs,SORT_NATURAL|SORT_FLAG_CASE);
-  $fatal=[];
+  $fatal=[];$actionReader=['schema'=>'loom-framed-action-reader/v1','trackableActions'=>[],'functionCandidates'=>[],'listenerEvents'=>[],'warnings'=>[],'trackableCount'=>0];
   if($entry){
     $entryData=loom_html_framer_zip_read($zipPath,$inv['files'][$entry]);
     if(trim($entryData)===''||!preg_match('~<\s*[a-zA-Z][^>]*>~',$entryData))$fatal[]='Selected HTML entrypoint does not contain recognizable HTML markup.';
+    else $actionReader=loom_html_framer_action_reader_scan_js($js,$inv['files'],$zipPath,loom_html_framer_action_reader_scan_html($entryData));
   }
   return [
     'entrypoint'=>$entry,'entrypointReason'=>$pick['reason'],'needsEntrypoint'=>(bool)$pick['ambiguous'],
     'htmlCandidates'=>$inv['html'],'fileCount'=>count($paths),'totalBytes'=>$inv['totalBytes'],
     'cssCount'=>count($css),'jsCount'=>count($js),'autoAttachCss'=>$autoCss,'autoAttachJs'=>$autoJs,
     'relationships'=>$relationships,'repairs'=>$repairs,'missingRefs'=>$missing,
-    'warnings'=>array_values(array_unique(array_merge($inv['warnings'],$syntaxWarnings))),
+    'warnings'=>array_values(array_unique(array_merge($inv['warnings'],$syntaxWarnings,$actionReader['warnings']??[]))),
+    'actionReader'=>$actionReader,
     'fatal'=>$fatal,'files'=>$paths
   ];
 }
@@ -282,7 +474,8 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
-      'warnings'=>$analysis['warnings'],'createdAt'=>$existing['createdAt']??server_timestamp(),'updatedAt'=>server_timestamp()
+      'warnings'=>$analysis['warnings'],'actionReader'=>$analysis['actionReader']??[],'actionReaderEnabled'=>array_key_exists('actionReaderEnabled',$existing)?(bool)$existing['actionReaderEnabled']:true,
+      'createdAt'=>$existing['createdAt']??server_timestamp(),'updatedAt'=>server_timestamp()
     ];
     $final=loom_html_framer_frame_dir($project,$frameId);$backup=null;
     if(is_dir($final)){$backup=$final.'.bak.'.bin2hex(random_bytes(2));@rename($final,$backup);}
@@ -339,6 +532,11 @@ function loom_html_framer_serve_transform(string $project,string $frameId,string
         else $data.=$js;
       }
     }
+    if(loom_html_framer_action_reader_enabled($project,$frame)){
+      $bridge=loom_html_framer_action_reader_script($frame);
+      if(stripos($data,'</body>')!==false)$data=preg_replace('~</body>~i',$bridge.'</body>',$data,1)??$data;
+      else $data.=$bridge;
+    }
     return $data;
   }
   if(loom_html_framer_is_css($path)){
@@ -383,7 +581,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
   foreach(loom_html_framer_public_frames($project) as $frame){
     if(($frame['enabled']??true)===false)continue;
     $id=(string)$frame['id'];$order=max(1,(int)($frame['order']??60000));$revision=max(1,(int)($frame['revision']??1));
-    $actionId='html.frame.'.$id;
+    $actionId='html.frame.'.$id;$readerEnabled=loom_html_framer_action_reader_enabled($project,$frame);$readerActions=$readerEnabled?loom_html_framer_action_reader_user_actions($frame):[];
     $src=loom_html_framer_endpoint_url($project,$id,(string)$frame['entrypoint'],$clientId).'&r='.$revision;
     $finger=substr(hash('sha256',implode('|',[$project,$id,(string)$revision,hash_file('sha1',$entry)?:'',json_encode($frame)])),0,16);
     $out[]=[
@@ -393,11 +591,17 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'kind'=>'system','behavior'=>'stateful','autostart'=>true,'parent'=>'loom.html-framer','category'=>'project/html-frame',
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
-      'user_actions'=>[],
-      'module'=>['entry'=>'frame-action.js','version'=>'1.0.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'user_actions'=>$readerActions,
+      'module'=>['entry'=>'frame-action.js','version'=>'1.1.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,'height'=>max(200,min(1600,(int)($frame['height']??520))),
-        'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>'boundary-only'
+        'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
+        'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
+          'declaredActionCount'=>count($readerActions),
+          'trackableCount'=>(int)($frame['actionReader']['trackableCount']??0),
+          'functionCandidateCount'=>(int)($frame['actionReader']['functionCandidateCount']??0),
+          'listenerEventCount'=>(int)($frame['actionReader']['listenerEventCount']??0)
+        ]
       ],
       'admin_overrides'=>new stdClass(),'admin_settings'=>['fields'=>[]],
       'extensions'=>new stdClass(),'capabilities'=>['provides'=>[],'requires'=>[],'permissions'=>[]],

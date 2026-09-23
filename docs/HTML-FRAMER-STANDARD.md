@@ -49,3 +49,23 @@ The selected entrypoint receives discovered root CSS/JS files that were otherwis
 ## Limits
 
 HTML Framer is intentionally bounded against accidental ZIP bombs. Current limits are documented in the module README.
+
+## Action Reader v1 (0.15.10)
+
+HTML Framer now includes a backwards-compatible **Framed Action Reader**. Imported packages do not need LOOM-specific code.
+
+At import time LOOM scans the selected entry HTML for observable interactive controls such as buttons, links, forms, inputs, selects, textareas, and `role="button"` elements. It also inventories named JavaScript functions and `addEventListener(...)` registrations as discovery hints. Function candidates are **not automatically wrapped or monkey-patched**, because arbitrary function wrapping can change foreign application semantics.
+
+At serve time LOOM injects a small privacy-conscious bridge into the sandboxed HTML. The bridge observes:
+
+- meaningful clicks/taps on buttons and button-like controls;
+- link navigation intent;
+- form submission;
+- field change events.
+
+It never transmits typed text values. Checkbox/radio state, select index, and file-count metadata may be recorded because they describe the interaction without copying field contents.
+
+Each import-time control becomes a declared LOOM `user_action` under the dynamic `html.frame.<frame-id>` module. Runtime-created controls fall back to declared generic dynamic actions. The sandbox posts observations to its parent frame runtime, which translates them through normal `ctx.userAction(...)` lifecycle logging. As a result Pegboard, Action Registry, session history, and Activity Explorer can treat framed actions like native LOOM user actions.
+
+This is an interoperability reader, not a promise that LOOM can infer every internal JavaScript function's semantic meaning. Observable UI behavior receives first-class action tracking; internal functions remain hints unless the foreign package exposes them through UI or is later adapted explicitly.
+

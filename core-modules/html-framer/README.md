@@ -120,3 +120,9 @@ The initial implementation guards against accidental ZIP bombs:
 - maximum individual file: 12 MB
 
 These limits are deliberately conservative for a lightweight static-frame feature.
+
+## Action Reader v1
+
+LOOM 0.15.10 automatically catalogs observable interactive controls in framed HTML and injects a sandbox-local bridge that reports clicks/navigation, submits and field changes to the parent LOOM runtime. Those interactions become declared dynamic-frame user actions and therefore participate in Action Registry, Pegboard/session history and Activity Explorer.
+
+Named JavaScript functions/listener registrations are surfaced as analysis hints only; LOOM does not wrap arbitrary foreign functions because doing so could alter application behavior.

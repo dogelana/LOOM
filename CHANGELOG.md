@@ -1,3 +1,25 @@
+# LOOM 0.15.10 - Framed Actions + Activity Explorer
+
+- Social Links now renders fixed platform links in the permanent order **Website → YouTube → Facebook → TikTok → Instagram**, with Custom Link afterward.
+- Added HTML Framer **Action Reader v1** for backwards-compatible action telemetry from foreign HTML/CSS/JavaScript bundles.
+- HTML Framer import analysis now catalogs observable UI controls and inventories named JS functions / event-listener registrations as non-invasive discovery hints.
+- Framed clicks/navigation, form submits and field changes are translated into normal declared LOOM user actions without copying typed text values.
+- Added global and per-frame Action Reader enable/disable controls.
+- Added **Admin → Activity Explorer**, a searchable historical activity surface for users/guest clients, sessions, actions, clicks/taps, inputs, framed HTML, module/runtime events and errors.
+- Activity Explorer combines durable semantic event logs with the existing privacy-scrubbed interaction-capture stream and can export the current result set as JSON.
+- Added `docs/ACTIVITY-EXPLORER-STANDARD.md` and expanded `docs/HTML-FRAMER-STANDARD.md`.
+
+# LOOM 0.15.09 - Responsive Module Visibility
+
+- Added a generic project-scoped **Hide on mobile** checkbox to Module Control.
+- Responsive suppression uses the project viewport (`max-width: 767px`), not User-Agent sniffing.
+- Action Runtime now unloads hidden modules when entering mobile width and loads them again when leaving mobile width.
+- Module enable state and mobile visibility state persist independently in the Instance Vault.
+- Restored Background Orbs and project orb providers to enabled-by-default behavior.
+- Background Orbs are the only modules that default to **Hide on mobile = ON** in this release.
+- Updated fallback registries so offline/static fallback behavior matches the same orb policy.
+- Added `docs/RESPONSIVE-MODULE-VISIBILITY-STANDARD.md`.
+
 # LOOM 0.15.08 - Domain Landing Goes Live
 
 - Added global core capability `loom.domain-landing`.

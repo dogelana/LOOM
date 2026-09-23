@@ -483,7 +483,7 @@
     },
     {
       "schema_version": "1.8",
-      "enabled": false,
+      "enabled": true,
       "action": {
         "id": "core.ui.background-orbs",
         "name": "Background Orbs",
@@ -523,7 +523,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.2.1",
+        "version": "1.3.0",
         "dependencies": [],
         "styles": [],
         "order": "00005"
@@ -535,6 +535,9 @@
         },
         "layout": {
           "order": 5
+        },
+        "responsive": {
+          "hideOnMobile": true
         }
       },
       "config": {

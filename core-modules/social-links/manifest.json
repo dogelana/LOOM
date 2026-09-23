@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scope": "project",
     "order": "00007",
     "dependencies": [
@@ -69,16 +69,10 @@
     "description": "Optional footer links. Leave a URL blank to hide that icon. All visible icons share one color and use bundled Font Awesome Free vector artwork.",
     "fields": [
       {
-        "id": "facebookUrl",
-        "label": "Facebook URL",
+        "id": "websiteUrl",
+        "label": "Website URL",
         "type": "text",
-        "help": "Leave blank to hide Facebook."
-      },
-      {
-        "id": "instagramUrl",
-        "label": "Instagram URL",
-        "type": "text",
-        "help": "Leave blank to hide Instagram."
+        "help": "Uses the matching globe icon."
       },
       {
         "id": "youtubeUrl",
@@ -87,16 +81,22 @@
         "help": "Leave blank to hide YouTube."
       },
       {
+        "id": "facebookUrl",
+        "label": "Facebook URL",
+        "type": "text",
+        "help": "Leave blank to hide Facebook."
+      },
+      {
         "id": "tiktokUrl",
         "label": "TikTok URL",
         "type": "text",
         "help": "Leave blank to hide TikTok."
       },
       {
-        "id": "websiteUrl",
-        "label": "Website URL",
+        "id": "instagramUrl",
+        "label": "Instagram URL",
         "type": "text",
-        "help": "Uses the matching globe icon."
+        "help": "Leave blank to hide Instagram."
       },
       {
         "id": "customUrl",

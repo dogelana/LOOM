@@ -1,4 +1,4 @@
-// @loom-file release=0.15.05 revision=4 policy=package-priority
+// @loom-file release=0.15.09 revision=5 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -10,7 +10,7 @@
       this.registry=new window.PegboardRegistryClient({project,apiBase,fallbackUrl:fallbackRegistry});
       if(userId!=null)window.LOOM_USER_ID=userId;if(userLabel!=null)window.LOOM_USER_LABEL=userLabel;
       this.identity=window.LoomIdentity.get(project);this.bus=new window.LoomEventBus(project,this.identity);
-      this.modules=new Map();this.activeActions=new Map();this.userActionDescriptors=new Map();this.activeUserActions=new Map();this.discoveredDescriptors=[];this.bootstrapLoaderId=null;this.bootstrapLoadState=null;this.running=false;this.pollTimer=null;this.heartbeatTimer=null;this.lastHeartbeatSentAt=0;this.logQueue=[];this.logDraining=false;this.logDrainPromise=null;this.modulePreloads=new Set();this.moduleLayoutState={collapsed:{}};this.moduleFrameStyle=null;
+      this.modules=new Map();this.activeActions=new Map();this.userActionDescriptors=new Map();this.activeUserActions=new Map();this.discoveredDescriptors=[];this.bootstrapLoaderId=null;this.bootstrapLoadState=null;this.running=false;this.pollTimer=null;this.heartbeatTimer=null;this.lastHeartbeatSentAt=0;this.logQueue=[];this.logDraining=false;this.logDrainPromise=null;this.modulePreloads=new Set();this.moduleLayoutState={collapsed:{}};this.moduleFrameStyle=null;this.mobileMedia=window.matchMedia?.('(max-width: 767px)')||null;this.responsiveTimer=null;this._onResponsiveModuleVisibilityChange=()=>{clearTimeout(this.responsiveTimer);this.responsiveTimer=setTimeout(()=>{if(this.running)this.refresh(false).catch(err=>this._emitEngineError(err))},90)};
       this.runtimeId=crypto?.randomUUID?.()||`${Date.now()}_${Math.random().toString(36).slice(2)}`;
       this.coreSteps=new Map();this.closed=false;this.closeToken=null;this.correlationId=`corr_${this.runtimeId}`;this.lastEventId=null;this.stopInteractionCapture=null;
       this._onPageHide=e=>{if(!e.persisted)this._gracefulPageClose('pagehide')};
@@ -41,7 +41,7 @@
     async start(){
       if(this.running)return;this.running=true;this.closed=false;
       await this._log({type:'session.start',runtimeId:this.runtimeId,meta:this.identity.meta,userLabel:this.identity.userLabel});
-      await this._loadModuleLayoutState();
+      await this._loadModuleLayoutState();this._bindResponsiveModuleVisibility();
       this._emitAction('session.presence','active',{kind:'system',behavior:'stateful',name:'Session Presence'});
       this._emitAction('core.load','active',{kind:'system',behavior:'stateful',name:'Load Core'});
       await this._coreStep('discover-project',async()=>{});
@@ -54,7 +54,7 @@
     async stop(){return this.close('runtime-stop')}
     async close(reason='closed'){
       if(this.closed)return;this.closed=true;this.running=false;
-      clearTimeout(this.pollTimer);clearInterval(this.heartbeatTimer);this._unbindPresenceActivity();removeEventListener('pagehide',this._onPageHide);
+      clearTimeout(this.pollTimer);clearTimeout(this.responsiveTimer);clearInterval(this.heartbeatTimer);this._unbindPresenceActivity();this._unbindResponsiveModuleVisibility();removeEventListener('pagehide',this._onPageHide);
       this.stopInteractionCapture?.();this.stopInteractionCapture=null;
       for(const id of [...this.modules.keys()])await this._removeModule(id,reason,false);
       this._emitAction('core.load','inactive',{kind:'system',behavior:'stateful',name:'Load Core',reason});
@@ -67,6 +67,11 @@
       clearTimeout(this.pollTimer);if(!this.running)return;
       this.pollTimer=setTimeout(async()=>{try{await this.refresh(false)}catch(err){this._emitEngineError(err)}this._schedulePoll()},CFG.discoveryIntervalMs);
     }
+    _isMobileViewport(){return this.mobileMedia?this.mobileMedia.matches:window.innerWidth<=767}
+    _hideOnMobile(descriptor){return descriptor?.presentation?.responsive?.hideOnMobile===true}
+    _moduleAllowedForViewport(descriptor){return !(this._hideOnMobile(descriptor)&&this._isMobileViewport())}
+    _bindResponsiveModuleVisibility(){if(this.mobileMedia?.addEventListener)this.mobileMedia.addEventListener('change',this._onResponsiveModuleVisibilityChange);else addEventListener('resize',this._onResponsiveModuleVisibilityChange,{passive:true})}
+    _unbindResponsiveModuleVisibility(){if(this.mobileMedia?.removeEventListener)this.mobileMedia.removeEventListener('change',this._onResponsiveModuleVisibilityChange);else removeEventListener('resize',this._onResponsiveModuleVisibilityChange)}
     _isBootstrapLoader(descriptor){return descriptor?.module?.bootstrap?.role==='loader'}
     _moduleOrderDisplay(descriptor){return this._isBootstrapLoader(descriptor)?'BOOT':String(this._moduleOrder(descriptor)).padStart(5,'0')}
     _bootstrapLoaderRecord(){return this.bootstrapLoaderId?this.modules.get(this.bootstrapLoaderId):null}
@@ -243,22 +248,23 @@
       const payload=await this.registry.load();
       payload.modules=this._sortDescriptors(payload.modules||[]);
       this.discoveredDescriptors=payload.modules;
-      this._indexUserActions(payload.modules);
-      if(isBoot)this._preloadModuleEntries(payload.modules);
+      const runtimeModules=payload.modules.filter(descriptor=>this._moduleAllowedForViewport(descriptor));
+      this._indexUserActions(runtimeModules);
+      if(isBoot)this._preloadModuleEntries(runtimeModules);
       if(isBoot)await this._coreStep('validate-manifests',async()=>{});
-      if(isBoot)await this._prepareBootstrapLoader(payload.modules);
-      const incoming=new Map(payload.modules.map(m=>[m.action.id,m]));
+      if(isBoot)await this._prepareBootstrapLoader(runtimeModules);
+      const incoming=new Map(runtimeModules.map(m=>[m.action.id,m]));
       for(const [id,current] of [...this.modules]){
         const next=incoming.get(id);
         if(!next)await this._removeModule(id,'module-removed');
         else if(next.fingerprint!==current.descriptor.fingerprint){await this._removeModule(id,'module-changed',false);await this._addModule(next,{skipProgress:!isBoot})}
       }
-      for(const descriptor of payload.modules){
+      for(const descriptor of runtimeModules){
         if(isBoot&&this._isBootstrapLoader(descriptor))continue;
         if(!this.modules.has(descriptor.action.id))await this._addModule(descriptor,{skipProgress:!isBoot});
       }
       this._reflowModuleOrder();
-      this.bus.emit({type:'registry.snapshot',runtimeId:this.runtimeId,source:this.registry.lastSource,modules:payload.modules.map(m=>({id:m.action.id,fingerprint:m.fingerprint,order:this._moduleOrder(m),orderDisplay:this._moduleOrderDisplay(m),bootstrap:this._isBootstrapLoader(m),userActions:(m.user_actions||[]).map(a=>a.id)}))});
+      this.bus.emit({type:'registry.snapshot',runtimeId:this.runtimeId,source:this.registry.lastSource,mobileViewport:this._isMobileViewport(),modules:payload.modules.map(m=>({id:m.action.id,fingerprint:m.fingerprint,order:this._moduleOrder(m),orderDisplay:this._moduleOrderDisplay(m),bootstrap:this._isBootstrapLoader(m),hideOnMobile:this._hideOnMobile(m),suppressedForMobile:!this._moduleAllowedForViewport(m),userActions:(m.user_actions||[]).map(a=>a.id)}))});
       if(isBoot)await this._finishBootstrapLoader();
     }
     _indexUserActions(modules=[]){

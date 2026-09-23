@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "dependencies": [],
     "styles": [],
     "order": "00005"
@@ -52,6 +52,9 @@
     },
     "layout": {
       "order": 5
+    },
+    "responsive": {
+      "hideOnMobile": true
     }
   },
   "config": {

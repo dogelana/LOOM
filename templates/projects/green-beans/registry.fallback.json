@@ -641,7 +641,7 @@
     },
     {
       "schema_version": "1.8",
-      "enabled": false,
+      "enabled": true,
       "action": {
         "id": "project.ui.background-orbs.green-beans",
         "name": "Green Beans Background Orb Provider",
@@ -667,7 +667,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.3.1",
+        "version": "1.4.0",
         "dependencies": [],
         "styles": [],
         "order": "00004"
@@ -709,11 +709,16 @@
       "manifest_url": "./templates/projects/green-beans/actions/project/ui/background-orbs/manifest.json",
       "fingerprint": "1925254e6a8a5fa3",
       "folder": "actions/project/ui/background-orbs",
-      "source": "project"
+      "source": "project",
+      "presentation": {
+        "responsive": {
+          "hideOnMobile": true
+        }
+      }
     },
     {
       "schema_version": "1.8",
-      "enabled": false,
+      "enabled": true,
       "action": {
         "id": "core.ui.background-orbs",
         "name": "Background Orbs",
@@ -753,7 +758,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.2.1",
+        "version": "1.3.0",
         "dependencies": [],
         "styles": [],
         "order": "00005"
@@ -765,6 +770,9 @@
         },
         "layout": {
           "order": 5
+        },
+        "responsive": {
+          "hideOnMobile": true
         }
       },
       "config": {
