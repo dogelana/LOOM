@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.10 revision=22 policy=package-priority -->
+<!-- @loom-file release=0.15.11 revision=23 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -376,3 +376,8 @@ HTML Framer's compatibility boundary now includes an Action Reader. Import-time 
 This deliberately stops short of wrapping arbitrary foreign JavaScript functions. LOOM can reliably observe externally meaningful UI behavior without mutating foreign execution semantics.
 
 Admin Activity Explorer is the historical observability counterpart to live Pegboard. It reads the existing project event stream plus privacy-scrubbed interaction replay and supports project, subject, session, category, date and text filters.
+
+
+## v0.15.11 — Activity Explorer shell dependency correction
+
+The Activity Explorer is a LOOM-owned Admin surface and therefore follows the same shared-shell bootstrap contract as other LOOM-owned surfaces. `LoomBrand` must be loaded before `LoomShell`; identity and global-profile helpers remain available before shell mount. This release corrects that ordering without changing observability semantics.

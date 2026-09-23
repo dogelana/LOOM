@@ -1,3 +1,9 @@
+# LOOM 0.15.11 - Activity Explorer Shell Fix
+
+- Fixed Activity Explorer startup failure: `LoomBrand is required before LoomShell`.
+- Activity Explorer now loads the shared LOOM shell dependencies in the same proven order as Admin, Pegboard, Registry, and LOOM Home: `loom-brand.js` → `identity.js` → `loom-global-profile.js` → `loom-shell.js`.
+- No Activity Explorer data model, filtering behavior, HTML Framer Action Reader behavior, or Instance Vault ownership rules changed in this maintenance release.
+
 # LOOM 0.15.10 - Framed Actions + Activity Explorer
 
 - Social Links now renders fixed platform links in the permanent order **Website → YouTube → Facebook → TikTok → Instagram**, with Custom Link afterward.

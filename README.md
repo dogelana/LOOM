@@ -1,10 +1,14 @@
+## v0.15.11 - Activity Explorer Shell Fix
+
+This maintenance release fixes the Activity Explorer bootstrap dependency order so the historical activity page can mount the standard LOOM shell correctly. All v0.15.10 Framed Action Reader and Activity Explorer functionality remains intact.
+
 ## v0.15.10 - Framed Actions + Activity Explorer
 
 LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an Action Reader that turns observable interactions in foreign static HTML bundles into declared LOOM user actions without requiring the foreign package to know LOOM. Admin also gains Activity Explorer for searchable historical user/session/action/interaction review.
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.10 revision=26 policy=package-priority -->
+<!-- @loom-file release=0.15.11 revision=27 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 
