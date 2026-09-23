@@ -1,3 +1,15 @@
+# LOOM 0.15.07 - Mobile Identity Entry + Domain Landing Plan
+
+- Rebuilt the narrow-screen first-run / Switch User layout around `100dvh` and a `minmax(0,1fr)` scrolling content region.
+- Added safe-area-aware mobile padding for modern phones and notched displays.
+- Made Switch User action groups sticky/reachable and stacked their buttons to full-width touch targets on phones.
+- Made create-guest, first-guest and login submit buttons remain reachable inside the identity-entry scroll region.
+- Added a compact mobile LOOM identity header and an extra short-viewport layout for landscape/small-height devices.
+- Added dialog semantics (`role=dialog`, `aria-modal=true`) to the identity entry surface.
+- Added `docs/DOMAIN-LANDING-STANDARD.md` describing the planned global project-at-domain-root architecture, `/home/` recovery route, Instance Vault configuration, server front controller, mount context, Admin controls and safety tests.
+- Domain landing remains planning-only in this release; default routing behavior is unchanged.
+- Re-ran mobile render, JS/PHP syntax, manifest-integrity and Instance Vault hot-drop checks.
+
 # LOOM 0.15.06 - Identity Switching, Orb Defaults + Canonical Home Version
 
 - Changed `core.ui.background-orbs` to default disabled in Green Beans and baseline project packages/templates.
@@ -218,7 +230,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.06 revision=23 policy=package-priority -->
+<!-- @loom-file release=0.15.07 revision=24 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

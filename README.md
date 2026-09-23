@@ -1,4 +1,10 @@
-<!-- @loom-file release=0.15.06 revision=22 policy=package-priority -->
+<!-- @loom-file release=0.15.07 revision=23 policy=package-priority -->
+
+## v0.15.07 - Mobile Identity Entry + Domain Landing Plan
+
+The shared first-run / Switch User experience is now treated as a true mobile full-screen dialog. Narrow phones use dynamic viewport height, safe-area padding, a compact LOOM intro header, an independently scrolling content region, stacked full-width touch actions and sticky bottom action areas so New Guest, Continue, login and first-profile controls cannot disappear below the viewport. Short-height phones receive an additional compact layout.
+
+This release also adds `docs/DOMAIN-LANDING-STANDARD.md`, the implementation plan for making a selected LOOM project own the installation base URL while keeping LOOM Home permanently available at `/home/`. The routing capability is intentionally documented but **not activated yet** in 0.15.07; the plan requires a server-side front controller plus a mount-context refactor so projects can run at `/` without fragile relative-path assumptions.
 
 ## v0.15.06 - Identity Switching, Orb Defaults + Canonical Home Version
 

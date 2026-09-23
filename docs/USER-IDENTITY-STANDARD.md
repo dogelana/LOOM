@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.07 revision=3 policy=package-priority -->
 # LOOM User Identity Standard — v0.11.0
 
 ## Identity layers
@@ -52,3 +52,9 @@ Browser-uploaded profile pictures and trusted project-provided avatar assets use
 Browser uploads remain compressed and constrained to the normal LOOM avatar upload dimensions. A trusted project default may retain larger source dimensions, provided it is a valid WebP/PNG/JPEG, remains under the stored-byte limit, and is within a conservative server-side maximum dimension.
 
 This allows `Pull Picture from Project` to copy a project's packaged default artwork into the user's global LOOM Profile without weakening browser-upload validation.
+
+## Mobile identity-entry requirement (v0.15.07)
+
+The shared first-run / Switch User surface is a full-screen application dialog, not a desktop card that happens to shrink. On narrow or short viewports it must use the dynamic viewport (`dvh` where available), reserve a `minmax(0,1fr)` scroll region for identity content, respect safe-area insets, keep every action reachable, and stack primary identity actions to full-width touch targets. The page behind the chooser must not scroll while identity selection is active.
+
+The mobile contract applies to every state: first guest acknowledgement, guest chooser, create-guest, permanent-account switch, and permanent-account login. No state may hide its final submit/switch/continue controls below an unscrollable viewport.

@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.06 revision=18 policy=package-priority -->
+<!-- @loom-file release=0.15.07 revision=19 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -350,3 +350,9 @@ A module manifest's `enabled` field is a default, not a permanent exclusion. Mod
 LOOM Home does not treat a package-embedded version string as display authority. The visible release comes from the canonical `api/version.php` response. Static markup may show a neutral loading/unavailable state only; it must not claim an older release when canonical lookup fails.
 
 Identity switching must expose guest creation regardless of whether the active browser context is guest or permanent-account based. Leaving a permanent account for a guest signs out the browser session but never deletes the permanent account.
+
+## v0.15.07 — Mobile identity surface and future domain landing
+
+Identity entry is a platform-level full-screen dialog. Mobile implementations must use dynamic viewport sizing, safe-area-aware padding, a bounded scrolling content region, and reachable touch actions across first guest, guest chooser, create guest, account login and permanent-account switch states.
+
+Domain landing is planned as global server-side LOOM infrastructure with an Admin-facing core control. A project selected as the installation landing target may eventually render at the exact LOOM base URL while LOOM Home moves to the reserved `/home/` path. Mutable routing authority belongs under `instance/config/`; project shells must use an explicit mount context instead of assuming a fixed `../../../` physical depth. See `docs/DOMAIN-LANDING-STANDARD.md`.
