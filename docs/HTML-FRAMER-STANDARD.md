@@ -69,3 +69,15 @@ Each import-time control becomes a declared LOOM `user_action` under the dynamic
 
 This is an interoperability reader, not a promise that LOOM can infer every internal JavaScript function's semantic meaning. Observable UI behavior receives first-class action tracking; internal functions remain hints unless the foreign package exposes them through UI or is later adapted explicitly.
 
+
+## URL Snapshot Import (0.15.18)
+
+HTML Framer can also start from an `http://` or `https://` URL. **Capture Static URL** downloads a bounded snapshot of the public page and same-origin assets that can be discovered safely, converts that capture into a normal HTML Framer package, and then publishes it through the same sandboxed static-package runtime.
+
+This is deliberately **not** a live remote website iframe and there is no automatic production sync. It works best for server-rendered or mostly static pages. Sites that depend heavily on authenticated APIs, client-side routing, WebSockets, service workers, protected assets, anti-bot systems, or runtime-generated resources may not reproduce exactly from a static capture.
+
+The iframe used by HTML Framer is an isolation boundary around LOOM's local/static imported package. It does not mean the source production website is being displayed live.
+
+A live production connection can be implemented in several different ways depending on the target system: a remote iframe when the target site's CSP / `frame-ancestors` / `X-Frame-Options` permits it, a native/API integration, or a deliberately engineered server-side proxy/adapter. A remote iframe is therefore one possible live integration, not the only one.
+
+URL capture rejects localhost, private/reserved network targets, and cross-origin asset crawling, and applies bounded download/file limits before feeding content into the existing HTML Framer validation pipeline.

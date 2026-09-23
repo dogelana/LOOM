@@ -1,3 +1,9 @@
+## v0.15.18 - Delegated Admin + Global Navigation + Static URL Framing + Social SEO
+
+LOOM now has capability-based delegated administration with an immutable System Owner, multiple secondary LOOM Admins, and project-scoped Admin/Manager access for permanent accounts or durable Guest Identities. Admin-only navigation defaults to a shared auto-hiding side drawer, global Home/Profile buttons are centrally configurable across header/footer placements, and redundant Admin console navigation has been reduced.
+
+HTML Framer can capture a bounded public URL as a **static snapshot package** without pretending it is a live production embed. Public project routes now server-render automatic canonical/SEO/Open Graph/Twitter metadata from live project identity, using Showcase image → project logo → LOOM logo fallbacks with content-versioned image URLs. Restricted Admin/developer pages expose only generic LOOM share metadata and remain noindex.
+
 # LOOM Changelog
 
 ## v0.15.17 — Fast project boot + live project identity defaults

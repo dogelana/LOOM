@@ -1,3 +1,9 @@
+## v0.15.18 - Delegated Admin + Global Navigation + Static URL Framing + Social SEO
+
+LOOM now has capability-based delegated administration with an immutable System Owner, multiple secondary LOOM Admins, and project-scoped Admin/Manager access for permanent accounts or durable Guest Identities. Admin-only navigation defaults to a shared auto-hiding side drawer, global Home/Profile buttons are centrally configurable across header/footer placements, and redundant Admin console navigation has been reduced.
+
+HTML Framer can capture a bounded public URL as a **static snapshot package** without pretending it is a live production embed. Public project routes now server-render automatic canonical/SEO/Open Graph/Twitter metadata from live project identity, using Showcase image → project logo → LOOM logo fallbacks with content-versioned image URLs. Restricted Admin/developer pages expose only generic LOOM share metadata and remain noindex.
+
 ## v0.15.17 - Faster Boot + Live Project Identity
 
 LOOM now keeps expensive analytics and broad project discovery off the critical project-loading path. Social Links no longer waits on a full project-list request, project cards avoid recursive module scans, and user analytics are streamed/cached and hydrated after the profile UI is already usable. Blank project bios are live name-aware fallbacks, Showcase uses canonical live project identity, and the static LOOM logo is the default icon for new or logo-less projects.
@@ -32,7 +38,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.17 revision=33 policy=package-priority -->
+<!-- @loom-file release=0.15.18 revision=34 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

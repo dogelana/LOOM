@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.13 revision=11 policy=package-priority
+// @loom-file release=0.15.18 revision=12 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -123,9 +123,31 @@ $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($b
 $action=(string)($body['action']??'status');$clientId=safe_token((string)($body['clientId']??''));if($clientId!=='')loom_capture_request_ip($clientId,(string)($body['project']??''));
 if($action==='status'){
   $status=loom_bootstrap_or_privilege($clientId,(bool)($body['claim']??false));
-  json_out(['ok'=>true]+$status);
+  $statusProject=safe_slug((string)($body['project']??''));
+  // Keep the universal shell status path intentionally lightweight. Do not
+  // enumerate users/guests or full Access Manager state on every page load.
+  $isOwner=loom_access_is_system_owner($clientId);
+  $projectRole=$statusProject!==''?loom_access_project_role($clientId,$statusProject):($isOwner?'system-owner':(loom_access_client_is_loom_admin($clientId)?'loom-admin':'member'));
+  $caps=loom_access_effective_capabilities($clientId,$statusProject);
+  json_out(['ok'=>true]+$status+['projectRole'=>$projectRole,'capabilities'=>$caps,'isSystemOwner'=>$isOwner]);
 }
-loom_require_admin($clientId);
+
+// v0.15.18: authorization is capability-based. Global actions still require a
+// LOOM Administrator, while project actions may be delegated to project admins/managers.
+$accessProject=safe_slug((string)($body['project']??''));
+$projectActionCaps=[
+  'settings'=>'project.view','save'=>'project.modules','reset'=>'project.modules',
+  'module-mobile-visibility'=>'project.modules','project-profile-save'=>'project.settings',
+  'project-logo-upload'=>'project.settings','showcase-bio-save'=>'project.content',
+  'showcase-image-upload'=>'project.content','showcase-image-remove'=>'project.content',
+  'favicon-upload'=>'project.settings','favicon-use-logo'=>'project.settings',
+  'apply-preset'=>'project.modules','orb-save'=>'project.modules'
+];
+if($action==='module-toggle'&&(($body['scope']??'project')!=='global'))$projectActionCaps['module-toggle']='project.modules';
+if(isset($projectActionCaps[$action])){
+  if($accessProject===''||!project_dir($accessProject))json_out(['ok'=>false,'error'=>'project-not-found'],404);
+  loom_require_project_capability($clientId,$accessProject,$projectActionCaps[$action]);
+}else loom_require_admin($clientId);
 
 if($action==='global-settings'){
   json_out(['ok'=>true,'privilege'=>'Admin']+loom_global_settings_payload());

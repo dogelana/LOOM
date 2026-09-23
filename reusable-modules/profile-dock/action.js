@@ -1,6 +1,9 @@
-// @loom-file release=0.12.08 revision=3 policy=package-priority
+// @loom-file release=0.15.18 revision=4 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null;
+  let chromeProfile={emoji:String(ctx.config.icon||'👤'),label:String(ctx.config.label||'LOOM Profile'),mode:'both'};
+  try{const gs=await window.LoomBrand?.fetchSettings?.(ctx.apiBase),n=gs?.settings?.['loom.navigation.chrome']||{};chromeProfile={emoji:String(n.profileEmoji||ctx.config.icon||'👤'),label:String(n.profileLabel||ctx.config.label||'LOOM Profile'),mode:['both','emoji','text'].includes(n.profileHeaderMode)?n.profileHeaderMode:'both'}}catch{}
+  const profileMarkup=()=>chromeProfile.mode==='emoji'?`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span class="loom-profile-dock-sr">${chromeProfile.label}</span>`:chromeProfile.mode==='text'?`<span>${chromeProfile.label}</span>`:`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span>${chromeProfile.label}</span>`;
 
   function targetFrame(){
     return document.querySelector('[data-loom-frame-for="core.user.profile"]')
@@ -43,7 +46,7 @@ export async function createModule(ctx){
     button.type='button';
     button.dataset.profileDockButton='1';
     button.className='loom-profile-dock-button';
-    button.innerHTML=`<span class="loom-profile-dock-icon" aria-hidden="true">${ctx.config.icon||'👤'}</span><span>${ctx.config.label||'User Profile'}</span>`;
+    button.innerHTML=profileMarkup();button.title=chromeProfile.label;
     button.addEventListener('click',open);
     button.addEventListener('contextmenu',e=>{e.preventDefault();window.LoomIdentityEntry?.show?.()});
     slot.appendChild(button);
@@ -57,7 +60,7 @@ export async function createModule(ctx){
     overlay.innerHTML=`
       <section class="loom-profile-dock-dialog" role="dialog" aria-modal="true" aria-label="User Profile">
         <header class="loom-profile-dock-dialog-head">
-          <div><span aria-hidden="true">${ctx.config.icon||'👤'}</span> <strong>${ctx.config.label||'User Profile'}</strong></div>
+          <div><span aria-hidden="true">${chromeProfile.emoji}</span> <strong>${chromeProfile.label}</strong></div>
           <div style="display:flex;gap:6px;align-items:center"><button type="button" data-profile-switch style="border:0;border-radius:9px;padding:7px 9px;font-weight:900;cursor:pointer">Switch user</button><button type="button" data-profile-dock-close aria-label="Close User Profile">×</button></div>
         </header>
         <div class="loom-profile-dock-bank" data-loom-region="profile-dock-capture"></div>

@@ -617,3 +617,84 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
   }
   return $out;
 }
+
+// ---- URL Snapshot Import (v0.15.18) ---------------------------------------
+// Captures a bounded, same-origin static snapshot into the existing HTML Framer
+// package pipeline. This is intentionally NOT a live remote iframe.
+function loom_html_framer_public_ip(string $ip): bool {
+  if(filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE)===false)return false;
+  return !in_array($ip,['0.0.0.0','127.0.0.1','::1'],true);
+}
+function loom_html_framer_validate_remote_url(string $url): array {
+  $url=trim($url);$p=parse_url($url);if(!$p||!in_array(strtolower((string)($p['scheme']??'')),['http','https'],true))throw new RuntimeException('Capture URL must use http:// or https://.');
+  $host=strtolower(rtrim((string)($p['host']??''),'.'));if($host===''||$host==='localhost'||str_ends_with($host,'.local'))throw new RuntimeException('Local/private hosts cannot be captured.');
+  if(filter_var($host,FILTER_VALIDATE_IP)){$ips=[$host];}
+  else{
+    $ips=[];
+    if(function_exists('dns_get_record')){foreach((array)@dns_get_record($host,DNS_A|DNS_AAAA) as $r){$ip=(string)($r['ip']??$r['ipv6']??'');if($ip!=='')$ips[]=$ip;}}
+    if(!$ips){foreach((array)@gethostbynamel($host) as $ip)$ips[]=$ip;}
+  }
+  if(!$ips)throw new RuntimeException('Capture host could not be resolved.');
+  foreach(array_unique($ips) as $ip)if(!loom_html_framer_public_ip($ip))throw new RuntimeException('Private/reserved network targets cannot be captured.');
+  $normalized=$url;if(!isset($p['path'])||$p['path']==='')$normalized.='/';
+  return ['url'=>$normalized,'host'=>$host,'scheme'=>strtolower((string)$p['scheme']),'port'=>(int)($p['port']??0)];
+}
+function loom_html_framer_absolute_url(string $base,string $ref): ?string {
+  $ref=trim(html_entity_decode($ref,ENT_QUOTES|ENT_HTML5,'UTF-8'));if($ref===''||str_starts_with($ref,'#')||preg_match('~^(?:data|blob|mailto|tel|javascript):~i',$ref))return null;
+  if(preg_match('~^https?://~i',$ref))return $ref;
+  $b=parse_url($base);if(!$b||empty($b['host']))return null;$scheme=$b['scheme']??'https';$authority=$scheme.'://'.$b['host'].(isset($b['port'])?':'.$b['port']:'');
+  if(str_starts_with($ref,'//'))return $scheme.':'.$ref;
+  // Resolve only the path component. Query/fragment text must never become part
+  // of the filesystem-style path normalization (for example style.css?v=2).
+  $rp=parse_url($ref);if($rp===false)return null;$refPath=(string)($rp['path']??'');
+  if($refPath==='')$path=(string)($b['path']??'/');
+  elseif(str_starts_with($refPath,'/'))$path=$refPath;
+  else{$dir=preg_replace('~/[^/]*$~','/',(string)($b['path']??'/'));$path=$dir.$refPath;}
+  $parts=[];foreach(explode('/',$path) as $part){if($part===''||$part==='.')continue;if($part==='..'){array_pop($parts);continue;}$parts[]=$part;}
+  $full=$authority.'/'.implode('/',$parts);if(isset($rp['query'])&&$rp['query']!=='')$full.='?'.$rp['query'];return $full;
+}
+function loom_html_framer_fetch_remote(string $url,int $maxBytes=8388608,int $redirects=3): array {
+  $check=loom_html_framer_validate_remote_url($url);$url=$check['url'];
+  if(!function_exists('curl_init'))throw new RuntimeException('URL capture requires the PHP cURL extension on this server.');
+  for($hop=0;$hop<=$redirects;$hop++){
+    $ch=curl_init($url);$headers=[];$body='';$tooLarge=false;
+    curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>false,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_CONNECTTIMEOUT=>6,CURLOPT_TIMEOUT=>18,CURLOPT_USERAGENT=>'LOOM-HTML-Framer-Snapshot/0.15.18',CURLOPT_PROTOCOLS=>CURLPROTO_HTTP|CURLPROTO_HTTPS,CURLOPT_REDIR_PROTOCOLS=>CURLPROTO_HTTP|CURLPROTO_HTTPS,CURLOPT_ENCODING=>'',CURLOPT_HEADERFUNCTION=>function($ch,$line)use(&$headers){$len=strlen($line);$line=trim($line);if($line!==''&&str_contains($line,':')){[$k,$v]=array_map('trim',explode(':',$line,2));$headers[strtolower($k)]=$v;}return $len;},CURLOPT_WRITEFUNCTION=>function($ch,$chunk)use(&$body,&$tooLarge,$maxBytes){if(strlen($body)+strlen($chunk)>$maxBytes){$tooLarge=true;return 0;}$body.=$chunk;return strlen($chunk);}]);
+    $ok=curl_exec($ch);$code=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE);$type=(string)curl_getinfo($ch,CURLINFO_CONTENT_TYPE);$err=curl_error($ch);curl_close($ch);
+    if($tooLarge)throw new RuntimeException('Remote resource exceeded the URL snapshot size limit.');
+    if($ok===false&&$body==='')throw new RuntimeException('Remote capture failed: '.($err?:'network error'));
+    if(in_array($code,[301,302,303,307,308],true)&&isset($headers['location'])){$next=loom_html_framer_absolute_url($url,$headers['location']);if(!$next)throw new RuntimeException('Remote redirect could not be resolved.');loom_html_framer_validate_remote_url($next);$url=$next;continue;}
+    if($code<200||$code>=300)throw new RuntimeException('Remote server returned HTTP '.$code.'.');
+    return ['url'=>$url,'body'=>$body,'contentType'=>$type,'headers'=>$headers,'status'=>$code];
+  }
+  throw new RuntimeException('Remote capture exceeded the redirect limit.');
+}
+function loom_html_framer_snapshot_asset_name(string $url,string $contentType=''): string {
+  $path=(string)(parse_url($url,PHP_URL_PATH)??'');$ext=strtolower(pathinfo($path,PATHINFO_EXTENSION));
+  $allowed=['css','js','mjs','json','png','jpg','jpeg','gif','webp','svg','ico','woff','woff2','ttf','otf','mp4','webm','mp3','wav'];
+  if(!in_array($ext,$allowed,true)){
+    $map=['text/css'=>'css','application/javascript'=>'js','text/javascript'=>'js','image/png'=>'png','image/jpeg'=>'jpg','image/svg+xml'=>'svg','image/webp'=>'webp','font/woff2'=>'woff2'];$base=strtolower(trim(explode(';',$contentType)[0]??''));$ext=$map[$base]??'bin';
+  }
+  return '_snapshot/'.substr(hash('sha256',$url),0,24).'.'.$ext;
+}
+function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520): array {
+  if(!loom_html_framer_zip_supported())throw new RuntimeException('URL capture requires ZipArchive because snapshots enter LOOM through the same validated package pipeline as ZIP imports.');
+  $main=loom_html_framer_fetch_remote($url,8*1024*1024,3);$final=$main['url'];
+  if(!preg_match('~text/html|application/xhtml\+xml~i',$main['contentType'])&&!preg_match('~<html\b|<!doctype\s+html~i',$main['body']))throw new RuntimeException('Capture URL did not return an HTML document.');
+  $origin=parse_url($final);$originKey=strtolower(($origin['scheme']??'').':'.($origin['host']??'').':'.($origin['port']??(($origin['scheme']??'')==='https'?443:80)));
+  $tmpBase=loom_html_framer_root($project).'/.capture-'.bin2hex(random_bytes(5));$files=$tmpBase.'/files';ensure_dir($files.'/_snapshot');$html=$main['body'];$saved=[];$total=strlen($html);$maxTotal=30*1024*1024;$maxAssets=80;
+  if(class_exists('DOMDocument')){
+    $dom=new DOMDocument();$prev=libxml_use_internal_errors(true);@$dom->loadHTML($html,LIBXML_HTML_NOIMPLIED|LIBXML_HTML_NODEFDTD);libxml_clear_errors();libxml_use_internal_errors($prev);
+    $targets=[['img','src'],['script','src'],['link','href'],['source','src'],['video','poster'],['audio','src']];
+    foreach($targets as [$tag,$attr])foreach(iterator_to_array($dom->getElementsByTagName($tag)) as $el){
+      if(count($saved)>=$maxAssets)break 2;$raw=$el->getAttribute($attr);$abs=loom_html_framer_absolute_url($final,$raw);if(!$abs)continue;$u=parse_url($abs);if(!$u||!in_array(strtolower((string)($u['scheme']??'')),['http','https'],true))continue;$key=strtolower(($u['scheme']??'').':'.($u['host']??'').':'.($u['port']??(($u['scheme']??'')==='https'?443:80)));if($key!==$originKey)continue;
+      try{$res=loom_html_framer_fetch_remote($abs,6*1024*1024,2);}catch(Throwable $e){continue;}$bytes=$res['body'];if($total+strlen($bytes)>$maxTotal)break 2;$name=loom_html_framer_snapshot_asset_name($res['url'],$res['contentType']);
+      if(str_ends_with($name,'.css')){$base=$res['url'];$bytes=preg_replace_callback('~url\(\s*(["\']?)(.*?)\1\s*\)~i',function($m)use($base){$a=loom_html_framer_absolute_url($base,$m[2]);return $a?'url("'.$a.'")':$m[0];},$bytes)??$bytes;}
+      @file_put_contents($files.'/'.$name,$bytes,LOCK_EX);$saved[$abs]=$name;$total+=strlen($bytes);$el->setAttribute($attr,$name);
+    }
+    $html=$dom->saveHTML()?:$html;
+  }
+  @file_put_contents($files.'/index.html',$html,LOCK_EX);
+  $zipPath=$tmpBase.'/snapshot.zip';$zip=new ZipArchive();if($zip->open($zipPath,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true){loom_html_framer_remove_tree($tmpBase);throw new RuntimeException('Could not create snapshot package.');}
+  $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($files,FilesystemIterator::SKIP_DOTS));foreach($it as $f)if($f->isFile())$zip->addFile($f->getPathname(),str_replace('\\','/',substr($f->getPathname(),strlen($files)+1)));$zip->close();
+  try{$result=loom_html_framer_import($project,$zipPath,'URL Snapshot · '.parse_url($final,PHP_URL_HOST), 'index.html',$defaultHeight,null);if(!empty($result['frame']['id'])){$id=$result['frame']['id'];$reg=loom_html_framer_registry($project);if(isset($reg['frames'][$id])){$reg['frames'][$id]['sourceUrl']=$final;$reg['frames'][$id]['captureMode']='url-snapshot';$reg['frames'][$id]['capturedAt']=server_timestamp();$reg['frames'][$id]['snapshotAssetCount']=count($saved);loom_html_framer_write_registry($project,$reg);$result['frame']=$reg['frames'][$id];}}$result['sourceUrl']=$final;$result['captureMode']='url-snapshot';return $result;}finally{loom_html_framer_remove_tree($tmpBase);}
+}

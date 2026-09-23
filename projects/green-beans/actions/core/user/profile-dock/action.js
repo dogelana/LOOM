@@ -1,6 +1,9 @@
-// @loom-file release=0.15.06 revision=5 policy=package-priority
+// @loom-file release=0.15.18 revision=6 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null;
+  let chromeProfile={emoji:String(ctx.config.icon||'👤'),label:String(ctx.config.label||'LOOM Profile'),mode:'both'};
+  try{const gs=await window.LoomBrand?.fetchSettings?.(ctx.apiBase),n=gs?.settings?.['loom.navigation.chrome']||{};chromeProfile={emoji:String(n.profileEmoji||ctx.config.icon||'👤'),label:String(n.profileLabel||ctx.config.label||'LOOM Profile'),mode:['both','emoji','text'].includes(n.profileHeaderMode)?n.profileHeaderMode:'both'}}catch{}
+  const profileMarkup=()=>chromeProfile.mode==='emoji'?`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span class="loom-profile-dock-sr">${chromeProfile.label}</span>`:chromeProfile.mode==='text'?`<span>${chromeProfile.label}</span>`:`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span>${chromeProfile.label}</span>`;
 
   function targetFrame(){
     return document.querySelector('[data-loom-frame-for="core.user.profile"]')
@@ -43,7 +46,7 @@ export async function createModule(ctx){
     button.type='button';
     button.dataset.profileDockButton='1';
     button.className='loom-profile-dock-button';
-    button.innerHTML=`<span class="loom-profile-dock-icon" aria-hidden="true">👤</span><span>${ctx.config.label||'User Profile'}</span>`;
+    button.innerHTML=profileMarkup();button.title=chromeProfile.label;
     button.addEventListener('click',open);
     button.addEventListener('contextmenu',e=>{e.preventDefault();window.LoomIdentityEntry?.show?.()});
     slot.appendChild(button);

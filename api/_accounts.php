@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.12.11 revision=3 policy=package-priority
+// @loom-file release=0.15.18 revision=4 policy=package-priority
 declare(strict_types=1);
 
 function loom_accounts_dir(): string { return loom_data_dir().'/accounts'; }
@@ -210,43 +210,41 @@ function loom_link_admin_to_user_if_applicable(string $clientId,string $userId):
   }
 }
 function loom_reconcile_admin_identity(string $clientId): void {
-  $clientId=safe_token($clientId);
-  $auth=loom_auth_user();
-  $state=loom_admin_identity();
+  $clientId=safe_token($clientId);$auth=loom_auth_user();$state=loom_admin_identity();
+  if(!$auth)return;
+  $uid=(string)($auth['user_id']??$auth['userId']??'');$storedPrivilege=(string)($auth['privilege']??'User');
+  if($uid==='')return;
 
-  if($auth){
-    $uid=(string)($auth['user_id']??$auth['userId']??'');
-    $storedPrivilege=(string)($auth['privilege']??'User');
-
-    // A durable Admin account is authoritative. Repair the denormalized
-    // admin-state pointer and client mapping around that account, never the
-    // other way around. This is intentionally idempotent.
-    if($uid!=='' && strcasecmp($storedPrivilege,'Admin')===0){
-      if(!$state)$state=[
-        'schemaVersion'=>'1.0','clientId'=>$clientId,'userId'=>$uid,'tokenHash'=>null,
-        'createdAt'=>server_timestamp(),'createdEpochMs'=>server_epoch_ms(),
-        'bootstrapMethod'=>'permanent-admin-account-recovery'
-      ];
+  // v0.15.18: admin state is the immutable System Owner pointer, not a
+  // "last Admin who logged in" pointer. Delegated LOOM Admins must never
+  // replace/demote/lock out the original owner.
+  if(strcasecmp($storedPrivilege,'Admin')===0){
+    if(!$state){
+      // Recovery only for legacy installs whose durable Admin exists but whose
+      // owner state was lost. This cannot run when an owner state already exists.
+      $state=['schemaVersion'=>'1.0','clientId'=>$clientId,'userId'=>$uid,'tokenHash'=>null,'createdAt'=>server_timestamp(),'createdEpochMs'=>server_epoch_ms(),'bootstrapMethod'=>'permanent-admin-account-recovery'];
+      loom_write_admin_identity($state);
+    }else{
+      $ownerUid=(string)($state['userId']??'');$ownerClient=(string)($state['clientId']??'');
+      if($ownerUid!==''&&!hash_equals($ownerUid,$uid)){
+        // This is a delegated/legacy secondary LOOM Admin. Preserve owner state.
+        loom_bind_client_to_user($clientId,$uid);return;
+      }
       $changed=false;
-      if((string)($state['userId']??'')!==$uid){$state['userId']=$uid;$changed=true;}
+      if($ownerUid===''&&$ownerClient!==''&&hash_equals($ownerClient,$clientId)&&loom_admin_cookie_valid()){$state['userId']=$uid;$changed=true;}
       if(empty($state['clientId'])){$state['clientId']=$clientId;$changed=true;}
       if(empty($state['createdAt'])){$state['createdAt']=server_timestamp();$changed=true;}
       if(empty($state['bootstrapMethod'])){$state['bootstrapMethod']='permanent-admin-account-recovery';$changed=true;}
       if($changed)loom_write_admin_identity($state);
-      if(loom_db_ready()){
-        try{$pdo=loom_db_pdo(true);$st=$pdo->prepare("SELECT 1 FROM loom_users WHERE user_id=?");$st->execute([$uid]);if($st->fetchColumn())loom_bind_client_to_user($clientId,$uid);}catch(Throwable $e){}
-      }else loom_bind_client_to_user($clientId,$uid);
-      return;
     }
+    loom_bind_client_to_user($clientId,$uid);return;
   }
 
-  // Legacy promotion path: the original bootstrap browser may have created its
-  // account before the Admin user_id was written into admin state. The secret
-  // bootstrap cookie proves that one-time relationship and elevates that account.
-  if(!$state||!loom_admin_cookie_valid()||!$auth)return;
-  $stateClient=(string)($state['clientId']??'');
+  // Legacy one-time owner promotion: the original bootstrap browser can link
+  // its newly created permanent account only while presenting its secret cookie.
+  if(!$state||!loom_admin_cookie_valid())return;$stateClient=(string)($state['clientId']??'');
   if($stateClient===''||!hash_equals($stateClient,$clientId))return;
-  $uid=(string)($auth['user_id']??$auth['userId']??'');if($uid==='')return;
+  $stateUid=(string)($state['userId']??'');if($stateUid!==''&&!hash_equals($stateUid,$uid))return;
   $state['userId']=$uid;loom_write_admin_identity($state);
   if(loom_db_ready()){try{$pdo=loom_db_pdo(true);$pdo->prepare("UPDATE loom_users SET privilege='Admin' WHERE user_id=?")->execute([$uid]);}catch(Throwable $e){}}
   else{$store=loom_temp_account_store();if(isset($store['users'][$uid])){$store['users'][$uid]['privilege']='Admin';loom_write_temp_account_store($store);}}
@@ -264,8 +262,10 @@ function loom_request_is_admin(): bool {
   $authId=(string)($auth['user_id']??$auth['userId']??'');
   $authPrivilege=(string)($auth['privilege']??'User');
 
-  // Durable signed-in account privilege is the primary source of truth.
+  // Durable signed-in account privilege is authoritative for LOOM Admins.
   if($authId!=='' && strcasecmp($authPrivilege,'Admin')===0)return true;
+  $candidate=(string)($_REQUEST['clientId']??'');
+  if($candidate!==''&&function_exists('loom_access_client_is_loom_admin')&&loom_access_client_is_loom_admin($candidate))return true;
 
   $state=loom_admin_identity();if(!$state)return false;
   $uid=(string)($state['userId']??'');

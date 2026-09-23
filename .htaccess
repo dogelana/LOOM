@@ -1,4 +1,4 @@
-# @loom-file release=0.15.13 revision=4 policy=package-priority
+# @loom-file release=0.15.18 revision=5 policy=package-priority
 DirectoryIndex index.php index.html
 Options -MultiViews
 <IfModule mod_rewrite.c>
@@ -12,12 +12,11 @@ Options -MultiViews
   # and new URL('./asset', import.meta.url) work exactly like normal files.
   RewriteRule ^api/project-file/([a-zA-Z0-9_-]+)/(.*)$ api/project-file.php?project=$1&path=$2 [B,QSA,L]
 
-  # LOOM project app directory route.
-  # This is explicit even though DirectoryIndex normally handles it, so hosts
-  # with unusual inherited rewrite rules still resolve /projects/<slug>/app/.
-  RewriteCond %{REQUEST_FILENAME} -d
-  RewriteCond %{REQUEST_FILENAME}/index.html -f
-  RewriteRule ^projects/([a-zA-Z0-9_-]+)/app/?$ projects/$1/app/index.html [L]
+  # Public project gateways inject crawler-visible SEO/Open Graph metadata
+  # before returning the existing LOOM shell. Instance Projects keep their real
+  # project slug in the query string while sharing the _instance shell.
+  RewriteRule ^projects/_instance/app/?$ project.php [QSA,L]
+  RewriteRule ^projects/([a-zA-Z0-9_-]+)/app/?$ project.php?project=$1 [B,QSA,L]
 
   # Friendly extensionless URLs: /something -> /something.html or /something.php
   RewriteCond %{REQUEST_FILENAME} !-f

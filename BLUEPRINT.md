@@ -1,4 +1,11 @@
-<!-- @loom-file release=0.15.17 revision=29 policy=package-priority -->
+## 0.15.18 Architecture Addendum
+
+- Delegated authorization is capability-first and project-scoped; System Owner remains immutable. See `docs/DELEGATED-ACCESS-STANDARD.md`.
+- Global navigation chrome owns Home/Profile definitions and Admin Tools presentation. The default Admin Tools surface is an auto-hiding side drawer filtered by effective capability.
+- `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
+- HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
+
+<!-- @loom-file release=0.15.18 revision=30 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

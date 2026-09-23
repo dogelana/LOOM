@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- @loom-file release=0.15.17 revision=18 policy=package-priority -->
+<!-- @loom-file release=0.15.18 revision=19 policy=package-priority -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<title>LOOM Project</title><link rel="stylesheet" href="../../../engine/loom-design.css?v=0.15.17"><link id="loom-project-favicon" rel="icon" href="../../../assets/loom-logo.png?v=0.15.17">
+<title>LOOM Project</title><link rel="stylesheet" href="../../../engine/loom-design.css?v=0.15.18"><link id="loom-project-favicon" rel="icon" href="../../../assets/loom-logo.png?v=0.15.18">
 <style>
 
 :root{--green:#168346;--ink:#132018;--muted:#6b7b70;--line:#d9e6dc;--glass:rgba(255,255,255,.82)}
@@ -103,16 +103,16 @@ body{
 <main class="stage"><div id="feature-stage"><div id="waitingMessage" class="waiting">Loading project modules…</div></div></main>
 <footer id="loom-footer-root" data-loom-region="footer-root" aria-label="Project footer"></footer>
 </div>
-<script src="../../../engine/config.js?v=0.15.17"></script>
-<script src="../../../engine/loom-brand.js?v=0.15.17"></script>
-<script src="../../../engine/loom-toast.js?v=0.15.17"></script>
-<script src="../../../engine/identity.js?v=0.15.17"></script>
-<script src="../../../engine/identity-entry.js?v=0.15.17"></script>
-<script src="../../../engine/interaction-capture.js?v=0.15.17"></script>
-<script src="../../../engine/event-bus.js?v=0.15.17"></script>
-<script src="../../../engine/registry-client.js?v=0.15.17"></script>
-<script src="../../../engine/action-runtime.js?v=0.15.17"></script>
-<script src="../../../engine/loom-shell.js?v=0.15.17"></script>
+<script src="../../../engine/config.js?v=0.15.18"></script>
+<script src="../../../engine/loom-brand.js?v=0.15.18"></script>
+<script src="../../../engine/loom-toast.js?v=0.15.18"></script>
+<script src="../../../engine/identity.js?v=0.15.18"></script>
+<script src="../../../engine/identity-entry.js?v=0.15.18"></script>
+<script src="../../../engine/interaction-capture.js?v=0.15.18"></script>
+<script src="../../../engine/event-bus.js?v=0.15.18"></script>
+<script src="../../../engine/registry-client.js?v=0.15.18"></script>
+<script src="../../../engine/action-runtime.js?v=0.15.18"></script>
+<script src="../../../engine/loom-shell.js?v=0.15.18"></script>
 <script>
 (async()=>{
   await window.LoomIdentityEntry?.ensure?.();
@@ -131,6 +131,8 @@ body{
   const homeLink=document.querySelector('.loom-home-button');
   if(homeLink&&mountContext.homeUrl)homeLink.href=mountContext.homeUrl;
   const adminTools=document.getElementById('adminTools');
+  let globalShellSettings=null;
+  try{globalShellSettings=await LoomBrand.fetchSettings('../../../api');const nc=LoomShell?.navConfig?.(globalShellSettings),home=nc?.home;if(homeLink&&home){homeLink.innerHTML=LoomShell.buttonParts(home,home.headerMode);homeLink.title=home.label}}catch{}
 
   const stage=document.getElementById('feature-stage');
   const waiting=document.getElementById('waitingMessage');
@@ -170,12 +172,9 @@ body{
     await mountProjectShellBrand();
 
     try{
-      const pr=await fetch('../../../api/admin.php',{
-        method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',
-        body:JSON.stringify({action:'status',clientId:runtime.identity.clientId,claim:false})
-      });
-      const pj=await pr.json();
-      if(pj?.isAdmin){adminTools.hidden=false;window.LoomShell?.renderAdminLinks?.(adminTools.querySelector('[data-loom-admin-links]'),{apiBase:'../../../api',project,target:'_blank'});}
+      const pj=await window.LoomShell?.adminStatus?.('../../../api',runtime.identity,project);
+      const canAdmin=!!pj?.isAdmin||['system-owner','loom-admin','project-admin','project-manager'].includes(pj?.projectRole);
+      if(canAdmin)window.LoomShell?.mountAdminTools?.({apiBase:'../../../api',project,target:'_blank',settings:globalShellSettings||await LoomBrand.fetchSettings('../../../api'),host:adminTools,status:pj});
     }catch{}
 
     const hideWaiting=()=>{if(stage.children.length>1)waiting?.classList.add('modules-loaded')};

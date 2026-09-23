@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.16 revision=2 policy=package-priority */
+/* @loom-file release=0.15.18 revision=3 policy=package-priority */
 .loom-footer-bar{
   width:100%;
   max-width:100%;
@@ -123,3 +123,8 @@
   .loom-footer-loom-signature{gap:9px}
   .loom-footer-loom-copy{font-size:.92em}
 }
+
+.loom-footer-loom-row{flex-direction:column}
+.loom-footer-global-nav{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:7px}
+.loom-footer-global-button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:34px;min-height:30px;padding:6px 9px;border:1px solid rgba(204,220,208,.9);border-radius:10px;background:rgba(255,255,255,.9);color:var(--loom-footer-strong,#173c24);text-decoration:none;font:900 10px/1 system-ui;cursor:pointer}
+.loom-footer-global-emoji{font-size:16px;line-height:1}.loom-footer-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.16 revision=3 policy=package-priority
+// @loom-file release=0.15.18 revision=4 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};
@@ -134,6 +134,22 @@ export async function createModule(ctx){
     copy.innerHTML=`<strong>Powered by LOOM</strong><span>LOOM v${window.LoomConfig?.engineVersion||'unknown'} · © 2026 LOOM</span>`;
     sig.appendChild(copy);
     loomRow.appendChild(sig);
+
+    // Permanent global Home/Profile controls live under the Powered by LOOM badge.
+    // They resolve from the same global Navigation Chrome settings used by LOOM pages,
+    // with footer-specific display modes (emoji-only by default).
+    const nav=document.createElement('div');nav.className='loom-footer-global-nav';
+    try{
+      const gs=await window.LoomBrand?.fetchSettings?.(ctx.apiBase),nc=gs?.settings?.['loom.navigation.chrome']||{};
+      const mode=(v,f)=>['both','emoji','text'].includes(v)?v:f;
+      const render=(emoji,label,m)=>{const e=document.createElement('span');e.className='loom-footer-global-emoji';e.setAttribute('aria-hidden','true');e.textContent=emoji;const t=document.createElement('span');t.textContent=label;if(m==='emoji'){t.className='loom-footer-sr'}else if(m==='text'){e.hidden=true}return[e,t]};
+      const home={emoji:String(nc.homeEmoji||'🏠'),label:String(nc.homeLabel||'LOOM Home'),m:mode(nc.homeFooterMode,'emoji')};
+      const profile={emoji:String(nc.profileEmoji||'👤'),label:String(nc.profileLabel||'LOOM Profile'),m:mode(nc.profileFooterMode,'emoji')};
+      const apiUrl=new URL(String(ctx.apiBase||'api').replace(/\/?$/,'/'),document.baseURI||location.href),homeHref=new URL('../home/',apiUrl).href;
+      const a=document.createElement('a');a.href=homeHref;a.className='loom-footer-global-button';a.title=home.label;a.append(...render(home.emoji,home.label,home.m));
+      const b=document.createElement('button');b.type='button';b.className='loom-footer-global-button';b.title=profile.label;b.append(...render(profile.emoji,profile.label,profile.m));b.addEventListener('click',()=>document.querySelector('[data-profile-dock-button]')?.click());
+      nav.append(a,b);loomRow.appendChild(nav);
+    }catch{}
 
     root.append(brandRow,toolsRow,loomRow);
     ctx.mount(root,'#loom-footer-root');

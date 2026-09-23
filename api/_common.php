@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.17 revision=22 policy=package-priority
+// @loom-file release=0.15.18 revision=23 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -255,10 +255,19 @@ function loom_project_app_url(string $project): string {
 }
 function json_out(array $payload, int $status=200): never { http_response_code($status); echo json_encode($payload, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); exit; }
 function web_base_path(): string {
-  $script=(string)($_SERVER['SCRIPT_NAME']??'/api/index.php');
-  $apiDir=str_replace('\\','/',dirname($script));
-  $base=str_replace('\\','/',dirname($apiDir));
-  return $base==='/' ? '' : rtrim($base,'/');
+  $script=str_replace('\\','/',(string)($_SERVER['SCRIPT_NAME']??'/api/index.php'));
+  // Prefer a filesystem-relative calculation so this helper works from root
+  // gateways (index.php/project.php), /home/, /admin/, and /api/ equally.
+  $scriptFile=str_replace('\\','/',(string)($_SERVER['SCRIPT_FILENAME']??''));
+  $root=str_replace('\\','/',rtrim(root_dir(),DIRECTORY_SEPARATOR));
+  if($scriptFile!==''&&$root!==''&&str_starts_with($scriptFile,$root.'/')){
+    $relative=substr($scriptFile,strlen($root)+1);$segments=array_values(array_filter(explode('/',$relative),'strlen'));
+    $urlSegments=array_values(array_filter(explode('/',trim($script,'/')),'strlen'));
+    if(count($urlSegments)>=count($segments)){$baseSegments=array_slice($urlSegments,0,count($urlSegments)-count($segments));$base='/'.implode('/',$baseSegments);return $base==='/'?'':rtrim($base,'/');}
+  }
+  // Fallback for environments that do not expose SCRIPT_FILENAME.
+  foreach(['/api/','/admin/','/home/','/pegboard/','/registry/','/projects/'] as $marker){$pos=strpos($script,$marker);if($pos!==false){$base=substr($script,0,$pos);return $base==='/'?'':rtrim($base,'/');}}
+  $base=str_replace('\\','/',dirname($script));return $base==='/'?'':rtrim($base,'/');
 }
 function rel_url(string $absolute): string {
   $root=root_dir();
@@ -402,10 +411,11 @@ function loom_client_is_admin(string $clientId): bool {
   $authId=(string)($auth['user_id']??$auth['userId']??'');
   $authPrivilege=(string)($auth['privilege']??'User');
 
-  // v0.11.13: a valid authenticated permanent account whose durable account
-  // record says Admin is itself sufficient proof of Admin access. This avoids
-  // making authorization depend on a second denormalized admin-state mapping.
+  // Durable Admin accounts are LOOM Admins. v0.15.18 also consults the
+  // delegated-access registry so capability grants remain authoritative even
+  // before/without a legacy privilege mirror.
   if($authId!=='' && strcasecmp($authPrivilege,'Admin')===0)return true;
+  if(function_exists('loom_access_client_is_loom_admin')&&loom_access_client_is_loom_admin($clientId))return true;
 
   $state=loom_admin_identity();if(!$state)return false;
   $uid=(string)($state['userId']??'');
@@ -932,8 +942,55 @@ require_once __DIR__.'/_moderation.php';
 require_once __DIR__.'/_guest_identities.php';
 require_once __DIR__.'/_integrity.php';
 require_once __DIR__.'/_guest_profiles.php';
+require_once __DIR__.'/_access.php';
 require_once __DIR__.'/_migrations.php';
 require_once __DIR__.'/_capabilities.php';
 require_once __DIR__.'/_sandbox.php';
 require_once __DIR__.'/_audit.php';
 loom_migration_bootstrap();
+
+// ---- SEO / Social Metadata (v0.15.18) -------------------------------------
+function loom_request_origin(): string {
+  $https=(!empty($_SERVER['HTTPS'])&&strtolower((string)$_SERVER['HTTPS'])!=='off')||((string)($_SERVER['SERVER_PORT']??'')==='443');
+  $proto=$https?'https':'http';
+  $host=(string)($_SERVER['HTTP_HOST']??$_SERVER['SERVER_NAME']??'localhost');
+  $host=preg_replace('/[^a-zA-Z0-9.\-:\[\]]/','',$host)?:'localhost';
+  return $proto.'://'.$host;
+}
+function loom_absolute_web_url(?string $url): ?string {
+  $url=trim((string)$url);if($url==='')return null;
+  if(preg_match('~^https?://~i',$url))return $url;
+  if(!str_starts_with($url,'/'))$url=rtrim(web_base_path(),'/').'/'.ltrim($url,'/');
+  return rtrim(loom_request_origin(),'/').'/'.ltrim($url,'/');
+}
+function loom_project_absolute_public_url(string $project): string {
+  $slug=safe_slug($project);if($slug==='')return loom_absolute_web_url(rtrim(web_base_path(),'/').'/')?:'/';
+  // Canonicals are intentionally stable and omit cache-busting query strings.
+  // The friendly project gateway works for both release and Instance Projects.
+  $relative=loom_project_is_domain_landing($slug)?(rtrim(web_base_path(),'/').'/'):(rtrim(web_base_path(),'/').'/projects/'.rawurlencode($slug).'/app/');
+  return loom_absolute_web_url($relative)?:$relative;
+}
+function loom_project_social_meta(string $project,?string $canonicalUrl=null): array {
+  $slug=safe_slug($project);$profile=loom_project_profile_payload($slug)?:[];
+  $cfg=loom_project_core_effective_config($slug,'core.seo.social')?:[];
+  $titleMode=(string)($cfg['titleMode']??'project');$descMode=(string)($cfg['descriptionMode']??'project');$imageMode=(string)($cfg['imageMode']??'auto');
+  $title=$titleMode==='custom'&&trim((string)($cfg['customTitle']??''))!==''?loom_clean_project_text($cfg['customTitle'],120):(string)($profile['name']??humanize_project_slug($slug));
+  $description=$descMode==='custom'&&trim((string)($cfg['customDescription']??''))!==''?loom_clean_project_text($cfg['customDescription'],240):loom_project_effective_bio($slug);
+  $showcase=loom_project_asset_url($slug,'assets/showcase.png');$logo=$profile['branding']['logo_url']??null;$loom=loom_default_project_logo_url();
+  $image=null;
+  if($imageMode==='loom')$image=$loom;
+  elseif($imageMode==='logo')$image=$logo?:$loom;
+  elseif($imageMode==='showcase')$image=$showcase?:$logo?:$loom;
+  else $image=$showcase?:$logo?:$loom;
+  $robots=match((string)($cfg['robotsMode']??'index-follow')){'noindex-follow'=>'noindex,follow','noindex-nofollow'=>'noindex,nofollow',default=>'index,follow'};
+  return ['title'=>$title?:'LOOM Project','description'=>$description?:($title.' is powered by LOOM.'),'image'=>loom_absolute_web_url($image),'url'=>$canonicalUrl?:loom_project_absolute_public_url($slug),'robots'=>$robots,'project'=>$slug];
+}
+function loom_social_meta_html(array $meta,bool $project=true): string {
+  $e=fn($v)=>htmlspecialchars((string)$v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
+  $title=$e($meta['title']??'LOOM');$desc=$e($meta['description']??'LOOM modular application engine.');$url=$e($meta['url']??loom_absolute_web_url(web_base_path().'/'));$image=$e($meta['image']??loom_absolute_web_url(loom_default_project_logo_url()));$robots=$e($meta['robots']??'index,follow');
+  $type=$project?'website':'website';
+  return '<title>'.$title.'</title><meta name="description" content="'.$desc.'"><meta name="robots" content="'.$robots.'"><link rel="canonical" href="'.$url.'"><meta property="og:type" content="'.$type.'"><meta property="og:site_name" content="LOOM"><meta property="og:title" content="'.$title.'"><meta property="og:description" content="'.$desc.'"><meta property="og:url" content="'.$url.'">'.($image!==''?'<meta property="og:image" content="'.$image.'"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="'.$image.'">':'<meta name="twitter:card" content="summary">').'<meta name="twitter:title" content="'.$title.'"><meta name="twitter:description" content="'.$desc.'">';
+}
+function loom_generic_social_meta(?string $canonicalUrl=null,string $title='LOOM',string $description='LOOM modular application engine.'): array {
+  return ['title'=>$title,'description'=>$description,'image'=>loom_absolute_web_url(loom_default_project_logo_url()),'url'=>$canonicalUrl?:loom_absolute_web_url(rtrim(web_base_path(),'/').'/'),'robots'=>'index,follow'];
+}

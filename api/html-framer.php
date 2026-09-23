@@ -1,4 +1,5 @@
 <?php
+// @loom-file release=0.15.18 revision=5 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
@@ -11,12 +12,22 @@ $action=(string)($_REQUEST['action']??$jsonBody['action']??'list');
 $clientId=safe_token((string)($_REQUEST['clientId']??$jsonBody['clientId']??''));
 $project=safe_slug((string)($_REQUEST['project']??$jsonBody['project']??'green-beans'));
 if(!$project||!project_dir($project))json_out(['ok'=>false,'error'=>'project-not-found'],404);
-loom_require_admin($clientId);
+if($method==='GET'||$action==='list')loom_require_project_capability($clientId,$project,'project.view');
+else loom_require_project_capability($clientId,$project,'html-framer.manage');
 
 function html_framer_payload(string $project): array {
   return ['ok'=>true,'project'=>$project,'frames'=>loom_html_framer_public_frames($project),'zipAvailable'=>loom_html_framer_zip_supported()];
 }
 if($method==='GET'||$action==='list')json_out(html_framer_payload($project));
+
+if($action==='capture-url'){
+  $url=trim((string)($jsonBody['url']??''));if($url==='')json_out(['ok'=>false,'error'=>'capture-url-required'],400);
+  try{
+    $settings=loom_read_admin_settings($project);$framerCfg=$settings['modules']['loom.html-framer']??[];$defaultHeight=max(240,min(1200,(int)($framerCfg['defaultFrameHeight']??520)));
+    $result=loom_html_framer_capture_url($project,$url,$defaultHeight);
+    json_out(html_framer_payload($project)+['capture'=>$result,'message'=>'Static URL snapshot imported. This copy does not stay synchronized with the production website.']);
+  }catch(Throwable $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
+}
 
 if($action==='analyze'||$action==='upload'){
   $file=$_FILES['zip']??null;
