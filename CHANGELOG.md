@@ -1,3 +1,19 @@
+## v0.15.24 - Clean Release Reload URLs
+
+- Temporary `_loom_release` and `_loom_reload` cache-busting parameters are now consumed immediately after the refreshed LOOM document boots. LOOM removes only those two reserved parameters with `history.replaceState()`, preserving the real path, unrelated query parameters, and hash without causing another network navigation.
+- Fixed Live Release Reload to compare the server canonical release against the actual runtime `LoomConfig.engineVersion` instead of an older hardcoded loom-brand script release. A successfully upgraded page therefore settles normally instead of repeatedly believing a newer release is still waiting.
+- Bumped direct `config.js` and `loom-brand.js` asset URLs to the current release on LOOM Home, project shells/templates, Admin, Activity, Pegboard, Registry, and setup surfaces so this cleanup cannot be defeated by an older cached engine script.
+- The temporary query marker is still used for the one cache-busting reload request; it simply disappears from the visible URL once that new document is confirmed running.
+
+## v0.15.23 - Inherited Defaults + Showcase Badge + Visible Energy Field
+
+- Changed the LOOM-global module-collapse default to **disabled**. New projects inherit non-collapsible module chrome unless an Admin enables collapse globally, per project, or per module. Existing projects that still use `inherit` receive the new default automatically; explicit overrides remain explicit.
+- Promoted **Project Logo** and **Background Orbs** to release-managed project core modules while preserving the existing action IDs. Older Instance Projects therefore receive engine fixes without rewriting their project-owned files.
+- Project-logo resolution now guarantees the static LOOM logo when `assets/logo.png` is absent, including old Instance Projects that previously dropped to the tiny star/glyph fallback. New/reset project-logo sizing is healthier at 64%.
+- Reworked generated Showcase badges: primary/accent colors now form a stronger procedural Gaussian-smoothed blob field, project names are solid black with a white outline, and text dynamically shrinks instead of breaking a word across lines. The badge remains runtime-generated and requires no saved server image.
+- Increased inherited LOOM background-energy defaults to **96 particles, 135% drift speed, 74% glow**, larger/brighter circuitry marks, and a 54px special particle. Default glow follows the project accent color unless explicitly overridden.
+- Added legacy-default detection for Background Orbs: copied values matching LOOM's former 70/100/58 defaults are treated as inherited, so old projects pick up improved LOOM defaults; genuinely changed legacy values and Admin overrides remain preserved.
+
 ## v0.15.22 - Deployment Gate + Retry-Storm Protection
 
 - Added a server-side deployment gate driven by the Bridge's short-lived `.loom-deploying.json` lease. During an active release, normal LOOM API requests return **503 Service Unavailable** with `Retry-After` and `X-LOOM-Deploying: 1` instead of running against mixed old/new authorization code.
@@ -383,7 +399,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.22 revision=39 policy=package-priority -->
+<!-- @loom-file release=0.15.24 revision=41 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

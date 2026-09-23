@@ -1,4 +1,4 @@
-// @loom-file release=0.12.08 revision=3 policy=package-priority
+// @loom-file release=0.15.23 revision=4 policy=package-priority
 export async function createModule(ctx){
   let layer=null;
   let style=null;
@@ -9,17 +9,17 @@ export async function createModule(ctx){
   let specialCleanup=null;
   let specialMotion=null;
 
-  const LOOM_DEFAULT_GLOW='#8FA8FF';
+  const LOOM_DEFAULT_GLOW='#168346';
   const adminOverrides=ctx.descriptor?.admin_overrides||{};
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,Number(v)||0));
   const sourceMode=String(ctx.config.sourceMode||'project');
-  const orbVolume=Math.round(clamp(ctx.config.orbVolume??70,0,180));
-  const speed=clamp(ctx.config.speed??100,20,250);
-  const glowLevel=clamp(ctx.config.glowLevel??58,0,100);
+  const orbVolume=Math.round(clamp(ctx.config.orbVolume??96,0,180));
+  const speed=clamp(ctx.config.speed??135,20,250);
+  const glowLevel=clamp(ctx.config.glowLevel??74,0,100);
   const specialEnabled=ctx.config.specialOrbEnabled!==false&&String(ctx.config.specialOrbEnabled||'on')!=='off';
-  const specialIntervalSeconds=clamp(ctx.config.specialOrbIntervalSeconds??42,12,180);
-  const specialDurationSeconds=clamp(ctx.config.specialOrbDurationSeconds??14,5,36);
-  const specialSize=clamp(ctx.config.specialOrbSize??48,24,110);
+  const specialIntervalSeconds=clamp(ctx.config.specialOrbIntervalSeconds??38,12,180);
+  const specialDurationSeconds=clamp(ctx.config.specialOrbDurationSeconds??15,5,36);
+  const specialSize=clamp(ctx.config.specialOrbSize??54,24,110);
 
   function rgba(hex,alpha){
     const m=String(hex||'').trim().match(/^#([0-9a-f]{6})$/i);
@@ -99,7 +99,7 @@ export async function createModule(ctx){
         contain:strict;isolation:isolate;user-select:none;
       }
       .loom-background-orb{
-        position:absolute;display:block;pointer-events:none;will-change:transform,opacity;
+        position:absolute;display:block;pointer-events:none;will-change:transform,opacity;z-index:1;
         transform-origin:center center;
       }
       .loom-background-orb.is-loom{
@@ -185,21 +185,21 @@ export async function createModule(ctx){
       const variant=Math.random();
       if(variant<.16){
         node.classList.add('energy-node');
-        const size=rand(2.2,5.2);
+        const size=rand(3.0,7.0);
         node.style.width=`${size}px`;node.style.height=`${size}px`;
       }else{
-        const length=variant<.58?rand(7,18):rand(15,34);
-        const thickness=rand(1.1,2.7);
+        const length=variant<.58?rand(10,24):rand(20,44);
+        const thickness=rand(1.5,3.4);
         node.style.width=`${length}px`;node.style.height=`${thickness}px`;
       }
     }
 
     node.style.left=`${rand(-2,98)}%`;
     node.style.top=`${rand(-3,98)}%`;
-    node.style.opacity=String(isLoom?rand(.18,.62):rand(.18,.48));
+    node.style.opacity=String(isLoom?rand(.34,.82):rand(.24,.58));
 
-    const glowAlpha=(glowLevel/100)*.74;
-    const blur=Math.round(3+(glowLevel/100)*13);
+    const glowAlpha=(glowLevel/100)*.90;
+    const blur=Math.round(5+(glowLevel/100)*17);
     node.style.setProperty('--energy-color',glowColor);
     node.style.setProperty('--energy-glow',rgba(glowColor,glowAlpha));
     node.style.setProperty('--energy-glow-soft',rgba(glowColor,glowAlpha*.35));

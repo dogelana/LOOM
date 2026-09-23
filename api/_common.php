@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.22 revision=26 policy=package-priority
+// @loom-file release=0.15.23 revision=27 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -196,7 +196,19 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
   // implementation code/module version stays release-managed from core-modules.
   $legacy=loom_project_legacy_action_manifest($project,$id);
   if($legacy){
-    if(is_array($legacy['config']??null))$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacy['config']);
+    if(is_array($legacy['config']??null)){
+      $legacyConfig=$legacy['config'];
+      if($id==='core.ui.background-orbs'){
+        // Old Instance Projects contain a copied snapshot of the former LOOM defaults.
+        // Treat values equal to that historical default set as inherited, not as user intent,
+        // so future LOOM default tuning reaches existing projects. Real legacy deviations survive.
+        $historic=['sourceMode'=>'project','orbVolume'=>70,'speed'=>100,'glowLevel'=>58,'glowColor'=>'#8FA8FF','specialOrbEnabled'=>true,'specialOrbIntervalSeconds'=>42,'specialOrbDurationSeconds'=>14,'specialOrbSize'=>48];
+        $delta=[];foreach($legacyConfig as $key=>$value)if(!array_key_exists($key,$historic)||$historic[$key]!==$value)$delta[$key]=$value;
+        if($delta)$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$delta);
+      } else {
+        $manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacyConfig);
+      }
+    }
     if(is_array($legacy['presentation']??null))$manifest['presentation']=array_replace_recursive(is_array($manifest['presentation']??null)?$manifest['presentation']:[],$legacy['presentation']);
   }
   $brand=loom_project_brand_identity($project);$theme=loom_project_brand_theme($project);
@@ -236,6 +248,11 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
     $cfg['projectPrimary']=$theme['primary'];$cfg['projectAccent']=$theme['accent'];$cfg['projectThemeProvided']=$theme['provided'];
     $cfg['projectFontFamily']=$brand['font_family'];$cfg['projectFontWeight']=$brand['font_weight'];$cfg['projectFontCss']=$brand['font_css'];
+    $manifest['config']=$cfg;
+  }
+  if($id==='core.ui.background-orbs'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$admin=loom_module_admin_overrides($project,$id);
+    if(!array_key_exists('glowColor',$admin))$cfg['glowColor']=$brand['accent'];
     $manifest['config']=$cfg;
   }
   if($id==='loom.social-links'){
@@ -589,7 +606,7 @@ function loom_global_module_effective_config(string $actionId): array {
 function loom_module_presentation_global_defaults(): array {
   $cfg=loom_global_module_effective_config('loom.module-presentation');
   return [
-    'collapseEnabled'=>(bool)($cfg['collapseEnabled']??true),
+    'collapseEnabled'=>(bool)($cfg['collapseEnabled']??false),
     'titleBarsEnabled'=>(bool)($cfg['titleBarsEnabled']??true),
     'initialState'=>in_array((string)($cfg['initialState']??'expanded'),['expanded','collapsed'],true)?(string)$cfg['initialState']:'expanded'
   ];

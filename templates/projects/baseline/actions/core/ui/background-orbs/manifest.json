@@ -4,7 +4,7 @@
   "action": {
     "id": "core.ui.background-orbs",
     "name": "Background Orbs",
-    "description": "Optional ambient background energy field. Disabled by default and loaded only when an Admin explicitly enables it for the project.",
+    "description": "Render the LOOM ambient energy field with inherited project color, brighter circuitry particles, and occasional extensible special particles.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "dependencies": [],
     "styles": [],
     "order": "00005"
@@ -59,14 +59,14 @@
   },
   "config": {
     "sourceMode": "project",
-    "orbVolume": 70,
-    "speed": 100,
-    "glowLevel": 58,
-    "glowColor": "#8FA8FF",
+    "orbVolume": 96,
+    "speed": 135,
+    "glowLevel": 74,
+    "glowColor": "#168346",
     "specialOrbEnabled": true,
-    "specialOrbIntervalSeconds": 42,
-    "specialOrbDurationSeconds": 14,
-    "specialOrbSize": 48
+    "specialOrbIntervalSeconds": 38,
+    "specialOrbDurationSeconds": 15,
+    "specialOrbSize": 54
   },
   "pegboard": {
     "preferredDepth": 2,
@@ -75,7 +75,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Background Energy Field",
-    "description": "Optional ambient project background. This module is OFF by default; enable it explicitly in Module Control when the project should use ambient orbs/particles.",
+    "description": "Ambient project background. LOOM defaults are inherited automatically until this project saves an explicit override. Regular particles are brighter and denser; project providers may still replace their artwork.",
     "fields": [
       {
         "id": "sourceMode",
@@ -99,7 +99,8 @@
         "min": 0,
         "max": 180,
         "step": 1,
-        "unit": " particles"
+        "unit": " particles",
+        "help": "LOOM default is 96 particles. Projects with no saved override inherit future LOOM default changes."
       },
       {
         "id": "speed",
@@ -108,7 +109,8 @@
         "min": 20,
         "max": 250,
         "step": 5,
-        "unit": "%"
+        "unit": "%",
+        "help": "LOOM default drift speed is 135%."
       },
       {
         "id": "glowLevel",
@@ -117,7 +119,8 @@
         "min": 0,
         "max": 100,
         "step": 1,
-        "unit": "%"
+        "unit": "%",
+        "help": "LOOM default energy glow is 74%."
       },
       {
         "id": "glowColor",
@@ -126,7 +129,8 @@
         "projectDefaultFromExtension": {
           "extension": "core.ui.background-orbs.provider",
           "property": "defaultGlowColor"
-        }
+        },
+        "help": "Defaults to the project accent color unless explicitly overridden."
       },
       {
         "id": "specialOrbEnabled",

@@ -1,3 +1,7 @@
+## v0.15.24 - Clean Release Reload URLs
+
+Live Release Reload still performs one cache-busted navigation after a verified manifest-last deployment, but its internal `_loom_release` / `_loom_reload` parameters are now transient. The freshly loaded LOOM runtime removes them from the address bar without reloading again and without disturbing real project/query/hash state. The watcher also compares against the current runtime engine version, eliminating false repeated-upgrade detection caused by a stale loom-brand build marker.
+
 ## v0.15.22 - Transaction-Safe Live Deployment
 
 LOOM now cooperates directly with Bridge 8.3 during production releases. While Deployer holds its short-lived server deployment lease, APIs return a deployment-specific 503 and browser traffic collapses into one quiet status poll instead of repeatedly retrying authorization/module endpoints. Once the verified manifest-last transaction finishes, open pages reload the clean release automatically.
@@ -56,7 +60,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.22 revision=38 policy=package-priority -->
+<!-- @loom-file release=0.15.24 revision=40 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

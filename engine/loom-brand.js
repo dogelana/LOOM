@@ -1,7 +1,17 @@
-// @loom-file release=0.15.21 revision=29 policy=package-priority
+// @loom-file release=0.15.24 revision=30 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.21';
+  const CLIENT_RELEASE='0.15.24';
   const VERSION=String(window.LoomConfig?.engineVersion||CLIENT_RELEASE);
+  function consumeReleaseReloadMarker(){
+    try{
+      const u=new URL(location.href),had=u.searchParams.has('_loom_release')||u.searchParams.has('_loom_reload');
+      if(!had)return false;
+      u.searchParams.delete('_loom_release');u.searchParams.delete('_loom_reload');
+      history.replaceState(history.state,'',`${u.pathname}${u.search}${u.hash}`);
+      return true;
+    }catch{return false}
+  }
+  consumeReleaseReloadMarker();
   const BRAND_SCRIPT_URL=(()=>{try{return new URL(document.currentScript?.src||'engine/loom-brand.js',location.href)}catch{return null}})();
   const BRAND_API_BASE=(()=>{try{return new URL('../api/',BRAND_SCRIPT_URL||location.href).href.replace(/\/$/,'')}catch{return 'api'}})();
   const HERO_X=-35.26438968,HERO_Y=315,HOLD_MS=3000,SPIN_MS=7000,LOOP_MS=10000;
@@ -102,8 +112,8 @@
     const isChange=(payload)=>{
       if(!releaseIsHealthy(payload))return false;
       const server=String(payload.canonicalVersion||''),fp=releaseFingerprint(payload);
-      if(compareVersions(server,CLIENT_RELEASE)>0)return true;
-      if(compareVersions(server,CLIENT_RELEASE)<0)return false; // client file can arrive before the manifest commit
+      if(compareVersions(server,VERSION)>0)return true;
+      if(compareVersions(server,VERSION)<0)return false; // client file can arrive before the manifest commit
       return !!(baselineFingerprint&&fp&&fp!==baselineFingerprint);
     };
     const verifyAndReload=async(expectedFp)=>{
@@ -119,7 +129,7 @@
       const payload=await fetchReleaseWatch();
       if(!releaseIsHealthy(payload))return;
       const fp=releaseFingerprint(payload),server=String(payload.canonicalVersion||'');
-      if(baselineFingerprint===null){baselineFingerprint=fp;baselineVersion=server;if(compareVersions(server,CLIENT_RELEASE)>0&&!confirmingFingerprint){confirmingFingerprint=fp;verifyAndReload(fp)}return}
+      if(baselineFingerprint===null){baselineFingerprint=fp;baselineVersion=server;if(compareVersions(server,VERSION)>0&&!confirmingFingerprint){confirmingFingerprint=fp;verifyAndReload(fp)}return}
       if(isChange(payload)&&confirmingFingerprint!==fp){confirmingFingerprint=fp;verifyAndReload(fp)}
     };
     await check();

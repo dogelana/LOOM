@@ -1,4 +1,4 @@
-// @loom-file release=0.15.17 revision=4 policy=package-priority
+// @loom-file release=0.15.23 revision=5 policy=package-priority
 export async function createModule(ctx) {
   let logoWrap = null;
   let host = null;
@@ -7,6 +7,7 @@ export async function createModule(ctx) {
   let shine = null;
   let pointerCleanup = null;
   const assetPath = ctx.config.assetPath || 'assets/logo.png';
+  const loomDefaultUrl=()=>{try{const apiBase=new URL(String(ctx.apiBase||'../api').replace(/\/?$/,'/') ,location.href);return new URL('../assets/loom-logo.png',apiBase).href}catch{return '../assets/loom-logo.png'}};
 
   function bindShine(url) {
     if (!stage || !shine || ctx.config.shineEnabled === false) return;
@@ -53,7 +54,7 @@ export async function createModule(ctx) {
     async activate() {
       ctx.step('resolve-asset', 'active', { assetPath });
       let url = await ctx.resolveAssetPath(assetPath, ctx.config.assetScope || 'project');
-      let usingLoomDefault=false;if(!url){url=new URL('../../../assets/loom-logo.png',location.href).href;usingLoomDefault=true;}
+      let usingLoomDefault=false;if(!url){url=loomDefaultUrl();usingLoomDefault=true;}
       ctx.step('resolve-asset','completed',{resolvedUrl:url,serverResolved:!usingLoomDefault,usingLoomDefault,assetPath});
 
       ctx.step('create-element', 'active');
@@ -67,13 +68,12 @@ export async function createModule(ctx) {
         const img = document.createElement('img');
         img.src = url;
         img.alt = ctx.config.alt || 'Project logo';
-        const scale=Math.max(10,Math.min(100,Number(ctx.config.scalePercent??50)));
+        const scale=Math.max(10,Math.min(100,Number(ctx.config.scalePercent??64)));
         logoWrap.dataset.scalePercent=String(scale);
         img.style.maxWidth='100%';img.style.maxHeight='100%';
         img.addEventListener('error', () => {
-          stage?.remove();
-          logoWrap.textContent = ctx.config.fallbackMark || '🌱';
-          logoWrap.title = `Explicit asset ${assetPath} failed to render.`;
+          if(img.dataset.loomFallbackTried==='1'){logoWrap.title=`Project logo and LOOM fallback failed to render.`;return}
+          img.dataset.loomFallbackTried='1';usingLoomDefault=true;img.src=loomDefaultUrl();img.alt='LOOM default project logo';logoWrap.title='Using the LOOM default project logo.';
         });
         shine = document.createElement('span');
         shine.className = 'gb-logo-shine';
@@ -81,15 +81,14 @@ export async function createModule(ctx) {
         stage.append(img, shine);
         logoWrap.appendChild(stage);
       } else {
-        logoWrap.textContent = ctx.config.fallbackMark || '🌱';
-        logoWrap.title = `Explicit asset ${assetPath} was not found.`;
+        stage = document.createElement('div');stage.className='gb-logo-shine-stage';const img=document.createElement('img');img.src=loomDefaultUrl();img.alt='LOOM default project logo';stage.appendChild(img);logoWrap.appendChild(stage);usingLoomDefault=true;logoWrap.title='Using the LOOM default project logo.';
       }
       ctx.step('create-element', 'completed', { assetPath });
 
       ctx.step('mount-logo', 'active');
       host = ctx.mount(logoWrap, ctx.config.mountSelector || '#feature-stage');
-      const scale=Math.max(10,Math.min(100,Number(ctx.config.scalePercent??50)));
-      const factor=scale/50; // normalized: 50 = legacy 100%; 100 = legacy 200%.
+      const scale=Math.max(10,Math.min(100,Number(ctx.config.scalePercent??64)));
+      const factor=scale/50; // normalized scale remains backwards-compatible; LOOM's new inherited default is 64%.
       if(host){
         host.dataset.loomLogoHost='1';
         host.style.setProperty('--loom-logo-desktop-w',`${Math.round(92*factor)}px`);

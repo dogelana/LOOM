@@ -4,7 +4,7 @@
   "action": {
     "id": "core.ui.load-logo",
     "name": "Load Project Logo",
-    "description": "Resolve the project logo, contain it safely in the Header Bar, and add an alpha-masked mouse-reactive specular shine that follows the pointer without illuminating transparent pixels.",
+    "description": "Resolve the project logo with a guaranteed static LOOM-logo fallback, contain it safely in the Header Bar, and add the alpha-masked pointer shine.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -39,7 +39,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "2.2.1",
+    "version": "2.3.0",
     "dependencies": [
       "core.ui.header-bar"
     ],
@@ -67,7 +67,7 @@
     "assetScope": "project",
     "mountSelector": "#feature-stage",
     "alt": "Green Beans",
-    "fallbackMark": "\ud83c\udf31",
+    "fallbackMark": "",
     "scalePercent": 50,
     "shineEnabled": true
   },
@@ -78,7 +78,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Project Logo",
-    "description": "Logo scale is normalized: 50% equals the old 100% size; 100% equals the old 200% maximum.",
+    "description": "Project logo with a guaranteed LOOM-logo fallback. 64% is the LOOM default size; explicit project overrides remain untouched.",
     "fields": [
       {
         "id": "scalePercent",

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.22 revision=12 policy=package-priority
+// @loom-file release=0.15.24 revision=13 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -53,7 +53,7 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.22"></script><script src="../../engine/loom-brand.js?v=0.15.21"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.22"></script><script src="../../engine/loom-brand.js?v=0.15.24"></script>
 <script src="../../engine/identity.js?v=0.15.21"></script>
 <script src="../../engine/loom-global-profile.js?v=0.15.21"></script>
 <script src="../../engine/loom-toast.js?v=0.15.21"></script><script src="../../engine/loom-shell.js?v=0.15.21"></script>

@@ -1,3 +1,7 @@
+## v0.15.24 architecture note — ephemeral release reload markers
+
+Live Release Reload may append reserved `_loom_release` and `_loom_reload` query parameters only to force one fresh document request after the canonical manifest advances. Those parameters are transport metadata, not application state. The newly loaded runtime must consume and remove them with History API replacement before normal use, preserving all unrelated URL state. Release comparison is against the effective runtime engine version, not a stale asset-build constant.
+
 ## v0.15.22 architecture note — deployment gate
 
 A LOOM release has two distinct safety boundaries. The canonical `.loom-deployment.json` remains the **commit-last release authority**, while `.loom-deploying.json` is a short-lived operational lease owned by the deployment transport. The lease never becomes release content or persistent Instance state.
@@ -27,7 +31,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.22 revision=34 policy=package-priority -->
+<!-- @loom-file release=0.15.24 revision=36 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

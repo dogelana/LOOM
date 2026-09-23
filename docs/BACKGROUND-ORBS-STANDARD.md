@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.23 revision=4 policy=package-priority -->
 # LOOM Background Energy Field Standard — v0.12.04
 
 `core.ui.background-orbs` remains the stable module/action ID for compatibility, but its LOOM-native default visual is now an electric circuitry-inspired **energy field**, not glass bubbles.
@@ -8,7 +8,7 @@ LOOM core owns rendering, randomized zero-gravity motion, density, glow, special
 
 Starter defaults:
 
-- particle/orb volume: **70** (about 5× the prior default of 14)
+- particle/orb volume: **96** (higher-visibility LOOM default)
 - drift speed: 100%
 - glow: 58%
 - special particle: enabled

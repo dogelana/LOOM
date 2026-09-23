@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.12.11 revision=3 policy=package-priority
+// @loom-file release=0.15.23 revision=4 policy=package-priority
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 
@@ -76,6 +76,11 @@ if($scope!=='server'){
     }
 }
 $found=$overlayFound?:resolve_relative_ci($base,$requestedPath);
+$loomDefaultLogo=false;
+if(!$found&&$scope!=='server'&&strtolower(trim(str_replace('\\','/',$requestedPath),'/'))==='assets/logo.png'){
+    $candidate=root_dir().'/assets/loom-logo.png';
+    if(is_file($candidate)){$found=$candidate;$loomDefaultLogo=true;}
+}
 $assetVersion=$found?file_cache_version($found):null;
 json_out([
     'found'=>(bool)$found,
@@ -85,5 +90,5 @@ json_out([
     'url'=>$overlayUrl?:($found ? versioned_rel_url($found) : null),
     'asset_version'=>$assetVersion,
     'cache_busted'=>(bool)$found,
-    'resolution'=>$overlayFound?'persistent-instance-overlay':'explicit-relative-path'
+    'resolution'=>$overlayFound?'persistent-instance-overlay':($loomDefaultLogo?'loom-default-project-logo':'explicit-relative-path')
 ]);
