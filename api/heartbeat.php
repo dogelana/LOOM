@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.12.08 revision=2 policy=package-priority
+// @loom-file release=0.15.12 revision=3 policy=package-priority
 require __DIR__.'/_common.php';
 if($_SERVER['REQUEST_METHOD']!=='POST')json_out(['error'=>'POST required'],405);
 $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['error'=>'Invalid JSON'],400);
@@ -13,11 +13,12 @@ $priorStatus=(string)($existing['status']??'');
 $payload=$body;$heartbeatAt=server_timestamp();$payload['status']='active';$payload['serverTimestamp']=$heartbeatAt;$payload['lastHeartbeatAt']=$heartbeatAt;$payload['serverEpochMs']=$now;$payload['leaseDurationMs']=$lease;$payload['leaseExpiresEpochMs']=$now+$lease;
 $payload['activeActions']=action_snapshot($payload);$payload['activeActionIds']=array_values(array_map(fn($a)=>$a['id'],$payload['activeActions']));
 unset($payload['staleAt'],$payload['staleEpochMs'],$payload['staleReason'],$payload['expiredAt'],$payload['expiredReason']);
-if($existing && in_array($priorStatus,['stale','expired'],true)){
+$runtimeChanged=$existing && (($existing['runtimeId']??null)!==($payload['runtimeId']??null));
+if($existing && (in_array($priorStatus,['stale','expired'],true)||($priorStatus==='closed'&&$runtimeChanged))){
   $base=base_identity($payload);$ids=$payload['activeActionIds'];
   append_project_event($project,$base+[
-    'type'=>'session.resumed','reason'=>'heartbeat-resumed','priorStatus'=>$priorStatus,
-    'resumedActionIds'=>$ids,'runtimeChanged'=>(($existing['runtimeId']??null)!==($payload['runtimeId']??null))
+    'type'=>'session.resumed','reason'=>$priorStatus==='closed'?'runtime-reopened':'heartbeat-resumed','priorStatus'=>$priorStatus,
+    'resumedActionIds'=>$ids,'runtimeChanged'=>$runtimeChanged
   ]);
   // Legacy v0.8 "expired" sessions had inferred inactive events. Restore those held states once on resume.
   if($priorStatus==='expired'){

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.09 revision=5 policy=package-priority
+// @loom-file release=0.15.12 revision=6 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -10,14 +10,16 @@
       this.registry=new window.PegboardRegistryClient({project,apiBase,fallbackUrl:fallbackRegistry});
       if(userId!=null)window.LOOM_USER_ID=userId;if(userLabel!=null)window.LOOM_USER_LABEL=userLabel;
       this.identity=window.LoomIdentity.get(project);this.bus=new window.LoomEventBus(project,this.identity);
-      this.modules=new Map();this.activeActions=new Map();this.userActionDescriptors=new Map();this.activeUserActions=new Map();this.discoveredDescriptors=[];this.bootstrapLoaderId=null;this.bootstrapLoadState=null;this.running=false;this.pollTimer=null;this.heartbeatTimer=null;this.lastHeartbeatSentAt=0;this.logQueue=[];this.logDraining=false;this.logDrainPromise=null;this.modulePreloads=new Set();this.moduleLayoutState={collapsed:{}};this.moduleFrameStyle=null;this.mobileMedia=window.matchMedia?.('(max-width: 767px)')||null;this.responsiveTimer=null;this._onResponsiveModuleVisibilityChange=()=>{clearTimeout(this.responsiveTimer);this.responsiveTimer=setTimeout(()=>{if(this.running)this.refresh(false).catch(err=>this._emitEngineError(err))},90)};
+      this.modules=new Map();this.activeActions=new Map();this.userActionDescriptors=new Map();this.activeUserActions=new Map();this.discoveredDescriptors=[];this.bootstrapLoaderId=null;this.bootstrapLoadState=null;this.running=false;this.pollTimer=null;this.heartbeatTimer=null;this.heartbeatRetryTimer=null;this.heartbeatInFlight=false;this.lastHeartbeatSentAt=0;this.lastHeartbeatAckAt=0;this.lastHeartbeatErrorAt=0;this.pageHideCloseSent=false;this.pageHideAt=0;this.logQueue=[];this.logDraining=false;this.logDrainPromise=null;this.modulePreloads=new Set();this.moduleLayoutState={collapsed:{}};this.moduleFrameStyle=null;this.mobileMedia=window.matchMedia?.('(max-width: 767px)')||null;this.responsiveTimer=null;this._onResponsiveModuleVisibilityChange=()=>{clearTimeout(this.responsiveTimer);this.responsiveTimer=setTimeout(()=>{if(this.running)this.refresh(false).catch(err=>this._emitEngineError(err))},90)};
       this.runtimeId=crypto?.randomUUID?.()||`${Date.now()}_${Math.random().toString(36).slice(2)}`;
       this.coreSteps=new Map();this.closed=false;this.closeToken=null;this.correlationId=`corr_${this.runtimeId}`;this.lastEventId=null;this.stopInteractionCapture=null;
-      this._onPageHide=e=>{if(!e.persisted)this._gracefulPageClose('pagehide')};
+      this._onPageHide=e=>this._handlePageHide(e);
+      this._onPageShow=e=>this._ensureSessionLiveness(e?.persisted?'pageshow-bfcache':'pageshow',true);
       this._onPresenceActivity=()=>this._activityHeartbeat('user-activity');
-      this._onVisibilityChange=()=>this._activityHeartbeat(document.visibilityState==='visible'?'visibility-visible':'visibility-hidden',true);
-      this._onOnline=()=>this._activityHeartbeat('network-online',true);
-      this._presenceActivityEvents=['pointerdown','keydown','input','change','touchstart','focus'];
+      this._onVisibilityChange=()=>{const visible=document.visibilityState==='visible';this._ensureSessionLiveness(visible?'visibility-visible':'visibility-hidden',visible)};
+      this._onFocus=()=>this._ensureSessionLiveness('window-focus',true);
+      this._onOnline=()=>this._ensureSessionLiveness('network-online',true);
+      this._presenceActivityEvents=['pointerdown','keydown','input','change','touchstart'];
     }
     _cacheBustUrl(url,version=null){
       if(!url||CFG?.cacheBust?.enabled===false)return url;
@@ -49,12 +51,12 @@
       await this._coreStep('ready',async()=>{});
       if(window.LoomInteractionCapture)this.stopInteractionCapture=window.LoomInteractionCapture.start({project:this.project,identity:this.identity,runtimeId:this.runtimeId,apiBase:this.apiBase});
       this._startHeartbeat();this._bindPresenceActivity();this._schedulePoll();
-      addEventListener('pagehide',this._onPageHide);
+      addEventListener('pagehide',this._onPageHide);addEventListener('pageshow',this._onPageShow);addEventListener('focus',this._onFocus,{passive:true});
     }
     async stop(){return this.close('runtime-stop')}
     async close(reason='closed'){
       if(this.closed)return;this.closed=true;this.running=false;
-      clearTimeout(this.pollTimer);clearTimeout(this.responsiveTimer);clearInterval(this.heartbeatTimer);this._unbindPresenceActivity();this._unbindResponsiveModuleVisibility();removeEventListener('pagehide',this._onPageHide);
+      clearTimeout(this.pollTimer);clearTimeout(this.responsiveTimer);clearTimeout(this.heartbeatTimer);clearTimeout(this.heartbeatRetryTimer);this._unbindPresenceActivity();this._unbindResponsiveModuleVisibility();removeEventListener('pagehide',this._onPageHide);removeEventListener('pageshow',this._onPageShow);removeEventListener('focus',this._onFocus);
       this.stopInteractionCapture?.();this.stopInteractionCapture=null;
       for(const id of [...this.modules.keys()])await this._removeModule(id,reason,false);
       this._emitAction('core.load','inactive',{kind:'system',behavior:'stateful',name:'Load Core',reason});
@@ -450,33 +452,78 @@
       document.removeEventListener('visibilitychange',this._onVisibilityChange);
       removeEventListener('online',this._onOnline);
     }
+    _newRuntimeIdentity(){
+      this.runtimeId=crypto?.randomUUID?.()||`${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      this.correlationId=`corr_${this.runtimeId}`;this.lastEventId=null;this.closeToken=null;
+    }
+    _restartInteractionCapture(){
+      if(!window.LoomInteractionCapture)return;
+      try{this.stopInteractionCapture?.()}catch{}
+      this.stopInteractionCapture=window.LoomInteractionCapture.start({project:this.project,identity:this.identity,runtimeId:this.runtimeId,apiBase:this.apiBase});
+    }
+    _handlePageHide(event){
+      if(this.closed)return;
+      this.pageHideAt=Date.now();this._flushQueuedLogsBeacon();
+      // A pagehide can be emitted by mobile browsers and history transitions even when the
+      // document later becomes usable again. Send the server a truthful close for a real
+      // unload, but DO NOT irreversibly tear down the in-page runtime here.
+      if(event?.persisted)return;
+      const activeActions=this._activeSnapshot();this.pageHideCloseSent=true;
+      this._sendLifecycleClose('pagehide',activeActions,true);
+    }
+    _recoverFromPageHide(reason='pageshow'){
+      if(!this.pageHideCloseSent)return false;
+      this.pageHideCloseSent=false;this.pageHideAt=0;this._newRuntimeIdentity();this._restartInteractionCapture();
+      this._log({type:'session.runtime-recovered',runtimeId:this.runtimeId,reason,userLabel:this.identity.userLabel});
+      return true;
+    }
+    _ensureSessionLiveness(reason='liveness-check',force=false){
+      if(!this.running||this.closed)return;
+      const recovered=this._recoverFromPageHide(reason);
+      if(recovered||force){this._scheduleHeartbeat(0);this._activityHeartbeat(reason,true);return}
+      this._activityHeartbeat(reason,false);
+    }
     _activityHeartbeat(reason='user-activity',force=false){
       if(!this.running||this.closed)return;
       const min=Math.max(250,Number(CFG.heartbeatActivityMinMs||1000));
       if(!force&&Date.now()-this.lastHeartbeatSentAt<min)return;
       this._sendHeartbeat(reason);
     }
-    _sendHeartbeat(reason='interval'){
-      if(!this.running||this.closed)return;
-      this.lastHeartbeatSentAt=Date.now();
+    _scheduleHeartbeat(delay=null){
+      clearTimeout(this.heartbeatTimer);if(!this.running||this.closed)return;
+      const ms=Math.max(500,Number(delay??CFG.heartbeatIntervalMs??5000));
+      this.heartbeatTimer=setTimeout(()=>this._sendHeartbeat('interval'),ms);
+    }
+    _scheduleHeartbeatRetry(){
+      clearTimeout(this.heartbeatRetryTimer);if(!this.running||this.closed)return;
+      const ms=Math.max(750,Number(CFG.heartbeatRetryMs||2500));
+      this.heartbeatRetryTimer=setTimeout(()=>this._sendHeartbeat('retry'),ms);
+    }
+    async _sendHeartbeat(reason='interval'){
+      if(!this.running||this.closed)return false;
+      if(this.heartbeatInFlight){this._scheduleHeartbeat(Math.min(Number(CFG.heartbeatIntervalMs||5000),1500));return false}
+      this.heartbeatInFlight=true;this.lastHeartbeatSentAt=Date.now();
       const activeActions=this._activeSnapshot();
       const payload={type:'runtime.heartbeat',runtimeId:this.runtimeId,activeActionIds:activeActions.map(a=>a.id),activeActions,coreActive:true,status:'active',heartbeatReason:reason};
-      this.bus.emit(payload);this._presence('active',{activeActions,heartbeatReason:reason});
+      this.bus.emit(payload);
+      const ok=await this._presence('active',{activeActions,heartbeatReason:reason});
+      this.heartbeatInFlight=false;
+      if(ok){this.lastHeartbeatAckAt=Date.now();clearTimeout(this.heartbeatRetryTimer);this._scheduleHeartbeat()}
+      else{this.lastHeartbeatErrorAt=Date.now();this._scheduleHeartbeatRetry()}
+      return ok;
     }
     _startHeartbeat(){
-      clearInterval(this.heartbeatTimer);
+      clearTimeout(this.heartbeatTimer);clearTimeout(this.heartbeatRetryTimer);
       this._sendHeartbeat('runtime-start');
-      this.heartbeatTimer=setInterval(()=>this._sendHeartbeat('interval'),CFG.heartbeatIntervalMs);
     }
     async _presence(status='active',extra={}){
       const activeActions=extra.activeActions||this._activeSnapshot();
       const body={project:this.project,clientId:this.identity.clientId,sessionId:this.identity.sessionId,userId:this.identity.userId,userLabel:this.identity.userLabel,runtimeId:this.runtimeId,status,
         activeActionIds:status==='active'?activeActions.map(a=>a.id):[],activeActions:status==='active'?activeActions:[],meta:this.identity.meta,clientTimestamp:new Date().toISOString(),leaseDurationMs:CFG.heartbeatLeaseMs,...extra};
-      try{await fetch(`${this.apiBase}/heartbeat.php`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:true})}catch{}
-    }
-    _gracefulPageClose(reason='pagehide'){
-      if(this.closed)return;this.closed=true;this.running=false;clearTimeout(this.pollTimer);clearInterval(this.heartbeatTimer);this._unbindPresenceActivity();
-      const activeActions=this._activeSnapshot();this._flushQueuedLogsBeacon();this._sendLifecycleClose(reason,activeActions,true);this.bus.close();
+      try{
+        const response=await fetch(`${this.apiBase}/heartbeat.php`,{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store'},cache:'no-store',body:JSON.stringify(body),keepalive:true});
+        return response.ok;
+      }catch{return false}
     }
     async _sendLifecycleClose(reason='closed',activeActions=[],preferBeacon=false){
       this.closeToken=this.closeToken||crypto?.randomUUID?.()||`${Date.now()}_${Math.random().toString(36).slice(2)}`;

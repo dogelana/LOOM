@@ -1,3 +1,13 @@
+# LOOM 0.15.12 - Session Liveness
+
+- Fixed sessions that could become stale and permanently stop tracking while the same browser tab was still usable.
+- `pagehide` no longer irreversibly destroys the in-page runtime. If the document becomes active again, LOOM reopens presence with a fresh runtime ID inside the same logical session and restarts interaction capture.
+- Added forced liveness recovery on `pageshow`, visible-tab restoration, window focus, network restoration, and real user interaction.
+- Replaced the fixed heartbeat interval with a self-healing heartbeat scheduler that retries failed heartbeat requests instead of silently swallowing them forever.
+- Increased the default presence lease from 45 seconds to 90 seconds to tolerate mobile/browser timer throttling while preserving fast 5-second normal heartbeats.
+- Server heartbeat handling now records a closed session as resumed when a different runtime legitimately reopens the same logical tab session.
+- Added `docs/SESSION-LIVENESS-STANDARD.md`.
+
 # LOOM 0.15.11 - Activity Explorer Shell Fix
 
 - Fixed Activity Explorer startup failure: `LoomBrand is required before LoomShell`.

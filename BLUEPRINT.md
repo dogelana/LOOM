@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.11 revision=23 policy=package-priority -->
+<!-- @loom-file release=0.15.12 revision=24 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -381,3 +381,8 @@ Admin Activity Explorer is the historical observability counterpart to live Pegb
 ## v0.15.11 — Activity Explorer shell dependency correction
 
 The Activity Explorer is a LOOM-owned Admin surface and therefore follows the same shared-shell bootstrap contract as other LOOM-owned surfaces. `LoomBrand` must be loaded before `LoomShell`; identity and global-profile helpers remain available before shell mount. This release corrects that ordering without changing observability semantics.
+
+
+## v0.15.12 — Session liveness and recovery
+
+Presence is now treated as a recoverable lease rather than a fragile timer. The runtime uses acknowledged, self-scheduling heartbeats with retry, lifecycle recovery hooks, and a longer mobile-tolerant lease. A transient pagehide may close the server-side runtime snapshot, but it does not permanently destroy the in-document tracker; restoration reopens the logical session with a fresh runtime ID and restarts interaction capture.
