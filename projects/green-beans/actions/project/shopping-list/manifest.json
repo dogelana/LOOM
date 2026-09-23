@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "project.shopping-list",
+    "name": "Shopping List",
+    "description": "Persistent Green Beans shopping list with rapid ingredient entry, manual groups, and first-class Meal Creator integration.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "project/shopping",
+    "tags": [
+      "project",
+      "green-beans",
+      "shopping",
+      "ingredients",
+      "groups",
+      "meals",
+      "persistent"
+    ],
+    "steps": [
+      {
+        "id": "load-state",
+        "name": "Load persistent shopping list state"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.shopping-list.item.add",
+      "name": "Add Shopping Item",
+      "behavior": "transient",
+      "category": "shopping"
+    },
+    {
+      "id": "user.shopping-list.item.toggle",
+      "name": "Toggle Shopping Item",
+      "behavior": "transient",
+      "category": "shopping"
+    },
+    {
+      "id": "user.shopping-list.item.edit",
+      "name": "Edit Shopping Item",
+      "behavior": "transient",
+      "category": "shopping"
+    },
+    {
+      "id": "user.shopping-list.item.remove",
+      "name": "Remove Shopping Item",
+      "behavior": "transient",
+      "category": "shopping"
+    },
+    {
+      "id": "user.shopping-list.group.create",
+      "name": "Create Shopping Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    },
+    {
+      "id": "user.shopping-list.group.rename",
+      "name": "Rename Shopping Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    },
+    {
+      "id": "user.shopping-list.group.delete",
+      "name": "Delete Shopping Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    },
+    {
+      "id": "user.shopping-list.group.assign",
+      "name": "Add Items to Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    },
+    {
+      "id": "user.shopping-list.group.unassign",
+      "name": "Remove Items from Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    },
+    {
+      "id": "user.shopping-list.group.toggle",
+      "name": "Toggle Shopping Group",
+      "behavior": "transient",
+      "category": "shopping/groups"
+    }
+  ],
+  "module": {
+    "entry": "action.js",
+    "version": "1.2.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00100"
+  },
+  "extensions": {
+    "green-beans.shopping-list": {
+      "label": "Shopping List Ingredient Store",
+      "description": "Exposes shopping ingredients and meal-group synchronization to compatible Green Beans modules."
+    }
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 100,
+      "className": "green-beans-shopping-list-module"
+    }
+  },
+  "config": {},
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Shopping List",
+    "description": "Project feature state is user-owned. Meal groups are managed by Meal Creator when that project module is present.",
+    "fields": []
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "green-beans.shopping-list",
+        "description": "Shopping list ingredient state"
+      }
+    ],
+    "requires": [],
+    "permissions": []
+  }
+}

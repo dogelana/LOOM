@@ -1,0 +1,2916 @@
+{
+  "decision_order": [
+    "deployment-policy",
+    "field-authority-merge",
+    "per-file-revision",
+    "causal-last-known-equal",
+    "content-hash",
+    "manual-conflict"
+  ],
+  "default_policy": "package-priority",
+  "files": {
+    ".gitattributes": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "309ea17578809c18e07ba327322bec6c817d16ead8d59573496f037bf29cec6d",
+      "size": 167
+    },
+    ".gitignore": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "6b9d3af216a5fb9d3f1a0275484196ac8a631a6d37273dc7f8ac83ba70e2705b",
+      "size": 294
+    },
+    ".htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "2b130ae98e30586ef64ba85d3092973bed888478fd5108d85113a0f2648ec4b2",
+      "size": 1284
+    },
+    "BLUEPRINT.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 12,
+      "sha256": "7477e3802be39ecdb6c75c3cc371239b5bdac6c62457fec50ad923043180457d",
+      "size": 25328
+    },
+    "CHANGELOG.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 16,
+      "sha256": "5243a523620cc47bfac6b9f2b7ec191a94089a5f45b8ca1967a2daa8d8c59be3",
+      "size": 79024
+    },
+    "LOGO-VALIDATION.txt": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 2,
+      "sha256": "32176875f9f531d25b2cf2f4cf6109da659a133de75b46d2e102beeb652d1944",
+      "size": 360
+    },
+    "README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 16,
+      "sha256": "bac28e3fe0ccc6618b6b499f9a3095652a9df097385b35c67e7f4cfccf1a110c",
+      "size": 25433
+    },
+    "admin/.htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "2ff3d844aa8192f80d0fd11119688435e6fbc06f71f82a3312fef6c5c6d66405",
+      "size": 106
+    },
+    "admin/index.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 16,
+      "sha256": "347197a1242ce8d09a4b4229f2c990d8853a4cf5be007164cc2d714e82af7c23",
+      "size": 73406
+    },
+    "api/_accounts.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "b356f215371be125d01115362fbb1692e0cebab42e89a5bdcfd221620164e035",
+      "size": 21249
+    },
+    "api/_audit.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 2,
+      "sha256": "5effb338bcb151bb3b090f998a61f648c1ab1eee634e2470190e5bfccea1dce0",
+      "size": 1562
+    },
+    "api/_avatars.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 4,
+      "sha256": "84602d8ecf0946d9719efa1735de502cbb44199302df328feab85bda77dca1b6",
+      "size": 11394
+    },
+    "api/_capabilities.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "1c285e2b252fbf7d3a5459d3017325e948214bf341c036135cc759a0e21bedb8",
+      "size": 2959
+    },
+    "api/_common.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 10,
+      "sha256": "3e8fbd7c8a0a12550b82c8fd6073eb88a1a0eedc26c84cf287ee9eeea0c6a351",
+      "size": 40190
+    },
+    "api/_database.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "298b47d7eccc0b5739aaa577bf519833cf1c6a11e767ef4037f24874d04a5110",
+      "size": 16968
+    },
+    "api/_global_profiles.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 4,
+      "sha256": "a9bbe7f4f01efb1d7cf049ef0ed923cf6259bebefde85591b82aad7fe6221c1c",
+      "size": 16999
+    },
+    "api/_guest_identities.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "c41ba32e3162e0352e014c22c4fe54cc674d97809b22b0252c52f18d2e0089f5",
+      "size": 35804
+    },
+    "api/_guest_profiles.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "4e16bf8a545cc9fa04037f5ebe4b4a57e9d78b4b643a18c114638e8cda5ca8d5",
+      "size": 13282
+    },
+    "api/_html_framer.php": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 3,
+      "sha256": "ccb3be8b5a8c6323f5439773c375a98df3f4984a2b5ea22bfa1bb98b7cb5c94d",
+      "size": 25558
+    },
+    "api/_integrity.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "81736eea649f0db3821644a695ae7672837cac239cbf116c444d270ca3086b06",
+      "size": 19393
+    },
+    "api/_migrations.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 2,
+      "sha256": "77f0fb32d5be8938b117d32ca9368bd7f0ee6896025b7d39fbfea20072795f6d",
+      "size": 5637
+    },
+    "api/_moderation.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "511ddce5110358660abdb24327620a09da0f9fe421a5a33919275b692f32f7c9",
+      "size": 18034
+    },
+    "api/_project_identities.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "cbfc6befbdcc8fd9fc0953273d01e78499ec14a75fcb98a52e50a01c02e49edc",
+      "size": 16749
+    },
+    "api/_project_state.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "d00ad608bddc543f13b211addcd9cd0202be0083ea6025e784d51abf0bf4247e",
+      "size": 9531
+    },
+    "api/_sandbox.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 2,
+      "sha256": "bcd7ef106c8e6700d306ceade8758a6ba08c88053d7af7223620973047f2297e",
+      "size": 1671
+    },
+    "api/account.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "543561501b343f14be6d35f8b3656fda6a832154edbee50433e47c6540b82537",
+      "size": 5181
+    },
+    "api/admin-identities.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "0591dfc3d006f16690da3b42306fec4eeaa7fbdbd94f0772bc2d39210cc87074",
+      "size": 4495
+    },
+    "api/admin-users.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "c413e72e21fbd78afa97676a0828f37d0662989322faf9dee5969acb45494bad",
+      "size": 16524
+    },
+    "api/admin.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 6,
+      "sha256": "3d959e4d73bb106ce38fcf949172b5df49636a0405ed665fce4d22119ea2ca02",
+      "size": 17631
+    },
+    "api/audit.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "e09a957a915a76074af9b234d619a1c1c7ada4417fc5df0f4e0177eab1ee7aec",
+      "size": 555
+    },
+    "api/capabilities.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "4ef4f4360fe44369584110dcc852968ad3096bfecaf2d254e771290cb964f1c9",
+      "size": 624
+    },
+    "api/changelog.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 5,
+      "sha256": "76d7168bed6905daa960d55932df11c9cf9387506d24b1618797fc8429f620e7",
+      "size": 3428
+    },
+    "api/database.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "58c93e0b7afb09561046f0c06224ff51ccc7c5cc38044cd65b81d79e4b129821",
+      "size": 2513
+    },
+    "api/global-profile.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c69dbe10c3c19da6ce5ae8b01c1c4988d445bfac36446511a8b3579bc2b065cf",
+      "size": 3062
+    },
+    "api/global-settings.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 7,
+      "sha256": "34b6fdef5cae17aff9d009df0665620aea087c2f7b4cec65230c40b3ef467591",
+      "size": 192
+    },
+    "api/guest-identity.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "bc53d1f3166742772a8bc4818ea2a4a95883518903df88c79a2a7a639987c70a",
+      "size": 1408
+    },
+    "api/health.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 5,
+      "sha256": "264e5b05a41bcb9d532ebab29b09b27761bb7014b4309b0040ed9725ba7903f2",
+      "size": 2941
+    },
+    "api/heartbeat.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c18c97e58f60760cf5927884e5c8c7bc9298d6f9bae7130d35716a875a730675",
+      "size": 2671
+    },
+    "api/html-framer-file.php": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 1,
+      "sha256": "546127c7c7e92445d72e88d7ae37203f3bf4037c82bfbe487ceb605b4824cd6e",
+      "size": 2247
+    },
+    "api/html-framer.php": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 3,
+      "sha256": "89920b61e2af187a86c2c0f708f94b795c24ab140d04f35aa1034dcc8a170f01",
+      "size": 4408
+    },
+    "api/identity-hub.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "76ae084e70fd235a67ed5bb063fa3417ec8018a782ec58d89367692d358f9b61",
+      "size": 2264
+    },
+    "api/lifecycle.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ec22d6c82ab4d8088fc2fdb646d79450e750b5ed10d73625c3804729bec1b432",
+      "size": 2068
+    },
+    "api/log.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "a0fdcbb410e95a66c8fb8fd140125395f5c3827c49a6da2ff1fba15122381ac0",
+      "size": 843
+    },
+    "api/logs.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "0f09ff18b7461b565eddeafb81f5b65ac97e18d3fa37b01109b6d401575b0bcc",
+      "size": 897
+    },
+    "api/migrations.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "f74ebd7caf287b9f281817244a8038b08713d26b186067ce53089e5f2e875ae4",
+      "size": 296
+    },
+    "api/modules.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 8,
+      "sha256": "92afa3e15e820be72bfcdbfffd8a1c46acfbf344a6c9fd71cd19123f8b4370b0",
+      "size": 7171
+    },
+    "api/profile-avatar.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "264c6982db1b4811801cb3792191dcd12091c525e0405be5dafba1f12ecb9644",
+      "size": 3603
+    },
+    "api/project-asset.php": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 1,
+      "sha256": "1b799fed39f72a27eefb209f423b14251fc2e33d5a76326174d267fa13424ad9",
+      "size": 1006
+    },
+    "api/project-file.php": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "64d8483300ea2f11da170e22269adb406cadc0ade5bbca8ea24b05efb13a816d",
+      "size": 1712
+    },
+    "api/project-manager.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 5,
+      "sha256": "3425e8110e102b875b25ed866842b5c6541ae10dfc1d29eb7e6871a71497d78d",
+      "size": 3867
+    },
+    "api/project-state.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "55731f3d0837c121037b52331b6d5c7121ca7083017ea82a1c8b318d9a34194f",
+      "size": 1407
+    },
+    "api/projects.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 11,
+      "sha256": "daafd89fc82c00d6e5adf67d9548a20a0684fa9a8e8b98eaeb883ad4c768bcb2",
+      "size": 3789
+    },
+    "api/replay.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 2,
+      "sha256": "dd72fd41a7f2b6cbe6e1c2edc81be09e47d6511d7070ef752cbbcecaa9259f67",
+      "size": 2796
+    },
+    "api/resolve-asset.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "2cdee30170dffb7dcbdfa8d8bbf1d7d015a12285748f9b4825a2946fdfaf8eff",
+      "size": 3409
+    },
+    "api/sandbox.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "0784c19608e63a09136d89ba8a069d679d8a0bd538ae62599afdf1685d63df3f",
+      "size": 380
+    },
+    "api/session-events.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "6ade1c68c517b538f580205bf62683b87271c8729abba5803b118f8d1ffa6a39",
+      "size": 1161
+    },
+    "api/sessions.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f64c437bf0564d74da6ee4d407b022fea52bf9b738efbcb31979f65cffe0cd52",
+      "size": 6203
+    },
+    "api/user-profile.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "d12be3f5f5c1c588215b1f4d767c887ebddcf8a6ec4a2550df4ba80a0fc7184d",
+      "size": 13730
+    },
+    "api/version.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 10,
+      "sha256": "abb517b6f06fe75cf0d6adf3e51e6e68653f269a2f0fbfc289890673dfc8009a",
+      "size": 1242
+    },
+    "api/visitor.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 3,
+      "sha256": "2d92fa30570c0641f6c2003039ef4f0b157af0bce5369f1114f21567407bb294",
+      "size": 2324
+    },
+    "assets/avatars/defaults/avatar-01.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "6e1ba752cac9730acc1ae6a6a8df77c44f67a1e40364fce92c3ca3971b2aff1a",
+      "size": 344
+    },
+    "assets/avatars/defaults/avatar-02.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "7bb713b98120c1c3be67979ad92f1f9af650a5605f12cfc809effce920abd335",
+      "size": 388
+    },
+    "assets/avatars/defaults/avatar-03.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "610b6a22fcc96d7d3abb305541e3cae008882d1d06f59ad5bfdad9abf11a5422",
+      "size": 366
+    },
+    "assets/avatars/defaults/avatar-04.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "09b390f23a241453873ae9c177acb4c58caf3fa5816280a3d52a592074523021",
+      "size": 421
+    },
+    "assets/avatars/defaults/avatar-05.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "0d5d0d366fc65fddc378278eb27cd3ff1af9b0dc0426dca55466b2942da88969",
+      "size": 446
+    },
+    "assets/avatars/defaults/avatar-06.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "07bde27f5ce9b2f205487d5c397c29d08a9e1a4f0dcfd1a4f067ba2c2f5a39f0",
+      "size": 433
+    },
+    "assets/avatars/defaults/avatar-07.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "624cc4f4ba7f1fd81d871ea701535f16b1e356fd5dd48313ede67e234abd94d4",
+      "size": 507
+    },
+    "assets/avatars/defaults/avatar-08.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "b772aa403121b3823838ea5e5db19a9106c9e6c020ad08708511a7f3dc42aa7d",
+      "size": 455
+    },
+    "assets/avatars/defaults/avatar-09.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "cab220a83db77c3ba85f2dde1ff60827800c74229c2756e25e8a0c2d894b68f3",
+      "size": 435
+    },
+    "assets/avatars/defaults/avatar-10.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "f42c8f551e33aef5f7feb19f8099d3b359abc8b280b9f8aa53e95630b519b606",
+      "size": 401
+    },
+    "assets/loom-default-avatar.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "5911592508527c1bfff01dc2b05ad2c632a70511e690c990f4bc6617578ef5d4",
+      "size": 566
+    },
+    "assets/loom-logo.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "aa049936295833778886d7ad414b7974a89b5f903058c246430e26c88716a2f2",
+      "size": 198907
+    },
+    "core-modules/brand-motion/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "b718aff40347a4e54682343f50d3070f2d2fc54934fa72b38fb754ac9eaabc11",
+      "size": 2323
+    },
+    "core-modules/home-update-log/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "4a3b9cf5d59058d08fa27e14e0847611cf803db6845c2bc4055658796439f0cb",
+      "size": 1306
+    },
+    "core-modules/html-framer/README.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 2,
+      "sha256": "ca07042807f23d3a0c0a94b95401744a3c33b0d282f21f094fbe65a2a25fbdc5",
+      "size": 4620
+    },
+    "core-modules/html-framer/action.js": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 1,
+      "sha256": "7394ee27f2e0024e266cd86577de0a70a627f614e4882e3b043de6fa6d9db7cd",
+      "size": 382
+    },
+    "core-modules/html-framer/frame-action.js": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 1,
+      "sha256": "2e24dac86c437369745917540ae4c744488d6490b034fe90235e8651045045bb",
+      "size": 2015
+    },
+    "core-modules/html-framer/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 1,
+      "sha256": "af4a04ac7b1b96c8fc0fd909a23f66974b66efc0e3b33ff4c2033f05771faba2",
+      "size": 2333
+    },
+    "core-modules/loader-experience/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "47713e4d094cba036bfbde33f3e9eacc1c94eba3f08f663761f6198ccae63e1e",
+      "size": 1375
+    },
+    "core-modules/page-styling/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f5980c9f8fa99b824e82bbbc923f5e901379b5ecf0cd2e1c6219809524362b24",
+      "size": 6482
+    },
+    "core-modules/page-styling/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "1efe4cd3bc4aee938b95c6310618e3b9de03171bfb0547e7057cfd844c9e4cb2",
+      "size": 4928
+    },
+    "database/mysql-schema.sql": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "60d5aa6e96089ed5f6f8ac67930169857d4dac50279c187b71df1b5bd862c1b1",
+      "size": 14938
+    },
+    "docs/ACCOUNT-IDENTITY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "168fb0fb6a2148c4a90ae836e9be5618ae88858a24bfb84dd8af186db6200260",
+      "size": 2103
+    },
+    "docs/AUDIT-CAUSALITY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "867ad515de9de78e4abddd60b4e8f44679a257f1b4729864bbb6a0a8a8e159fc",
+      "size": 375
+    },
+    "docs/BACKGROUND-ORBS-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "36d4142505d2b253b12b31355937715bce8a081b5bd40151d311181af52297d2",
+      "size": 2393
+    },
+    "docs/BRANDING-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "113a83014f398536a830bc39a01ae9c7e72c4dc5684cc74d75fddad6951e9906",
+      "size": 1036
+    },
+    "docs/CACHE-BUSTING-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f07796449f414950dad0588ba8e4b155d7fa17ae1019d14aa8695bf22077630e",
+      "size": 1489
+    },
+    "docs/CAPABILITY-CONTRACT-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "4ea19d49c9b4917bbb206d91283c171310cf87e7bb6e7f173cb597cad6582db2",
+      "size": 530
+    },
+    "docs/CORE-PROJECT-MODULE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "67ef7029b71e403d6efe3e2688b01011558a4d88b34e6ca8e3d5f8b27fdcd6cd",
+      "size": 1505
+    },
+    "docs/DATABASE-INTEGRITY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "d6e41eed7a6e2f5ba10ddc044eb6ad091a281a4e0354042a6aa0fb192391394b",
+      "size": 1306
+    },
+    "docs/DATABASE-PERSISTENCE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "0de82986bb51874b347f568a9b8800096645d0d1d1c347e100a0608aff6ab6cf",
+      "size": 1258
+    },
+    "docs/DEPLOYMENT-METADATA-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 1,
+      "sha256": "6884543ebd53cd6d5b0c8cd365eab20ab8a5794d250d5376a7ac1fb3c807b4fd",
+      "size": 2973
+    },
+    "docs/DEPLOYMENT-TRANSACTION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.06",
+      "revision": 1,
+      "sha256": "5a1a5cf1c96818b33a4f4aec5c1d8bf007d8c98c016b7d4853e7566e41ac1121",
+      "size": 1490
+    },
+    "docs/DESIGN-SYSTEM-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "1f8f62d8414cd27b34d0af9ee464ef93b5d59fe1d983ddf8461b32329de1f16b",
+      "size": 387
+    },
+    "docs/FOOTER-ORB-DOCK-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "9995f9f69e6765ea542cbe945a423c6d95206fd2a2224a5654d3854713e02f0b",
+      "size": 1296
+    },
+    "docs/GIT-WORKFLOW.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "8185be8ea194cd88e193e95e429efe3df5c9ac47f6ee1dfe3a42d53f4d10d19b",
+      "size": 1363
+    },
+    "docs/GREEN-BEANS-MEAL-COMPOSITION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 1,
+      "sha256": "05a6735e57a482fa92c2ed063613b4e5fd92854756adec380b45563ead354996",
+      "size": 1798
+    },
+    "docs/HEALTH-FAILURE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "a6a2c8267876e720d9f9a325ec3a9af8c6548927d9ec702c8e1627389e4729a0",
+      "size": 461
+    },
+    "docs/HOSTINGER-DATABASE-SETUP.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ecfcb8f2c5c0489940619fce311817749191288f32b729e56b30d295c952d3f8",
+      "size": 1198
+    },
+    "docs/HTML-FRAMER-STANDARD.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.16",
+      "revision": 1,
+      "sha256": "d7f603c8a0edd1e2a193ca5fa4ee40515e54c867585bfc83d72fb18ed7b057a2",
+      "size": 1961
+    },
+    "docs/IDENTITY-GUEST-PROFILE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "f73b7c9f0dd2d0f733fe1d1e38ec92614c43209ce5f35cd6decc1690176ce662",
+      "size": 1406
+    },
+    "docs/IDENTITY-PERMANENCE-RECOVERY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "36c383c82faa75f9a88226a546dd584abb44472dabe2d2de9b05bcf37cb093f1",
+      "size": 7804
+    },
+    "docs/INSTANCE-PROTOCOL.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.13",
+      "revision": 1,
+      "sha256": "e0b9124702d9ff9c0e9f2aab0678ef2c657d8f88d9d88a3b1986d6eeb56ac5ad",
+      "size": 1442
+    },
+    "docs/IP-METADATA-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "018e96f43a52b5d61ea41096f0571eb6723181c44703b3d0953c85c58c6c4c11",
+      "size": 745
+    },
+    "docs/LOADER-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "7b58072801f165cc760275c9417d7dfe2e20bae3816431a65a61640b666f86dd",
+      "size": 1950
+    },
+    "docs/LOOM-ACTION-SCHEMA.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "a865845c7dfd23c24084d23972b110544153f5069af4dc1ddb908d5aaaeecac6",
+      "size": 3198
+    },
+    "docs/LOOM-ADMIN-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "bd42067a80e665dd6dc1f4809d5bbd7e16b95a3bd6ab87690d685863cdae4307",
+      "size": 1609
+    },
+    "docs/LOOM-GLOBAL-SETTINGS-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "9e6204f81c89995f159d70387d3e1c19d714d1af7e7338ac3eaf00b26bb4c2ee",
+      "size": 852
+    },
+    "docs/LOOM-PLUGIN-AUTHORING-MANUAL.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "e14bf51b5b1a4e6781c3f12f95d6dd5805ca82b458083d59ecf210a22f3e9dd7",
+      "size": 27484
+    },
+    "docs/LOOM-SHELL-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "31d6998a4bafef26c93827f244165852688488d6be9a2b904b3a078f4e68d3a9",
+      "size": 2417
+    },
+    "docs/MODULAR-COMPOSITION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "227681f02f46110175f35ce69f9546f1163d5209907f4df12a7f6fffcdb19f36",
+      "size": 2844
+    },
+    "docs/MODULE-AUTHORING-CHECKLIST.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "fbdf2d5f0aace27325e4494be0586487dac76e14e18c77f018bfb906b2f43996",
+      "size": 4258
+    },
+    "docs/MODULE-COLLAPSE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c5f870bd491b7f96a30d50d34fa7f1da957bca5f057a7217e8f390a122340fca",
+      "size": 713
+    },
+    "docs/MODULE-CONTROL.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "1a79f835e32cacbd292c49341f06adf3bc5e8dcc395b6a0cec81bfd0bec344e6",
+      "size": 412
+    },
+    "docs/MODULE-PRESENTATION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ca8b56a16fea883fad26167b76ce080fbf01bd9cf699eb2b69d097b174bb78c7",
+      "size": 2744
+    },
+    "docs/PAGE-STYLING-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "9961ba8a960bbeaf88f4c51a9c9586a740efb258828129c39b2da49669883be0",
+      "size": 1609
+    },
+    "docs/PEGBOARD-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f1685dbfb200e3f60550a2ae9d7100d4c2955c237ecca6ae324ed9eee6c15a31",
+      "size": 757
+    },
+    "docs/PERFORMANCE-CACHE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "38f63ef1d383a97f85b725bc3bf7db754f2ebdd897b9ca2c6cb087395c784c59",
+      "size": 433
+    },
+    "docs/PRESENCE-LIFECYCLE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "715a5f082f0ee6853f884b0cd6134e678243fcf01295eeb1a67dbeffb1e65b31",
+      "size": 3107
+    },
+    "docs/PRODUCTION-RELEASE-STORAGE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 1,
+      "sha256": "a04595d9ec0fc51d709031d37181d4e5c3026e7c0c94aefca4c422a2164e90e0",
+      "size": 1365
+    },
+    "docs/PROFILE-AVATAR-EXTENSION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "e85f46f6aba12da0e9dbf4710b3f410dd0911c3475effac1a5dbe8aa1bbe05e1",
+      "size": 2386
+    },
+    "docs/PROJECT-LIFECYCLE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "fa9a2f703f190d09262bd9152a17d77a86212b67d4f15c176aa73701786ab379",
+      "size": 1836
+    },
+    "docs/PROJECT-MANAGEMENT-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "2e45ad47c507682c40b9755e7523a58f2e1d16bb2330ee82fa088e4943a63191",
+      "size": 1260
+    },
+    "docs/PROJECT-SANDBOX-GUARDRAIL-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 2,
+      "sha256": "b9bfcc864cc4a2bf8e9c28634568a2eebfd072cd536e35b361d9fc3bf7f72ff2",
+      "size": 1075
+    },
+    "docs/PROJECT-SHELL-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "dae0d06d857031dc73fa2aa8876f93bfb03e06b2abef04148acb84956841aac3",
+      "size": 1412
+    },
+    "docs/PROJECT-STUDIO.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "9c972e0a959c03c57556621d0daf41fc7000ae75d1c129d57af25e2faf060ef8",
+      "size": 533
+    },
+    "docs/SCHEMA-EVOLUTION-LEDGER.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "c66c0ce37b401add9ad3c36d9a9072a8f990742938874264d56cdd2602b27861",
+      "size": 456
+    },
+    "docs/SESSION-REPLAY-CAPTURE-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "27fdf90465fd4af4fd069c318f44ecb78ff492b2bf052e9d41f3ac8d4f9a1403",
+      "size": 562
+    },
+    "docs/UPDATE-LOG-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "04632ffa50cf345a0ae5097e83c8cd3abdf7e47a09fcffcfc77bba22fc54b8d2",
+      "size": 859
+    },
+    "docs/USER-IDENTITY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "3b899645c1ed347185eaa72e7987275cc660e6a48a5f301b84b3bc97609e1f06",
+      "size": 3110
+    },
+    "docs/USER-MODERATION-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "3031cc7534dd35bd3aa0beaedcb0c9c1e078aba509367d365c855dca949ee5c1",
+      "size": 1558
+    },
+    "docs/VISITOR-IDENTITY-STANDARD.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "3a66c62959b22c0e1a27916cca977fa7faf06814fc9366397cf4d6c955726021",
+      "size": 2157
+    },
+    "docs/examples/loom_cube_5x5_grid_v19_unified_start_angle.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "430db3373c582beef6755679ec5a4de5685badc64e9734e22adb78ee11b20c8e",
+      "size": 27241
+    },
+    "engine/action-runtime.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "8dc7663e11b30de395c7af8daa0cf673e558a344de24aebebc1281792e39c9e8",
+      "size": 40854
+    },
+    "engine/config.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 16,
+      "sha256": "0a0c8e468d2e3d858c1ebb8bbfe9f4282262fc3bee9d234d8802576d2a78720f",
+      "size": 1214
+    },
+    "engine/event-bus.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "2439de88d5e8020c2bf97531778ace5372ed892b0aa634491b99b1d8f10cb9f0",
+      "size": 1523
+    },
+    "engine/identity-entry.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 2,
+      "sha256": "73b0e82f2cdc5519fd790296708d4f42b7627f7ae594aed9ece597b18d0afcfe",
+      "size": 15413
+    },
+    "engine/identity.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "d4db0f9af09f475d9ee0ca59e62bf74c58b940e0ab6eb30bc7e93153a2a2ec58",
+      "size": 3897
+    },
+    "engine/interaction-capture.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 1,
+      "sha256": "a5c04613973835c421cf49605fc0d42931eee6d749b1fac0770512ba6a9a22a0",
+      "size": 3345
+    },
+    "engine/loom-brand.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 10,
+      "sha256": "d920b10ea53cdcc416e00585717a7cd1e9a8e438536f44f7a3c0504ca8dba871",
+      "size": 13817
+    },
+    "engine/loom-design.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 2,
+      "sha256": "228dcb1a212797641f6fcb42f593c7c305e8c87221cd3a3850d4ed823ac35380",
+      "size": 4912
+    },
+    "engine/loom-global-profile.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "635bc4a401bd3c8816f3d7dd7384f207d43ab440f825b44bd48b2670b164a68d",
+      "size": 21840
+    },
+    "engine/loom-shell.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 9,
+      "sha256": "44efce3a597215453e52ce01d585cc29f9b764dfae332a995bf281d6cdf0f0c6",
+      "size": 2449
+    },
+    "engine/module.schema.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "71cf1641ae4a39808893c1fc2b9b3ecfb2919665b7de80f7b5449d74417da559",
+      "size": 13297
+    },
+    "engine/registry-client.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "b690fca104bc766cb82b48eea0a9b774f0d2dfb1a3342a40a50e963c6e9478d3",
+      "size": 4118
+    },
+    "examples/user-action/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "12fd3421c5e68a3bb818ba1ef2a5ae7835653d34defd43f72821b80d46e29d50",
+      "size": 525
+    },
+    "favicon.ico": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "0a790e6834a0638cec357f07ee57d2195e5ba944d4f0b0f3ca10f1bcbd89afc8",
+      "size": 6907
+    },
+    "index.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 17,
+      "sha256": "0a4ff3a6f42f653caf0835c6966dc745f59a35817089650716245f2682c5321c",
+      "size": 29183
+    },
+    "instance.sample/.htaccess": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 1,
+      "sha256": "6cb71b0cea790d8fbce27f8b31b5390cf8e902de4bf6b5a524ba700264e2eee6",
+      "size": 36
+    },
+    "instance.sample/INSTANCE-MAP.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.13",
+      "revision": 2,
+      "sha256": "c4cf3e333c2a9c649b2d3655ee693de6187f81a36f04311ac4cc3447f2a20de7",
+      "size": 573
+    },
+    "instance.sample/README.md": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.13",
+      "revision": 2,
+      "sha256": "88c801307a5f645e0a2e1a7eb78f89bd2c78fea1a2ac241d4a734e530617c4de",
+      "size": 932
+    },
+    "instance.sample/config/database.sample.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.11",
+      "revision": 1,
+      "sha256": "949d8020caf13e1d953337fe6dbafa4a7a4599479159dcf97a6f1156fdde78e5",
+      "size": 219
+    },
+    "launch.bat": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c776b189c22bdd3985a464ce64907ca461237da47c497b75c4eeed3016041139",
+      "size": 184
+    },
+    "pegboard/.htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "9eb3f6d904e16b42725287063619a8d2eb4a2c6e14cb3b8a27765cb79f40c386",
+      "size": 157
+    },
+    "pegboard/index.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 13,
+      "sha256": "25d3bfc9c5c97b8065b50d362ee27b67fee5aa576ee803717fa3c6e9d3b9800f",
+      "size": 5211
+    },
+    "pegboard/pegboard.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "0d8d907ea9b35916d9ba2c9b08398d03fe6a61b7b3be3a3196fb86eecbec23f6",
+      "size": 11258
+    },
+    "pegboard/pegboard.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "b251a2fc86aeebaee7f530b00cf30b13ed232c4bea73b0053b85a314492156de",
+      "size": 25212
+    },
+    "projects/_instance/app/index.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "8f1f6062271ad10604e1324d06abfd8376a34cce758eb69160d1541f270efb48",
+      "size": 10099
+    },
+    "projects/_instance/registry.fallback.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 1,
+      "sha256": "a28757ca5df0ecb90c57228f6198a6711f2e4c0ed0da2c88a6e036aad5a7b8d7",
+      "size": 149
+    },
+    "projects/green-beans/CHANGELOG.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 5,
+      "sha256": "18bff55623c76e1e1be24a1ad89213e6bdebd47a196b0ba7e6cfc7369afa90fd",
+      "size": 2219
+    },
+    "projects/green-beans/VISION.md": {
+      "embedded_header": true,
+      "policy": "causal",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "8818107c5f00dcfa27aa60da28b1eac836f6bfce3412dcd9380e767114090e64",
+      "size": 1461
+    },
+    "projects/green-beans/actions/core/ui/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "22736b0f9ec7b6169f2c8567cc1d4598dea780dcc24f8d4726fa9d0a4292cf5b",
+      "size": 15025
+    },
+    "projects/green-beans/actions/core/ui/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6f433a6714b752cde311837fb756277962b0925130a4006b5b30c8db963d953",
+      "size": 4433
+    },
+    "projects/green-beans/actions/core/ui/branding/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "ede82a3775d32aea00668fd1f8e917d04036eb9e4da002a07776a11465490dd0",
+      "size": 4027
+    },
+    "projects/green-beans/actions/core/ui/branding/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3ab336083340a3034d738b2aa6ba94a00b7bc96c268725ec30261e5191628bbb",
+      "size": 1799
+    },
+    "projects/green-beans/actions/core/ui/footer-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "ad3d74569f1e28605e3fbfa565e4d040918c7cca9c54ab49dffbd74ca47a2c4e",
+      "size": 4832
+    },
+    "projects/green-beans/actions/core/ui/footer-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 7,
+      "sha256": "1d7d9f9a23a392d9869c47441e1d59a9c65da5592d7bfc9e1df68daf9321ba6c",
+      "size": 6805
+    },
+    "projects/green-beans/actions/core/ui/footer-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "0150c59e2634b83cc70fe9aeaeb16177f43b4484236cbab6155beef74fc6deb5",
+      "size": 9503
+    },
+    "projects/green-beans/actions/core/ui/header-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "026be78b259d8db35ef49e1bc4242afdac864b328d9eda92b38c420115ac3b2a",
+      "size": 1892
+    },
+    "projects/green-beans/actions/core/ui/header-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "5fa384b76a829ecd0a3c3ee343fa6f1341bc2706dc1bd76675e1d31edde129fa",
+      "size": 4418
+    },
+    "projects/green-beans/actions/core/ui/header-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6d872d72865e8d5de6ae9c65479b1be31ecaea91be7d7d2a1aea96aebc4fa64",
+      "size": 3102
+    },
+    "projects/green-beans/actions/core/ui/load-logo/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "81c5a21a7c08ff182a1463384f59b615ead152b7da8c60269bd9308112d79b55",
+      "size": 2282
+    },
+    "projects/green-beans/actions/core/ui/load-logo/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "3b1108f8df8147ebce771bb98f7d034f0a3b60772e658cbcef750d35ea1f0061",
+      "size": 5362
+    },
+    "projects/green-beans/actions/core/ui/load-logo/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 2,
+      "sha256": "025e39a04a5a85653c0ee997f67bc67c1e763a214d400d49273bf7a62d9515b7",
+      "size": 2147
+    },
+    "projects/green-beans/actions/core/ui/loader/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 7,
+      "sha256": "07cfb327161722d41ea070bb8f0d1a7cef8e94ee3dc1619c2c35e0f024d5a2e6",
+      "size": 12061
+    },
+    "projects/green-beans/actions/core/ui/loader/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.10",
+      "revision": 2,
+      "sha256": "c2a289893b92da4232a3c6d0510020a1c0b4f7a74fb6a82c2938e7c17f9c8efd",
+      "size": 1909
+    },
+    "projects/green-beans/actions/core/ui/logo-text/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 4,
+      "sha256": "0e21b32cb5fe1b55d5f5578f65bb76f687e9801e1bbe90289e8522d4b39f7178",
+      "size": 9915
+    },
+    "projects/green-beans/actions/core/ui/logo-text/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 3,
+      "sha256": "a2c4d24c317977b2510da7393a7e22c09eddf2a475b0a45950927313391f43b3",
+      "size": 3252
+    },
+    "projects/green-beans/actions/core/ui/orb-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "467bd6b13df08041c055cfc6bc45be20cce73a402f2d326248c1e89b5cf7f0e4",
+      "size": 3067
+    },
+    "projects/green-beans/actions/core/ui/orb-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ba41fbcb20dc718ebecd08d2822393db1ffbd21c2c79c1684773c4feb3dcf643",
+      "size": 5463
+    },
+    "projects/green-beans/actions/core/ui/orb-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "d564fe699a48bd29bc46d4f5315501b58415ff6f82166282bfb770410e70756a",
+      "size": 4104
+    },
+    "projects/green-beans/actions/core/user/profile-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 3,
+      "sha256": "34c798f8f8213cacafb0a4c53dbf99f5e7865936169154cf4bb406012f216731",
+      "size": 2171
+    },
+    "projects/green-beans/actions/core/user/profile-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "82645df478ca9d63c1ad8ec0a0512a90439a0d72b36c19be3884d23d5bb760bf",
+      "size": 4394
+    },
+    "projects/green-beans/actions/core/user/profile-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 2,
+      "sha256": "df0855e5e3b02098b1ba12c9b8fc03b28824ce03216d574b51548a78b1cefeeb",
+      "size": 1766
+    },
+    "projects/green-beans/actions/core/user/profile/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0d6744528f37c3c994e154391e620b975f9f7ddb99707fc2f7b1b1c4d31bf95a",
+      "size": 38196
+    },
+    "projects/green-beans/actions/core/user/profile/assets/default-avatar.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "5911592508527c1bfff01dc2b05ad2c632a70511e690c990f4bc6617578ef5d4",
+      "size": 566
+    },
+    "projects/green-beans/actions/core/user/profile/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "25899ef6baa12d4db8dedc20baa6d7c519893aede0cf1788f882df0562a17229",
+      "size": 4758
+    },
+    "projects/green-beans/actions/project/meal-creator/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 1,
+      "sha256": "ec7216230596f5eb5fef5c8021c514de8315ebf4bb87b5fa2a3d771020631f9c",
+      "size": 1232
+    },
+    "projects/green-beans/actions/project/meal-creator/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 1,
+      "sha256": "cc1fb0db052dd3d4450be8b2453175e7d9bdfef6e0564da8735eaabbf9ceb141",
+      "size": 14178
+    },
+    "projects/green-beans/actions/project/meal-creator/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "2857323be3a0c5bfb5e435067e85a87628fa0d8f97e35465d4d87d4a374a3638",
+      "size": 2412
+    },
+    "projects/green-beans/actions/project/shopping-list/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 3,
+      "sha256": "f59e643f2c1bae3eec5b6d8b67e28f9b608aaa58b70521327a11f985156aa90d",
+      "size": 937
+    },
+    "projects/green-beans/actions/project/shopping-list/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 3,
+      "sha256": "b9346f15bc206706a7fb3db1e50a163e848ee024c2dffff78a956d444eadaabc",
+      "size": 21085
+    },
+    "projects/green-beans/actions/project/shopping-list/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0f238df64de3cacf4cbcc6bc16f03c14235fa4d4dcb141dd0a28b8447046b3f0",
+      "size": 3447
+    },
+    "projects/green-beans/actions/project/system/update-log/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "a3feeaed85fd05f32d20abb636c91bef32b517551d13797e437dd94c419bd8ee",
+      "size": 263
+    },
+    "projects/green-beans/actions/project/system/update-log/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "4d676271a5bbdd39ca8b9874b6b700f26f05846f9bb2a9629c63b3921fe68450",
+      "size": 2698
+    },
+    "projects/green-beans/actions/project/system/update-log/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "379e81de5aebf0be46a5b879ffcb1f13f5e39b279c722da8ed567e5d6ca61ca1",
+      "size": 1431
+    },
+    "projects/green-beans/actions/project/ui/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "0557c1fb953b77e18987eb7d5310b2888596ca7d92e780c592b242f5b5ef45e2",
+      "size": 1592
+    },
+    "projects/green-beans/actions/project/ui/background-orbs/assets/green-bean-orb.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "420927e88bc61b20f302ee5f30fe97b615cbbd8e6fff9c7e3cfffc6448099c3b",
+      "size": 1092
+    },
+    "projects/green-beans/actions/project/ui/background-orbs/assets/green-beans-emoji-pod.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "3a186aae4e8a5659754c54b1fd5f59ce7d72be599eb5edf018552dc0a41f5c70",
+      "size": 1957
+    },
+    "projects/green-beans/actions/project/ui/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "37b902ea6e0f6abe51e73d2713122fd20bf3ab35495c293b02a1b766ad2cd1be",
+      "size": 1708
+    },
+    "projects/green-beans/actions/project/user/avatar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "38b75ffd181207cb34ac94a2208b8a804f70c4c0431d162b5c69f9ebd451ae64",
+      "size": 10267
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/bean-pod-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3b49c3787b5bb19d807e6749136ffd22b5e7ba67fe2e94647b1236cb2c6146f0",
+      "size": 734447
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/bean-pod.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "54e50cbf1b7e78669c066131cf75effb56246a0c5ed674f8d7fa8f0a28f4343c",
+      "size": 707558
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/default-avatar.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "b8ac8cccc49166be4d6e7761f6fcde89615d10b9d7b6ba953f9dad90449ee852",
+      "size": 516228
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/string-bean-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3a2efb34460331e3b69de99f8545a80f2ba81f57b6aa59f1742da7a2440e9cfb",
+      "size": 889250
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/string-bean.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "a3f3bffe1734653c7629f3e34233e147db521e95313d2974e681ca7dd848f63d",
+      "size": 529341
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/trait-headwear-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "0d618af860e3e31a34f215e91d3904e113ff77353e6c10ac1c49075a077c7d30",
+      "size": 1030969
+    },
+    "projects/green-beans/actions/project/user/avatar/assets/trait-none-x.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "f4e0d42360f7ae78888fd27266b4de14ae86aa54a4eff9d446a14e1d167bc345",
+      "size": 569698
+    },
+    "projects/green-beans/actions/project/user/avatar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "dd10c0bb0d96e626da147bfa89cfb06dba5445f10358157d0182ed9bea3b8d02",
+      "size": 2051
+    },
+    "projects/green-beans/app/.htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "595d30df08ed4f4d7afec20b45e520e14b6eabb11e5a1e1cb5cec38c53265c82",
+      "size": 275
+    },
+    "projects/green-beans/app/index.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 15,
+      "sha256": "cbf12af0f67ef0ea2a98a5707f3e4324a0c97c68dd2bb1be37e5ffc9fd6dbd0f",
+      "size": 10182
+    },
+    "projects/green-beans/assets/README.txt": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "66f7903eebb4def0ff48eb663b448a556abcfa3539a3c832ec20e6d369b1661a",
+      "size": 253
+    },
+    "projects/green-beans/assets/logo.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 2,
+      "sha256": "a526751ca9b8166c8b4790d2ba705636e96841ec0c1db1b1649c92188ad07a44",
+      "size": 733002
+    },
+    "projects/green-beans/project.default.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 6,
+      "sha256": "8af2aaf8648c30ecf1634b783c3cd225cde9bba2bf4b13032f8ee3f036d13ffc",
+      "size": 1175
+    },
+    "projects/green-beans/registry.fallback.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 11,
+      "sha256": "0cb6ad15e59f10aa7e862d36bbd72885563a766a923613c42698337a44db3110",
+      "size": 64861
+    },
+    "registry/.htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "9eb3f6d904e16b42725287063619a8d2eb4a2c6e14cb3b8a27765cb79f40c386",
+      "size": 157
+    },
+    "registry/index.php": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 13,
+      "sha256": "8932242f3752a415c17aab1d5a632c393b7291bc7ddb0478b1f2f8473e1201f5",
+      "size": 6383
+    },
+    "reusable-modules/background-orbs/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "4eccf253c40a3832257cc0cdb62e2cf0fd992aca33c239eac4de50ee8ea0a6e8",
+      "size": 905
+    },
+    "reusable-modules/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "22736b0f9ec7b6169f2c8567cc1d4598dea780dcc24f8d4726fa9d0a4292cf5b",
+      "size": 15025
+    },
+    "reusable-modules/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6f433a6714b752cde311837fb756277962b0925130a4006b5b30c8db963d953",
+      "size": 4433
+    },
+    "reusable-modules/branding/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "8257f28474ee80700ca7aa76f1955483fa3482b385393d66a6d1aaee2889862a",
+      "size": 226
+    },
+    "reusable-modules/branding/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "ede82a3775d32aea00668fd1f8e917d04036eb9e4da002a07776a11465490dd0",
+      "size": 4027
+    },
+    "reusable-modules/branding/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3ab336083340a3034d738b2aa6ba94a00b7bc96c268725ec30261e5191628bbb",
+      "size": 1799
+    },
+    "reusable-modules/footer-bar/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 4,
+      "sha256": "ba29ff88b339886c0f271e124421a9ed37c8ae2cc409940998b57facae600ff9",
+      "size": 654
+    },
+    "reusable-modules/footer-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "ad3d74569f1e28605e3fbfa565e4d040918c7cca9c54ab49dffbd74ca47a2c4e",
+      "size": 4832
+    },
+    "reusable-modules/footer-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 7,
+      "sha256": "1d7d9f9a23a392d9869c47441e1d59a9c65da5592d7bfc9e1df68daf9321ba6c",
+      "size": 6805
+    },
+    "reusable-modules/footer-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "0150c59e2634b83cc70fe9aeaeb16177f43b4484236cbab6155beef74fc6deb5",
+      "size": 9503
+    },
+    "reusable-modules/header-bar/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "e11e62db1d7d749f5a2d453c69bfe38f799bed13dd340a877b5a24f98cd332d1",
+      "size": 302
+    },
+    "reusable-modules/header-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "026be78b259d8db35ef49e1bc4242afdac864b328d9eda92b38c420115ac3b2a",
+      "size": 1892
+    },
+    "reusable-modules/header-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "5fa384b76a829ecd0a3c3ee343fa6f1341bc2706dc1bd76675e1d31edde129fa",
+      "size": 4418
+    },
+    "reusable-modules/header-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6d872d72865e8d5de6ae9c65479b1be31ecaea91be7d7d2a1aea96aebc4fa64",
+      "size": 3102
+    },
+    "reusable-modules/loader/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c80f33956dc334f98ef20924f0c63315b17fe1a95b28adbeb72c191e077b9167",
+      "size": 307
+    },
+    "reusable-modules/loader/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 7,
+      "sha256": "07cfb327161722d41ea070bb8f0d1a7cef8e94ee3dc1619c2c35e0f024d5a2e6",
+      "size": 12061
+    },
+    "reusable-modules/loader/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.10",
+      "revision": 2,
+      "sha256": "c2a289893b92da4232a3c6d0510020a1c0b4f7a74fb6a82c2938e7c17f9c8efd",
+      "size": 1909
+    },
+    "reusable-modules/logo-text/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "8b4722325beb41a39bf3f70a882d2ae2815c928ec4a2cfadd6288d85d01cac2d",
+      "size": 578
+    },
+    "reusable-modules/logo-text/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 4,
+      "sha256": "0e21b32cb5fe1b55d5f5578f65bb76f687e9801e1bbe90289e8522d4b39f7178",
+      "size": 9915
+    },
+    "reusable-modules/logo-text/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 3,
+      "sha256": "a2c4d24c317977b2510da7393a7e22c09eddf2a475b0a45950927313391f43b3",
+      "size": 3252
+    },
+    "reusable-modules/logo/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "b6018a1e850d0afa503f19f08bc3eb59d8d3741aa3c9fe7fe0a2b2e0e79aabaa",
+      "size": 406
+    },
+    "reusable-modules/logo/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "81c5a21a7c08ff182a1463384f59b615ead152b7da8c60269bd9308112d79b55",
+      "size": 2282
+    },
+    "reusable-modules/logo/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "3b1108f8df8147ebce771bb98f7d034f0a3b60772e658cbcef750d35ea1f0061",
+      "size": 5362
+    },
+    "reusable-modules/logo/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 2,
+      "sha256": "025e39a04a5a85653c0ee997f67bc67c1e763a214d400d49273bf7a62d9515b7",
+      "size": 2147
+    },
+    "reusable-modules/orb-dock/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "baefb19ce482a829d17c7151417291a7c36bb89fc8ca8a9d23c486639e406dff",
+      "size": 161
+    },
+    "reusable-modules/orb-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "467bd6b13df08041c055cfc6bc45be20cce73a402f2d326248c1e89b5cf7f0e4",
+      "size": 3067
+    },
+    "reusable-modules/orb-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ba41fbcb20dc718ebecd08d2822393db1ffbd21c2c79c1684773c4feb3dcf643",
+      "size": 5463
+    },
+    "reusable-modules/orb-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "d564fe699a48bd29bc46d4f5315501b58415ff6f82166282bfb770410e70756a",
+      "size": 4104
+    },
+    "reusable-modules/profile-dock/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f38fca9c10406354d76c09669bb9e301fdcc41b33c3f479d65548ed66fa3384d",
+      "size": 421
+    },
+    "reusable-modules/profile-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 3,
+      "sha256": "34c798f8f8213cacafb0a4c53dbf99f5e7865936169154cf4bb406012f216731",
+      "size": 2171
+    },
+    "reusable-modules/profile-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "82645df478ca9d63c1ad8ec0a0512a90439a0d72b36c19be3884d23d5bb760bf",
+      "size": 4394
+    },
+    "reusable-modules/profile-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 2,
+      "sha256": "df0855e5e3b02098b1ba12c9b8fc03b28824ce03216d574b51548a78b1cefeeb",
+      "size": 1766
+    },
+    "reusable-modules/project-update-log/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "a3feeaed85fd05f32d20abb636c91bef32b517551d13797e437dd94c419bd8ee",
+      "size": 263
+    },
+    "reusable-modules/project-update-log/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "4d676271a5bbdd39ca8b9874b6b700f26f05846f9bb2a9629c63b3921fe68450",
+      "size": 2698
+    },
+    "reusable-modules/project-update-log/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "e669e0b9c1c149370d07a570a0760e580a3a66fefe901e422b4ed05de0800644",
+      "size": 1223
+    },
+    "reusable-modules/user-profile/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "e1bda86b804ab67596a6e4bac92a4dfc422b42be02e02b5e8f8058e32dce7a71",
+      "size": 364
+    },
+    "reusable-modules/user-profile/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0d6744528f37c3c994e154391e620b975f9f7ddb99707fc2f7b1b1c4d31bf95a",
+      "size": 38196
+    },
+    "reusable-modules/user-profile/assets/default-avatar.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "5911592508527c1bfff01dc2b05ad2c632a70511e690c990f4bc6617578ef5d4",
+      "size": 566
+    },
+    "reusable-modules/user-profile/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "25899ef6baa12d4db8dedc20baa6d7c519893aede0cf1788f882df0562a17229",
+      "size": 4758
+    },
+    "templates/projects/baseline/CHANGELOG.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "938e29b48941d0fd790fbf9bae9b9feebd1b712a726cd02daf32098add5481c0",
+      "size": 147
+    },
+    "templates/projects/baseline/VISION.md": {
+      "embedded_header": true,
+      "policy": "causal",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "0048dafa36d538f7353aff3be3474f9e1879a2b1d4f4e561dfa58d9f13bfe533",
+      "size": 163
+    },
+    "templates/projects/baseline/actions/.gitkeep": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "templates/projects/baseline/actions/core/ui/background-orbs/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "fe1c395f19ad585b102f73cf8c2c007c236bd69a53a8e18e1c86b47c1c197051",
+      "size": 674
+    },
+    "templates/projects/baseline/actions/core/ui/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "22736b0f9ec7b6169f2c8567cc1d4598dea780dcc24f8d4726fa9d0a4292cf5b",
+      "size": 15025
+    },
+    "templates/projects/baseline/actions/core/ui/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6f433a6714b752cde311837fb756277962b0925130a4006b5b30c8db963d953",
+      "size": 4433
+    },
+    "templates/projects/baseline/actions/core/ui/branding/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "8257f28474ee80700ca7aa76f1955483fa3482b385393d66a6d1aaee2889862a",
+      "size": 226
+    },
+    "templates/projects/baseline/actions/core/ui/branding/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "1795826a1437ce551fcf7fec886f2ceed8e4cef5e57ff2ff500ba5bd9aaadf2c",
+      "size": 4027
+    },
+    "templates/projects/baseline/actions/core/ui/branding/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3ab336083340a3034d738b2aa6ba94a00b7bc96c268725ec30261e5191628bbb",
+      "size": 1799
+    },
+    "templates/projects/baseline/actions/core/ui/footer-bar/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "7d7ff59853403d08bb82f2333b1cffc4927df775b9efb08bc16233ed748d34f3",
+      "size": 437
+    },
+    "templates/projects/baseline/actions/core/ui/footer-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "ad3d74569f1e28605e3fbfa565e4d040918c7cca9c54ab49dffbd74ca47a2c4e",
+      "size": 4832
+    },
+    "templates/projects/baseline/actions/core/ui/footer-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 6,
+      "sha256": "b19926237323e79a54c3cde2099646db992dcfb7e98817d6f24c7a134c37de75",
+      "size": 6805
+    },
+    "templates/projects/baseline/actions/core/ui/footer-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "0150c59e2634b83cc70fe9aeaeb16177f43b4484236cbab6155beef74fc6deb5",
+      "size": 9503
+    },
+    "templates/projects/baseline/actions/core/ui/header-bar/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "62f11af97ceb72976ec4f2c339fe428a2e7971cadba3607672dc5540ce0c023a",
+      "size": 283
+    },
+    "templates/projects/baseline/actions/core/ui/header-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "026be78b259d8db35ef49e1bc4242afdac864b328d9eda92b38c420115ac3b2a",
+      "size": 1892
+    },
+    "templates/projects/baseline/actions/core/ui/header-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "5fa384b76a829ecd0a3c3ee343fa6f1341bc2706dc1bd76675e1d31edde129fa",
+      "size": 4418
+    },
+    "templates/projects/baseline/actions/core/ui/header-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6d872d72865e8d5de6ae9c65479b1be31ecaea91be7d7d2a1aea96aebc4fa64",
+      "size": 3102
+    },
+    "templates/projects/baseline/actions/core/ui/load-logo/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "19a0f2ecd2c961a6e06b7302b1ab2a105910ec2570620a73ff7d799abdf1fae8",
+      "size": 212
+    },
+    "templates/projects/baseline/actions/core/ui/load-logo/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "81c5a21a7c08ff182a1463384f59b615ead152b7da8c60269bd9308112d79b55",
+      "size": 2282
+    },
+    "templates/projects/baseline/actions/core/ui/load-logo/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "3b1108f8df8147ebce771bb98f7d034f0a3b60772e658cbcef750d35ea1f0061",
+      "size": 5362
+    },
+    "templates/projects/baseline/actions/core/ui/load-logo/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 2,
+      "sha256": "f194062452e40064e2cf62e29aea9ea36ccc82825e9e3f33eeee753c61f2a974",
+      "size": 2142
+    },
+    "templates/projects/baseline/actions/core/ui/loader/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "c80f33956dc334f98ef20924f0c63315b17fe1a95b28adbeb72c191e077b9167",
+      "size": 307
+    },
+    "templates/projects/baseline/actions/core/ui/loader/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 5,
+      "sha256": "a844f58aea24854a9245b0c670686e9c7564d7b77f1e8389a1c1c91b5cdf03cd",
+      "size": 12061
+    },
+    "templates/projects/baseline/actions/core/ui/loader/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.10",
+      "revision": 2,
+      "sha256": "c2a289893b92da4232a3c6d0510020a1c0b4f7a74fb6a82c2938e7c17f9c8efd",
+      "size": 1909
+    },
+    "templates/projects/baseline/actions/core/ui/orb-dock/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "baefb19ce482a829d17c7151417291a7c36bb89fc8ca8a9d23c486639e406dff",
+      "size": 161
+    },
+    "templates/projects/baseline/actions/core/ui/orb-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "467bd6b13df08041c055cfc6bc45be20cce73a402f2d326248c1e89b5cf7f0e4",
+      "size": 3067
+    },
+    "templates/projects/baseline/actions/core/ui/orb-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ba41fbcb20dc718ebecd08d2822393db1ffbd21c2c79c1684773c4feb3dcf643",
+      "size": 5463
+    },
+    "templates/projects/baseline/actions/core/ui/orb-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "d564fe699a48bd29bc46d4f5315501b58415ff6f82166282bfb770410e70756a",
+      "size": 4104
+    },
+    "templates/projects/baseline/actions/core/user/profile-dock/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "f38fca9c10406354d76c09669bb9e301fdcc41b33c3f479d65548ed66fa3384d",
+      "size": 421
+    },
+    "templates/projects/baseline/actions/core/user/profile-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 3,
+      "sha256": "34c798f8f8213cacafb0a4c53dbf99f5e7865936169154cf4bb406012f216731",
+      "size": 2171
+    },
+    "templates/projects/baseline/actions/core/user/profile-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "82645df478ca9d63c1ad8ec0a0512a90439a0d72b36c19be3884d23d5bb760bf",
+      "size": 4394
+    },
+    "templates/projects/baseline/actions/core/user/profile-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 2,
+      "sha256": "df0855e5e3b02098b1ba12c9b8fc03b28824ce03216d574b51548a78b1cefeeb",
+      "size": 1766
+    },
+    "templates/projects/baseline/actions/core/user/profile/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "e1bda86b804ab67596a6e4bac92a4dfc422b42be02e02b5e8f8058e32dce7a71",
+      "size": 364
+    },
+    "templates/projects/baseline/actions/core/user/profile/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0d6744528f37c3c994e154391e620b975f9f7ddb99707fc2f7b1b1c4d31bf95a",
+      "size": 38196
+    },
+    "templates/projects/baseline/actions/core/user/profile/assets/default-avatar.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "5911592508527c1bfff01dc2b05ad2c632a70511e690c990f4bc6617578ef5d4",
+      "size": 566
+    },
+    "templates/projects/baseline/actions/core/user/profile/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "25899ef6baa12d4db8dedc20baa6d7c519893aede0cf1788f882df0562a17229",
+      "size": 4758
+    },
+    "templates/projects/baseline/app/index.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 14,
+      "sha256": "08357c236853d75e18310e83c3f7cc5f21b1388974cc79f8602b57013722e21b",
+      "size": 10100
+    },
+    "templates/projects/baseline/assets/.gitkeep": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "templates/projects/baseline/project.default.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 6,
+      "sha256": "732ea7227cdacf791db5a195f6b4698cb01a1a643098ea3b7c3ba14262e71776",
+      "size": 408
+    },
+    "templates/projects/baseline/registry.fallback.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 8,
+      "sha256": "b3ac6c73ad62168b7d3c18d6c9a06aad15f46b88066ad939d0bcd723a012a905",
+      "size": 45232
+    },
+    "templates/projects/green-beans/CHANGELOG.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 5,
+      "sha256": "18bff55623c76e1e1be24a1ad89213e6bdebd47a196b0ba7e6cfc7369afa90fd",
+      "size": 2219
+    },
+    "templates/projects/green-beans/VISION.md": {
+      "embedded_header": true,
+      "policy": "causal",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "fc49f32d157ccbd7fcd3a0e0b2b12321cecd567bbe26a21cea54d2181acda2f0",
+      "size": 1471
+    },
+    "templates/projects/green-beans/actions/core/ui/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "22736b0f9ec7b6169f2c8567cc1d4598dea780dcc24f8d4726fa9d0a4292cf5b",
+      "size": 15025
+    },
+    "templates/projects/green-beans/actions/core/ui/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6f433a6714b752cde311837fb756277962b0925130a4006b5b30c8db963d953",
+      "size": 4433
+    },
+    "templates/projects/green-beans/actions/core/ui/branding/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "ede82a3775d32aea00668fd1f8e917d04036eb9e4da002a07776a11465490dd0",
+      "size": 4027
+    },
+    "templates/projects/green-beans/actions/core/ui/branding/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3ab336083340a3034d738b2aa6ba94a00b7bc96c268725ec30261e5191628bbb",
+      "size": 1799
+    },
+    "templates/projects/green-beans/actions/core/ui/footer-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "ad3d74569f1e28605e3fbfa565e4d040918c7cca9c54ab49dffbd74ca47a2c4e",
+      "size": 4832
+    },
+    "templates/projects/green-beans/actions/core/ui/footer-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 7,
+      "sha256": "1d7d9f9a23a392d9869c47441e1d59a9c65da5592d7bfc9e1df68daf9321ba6c",
+      "size": 6805
+    },
+    "templates/projects/green-beans/actions/core/ui/footer-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.14",
+      "revision": 4,
+      "sha256": "0150c59e2634b83cc70fe9aeaeb16177f43b4484236cbab6155beef74fc6deb5",
+      "size": 9503
+    },
+    "templates/projects/green-beans/actions/core/ui/header-bar/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "026be78b259d8db35ef49e1bc4242afdac864b328d9eda92b38c420115ac3b2a",
+      "size": 1892
+    },
+    "templates/projects/green-beans/actions/core/ui/header-bar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "5fa384b76a829ecd0a3c3ee343fa6f1341bc2706dc1bd76675e1d31edde129fa",
+      "size": 4418
+    },
+    "templates/projects/green-beans/actions/core/ui/header-bar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "f6d872d72865e8d5de6ae9c65479b1be31ecaea91be7d7d2a1aea96aebc4fa64",
+      "size": 3102
+    },
+    "templates/projects/green-beans/actions/core/ui/load-logo/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "81c5a21a7c08ff182a1463384f59b615ead152b7da8c60269bd9308112d79b55",
+      "size": 2282
+    },
+    "templates/projects/green-beans/actions/core/ui/load-logo/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 3,
+      "sha256": "3b1108f8df8147ebce771bb98f7d034f0a3b60772e658cbcef750d35ea1f0061",
+      "size": 5362
+    },
+    "templates/projects/green-beans/actions/core/ui/load-logo/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.05",
+      "revision": 2,
+      "sha256": "025e39a04a5a85653c0ee997f67bc67c1e763a214d400d49273bf7a62d9515b7",
+      "size": 2147
+    },
+    "templates/projects/green-beans/actions/core/ui/loader/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 7,
+      "sha256": "07cfb327161722d41ea070bb8f0d1a7cef8e94ee3dc1619c2c35e0f024d5a2e6",
+      "size": 12061
+    },
+    "templates/projects/green-beans/actions/core/ui/loader/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.10",
+      "revision": 2,
+      "sha256": "c2a289893b92da4232a3c6d0510020a1c0b4f7a74fb6a82c2938e7c17f9c8efd",
+      "size": 1909
+    },
+    "templates/projects/green-beans/actions/core/ui/logo-text/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 4,
+      "sha256": "0e21b32cb5fe1b55d5f5578f65bb76f687e9801e1bbe90289e8522d4b39f7178",
+      "size": 9915
+    },
+    "templates/projects/green-beans/actions/core/ui/logo-text/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 3,
+      "sha256": "a2c4d24c317977b2510da7393a7e22c09eddf2a475b0a45950927313391f43b3",
+      "size": 3252
+    },
+    "templates/projects/green-beans/actions/core/ui/orb-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "467bd6b13df08041c055cfc6bc45be20cce73a402f2d326248c1e89b5cf7f0e4",
+      "size": 3067
+    },
+    "templates/projects/green-beans/actions/core/ui/orb-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "ba41fbcb20dc718ebecd08d2822393db1ffbd21c2c79c1684773c4feb3dcf643",
+      "size": 5463
+    },
+    "templates/projects/green-beans/actions/core/ui/orb-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "d564fe699a48bd29bc46d4f5315501b58415ff6f82166282bfb770410e70756a",
+      "size": 4104
+    },
+    "templates/projects/green-beans/actions/core/user/profile-dock/action.css": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 3,
+      "sha256": "34c798f8f8213cacafb0a4c53dbf99f5e7865936169154cf4bb406012f216731",
+      "size": 2171
+    },
+    "templates/projects/green-beans/actions/core/user/profile-dock/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "82645df478ca9d63c1ad8ec0a0512a90439a0d72b36c19be3884d23d5bb760bf",
+      "size": 4394
+    },
+    "templates/projects/green-beans/actions/core/user/profile-dock/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 2,
+      "sha256": "df0855e5e3b02098b1ba12c9b8fc03b28824ce03216d574b51548a78b1cefeeb",
+      "size": 1766
+    },
+    "templates/projects/green-beans/actions/core/user/profile/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0d6744528f37c3c994e154391e620b975f9f7ddb99707fc2f7b1b1c4d31bf95a",
+      "size": 38196
+    },
+    "templates/projects/green-beans/actions/core/user/profile/assets/default-avatar.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "5911592508527c1bfff01dc2b05ad2c632a70511e690c990f4bc6617578ef5d4",
+      "size": 566
+    },
+    "templates/projects/green-beans/actions/core/user/profile/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "25899ef6baa12d4db8dedc20baa6d7c519893aede0cf1788f882df0562a17229",
+      "size": 4758
+    },
+    "templates/projects/green-beans/actions/project/meal-creator/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 1,
+      "sha256": "ec7216230596f5eb5fef5c8021c514de8315ebf4bb87b5fa2a3d771020631f9c",
+      "size": 1232
+    },
+    "templates/projects/green-beans/actions/project/meal-creator/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 1,
+      "sha256": "cc1fb0db052dd3d4450be8b2453175e7d9bdfef6e0564da8735eaabbf9ceb141",
+      "size": 14178
+    },
+    "templates/projects/green-beans/actions/project/meal-creator/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 2,
+      "sha256": "2857323be3a0c5bfb5e435067e85a87628fa0d8f97e35465d4d87d4a374a3638",
+      "size": 2412
+    },
+    "templates/projects/green-beans/actions/project/shopping-list/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 3,
+      "sha256": "f59e643f2c1bae3eec5b6d8b67e28f9b608aaa58b70521327a11f985156aa90d",
+      "size": 937
+    },
+    "templates/projects/green-beans/actions/project/shopping-list/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.07",
+      "revision": 3,
+      "sha256": "b9346f15bc206706a7fb3db1e50a163e848ee024c2dffff78a956d444eadaabc",
+      "size": 21085
+    },
+    "templates/projects/green-beans/actions/project/shopping-list/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.08",
+      "revision": 3,
+      "sha256": "0f238df64de3cacf4cbcc6bc16f03c14235fa4d4dcb141dd0a28b8447046b3f0",
+      "size": 3447
+    },
+    "templates/projects/green-beans/actions/project/system/update-log/README.md": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "a3feeaed85fd05f32d20abb636c91bef32b517551d13797e437dd94c419bd8ee",
+      "size": 263
+    },
+    "templates/projects/green-beans/actions/project/system/update-log/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "4d676271a5bbdd39ca8b9874b6b700f26f05846f9bb2a9629c63b3921fe68450",
+      "size": 2698
+    },
+    "templates/projects/green-beans/actions/project/system/update-log/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "379e81de5aebf0be46a5b879ffcb1f13f5e39b279c722da8ed567e5d6ca61ca1",
+      "size": 1431
+    },
+    "templates/projects/green-beans/actions/project/ui/background-orbs/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 3,
+      "sha256": "0557c1fb953b77e18987eb7d5310b2888596ca7d92e780c592b242f5b5ef45e2",
+      "size": 1592
+    },
+    "templates/projects/green-beans/actions/project/ui/background-orbs/assets/green-bean-orb.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "420927e88bc61b20f302ee5f30fe97b615cbbd8e6fff9c7e3cfffc6448099c3b",
+      "size": 1092
+    },
+    "templates/projects/green-beans/actions/project/ui/background-orbs/assets/green-beans-emoji-pod.svg": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "3a186aae4e8a5659754c54b1fd5f59ce7d72be599eb5edf018552dc0a41f5c70",
+      "size": 1957
+    },
+    "templates/projects/green-beans/actions/project/ui/background-orbs/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 2,
+      "sha256": "37b902ea6e0f6abe51e73d2713122fd20bf3ab35495c293b02a1b766ad2cd1be",
+      "size": 1708
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/action.js": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "38b75ffd181207cb34ac94a2208b8a804f70c4c0431d162b5c69f9ebd451ae64",
+      "size": 10267
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/bean-pod-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3b49c3787b5bb19d807e6749136ffd22b5e7ba67fe2e94647b1236cb2c6146f0",
+      "size": 734447
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/bean-pod.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "54e50cbf1b7e78669c066131cf75effb56246a0c5ed674f8d7fa8f0a28f4343c",
+      "size": 707558
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/default-avatar.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "b8ac8cccc49166be4d6e7761f6fcde89615d10b9d7b6ba953f9dad90449ee852",
+      "size": 516228
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/string-bean-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "3a2efb34460331e3b69de99f8545a80f2ba81f57b6aa59f1742da7a2440e9cfb",
+      "size": 889250
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/string-bean.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "a3f3bffe1734653c7629f3e34233e147db521e95313d2974e681ca7dd848f63d",
+      "size": 529341
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/trait-headwear-ballcap.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "0d618af860e3e31a34f215e91d3904e113ff77353e6c10ac1c49075a077c7d30",
+      "size": 1030969
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/assets/trait-none-x.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "f4e0d42360f7ae78888fd27266b4de14ae86aa54a4eff9d446a14e1d167bc345",
+      "size": 569698
+    },
+    "templates/projects/green-beans/actions/project/user/avatar/manifest.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "dd10c0bb0d96e626da147bfa89cfb06dba5445f10358157d0182ed9bea3b8d02",
+      "size": 2051
+    },
+    "templates/projects/green-beans/app/.htaccess": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.12.04",
+      "revision": 2,
+      "sha256": "595d30df08ed4f4d7afec20b45e520e14b6eabb11e5a1e1cb5cec38c53265c82",
+      "size": 275
+    },
+    "templates/projects/green-beans/app/index.html": {
+      "embedded_header": true,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 15,
+      "sha256": "cbf12af0f67ef0ea2a98a5707f3e4324a0c97c68dd2bb1be37e5ffc9fd6dbd0f",
+      "size": 10182
+    },
+    "templates/projects/green-beans/assets/README.txt": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.03",
+      "revision": 1,
+      "sha256": "66f7903eebb4def0ff48eb663b448a556abcfa3539a3c832ec20e6d369b1661a",
+      "size": 253
+    },
+    "templates/projects/green-beans/assets/logo.png": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.09",
+      "revision": 2,
+      "sha256": "a526751ca9b8166c8b4790d2ba705636e96841ec0c1db1b1649c92188ad07a44",
+      "size": 733002
+    },
+    "templates/projects/green-beans/project.default.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.15.00",
+      "revision": 6,
+      "sha256": "c667d45265fc40c9d67a9b3667845f0c35b0ced7024886f417d6551d66482b11",
+      "size": 1209
+    },
+    "templates/projects/green-beans/registry.fallback.json": {
+      "embedded_header": false,
+      "policy": "package-priority",
+      "release": "0.12.15",
+      "revision": 11,
+      "sha256": "198e4d588e636baa33708b20bef9759be1ff8281b01b76fba70f6ed10f43209d",
+      "size": 65211
+    }
+  },
+  "format": "loom-deployment-manifest/v4",
+  "generated_at": "2026-09-23T05:31:51.459278+00:00",
+  "loom_release": "0.15.00",
+  "manifest_self": {
+    "note": "Self-referential manifest: its own byte hash is intentionally omitted.",
+    "path": ".loom-deployment.json",
+    "policy": "package-priority",
+    "release": "0.15.00",
+    "revision": 17,
+    "sha256": null
+  },
+  "policy_rules": [
+    {
+      "patterns": [
+        "instance/**"
+      ],
+      "policy": "server-only",
+      "reason": "Instance Vault is persistent installation state. It is never shipped, pushed, pulled, mirrored, or deleted by a release."
+    },
+    {
+      "patterns": [
+        "instance.sample/**"
+      ],
+      "policy": "package-priority",
+      "reason": "Safe examples/documentation only."
+    },
+    {
+      "patterns": [
+        "VISION.md",
+        "projects/*/VISION.md",
+        "projects/*/notes/**"
+      ],
+      "policy": "causal",
+      "reason": "Human-editable planning content."
+    },
+    {
+      "patterns": [
+        "**"
+      ],
+      "policy": "package-priority",
+      "reason": "Replaceable release-managed application/source artifact."
+    }
+  ],
+  "release_layout": {
+    "absence_of_persistent_state_is_not_deletion": true,
+    "blind_overwrite_safe_boundary": true,
+    "git_compatible": true,
+    "instance_projects": "instance-owned-not-shipped",
+    "legacy_import_supported": false,
+    "mode": "clean-instance-protocol",
+    "persistent_root": "instance/",
+    "persistent_root_shipped": false,
+    "protocol": "loom-instance/v1",
+    "runtime_payloads_shipped": false,
+    "sample_root": "instance.sample/"
+  },
+  "removed_files": [
+    {
+      "path": "core-modules/hello-world-autocoder-test/action.js",
+      "policy": "package-priority",
+      "reason": "Retired permanently: LOOM Hello World autocoder test module must not exist on deployed installations.",
+      "release": "0.12.15",
+      "revision": 4
+    },
+    {
+      "path": "core-modules/hello-world-autocoder-test/manifest.json",
+      "policy": "package-priority",
+      "reason": "Retired permanently: LOOM Hello World autocoder test module must not exist on deployed installations.",
+      "release": "0.12.15",
+      "revision": 3
+    }
+  ],
+  "retired_directories": [
+    {
+      "path": "core-modules/hello-world-autocoder-test",
+      "policy": "package-priority",
+      "reason": "Retired permanently; remove the directory after all retired files are deleted.",
+      "release": "0.12.15"
+    }
+  ],
+  "transaction": {
+    "canonical_authority": ".loom-deployment.json",
+    "clean_release": true,
+    "commit_last": true,
+    "protocol": "manifest-last/v2",
+    "runtime_version_endpoint": "api/version.php"
+  }
+}

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LOOM Cube</title>
+<style>
+  :root{
+    --size: 360px;
+    --half: 180px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    background:#fff;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+
+  body{
+    display:grid;
+    place-items:center;
+    perspective:1100px;
+  }
+
+  .cube{
+    position:relative;
+    width:var(--size);
+    height:var(--size);
+    transform-style:preserve-3d;
+    transform-origin:50% 50%;
+    will-change:transform;
+  }
+
+  .face{
+    position:absolute;
+    inset:0;
+    width:var(--size);
+    height:var(--size);
+    background:#fff;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    transform-style:preserve-3d;
+    overflow:visible;
+  }
+
+  .face svg{
+    width:100%;
+    height:100%;
+    display:block;
+    shape-rendering:crispEdges;
+    overflow:visible;
+  }
+
+  .front  { transform: translateZ(var(--half)); }
+  .back   { transform: rotateY(180deg) translateZ(var(--half)); }
+  .right  { transform: rotateY(90deg) translateZ(var(--half)); }
+  .left   { transform: rotateY(-90deg) translateZ(var(--half)); }
+  .top    { transform: rotateX(90deg) translateZ(var(--half)); }
+  .bottom { transform: rotateX(-90deg) translateZ(var(--half)); }
+
+  .mirror-x{ transform:scaleX(-1); transform-origin:50% 50%; }
+  .mirror-y{ transform:scaleY(-1); transform-origin:50% 50%; }
+
+  #exportTools{
+    position:fixed;
+    top:18px;
+    left:18px;
+    z-index:10;
+    display:flex;
+    gap:8px;
+  }
+
+  #exportTools button,
+  #exportTools select{
+    border:1px solid #000;
+    background:#fff;
+    color:#000;
+    padding:10px 14px;
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+  }
+
+  #exportTools button:active,
+  #exportTools select:active{
+    transform:translateY(1px);
+  }
+
+  @media (max-width:600px){
+    :root{
+      --size:260px;
+      --half:130px;
+    }
+
+    #exportTools{
+      top:12px;
+      left:12px;
+    }
+
+    #exportTools button,
+  #exportTools select{
+      font-size:13px;
+      padding:9px 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="exportTools">
+  <button id="exportBtn" type="button">Export Hero PNG</button>
+  <button id="exportWhiteBtn" type="button">Export on White</button>
+  <select id="pathSelect" aria-label="Motion path"></select>
+  <button id="exportGifBtn" type="button">Export Smooth GIF</button>
+</div>
+
+<div class="cube" id="cube" role="img" aria-label="Rotating LOOM cube">
+
+  <!-- FRONT: L + O -->
+  <div class="face front">
+    <svg viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="translate(.25 .25) scale(.9)">
+        <rect x="0" y="0" width="1" height="5" fill="#000"/>
+        <rect x="0" y="4" width="5" height="1" fill="#000"/>
+
+        <rect x="2" y="0" width="3" height="1" fill="#000"/>
+        <rect x="2" y="1" width="1" height="1" fill="#000"/>
+        <rect x="4" y="1" width="1" height="1" fill="#000"/>
+        <rect x="2" y="2" width="3" height="1" fill="#000"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- BACK -->
+  <div class="face back">
+    <svg class="mirror-x" viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="translate(.25 .25) scale(.9)">
+        <rect x="0" y="0" width="1" height="5" fill="#000"/>
+        <rect x="0" y="4" width="5" height="1" fill="#000"/>
+
+        <rect x="2" y="0" width="3" height="1" fill="#000"/>
+        <rect x="2" y="1" width="1" height="1" fill="#000"/>
+        <rect x="4" y="1" width="1" height="1" fill="#000"/>
+        <rect x="2" y="2" width="3" height="1" fill="#000"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- RIGHT: digital M -->
+  <div class="face right">
+    <svg viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="translate(.25 .25) scale(.9)">
+        <rect x="0" y="0" width="5" height="1" fill="#000"/>
+        <rect x="0" y="0" width="1" height="5" fill="#000"/>
+        <rect x="2" y="0" width="1" height="5" fill="#000"/>
+        <rect x="4" y="0" width="1" height="5" fill="#000"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- LEFT -->
+  <div class="face left">
+    <svg class="mirror-x" viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="translate(.25 .25) scale(.9)">
+        <rect x="0" y="0" width="5" height="1" fill="#000"/>
+        <rect x="0" y="0" width="1" height="5" fill="#000"/>
+        <rect x="2" y="0" width="1" height="5" fill="#000"/>
+        <rect x="4" y="0" width="1" height="5" fill="#000"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- TOP: same L + O, rotated 90 degrees clockwise -->
+  <div class="face top">
+    <svg viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="rotate(90 2.5 2.5)">
+        <g transform="translate(.25 .25) scale(.9)">
+          <rect x="0" y="0" width="1" height="5" fill="#000"/>
+          <rect x="0" y="4" width="5" height="1" fill="#000"/>
+
+          <rect x="2" y="0" width="3" height="1" fill="#000"/>
+          <rect x="2" y="1" width="1" height="1" fill="#000"/>
+          <rect x="4" y="1" width="1" height="1" fill="#000"/>
+          <rect x="2" y="2" width="3" height="1" fill="#000"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="face bottom">
+    <svg class="mirror-y" viewBox="0 0 5 5" aria-hidden="true">
+      <g transform="rotate(90 2.5 2.5)">
+        <g transform="translate(.25 .25) scale(.9)">
+          <rect x="0" y="0" width="1" height="5" fill="#000"/>
+          <rect x="0" y="4" width="5" height="1" fill="#000"/>
+
+          <rect x="2" y="0" width="3" height="1" fill="#000"/>
+          <rect x="2" y="1" width="1" height="1" fill="#000"/>
+          <rect x="4" y="1" width="1" height="1" fill="#000"/>
+          <rect x="2" y="2" width="3" height="1" fill="#000"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  const cube = document.getElementById('cube');
+  const exportBtn = document.getElementById('exportBtn');
+  const exportWhiteBtn = document.getElementById('exportWhiteBtn');
+  const exportGifBtn = document.getElementById('exportGifBtn');
+  const pathSelect = document.getElementById('pathSelect');
+
+  const HOLD_MS = 3000;
+  const SPIN_MS = 7000;
+  const LOOP_MS = 10000;
+
+  const HERO_X = -35.26438968;
+  const HERO_Y = 315;
+
+  function easeInOutCubic(t){
+    return t < 0.5
+      ? 4*t*t*t
+      : 1 - Math.pow(-2*t + 2, 3)/2;
+  }
+
+  function motionState(ms){
+    const clamped = Math.max(0, Math.min(LOOP_MS, ms));
+
+    if(clamped < HOLD_MS){
+      return {
+        active:false,
+        p:0,
+        e:0,
+        env:0,
+        env2:0,
+        fluid:0,
+        fluid2:0,
+        fluid3:0,
+        whip:0
+      };
+    }
+
+    const p = Math.min(1, (clamped - HOLD_MS) / SPIN_MS);
+    const e = easeInOutCubic(p);
+    const env = Math.sin(Math.PI * p);
+    const env2 = env * env;
+    const fluid = Math.sin(2 * Math.PI * p);
+    const fluid2 = Math.sin(4 * Math.PI * p);
+    const fluid3 = Math.cos(2 * Math.PI * p);
+    const whip = env * (1 - p);
+
+    return {
+      active:true,
+      p, e, env, env2, fluid, fluid2, fluid3, whip
+    };
+  }
+
+  /*
+    Every preset now starts from the EXACT SAME approved hero view:
+      rotateX(HERO_X) rotateY(HERO_Y) rotateZ(0) scale3d(1,1,1)
+
+    That means:
+      • all live previews begin from the same front-on starting angle
+      • all GIF exports begin from the same front-on starting angle
+      • all PNG hero exports use that same approved starting pose
+
+    Each preset differs only in how it evolves DURING the 7-second motion.
+  */
+  const MOTION_PRESETS = [
+    {
+      id:'hero-orbit',
+      name:'Hero Orbit',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e;
+          rx = HERO_X + 1.15 * s.env * s.fluid;
+          rz = 0.65 * s.env * s.fluid;
+
+          sx = 1 + 0.028 * s.env * s.fluid;
+          sy = 1 - 0.022 * s.env * s.fluid;
+          sz = 1 + 0.018 * s.env * s.fluid;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'comet-sweep',
+      name:'Comet Sweep',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e + 14 * s.whip;
+          rx = HERO_X + 8.5 * s.env2 - 5.5 * s.env * s.fluid;
+          rz = -7.5 * s.env * s.fluid + 3.5 * s.env * s.fluid2;
+
+          sx = 1 + 0.030 * s.env2;
+          sy = 1 - 0.020 * s.env * s.fluid3;
+          sz = 1 + 0.024 * s.env * s.fluid;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'tidal-arc',
+      name:'Tidal Arc',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e - 10 * s.env * s.fluid3;
+          rx = HERO_X - 10 * s.env2 + 3 * s.env * s.fluid2;
+          rz = 6 * s.env * s.fluid + 2.5 * s.env * s.fluid2;
+
+          sx = 1 + 0.012 * s.env * s.fluid;
+          sy = 1 - 0.028 * s.env2;
+          sz = 1 + 0.018 * s.env2;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'prism-roll',
+      name:'Prism Roll',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e;
+          rx = HERO_X + 4.5 * s.env * s.fluid2;
+          rz = 12 * s.env2 * Math.sin(Math.PI * s.p);
+
+          sx = 1 + 0.020 * s.env * s.fluid2;
+          sy = 1 - 0.020 * s.env * s.fluid2;
+          sz = 1 + 0.014 * s.env2;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'halo-drift',
+      name:'Halo Drift',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e + 8 * s.env * s.fluid;
+          rx = HERO_X + 12 * s.env2 - 4 * s.env * s.fluid;
+          rz = -9 * s.env2 + 4 * s.env * s.fluid2;
+
+          sx = 1 + 0.014 * s.env2;
+          sy = 1 - 0.026 * s.env2;
+          sz = 1 + 0.020 * s.env * s.fluid3;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'zenith-dive',
+      name:'Zenith Dive',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e;
+          rx = HERO_X - 18 * s.env2 + 2.5 * s.env * s.fluid2;
+          rz = 8.5 * s.env * s.fluid - 2 * s.env * s.fluid2;
+
+          sx = 1 + 0.026 * s.env2;
+          sy = 1 - 0.030 * s.env2;
+          sz = 1 + 0.020 * s.env * s.fluid;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'gyro-bloom',
+      name:'Gyro Bloom',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 720 * s.e;
+          rx = HERO_X + 6 * s.env * s.fluid + 2 * s.env * s.fluid2;
+          rz = 5 * s.env * s.fluid2;
+
+          sx = 1 + 0.022 * s.env * s.fluid3;
+          sy = 1 - 0.018 * s.env * s.fluid;
+          sz = 1 + 0.022 * s.env2;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'meteor-bank',
+      name:'Meteor Bank',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e + 18 * s.whip;
+          rx = HERO_X + 5 * s.env * s.fluid2 - 4 * s.env2;
+          rz = -14 * s.env2 + 4 * s.env * s.fluid;
+
+          sx = 1 + 0.024 * s.env2;
+          sy = 1 - 0.018 * s.env * s.fluid3;
+          sz = 1 + 0.020 * s.env * s.fluid;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'ribbon-spiral',
+      name:'Ribbon Spiral',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 540 * s.e;
+          rx = HERO_X + 8 * s.env2 * Math.sin(2 * Math.PI * s.p);
+          rz = 10 * s.env2 * Math.sin(2 * Math.PI * s.p + Math.PI / 3);
+
+          sx = 1 + 0.018 * s.env2;
+          sy = 1 - 0.022 * s.env * s.fluid;
+          sz = 1 + 0.018 * s.env * s.fluid2;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    },
+    {
+      id:'pulse-carousel',
+      name:'Pulse Carousel',
+      pose(ms){
+        const s = motionState(ms);
+        let rx = HERO_X, ry = HERO_Y, rz = 0;
+        let sx = 1, sy = 1, sz = 1;
+
+        if(s.active){
+          ry = HERO_Y + 360 * s.e - 6 * s.env * s.fluid3;
+          rx = HERO_X + 4 * s.env * s.fluid;
+          rz = 7 * s.env * s.fluid2;
+
+          const pulse = Math.sin(Math.PI * s.p);
+          sx = 1 + 0.032 * pulse * pulse;
+          sy = 1 - 0.028 * pulse * pulse;
+          sz = 1 + 0.022 * pulse * pulse;
+        }
+
+        return {rx, ry, rz, sx, sy, sz};
+      }
+    }
+  ];
+
+  MOTION_PRESETS.forEach(preset => {
+    const opt = document.createElement('option');
+    opt.value = preset.id;
+    opt.textContent = preset.name;
+    pathSelect.appendChild(opt);
+  });
+
+  pathSelect.value = 'hero-orbit';
+
+  function getCurrentPreset(){
+    return MOTION_PRESETS.find(p => p.id === pathSelect.value) || MOTION_PRESETS[0];
+  }
+
+  function poseAtTime(ms){
+    return getCurrentPreset().pose(ms);
+  }
+
+  function animate(now){
+    const t = now % LOOP_MS;
+    const {rx, ry, rz, sx, sy, sz} = poseAtTime(t);
+
+    cube.style.transform =
+      `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale3d(${sx},${sy},${sz})`;
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+
+  const FACE_SIZE = 360;
+  const HALF = FACE_SIZE / 2;
+  const PERSPECTIVE = 1100;
+
+  const LO = [
+    [0,0,1,5], [0,4,5,1],
+    [2,0,3,1], [2,1,1,1], [4,1,1,1], [2,2,3,1]
+  ];
+
+  const M = [
+    [0,0,5,1],
+    [0,0,1,5], [2,0,1,5], [4,0,1,5]
+  ];
+
+  const rad = d => d * Math.PI / 180;
+
+  function rotateX3([x,y,z], deg){
+    const a = rad(deg), c = Math.cos(a), s = Math.sin(a);
+    return [x, y*c - z*s, y*s + z*c];
+  }
+
+  function rotateY3([x,y,z], deg){
+    const a = rad(deg), c = Math.cos(a), s = Math.sin(a);
+    return [x*c + z*s, y, -x*s + z*c];
+  }
+
+  function rotateZ3([x,y,z], deg){
+    const a = rad(deg), c = Math.cos(a), s = Math.sin(a);
+    return [x*c - y*s, x*s + y*c, z];
+  }
+
+  function transformNormal(face, pose){
+    let n;
+
+    if(face === 'front')  n = [0,0,1];
+    if(face === 'back')   n = [0,0,-1];
+    if(face === 'right')  n = [1,0,0];
+    if(face === 'left')   n = [-1,0,0];
+    if(face === 'top')    n = [0,-1,0];
+    if(face === 'bottom') n = [0,1,0];
+
+    n = [
+      n[0] / pose.sx,
+      n[1] / pose.sy,
+      n[2] / pose.sz
+    ];
+
+    n = rotateZ3(n, pose.rz);
+    n = rotateY3(n, pose.ry);
+    n = rotateX3(n, pose.rx);
+
+    return n;
+  }
+
+  function faceIsVisible(face, pose){
+    return transformNormal(face, pose)[2] > 0.000001;
+  }
+
+  function paddedPoint(x,y){
+    return [0.25 + x*0.9, 0.25 + y*0.9];
+  }
+
+  // Export orientation remains the already-correct export orientation.
+  function rotateTopOpposite(x,y){
+    return [5 - y, x];
+  }
+
+  function maybeMirrorX(x,y){
+    return [5 - x, y];
+  }
+
+  function maybeMirrorY(x,y){
+    return [x, 5 - y];
+  }
+
+  function rectPoints(rect, options={}){
+    const {
+      topRotate = false,
+      mirrorX = false,
+      mirrorY = false
+    } = options;
+
+    const [x,y,w,h] = rect;
+
+    let pts = [
+      [x,   y],
+      [x+w, y],
+      [x+w, y+h],
+      [x,   y+h]
+    ].map(([px,py]) => paddedPoint(px,py));
+
+    if(topRotate){
+      pts = pts.map(([px,py]) => rotateTopOpposite(px,py));
+    }
+    if(mirrorX){
+      pts = pts.map(([px,py]) => maybeMirrorX(px,py));
+    }
+    if(mirrorY){
+      pts = pts.map(([px,py]) => maybeMirrorY(px,py));
+    }
+
+    return pts;
+  }
+
+  function faceToWorld(face, u, v, pose){
+    let x = (u/5) * FACE_SIZE - HALF;
+    let y = (v/5) * FACE_SIZE - HALF;
+    let p;
+
+    if(face === 'front'){
+      p = [x,y,HALF];
+    } else if(face === 'back'){
+      p = rotateY3([x,y,HALF],180);
+    } else if(face === 'right'){
+      p = rotateY3([x,y,HALF],90);
+    } else if(face === 'left'){
+      p = rotateY3([x,y,HALF],-90);
+    } else if(face === 'top'){
+      p = rotateX3([x,y,HALF],90);
+    } else if(face === 'bottom'){
+      p = rotateX3([x,y,HALF],-90);
+    }
+
+    p = [p[0] * pose.sx, p[1] * pose.sy, p[2] * pose.sz];
+    p = rotateZ3(p, pose.rz);
+    p = rotateY3(p, pose.ry);
+    p = rotateX3(p, pose.rx);
+
+    return p;
+  }
+
+  function project([x,y,z]){
+    const scale = PERSPECTIVE / (PERSPECTIVE - z);
+    return [x*scale, y*scale, z];
+  }
+
+  function buildRenderItems(pose, includeAllFaces=false, includeFacePlanes=false){
+    const defs = includeAllFaces
+      ? [
+          {face:'front',  rects:LO, top:false, mirrorX:false, mirrorY:false},
+          {face:'back',   rects:LO, top:false, mirrorX:true,  mirrorY:false},
+          {face:'right',  rects:M,  top:false, mirrorX:false, mirrorY:false},
+          {face:'left',   rects:M,  top:false, mirrorX:true,  mirrorY:false},
+          {face:'top',    rects:LO, top:true,  mirrorX:false, mirrorY:false},
+          {face:'bottom', rects:LO, top:true,  mirrorX:false, mirrorY:true}
+        ]
+      : [
+          {face:'front', rects:LO, top:false, mirrorX:false, mirrorY:false},
+          {face:'right', rects:M,  top:false, mirrorX:false, mirrorY:false},
+          {face:'top',   rects:LO, top:true,  mirrorX:false, mirrorY:false}
+        ];
+
+    const groups = [];
+
+    for(const def of defs){
+      if(includeAllFaces && !faceIsVisible(def.face, pose)){
+        continue;
+      }
+
+      const facePts3 = [
+        faceToWorld(def.face, 0, 0, pose),
+        faceToWorld(def.face, 5, 0, pose),
+        faceToWorld(def.face, 5, 5, pose),
+        faceToWorld(def.face, 0, 5, pose)
+      ];
+
+      const faceProj = facePts3.map(project);
+      const faceDepth = facePts3.reduce((sum,p)=>sum + p[2], 0) / 4;
+
+      const group = {
+        depth: faceDepth,
+        items: []
+      };
+
+      if(includeFacePlanes){
+        group.items.push({
+          poly: faceProj.map(([x,y]) => [x,y]),
+          color:'#fff'
+        });
+      }
+
+      for(const rect of def.rects){
+        const pts3 = rectPoints(rect, {
+          topRotate:def.top,
+          mirrorX:def.mirrorX,
+          mirrorY:def.mirrorY
+        }).map(([u,v]) => faceToWorld(def.face,u,v,pose));
+
+        const projected = pts3.map(project);
+
+        group.items.push({
+          poly:projected.map(([x,y]) => [x,y]),
+          color:'#000'
+        });
+      }
+
+      groups.push(group);
+    }
+
+    groups.sort((a,b) => a.depth - b.depth);
+
+    const items = [];
+    for(const group of groups){
+      items.push(...group.items);
+    }
+
+    return items;
+  }
+
+  function drawItemsToCanvas(items, canvas, withWhiteBackground){
+    const pts = items.flatMap(item => item.poly);
+    const minX = Math.min(...pts.map(p=>p[0]));
+    const maxX = Math.max(...pts.map(p=>p[0]));
+    const minY = Math.min(...pts.map(p=>p[1]));
+    const maxY = Math.max(...pts.map(p=>p[1]));
+
+    const ctx = canvas.getContext('2d', {alpha:true});
+    const W = canvas.width;
+    const H = canvas.height;
+    const margin = Math.round(Math.min(W,H) * 0.07);
+
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    const scale = Math.min(
+      (W - margin*2) / contentW,
+      (H - margin*2) / contentH
+    );
+
+    const ox = (W - contentW * scale) / 2;
+    const oy = (H - contentH * scale) / 2;
+
+    if(withWhiteBackground){
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,W,H);
+    } else {
+      ctx.clearRect(0,0,W,H);
+    }
+
+    for(const item of items){
+      ctx.beginPath();
+      item.poly.forEach(([x,y], i) => {
+        const px = ox + (x - minX) * scale;
+        const py = oy + (y - minY) * scale;
+        if(i===0) ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+      });
+      ctx.closePath();
+      ctx.fillStyle = item.color;
+      ctx.fill();
+    }
+  }
+
+  function exportHero(withWhiteBackground){
+    const pose = poseAtTime(0);
+    const items = buildRenderItems(pose, false, false);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 2000;
+    canvas.height = 2000;
+
+    drawItemsToCanvas(items, canvas, withWhiteBackground);
+
+    const a = document.createElement('a');
+    const preset = getCurrentPreset();
+    a.download = withWhiteBackground
+      ? `loom-cube-${preset.id}-hero-white.png`
+      : `loom-cube-${preset.id}-hero-transparent.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  }
+
+  function encodeGifFrameTrivially(indexedPixels, minCodeSize){
+    const clearCode = 1 << minCodeSize;
+    const endCode = clearCode + 1;
+    const codeSize = minCodeSize + 1;
+
+    const out = [];
+    let cur = 0;
+    let bits = 0;
+
+    function writeCode(code){
+      cur |= code << bits;
+      bits += codeSize;
+
+      while(bits >= 8){
+        out.push(cur & 255);
+        cur >>= 8;
+        bits -= 8;
+      }
+    }
+
+    for(let i=0;i<indexedPixels.length;i++){
+      writeCode(clearCode);
+      writeCode(indexedPixels[i]);
+    }
+
+    writeCode(endCode);
+
+    if(bits > 0){
+      out.push(cur & 255);
+    }
+
+    return out;
+  }
+
+  function buildGifBytes(frames, width, height, delayCs){
+    const bytes = [];
+
+    function b(v){ bytes.push(v & 255); }
+    function w(v){ b(v); b(v >> 8); }
+    function s(str){
+      for(let i=0;i<str.length;i++) b(str.charCodeAt(i));
+    }
+
+    s('GIF89a');
+    w(width);
+    w(height);
+
+    b(0xF1);
+    b(0);
+    b(0);
+
+    b(255); b(255); b(255);
+    b(170); b(170); b(170);
+    b(85);  b(85);  b(85);
+    b(0);   b(0);   b(0);
+
+    b(0x21); b(0xFF); b(11);
+    s('NETSCAPE2.0');
+    b(3); b(1); w(0); b(0);
+
+    for(const frame of frames){
+      b(0x21); b(0xF9); b(4);
+      b(0x00);
+      w(delayCs);
+      b(0);
+      b(0);
+
+      b(0x2C);
+      w(0); w(0);
+      w(width); w(height);
+      b(0x00);
+
+      const minCodeSize = 2;
+      b(minCodeSize);
+
+      const compressed = encodeGifFrameTrivially(frame, minCodeSize);
+
+      for(let i=0;i<compressed.length;i+=255){
+        const chunk = compressed.slice(i, i+255);
+        b(chunk.length);
+        for(let j=0;j<chunk.length;j++) b(chunk[j]);
+      }
+
+      b(0);
+    }
+
+    b(0x3B);
+    return new Uint8Array(bytes);
+  }
+
+  function getBoundsForItems(items){
+    const pts = items.flatMap(item => item.poly);
+    return {
+      minX: Math.min(...pts.map(p=>p[0])),
+      maxX: Math.max(...pts.map(p=>p[0])),
+      minY: Math.min(...pts.map(p=>p[1])),
+      maxY: Math.max(...pts.map(p=>p[1]))
+    };
+  }
+
+  function expandBounds(a,b){
+    if(!a) return {...b};
+    return {
+      minX: Math.min(a.minX,b.minX),
+      maxX: Math.max(a.maxX,b.maxX),
+      minY: Math.min(a.minY,b.minY),
+      maxY: Math.max(a.maxY,b.maxY)
+    };
+  }
+
+  function drawItemsWithFixedBounds(items, canvas, bounds, withWhiteBackground){
+    const ctx = canvas.getContext('2d', {alpha:true});
+    const W = canvas.width;
+    const H = canvas.height;
+    const margin = Math.round(Math.min(W,H) * 0.055);
+
+    const contentW = bounds.maxX - bounds.minX;
+    const contentH = bounds.maxY - bounds.minY;
+    const scale = Math.min(
+      (W - margin*2) / contentW,
+      (H - margin*2) / contentH
+    );
+
+    const ox = (W - contentW * scale) / 2;
+    const oy = (H - contentH * scale) / 2;
+
+    if(withWhiteBackground){
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,W,H);
+    }else{
+      ctx.clearRect(0,0,W,H);
+    }
+
+    for(const item of items){
+      ctx.beginPath();
+
+      item.poly.forEach(([x,y],i)=>{
+        const px = ox + (x - bounds.minX) * scale;
+        const py = oy + (y - bounds.minY) * scale;
+
+        if(i===0) ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+      });
+
+      ctx.closePath();
+      ctx.fillStyle = item.color;
+      ctx.fill();
+    }
+  }
+
+  async function exportSmoothGif(){
+    exportGifBtn.disabled = true;
+    exportBtn.disabled = true;
+    exportWhiteBtn.disabled = true;
+    pathSelect.disabled = true;
+
+    try{
+      const preset = getCurrentPreset();
+
+      const OUT = 512;
+      const SUPER = 2;
+      const RENDER = OUT * SUPER;
+      const FPS = 25;
+      const delayCs = 4;
+      const totalFrames = 250;
+
+      exportGifBtn.textContent = 'Framing GIF…';
+
+      let globalBounds = null;
+
+      for(let i=0;i<totalFrames;i++){
+        const ms = i * (1000 / FPS);
+        const pose = preset.pose(ms);
+        const items = buildRenderItems(pose, true, true);
+        globalBounds = expandBounds(globalBounds, getBoundsForItems(items));
+
+        if(i % 20 === 0){
+          await new Promise(r => setTimeout(r,0));
+        }
+      }
+
+      const hi = document.createElement('canvas');
+      hi.width = RENDER;
+      hi.height = RENDER;
+
+      const lo = document.createElement('canvas');
+      lo.width = OUT;
+      lo.height = OUT;
+      const loCtx = lo.getContext('2d', {alpha:false});
+      loCtx.imageSmoothingEnabled = true;
+      loCtx.imageSmoothingQuality = 'high';
+
+      const frames = [];
+
+      for(let i=0;i<totalFrames;i++){
+        const ms = i * (1000 / FPS);
+        const pose = preset.pose(ms);
+        const items = buildRenderItems(pose, true, true);
+
+        drawItemsWithFixedBounds(items, hi, globalBounds, true);
+
+        loCtx.fillStyle = '#fff';
+        loCtx.fillRect(0,0,OUT,OUT);
+        loCtx.drawImage(hi, 0,0,RENDER,RENDER, 0,0,OUT,OUT);
+
+        const rgba = loCtx.getImageData(0,0,OUT,OUT).data;
+        const indexed = new Uint8Array(OUT * OUT);
+
+        for(let p=0,j=0;p<rgba.length;p+=4,j++){
+          const lum = (rgba[p] + rgba[p+1] + rgba[p+2]) / 3;
+
+          if(lum >= 212.5) indexed[j] = 0;
+          else if(lum >= 127.5) indexed[j] = 1;
+          else if(lum >= 42.5) indexed[j] = 2;
+          else indexed[j] = 3;
+        }
+
+        frames.push(indexed);
+
+        if(i % 5 === 0){
+          exportGifBtn.textContent =
+            `Rendering GIF… ${Math.round((i/totalFrames)*100)}%`;
+          await new Promise(r => setTimeout(r,0));
+        }
+      }
+
+      exportGifBtn.textContent = 'Encoding GIF…';
+      await new Promise(r => setTimeout(r,0));
+
+      const gifBytes = buildGifBytes(frames, OUT, OUT, delayCs);
+      const blob = new Blob([gifBytes], {type:'image/gif'});
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.download = `loom-cube-${preset.id}-loop-512.gif`;
+      a.href = url;
+      a.click();
+
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+    }
+    finally{
+      exportGifBtn.textContent = 'Export Smooth GIF';
+      exportGifBtn.disabled = false;
+      exportBtn.disabled = false;
+      exportWhiteBtn.disabled = false;
+      pathSelect.disabled = false;
+    }
+  }
+
+  exportBtn.addEventListener('click',()=>exportHero(false));
+  exportWhiteBtn.addEventListener('click',()=>exportHero(true));
+  exportGifBtn.addEventListener('click', exportSmoothGif);
+})();
+</script>
+</body>
+</html>

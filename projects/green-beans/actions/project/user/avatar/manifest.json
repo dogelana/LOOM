@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.6",
+  "enabled": true,
+  "action": {
+    "id": "project.user.avatar.green-beans",
+    "name": "Green Beans Avatar Extension",
+    "description": "Provide the Green Beans project default profile picture and avatar creator using supplied String Bean / Bean Pod artwork, optional Ball Cap headwear, a selectable background color, and trait preview icons.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.user.profile",
+    "category": "project/user/avatar",
+    "tags": [
+      "project",
+      "green-beans",
+      "user",
+      "avatar",
+      "profile-extension"
+    ],
+    "steps": [
+      {
+        "id": "register-provider",
+        "name": "Register Green Beans avatar provider"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.avatar.green-beans.create",
+      "name": "Create Green Beans Avatar",
+      "description": "Create and apply a Green Beans profile avatar by choosing Bean Type, Headwear, and Background Color.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    }
+  ],
+  "module": {
+    "entry": "action.js",
+    "version": "2.3.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00009"
+  },
+  "extensions": {
+    "core.user.profile.avatar": {
+      "label": "Green Beans",
+      "default": true,
+      "creator": true,
+      "description": "Overrides the automatic LOOM default with the supplied Green Beans default avatar and provides a Green Beans creator with Bean Type, Headwear, and Background Color traits. Trait previews can use dedicated icons.",
+      "default_asset": "assets/default-avatar.png"
+    }
+  },
+  "config": {},
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Green Beans Avatar Extension",
+    "description": "Project-provided default avatar and creator artwork are owned by the Green Beans project module. Creator traits currently include Bean Type, Headwear, and Background Color, with dedicated preview icons.",
+    "fields": []
+  }
+}

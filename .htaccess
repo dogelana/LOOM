@@ -1,0 +1,34 @@
+# @loom-file release=0.12.08 revision=2 policy=package-priority
+DirectoryIndex index.php index.html
+Options -MultiViews
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # LOOM project app directory route.
+  # This is explicit even though DirectoryIndex normally handles it, so hosts
+  # with unusual inherited rewrite rules still resolve /projects/<slug>/app/.
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME}/index.html -f
+  RewriteRule ^projects/([a-zA-Z0-9_-]+)/app/?$ projects/$1/app/index.html [L]
+
+  # Friendly extensionless URLs: /something -> /something.html or /something.php
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.+?)/?$ $1.html [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.php -f
+  RewriteRule ^(.+?)/?$ $1.php [L]
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(?:html?|js|mjs|css|json|png|jpe?g|gif|webp|svg|ico)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 0 seconds"
+</IfModule>

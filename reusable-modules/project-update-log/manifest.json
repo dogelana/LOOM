@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.6",
+  "enabled": true,
+  "action": {
+    "id": "project.system.update-log",
+    "name": "Project Update Log",
+    "description": "Optional project-owned release history sourced only from the current project CHANGELOG.md. LOOM platform history remains on LOOM Home.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "project/system",
+    "tags": [
+      "project",
+      "updates",
+      "changelog"
+    ]
+  },
+  "user_actions": [],
+  "module": {
+    "entry": "action.js",
+    "version": "1.1.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "90000"
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 90000
+    }
+  },
+  "config": {
+    "title": "Project Update Log",
+    "maxReleases": 15
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Project Update Log",
+    "description": "Project-owned release history. This is intentionally separate from the LOOM platform update log on LOOM Home.",
+    "fields": []
+  }
+}

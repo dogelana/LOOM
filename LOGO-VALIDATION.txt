@@ -1,0 +1,9 @@
+LOOM 0.12.09 canonical Green Beans logo validation
+SHA-256: a526751ca9b8166c8b4790d2ba705636e96841ec0c1db1b1649c92188ad07a44
+Source: user-provided Green Beans logo uploaded for the 0.12.09 release
+Canonical colors:
+- Dark bean: #279E38
+- Light bean: #A9DF4F
+Installed at:
+- projects/green-beans/assets/logo.png
+- templates/projects/green-beans/assets/logo.png

@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.html-framer",
+    "name": "HTML Framer",
+    "description": "LOOM core bridge for turning uploaded static HTML ZIP packages into isolated project modules.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "parent": "core.load",
+    "category": "loom/core/interop",
+    "tags": [
+      "loom",
+      "core",
+      "html",
+      "iframe",
+      "zip",
+      "interop",
+      "sandbox",
+      "legacy-ui"
+    ],
+    "steps": []
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [],
+    "order": "00030",
+    "order_locked": true
+  },
+  "config": {
+    "enabled": true,
+    "defaultFrameHeight": 520
+  },
+  "presentation": {
+    "role": "utility",
+    "collapsible": false,
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "stretch",
+      "position": "flow",
+      "order": 30
+    }
+  },
+  "pegboard": {
+    "preferredDepth": 1,
+    "accent": "blue"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "HTML Framer",
+    "description": "Drop static HTML ZIP packages into LOOM. Each published frame becomes its own sandboxed LOOM module. LOOM discovers HTML/CSS/JS relationships, repairs safe local-path mistakes, and attaches orphan roots automatically.",
+    "fields": [
+      {
+        "id": "enabled",
+        "label": "Enable HTML Framer modules",
+        "type": "checkbox",
+        "help": "When off, stored HTML frames remain preserved in the Instance Vault but are not added to the project runtime."
+      },
+      {
+        "id": "defaultFrameHeight",
+        "label": "Default new frame height",
+        "type": "range",
+        "min": 240,
+        "max": 1200,
+        "step": 10,
+        "unit": "px",
+        "help": "Used for newly imported frames. Each frame can be adjusted independently afterward."
+      }
+    ],
+    "tools": [
+      {
+        "type": "html-framer-manager",
+        "label": "HTML Frames"
+      }
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "loom.html-framer",
+        "description": "Sandboxed static HTML frame-module hosting"
+      }
+    ],
+    "requires": [],
+    "permissions": [
+      "html-framer.manage"
+    ]
+  }
+}

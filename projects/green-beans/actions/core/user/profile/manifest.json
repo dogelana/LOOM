@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "core.user.profile",
+    "name": "User Profile",
+    "description": "Show project identity controls, the reusable LOOM account/global profile, privilege, network metadata, analytics, and history.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/user",
+    "tags": [
+      "core",
+      "user",
+      "identity",
+      "profile",
+      "analytics",
+      "history",
+      "reusable"
+    ],
+    "steps": [
+      {
+        "id": "load-profile",
+        "name": "Load persistent profile"
+      },
+      {
+        "id": "load-avatar",
+        "name": "Resolve LOOM/project profile picture"
+      },
+      {
+        "id": "load-analytics",
+        "name": "Load lifetime analytics"
+      },
+      {
+        "id": "mount-profile",
+        "name": "Mount profile dashboard"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.profile.username.save",
+      "name": "Save Username",
+      "description": "Persist a display username against this LOOM client identity.",
+      "behavior": "transient",
+      "category": "user/profile"
+    },
+    {
+      "id": "user.profile.analytics.refresh",
+      "name": "Refresh Profile Analytics",
+      "description": "Refresh lifetime usage and session analytics.",
+      "behavior": "transient",
+      "category": "user/profile"
+    },
+    {
+      "id": "user.account.register",
+      "name": "Create Permanent Account",
+      "description": "Attach email/password login to a named LOOM identity.",
+      "behavior": "transient",
+      "events": [
+        "user.account.registered"
+      ]
+    },
+    {
+      "id": "user.account.login",
+      "name": "Sign In",
+      "description": "Sign in to a permanent LOOM account.",
+      "behavior": "transient",
+      "events": [
+        "user.account.logged-in"
+      ]
+    },
+    {
+      "id": "user.account.logout",
+      "name": "Sign Out",
+      "description": "End the current permanent account login.",
+      "behavior": "transient",
+      "events": [
+        "user.account.logged-out"
+      ]
+    },
+    {
+      "id": "user.profile.avatar.upload",
+      "name": "Upload Profile Picture",
+      "description": "Compress and persist a custom LOOM profile picture.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    },
+    {
+      "id": "user.profile.avatar.loom-default",
+      "name": "Use LOOM Default Avatar",
+      "description": "Switch the profile picture back to the native LOOM default.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    },
+    {
+      "id": "user.profile.avatar.project-default",
+      "name": "Use Project Default Avatar",
+      "description": "Use the active project avatar provider default when available.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    },
+    {
+      "id": "user.profile.avatar.create-project",
+      "name": "Create Project Avatar",
+      "description": "Create an avatar through a project-provided avatar creator.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    },
+    {
+      "id": "user.profile.avatar.global",
+      "name": "Use LOOM Profile Picture",
+      "description": "Make this project inherit the LOOM-wide profile picture.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    },
+    {
+      "id": "user.profile.global-avatar.copy-project",
+      "name": "Copy Project Picture to LOOM Profile",
+      "description": "Retrieve an existing project profile picture and use it as the global LOOM profile picture.",
+      "behavior": "transient",
+      "category": "user/profile/avatar"
+    }
+  ],
+  "module": {
+    "entry": "action.js",
+    "version": "2.5.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00010"
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 10,
+      "className": "loom-user-profile-module"
+    }
+  },
+  "config": {
+    "refreshMs": 10000,
+    "maxRecentSessions": 8,
+    "title": "Your Profile"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "User Profile",
+    "description": "Identity and analytics are system-owned.",
+    "fields": []
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "identity.profile",
+        "description": "Current user/guest profile editor"
+      }
+    ],
+    "requires": [],
+    "permissions": [
+      {
+        "id": "identity.profile.write",
+        "story": "Change my own LOOM profile and avatar.",
+        "scope": "self"
+      }
+    ]
+  }
+}

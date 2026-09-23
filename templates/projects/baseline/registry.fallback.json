@@ -1,0 +1,1607 @@
+{
+  "project": "baseline",
+  "generated_at": "2026-09-23T04:55:44.368134+00:00",
+  "discovery": {
+    "source": "filesystem-scan",
+    "action_root": "projects/baseline/actions + core-modules(scope=project)",
+    "count": 11
+  },
+  "modules": [
+    {
+      "schema_version": "1.6",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.header-bar",
+        "name": "Load Header Bar",
+        "description": "Create a reusable LOOM header region with true full-width or shrink-to-content sizing and configurable branding alignment.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/ui/layout",
+        "tags": [
+          "core",
+          "ui",
+          "layout",
+          "region",
+          "header",
+          "slots",
+          "presence-tracked"
+        ],
+        "steps": [
+          {
+            "id": "create-region",
+            "name": "Create header region"
+          },
+          {
+            "id": "create-slots",
+            "name": "Create header slots"
+          },
+          {
+            "id": "mount-region",
+            "name": "Mount header region"
+          }
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "2.3.1",
+        "dependencies": [],
+        "styles": [
+          "action.css"
+        ],
+        "order": "00000",
+        "order_locked": true
+      },
+      "presentation": {
+        "role": "region",
+        "region": "header-bar",
+        "mount": {
+          "region": "root"
+        },
+        "layout": {
+          "width": "auto",
+          "align": "start",
+          "position": "flow",
+          "order": 0,
+          "className": "loom-project-header-region"
+        }
+      },
+      "config": {
+        "mountSelector": "#feature-stage",
+        "brandSlot": "brand",
+        "utilitySlot": "utility",
+        "brandMediaSlot": "brand-media",
+        "brandTextSlot": "brand-text",
+        "barHeight": 124,
+        "cornerRadius": 30,
+        "backgroundColor": "#FFFFFF",
+        "widthMode": "fit-content",
+        "brandPosition": "left"
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Header Bar",
+        "description": "Reusable LOOM header container presentation. Starter default: fit-content width with project branding aligned left.",
+        "fields": [
+          {
+            "id": "barHeight",
+            "label": "Header height",
+            "type": "range",
+            "min": 88,
+            "max": 220,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "cornerRadius",
+            "label": "Corner radius",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "backgroundColor",
+            "label": "Background",
+            "type": "color"
+          },
+          {
+            "id": "widthMode",
+            "label": "Header width",
+            "type": "select",
+            "options": [
+              {
+                "value": "full",
+                "label": "Full Width"
+              },
+              {
+                "value": "fit-content",
+                "label": "Fit Content"
+              }
+            ]
+          },
+          {
+            "id": "brandPosition",
+            "label": "Logo / branding position",
+            "type": "select",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ]
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 0,
+      "order_display": "00000",
+      "order_locked": true,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/header-bar/action.js",
+      "styles": [
+        "./templates/projects/baseline/actions/core/ui/header-bar/action.css"
+      ],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/header-bar/manifest.json",
+      "fingerprint": "89392dc1a3e726aa",
+      "folder": "actions/core/ui/header-bar",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.4",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.loader",
+        "name": "Project Loader",
+        "description": "Reusable project-first LOOM loader with animated project branding, rotating tips, module progress, and canonical runtime LOOM version attribution.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": false,
+        "parent": "core.load",
+        "category": "core/ui/bootstrap",
+        "tags": [
+          "core",
+          "ui",
+          "loader",
+          "bootstrap",
+          "branding",
+          "progress",
+          "reusable"
+        ],
+        "steps": [
+          {
+            "id": "read-branding",
+            "name": "Read project branding modules"
+          },
+          {
+            "id": "mount-overlay",
+            "name": "Mount loading overlay"
+          },
+          {
+            "id": "track-modules",
+            "name": "Track module readiness"
+          },
+          {
+            "id": "dismiss-overlay",
+            "name": "Dismiss loading overlay"
+          }
+        ]
+      },
+      "user_actions": [],
+      "module": {
+        "entry": "action.js",
+        "version": "1.3.1",
+        "dependencies": [],
+        "styles": [],
+        "order": "00000",
+        "bootstrap": {
+          "role": "loader",
+          "priority": 0,
+          "countSelf": false
+        }
+      },
+      "presentation": {
+        "role": "content",
+        "mount": {
+          "region": "root"
+        },
+        "layout": {
+          "position": "fixed",
+          "layer": 100000
+        }
+      },
+      "config": {
+        "minimumVisibleMs": 320,
+        "dismissDelayMs": 80,
+        "logoActionId": "core.ui.load-logo",
+        "logoTextActionId": "core.ui.load-logo-text",
+        "logoFallback": "\u2726",
+        "background": "rgba(246,250,246,.96)",
+        "blurPx": 18
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "admin_settings": {
+        "title": "Project Loader",
+        "description": "Project-specific Loader settings are system-owned. Global Loader behavior is configured under Admin \u2192 LOOM Settings.",
+        "fields": []
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 0,
+      "order_display": "00000",
+      "order_locked": false,
+      "bootstrap": {
+        "role": "loader",
+        "priority": 0,
+        "countSelf": false
+      },
+      "entry_url": "./templates/projects/baseline/actions/core/ui/loader/action.js",
+      "styles": [],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/loader/manifest.json",
+      "fingerprint": "c69b790c84af4116",
+      "folder": "actions/core/ui/loader",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.3",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.load-logo",
+        "name": "Load Project Logo",
+        "description": "Resolve the project logo, contain it safely in the Header Bar, and add an alpha-masked mouse-reactive specular shine that follows the pointer without illuminating transparent pixels.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.ui.header-bar",
+        "category": "core/ui/branding",
+        "tags": [
+          "core",
+          "ui",
+          "branding",
+          "logo",
+          "header-child",
+          "explicit-asset-path"
+        ],
+        "steps": [
+          {
+            "id": "resolve-asset",
+            "name": "Resolve explicit logo asset"
+          },
+          {
+            "id": "create-element",
+            "name": "Create logo element"
+          },
+          {
+            "id": "mount-logo",
+            "name": "Inject logo into header"
+          },
+          {
+            "id": "bind-shine",
+            "name": "Bind alpha-masked interactive shine"
+          }
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "2.2.1",
+        "dependencies": [
+          "core.ui.header-bar"
+        ],
+        "styles": [
+          "action.css"
+        ],
+        "order": "00001"
+      },
+      "presentation": {
+        "role": "content",
+        "mount": {
+          "region": "header-bar",
+          "slot": "brand-media"
+        },
+        "layout": {
+          "width": "auto",
+          "align": "start",
+          "position": "flow",
+          "order": 10,
+          "maxWidth": "100%"
+        }
+      },
+      "config": {
+        "assetPath": "assets/logo.png",
+        "assetScope": "project",
+        "mountSelector": "#feature-stage",
+        "alt": "Project logo",
+        "fallbackMark": "\u2726",
+        "scalePercent": 50,
+        "shineEnabled": true
+      },
+      "pegboard": {
+        "preferredDepth": 3,
+        "accent": "green"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Project Logo",
+        "description": "Logo scale is normalized: 50% equals the old 100% size; 100% equals the old 200% maximum.",
+        "fields": [
+          {
+            "id": "scalePercent",
+            "label": "Logo scale",
+            "type": "range",
+            "min": 10,
+            "max": 100,
+            "step": 1,
+            "unit": "%"
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 1,
+      "order_display": "00001",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/load-logo/action.js",
+      "styles": [
+        "./templates/projects/baseline/actions/core/ui/load-logo/action.css"
+      ],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/load-logo/manifest.json",
+      "fingerprint": "ba50adf25065de78",
+      "folder": "actions/core/ui/load-logo",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.5",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.branding",
+        "name": "Project Branding",
+        "description": "Apply reusable project branding to browser metadata and visible app chrome: project name, optional tagline, and favicon.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/ui/branding",
+        "tags": [
+          "core",
+          "ui",
+          "branding",
+          "title",
+          "tagline",
+          "favicon",
+          "reusable"
+        ],
+        "steps": [
+          {
+            "id": "read-project",
+            "name": "Read project identity"
+          },
+          {
+            "id": "set-title",
+            "name": "Apply project title and tagline"
+          },
+          {
+            "id": "resolve-favicon",
+            "name": "Resolve favicon source"
+          },
+          {
+            "id": "set-favicon",
+            "name": "Apply favicon"
+          }
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "1.1.0",
+        "dependencies": [],
+        "styles": [],
+        "order": "00003"
+      },
+      "config": {
+        "tagline": "",
+        "titleSeparator": " \u00b7 ",
+        "faviconMode": "logo",
+        "customFaviconPath": "assets/favicon.ico",
+        "logoActionId": "core.ui.load-logo"
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Project Branding",
+        "description": "Browser title, optional tagline, and project favicon.",
+        "fields": [
+          {
+            "id": "tagline",
+            "label": "Tagline",
+            "type": "text",
+            "maxLength": 120
+          }
+        ],
+        "tools": [
+          {
+            "id": "favicon",
+            "label": "Favicon",
+            "type": "favicon",
+            "customPath": "assets/favicon.ico",
+            "logoActionId": "core.ui.load-logo"
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 3,
+      "order_display": "00003",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/branding/action.js",
+      "styles": [],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/branding/manifest.json",
+      "fingerprint": "101239f4960c64ca",
+      "folder": "actions/core/ui/branding",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.8",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.background-orbs",
+        "name": "Background Orbs",
+        "description": "Render a reusable ambient energy field with project-provided artwork, LOOM electric circuitry particles, and occasional extensible special particles.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/ui/background",
+        "tags": [
+          "core",
+          "ui",
+          "background",
+          "ambient",
+          "animation",
+          "orbs",
+          "project-extensible",
+          "presence-tracked",
+          "energy",
+          "circuitry",
+          "special-particle"
+        ],
+        "steps": [
+          {
+            "id": "resolve-provider",
+            "name": "Resolve project orb provider"
+          },
+          {
+            "id": "create-field",
+            "name": "Create ambient orb field"
+          },
+          {
+            "id": "animate-field",
+            "name": "Start zero-gravity motion"
+          }
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "1.2.0",
+        "dependencies": [],
+        "styles": [],
+        "order": "00005"
+      },
+      "presentation": {
+        "role": "ambient-background",
+        "mount": {
+          "region": "root"
+        },
+        "layout": {
+          "order": 5
+        }
+      },
+      "config": {
+        "sourceMode": "project",
+        "orbVolume": 70,
+        "speed": 100,
+        "glowLevel": 58,
+        "glowColor": "#8FA8FF",
+        "specialOrbEnabled": true,
+        "specialOrbIntervalSeconds": 42,
+        "specialOrbDurationSeconds": 14,
+        "specialOrbSize": 48
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "blue"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Background Energy Field",
+        "description": "Ambient project background. Project artwork wins when a provider exists; LOOM defaults render small electric circuitry particles instead of bubbles. Occasional special particles can be overridden per project.",
+        "fields": [
+          {
+            "id": "sourceMode",
+            "label": "Orb source",
+            "type": "select",
+            "options": [
+              {
+                "value": "project",
+                "label": "Project Provided (when available)"
+              },
+              {
+                "value": "loom",
+                "label": "LOOM Default Orbs"
+              }
+            ]
+          },
+          {
+            "id": "orbVolume",
+            "label": "Particle / orb volume",
+            "type": "range",
+            "min": 0,
+            "max": 180,
+            "step": 1,
+            "unit": " particles"
+          },
+          {
+            "id": "speed",
+            "label": "Drift speed",
+            "type": "range",
+            "min": 20,
+            "max": 250,
+            "step": 5,
+            "unit": "%"
+          },
+          {
+            "id": "glowLevel",
+            "label": "Energy glow level",
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "unit": "%"
+          },
+          {
+            "id": "glowColor",
+            "label": "Glow color",
+            "type": "color",
+            "projectDefaultFromExtension": {
+              "extension": "core.ui.background-orbs.provider",
+              "property": "defaultGlowColor"
+            }
+          },
+          {
+            "id": "specialOrbEnabled",
+            "label": "Occasional special particle",
+            "type": "checkbox"
+          },
+          {
+            "id": "specialOrbIntervalSeconds",
+            "label": "Special particle interval",
+            "type": "range",
+            "min": 12,
+            "max": 180,
+            "step": 1,
+            "unit": " sec"
+          },
+          {
+            "id": "specialOrbDurationSeconds",
+            "label": "Special particle visible time",
+            "type": "range",
+            "min": 5,
+            "max": 36,
+            "step": 1,
+            "unit": " sec"
+          },
+          {
+            "id": "specialOrbSize",
+            "label": "Special particle size",
+            "type": "range",
+            "min": 24,
+            "max": 110,
+            "step": 1,
+            "unit": " px"
+          }
+        ],
+        "tools": [
+          {
+            "id": "orb-default-presets",
+            "label": "Background defaults",
+            "type": "config-presets",
+            "presets": [
+              {
+                "id": "project-defaults",
+                "label": "Use Project Defaults",
+                "reset": true,
+                "values": {},
+                "requiresExtension": "core.ui.background-orbs.provider"
+              },
+              {
+                "id": "loom-defaults",
+                "label": "Use LOOM Defaults",
+                "reset": true,
+                "values": {
+                  "sourceMode": "loom"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 5,
+      "order_display": "00005",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/background-orbs/action.js",
+      "styles": [],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/background-orbs/manifest.json",
+      "fingerprint": "43696a7103477bc1",
+      "folder": "actions/core/ui/background-orbs",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.8",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.footer-bar",
+        "name": "Footer Bar",
+        "description": "Create a polished responsive LOOM footer with project branding, centered quick-access tools, animated LOOM attribution, and guarded fit-content spacing controls.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/ui/layout",
+        "tags": [
+          "core",
+          "ui",
+          "layout",
+          "region",
+          "footer",
+          "branding"
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "1.3.0",
+        "dependencies": [],
+        "styles": [
+          "action.css"
+        ],
+        "order": "00006"
+      },
+      "presentation": {
+        "role": "region",
+        "region": "footer-bar",
+        "mount": {
+          "region": "footer-root"
+        },
+        "layout": {
+          "width": "auto",
+          "align": "stretch",
+          "position": "flow",
+          "order": 6,
+          "className": "loom-project-footer-region"
+        }
+      },
+      "config": {
+        "cornerRadius": 30,
+        "backgroundColor": "#F7FBF8",
+        "widthMode": "full",
+        "outerPadding": 18,
+        "rowGap": 14,
+        "projectLogoSize": 64,
+        "projectTextSize": 17,
+        "brandRowWidthMode": "fit-content",
+        "brandRowAlign": "center",
+        "brandRowPaddingX": 18,
+        "brandRowPaddingY": 16,
+        "brandRowRadius": 22,
+        "brandRowBackground": "#FFFFFF",
+        "toolsRowWidthMode": "fit-content",
+        "toolsRowAlign": "center",
+        "toolsRowPaddingX": 16,
+        "toolsRowPaddingY": 13,
+        "toolsRowRadius": 22,
+        "toolsRowBackground": "#F4F9F5",
+        "loomLogoSize": 50,
+        "loomTextSize": 16,
+        "loomRowWidthMode": "full",
+        "loomRowAlign": "center",
+        "loomRowPaddingX": 18,
+        "loomRowPaddingY": 15,
+        "loomRowRadius": 22,
+        "loomRowBackground": "#FFFFFF",
+        "orbSlot": "orbs",
+        "brandFitExtraWidth": 100,
+        "brandFitExtraHeight": 20
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Footer Bar",
+        "description": "Control the responsive footer and each independent row. The default project-branding row is centered and fit-to-content with 100px total extra width and 20px total extra height.",
+        "fields": [
+          {
+            "id": "outerPadding",
+            "label": "Footer outer padding",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "rowGap",
+            "label": "Space between footer rows",
+            "type": "range",
+            "min": 0,
+            "max": 48,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "cornerRadius",
+            "label": "Footer outer corner radius",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "backgroundColor",
+            "label": "Footer outer background",
+            "type": "color"
+          },
+          {
+            "id": "widthMode",
+            "label": "Whole footer width",
+            "type": "select",
+            "options": [
+              {
+                "value": "full",
+                "label": "Full Width"
+              },
+              {
+                "value": "fit-content",
+                "label": "Fit Content"
+              }
+            ]
+          },
+          {
+            "id": "projectLogoSize",
+            "label": "Project logo size",
+            "type": "range",
+            "min": 32,
+            "max": 140,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "projectTextSize",
+            "label": "Project wordmark size",
+            "type": "range",
+            "min": 10,
+            "max": 44,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "brandRowWidthMode",
+            "label": "Branding row width",
+            "type": "select",
+            "options": [
+              {
+                "value": "full",
+                "label": "Full Width"
+              },
+              {
+                "value": "fit-content",
+                "label": "Fit Content"
+              }
+            ]
+          },
+          {
+            "id": "brandFitExtraWidth",
+            "label": "Fit-content extra width",
+            "type": "range",
+            "min": 0,
+            "max": 200,
+            "step": 1,
+            "unit": "px total",
+            "visibleWhen": {
+              "field": "brandRowWidthMode",
+              "equals": "fit-content"
+            },
+            "help": "Total extra horizontal room around project branding. LOOM divides this evenly between left and right."
+          },
+          {
+            "id": "brandFitExtraHeight",
+            "label": "Fit-content extra height",
+            "type": "range",
+            "min": 0,
+            "max": 200,
+            "step": 1,
+            "unit": "px total",
+            "visibleWhen": {
+              "field": "brandRowWidthMode",
+              "equals": "fit-content"
+            },
+            "help": "Total extra vertical room around project branding. LOOM divides this evenly between top and bottom."
+          },
+          {
+            "id": "brandRowAlign",
+            "label": "Branding row position",
+            "type": "select",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ]
+          },
+          {
+            "id": "brandRowPaddingX",
+            "label": "Branding row horizontal padding",
+            "type": "range",
+            "min": 0,
+            "max": 80,
+            "step": 1,
+            "unit": "px",
+            "visibleWhen": {
+              "field": "brandRowWidthMode",
+              "equals": "full"
+            }
+          },
+          {
+            "id": "brandRowPaddingY",
+            "label": "Branding row vertical padding",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px",
+            "visibleWhen": {
+              "field": "brandRowWidthMode",
+              "equals": "full"
+            }
+          },
+          {
+            "id": "brandRowRadius",
+            "label": "Branding row corner radius",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "brandRowBackground",
+            "label": "Branding row background",
+            "type": "color"
+          },
+          {
+            "id": "toolsRowWidthMode",
+            "label": "More Tools row width",
+            "type": "select",
+            "options": [
+              {
+                "value": "fit-content",
+                "label": "Fit Orbs / Content"
+              },
+              {
+                "value": "full",
+                "label": "Full Width"
+              }
+            ]
+          },
+          {
+            "id": "toolsRowAlign",
+            "label": "More Tools row position",
+            "type": "select",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ]
+          },
+          {
+            "id": "toolsRowPaddingX",
+            "label": "More Tools horizontal padding",
+            "type": "range",
+            "min": 0,
+            "max": 80,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "toolsRowPaddingY",
+            "label": "More Tools vertical padding",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "toolsRowRadius",
+            "label": "More Tools corner radius",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "toolsRowBackground",
+            "label": "More Tools background",
+            "type": "color"
+          },
+          {
+            "id": "loomLogoSize",
+            "label": "Animated LOOM mark container size",
+            "type": "range",
+            "min": 32,
+            "max": 110,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "loomTextSize",
+            "label": "LOOM attribution text size",
+            "type": "range",
+            "min": 10,
+            "max": 30,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "loomRowWidthMode",
+            "label": "LOOM attribution row width",
+            "type": "select",
+            "options": [
+              {
+                "value": "full",
+                "label": "Full Width"
+              },
+              {
+                "value": "fit-content",
+                "label": "Fit Content"
+              }
+            ]
+          },
+          {
+            "id": "loomRowAlign",
+            "label": "LOOM attribution row position",
+            "type": "select",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ]
+          },
+          {
+            "id": "loomRowPaddingX",
+            "label": "LOOM row horizontal padding",
+            "type": "range",
+            "min": 0,
+            "max": 80,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "loomRowPaddingY",
+            "label": "LOOM row vertical padding",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "loomRowRadius",
+            "label": "LOOM row corner radius",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "loomRowBackground",
+            "label": "LOOM row background",
+            "type": "color"
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 6,
+      "order_display": "00006",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/footer-bar/action.js",
+      "styles": [
+        "./templates/projects/baseline/actions/core/ui/footer-bar/action.css"
+      ],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/footer-bar/manifest.json",
+      "fingerprint": "1d77039eb361600d",
+      "folder": "actions/core/ui/footer-bar",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.7",
+      "enabled": true,
+      "action": {
+        "id": "core.ui.orb-dock",
+        "name": "Orb Dock",
+        "description": "Capture eligible project modules into a responsive, content-sized footer quick-access orb dock with centered section labeling.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.ui.footer-bar",
+        "category": "core/ui/navigation",
+        "tags": [
+          "core",
+          "ui",
+          "footer",
+          "orb",
+          "quick-access",
+          "module-wrapper"
+        ]
+      },
+      "module": {
+        "entry": "action.js",
+        "version": "1.2.0",
+        "dependencies": [
+          "core.ui.footer-bar"
+        ],
+        "styles": [
+          "action.css"
+        ],
+        "order": "00007"
+      },
+      "presentation": {
+        "role": "content",
+        "collapsible": false,
+        "mount": {
+          "region": "footer-bar",
+          "slot": "orbs"
+        },
+        "layout": {
+          "width": "full",
+          "align": "stretch",
+          "position": "flow",
+          "order": 7,
+          "className": "loom-orb-dock-module"
+        }
+      },
+      "config": {
+        "showNames": true,
+        "orbSize": 50,
+        "nameSize": 11,
+        "showSectionTitle": true,
+        "sectionTitle": "More Tools",
+        "shadowBlur": 10,
+        "shadowOpacity": 18,
+        "shadowY": 4,
+        "shadowColor": "#1A2D20",
+        "layoutMode": "carousel",
+        "alignment": "center",
+        "gap": 12,
+        "orbTargets": {}
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "user_actions": [],
+      "admin_settings": {
+        "title": "Orb Dock",
+        "description": "Turn content modules into footer quick-access orbs. Project Update Log is captured by default when installed; other content modules may be orb-wrapped here.",
+        "fields": [
+          {
+            "id": "showNames",
+            "label": "Show orb names",
+            "type": "checkbox"
+          },
+          {
+            "id": "orbSize",
+            "label": "Orb icon / badge size",
+            "type": "range",
+            "min": 34,
+            "max": 96,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "nameSize",
+            "label": "Orb name size",
+            "type": "range",
+            "min": 8,
+            "max": 20,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "showSectionTitle",
+            "label": "Show section title",
+            "type": "checkbox"
+          },
+          {
+            "id": "sectionTitle",
+            "label": "Section title",
+            "type": "text",
+            "maxLength": 50
+          },
+          {
+            "id": "layoutMode",
+            "label": "Orb layout",
+            "type": "select",
+            "options": [
+              {
+                "value": "carousel",
+                "label": "Horizontal Carousel"
+              },
+              {
+                "value": "wrap",
+                "label": "Responsive Wrap"
+              }
+            ]
+          },
+          {
+            "id": "alignment",
+            "label": "Orb alignment",
+            "type": "select",
+            "options": [
+              {
+                "value": "left",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ]
+          },
+          {
+            "id": "gap",
+            "label": "Orb spacing",
+            "type": "range",
+            "min": 4,
+            "max": 36,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "shadowBlur",
+            "label": "Orb shadow blur",
+            "type": "range",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "shadowY",
+            "label": "Orb shadow vertical offset",
+            "type": "range",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "unit": "px"
+          },
+          {
+            "id": "shadowOpacity",
+            "label": "Orb shadow opacity",
+            "type": "range",
+            "min": 0,
+            "max": 60,
+            "step": 1,
+            "unit": "%"
+          },
+          {
+            "id": "shadowColor",
+            "label": "Orb shadow color",
+            "type": "color"
+          }
+        ],
+        "tools": [
+          {
+            "id": "orb-manager",
+            "label": "Orb Modules",
+            "type": "orb-manager"
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 7,
+      "order_display": "00007",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/ui/orb-dock/action.js",
+      "styles": [
+        "./templates/projects/baseline/actions/core/ui/orb-dock/action.css"
+      ],
+      "manifest_url": "./templates/projects/baseline/actions/core/ui/orb-dock/manifest.json",
+      "fingerprint": "5755f7837dbbffeb",
+      "folder": "actions/core/ui/orb-dock",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.8",
+      "enabled": true,
+      "action": {
+        "id": "core.user.profile",
+        "name": "User Profile",
+        "description": "Show project identity controls, the reusable LOOM account/global profile, privilege, network metadata, analytics, and history.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/user",
+        "tags": [
+          "core",
+          "user",
+          "identity",
+          "profile",
+          "analytics",
+          "history",
+          "reusable"
+        ],
+        "steps": [
+          {
+            "id": "load-profile",
+            "name": "Load persistent profile"
+          },
+          {
+            "id": "load-avatar",
+            "name": "Resolve LOOM/project profile picture"
+          },
+          {
+            "id": "load-analytics",
+            "name": "Load lifetime analytics"
+          },
+          {
+            "id": "mount-profile",
+            "name": "Mount profile dashboard"
+          }
+        ]
+      },
+      "user_actions": [
+        {
+          "id": "user.profile.username.save",
+          "name": "Save Username",
+          "description": "Persist a display username against this LOOM client identity.",
+          "behavior": "transient",
+          "category": "user/profile"
+        },
+        {
+          "id": "user.profile.analytics.refresh",
+          "name": "Refresh Profile Analytics",
+          "description": "Refresh lifetime usage and session analytics.",
+          "behavior": "transient",
+          "category": "user/profile"
+        },
+        {
+          "id": "user.account.register",
+          "name": "Create Permanent Account",
+          "description": "Attach email/password login to a named LOOM identity.",
+          "behavior": "transient",
+          "events": [
+            "user.account.registered"
+          ]
+        },
+        {
+          "id": "user.account.login",
+          "name": "Sign In",
+          "description": "Sign in to a permanent LOOM account.",
+          "behavior": "transient",
+          "events": [
+            "user.account.logged-in"
+          ]
+        },
+        {
+          "id": "user.account.logout",
+          "name": "Sign Out",
+          "description": "End the current permanent account login.",
+          "behavior": "transient",
+          "events": [
+            "user.account.logged-out"
+          ]
+        },
+        {
+          "id": "user.profile.avatar.upload",
+          "name": "Upload Profile Picture",
+          "description": "Compress and persist a custom LOOM profile picture.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        },
+        {
+          "id": "user.profile.avatar.loom-default",
+          "name": "Use LOOM Default Avatar",
+          "description": "Switch the profile picture back to the native LOOM default.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        },
+        {
+          "id": "user.profile.avatar.project-default",
+          "name": "Use Project Default Avatar",
+          "description": "Use the active project avatar provider default when available.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        },
+        {
+          "id": "user.profile.avatar.create-project",
+          "name": "Create Project Avatar",
+          "description": "Create an avatar through a project-provided avatar creator.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        },
+        {
+          "id": "user.profile.avatar.global",
+          "name": "Use LOOM Profile Picture",
+          "description": "Make this project inherit the LOOM-wide profile picture.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        },
+        {
+          "id": "user.profile.global-avatar.copy-project",
+          "name": "Copy Project Picture to LOOM Profile",
+          "description": "Retrieve an existing project profile picture and use it as the global LOOM profile picture.",
+          "behavior": "transient",
+          "category": "user/profile/avatar"
+        }
+      ],
+      "module": {
+        "entry": "action.js",
+        "version": "2.5.0",
+        "dependencies": [],
+        "styles": [],
+        "order": "00010"
+      },
+      "presentation": {
+        "role": "content",
+        "mount": {
+          "region": "root"
+        },
+        "layout": {
+          "width": "full",
+          "align": "stretch",
+          "position": "flow",
+          "order": 10,
+          "className": "loom-user-profile-module"
+        }
+      },
+      "config": {
+        "refreshMs": 10000,
+        "maxRecentSessions": 8,
+        "title": "Your Profile"
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "admin_settings": {
+        "title": "User Profile",
+        "description": "Identity and analytics are system-owned.",
+        "fields": []
+      },
+      "capabilities": {
+        "provides": [
+          {
+            "id": "identity.profile",
+            "description": "Current user/guest profile editor"
+          }
+        ],
+        "requires": [],
+        "permissions": [
+          {
+            "id": "identity.profile.write",
+            "story": "Change my own LOOM profile and avatar.",
+            "scope": "self"
+          }
+        ]
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "order_effective": 10,
+      "order_display": "00010",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/user/profile/action.js",
+      "styles": [],
+      "manifest_url": "./templates/projects/baseline/actions/core/user/profile/manifest.json",
+      "fingerprint": "9a18dd316d26bb7a",
+      "folder": "actions/core/user/profile",
+      "source": "project"
+    },
+    {
+      "schema_version": "1.6",
+      "enabled": true,
+      "action": {
+        "id": "core.user.profile-dock",
+        "name": "Profile Dock",
+        "description": "Capture the reusable User Profile module out of normal project flow and expose it from the built-in LOOM project top bar.",
+        "kind": "system",
+        "behavior": "stateful",
+        "autostart": true,
+        "parent": "core.load",
+        "category": "core/user",
+        "tags": [
+          "core",
+          "user",
+          "profile",
+          "dock",
+          "shell",
+          "reusable"
+        ],
+        "steps": [
+          {
+            "id": "mount-button",
+            "name": "Mount User Profile shell button"
+          },
+          {
+            "id": "capture-profile",
+            "name": "Capture User Profile module"
+          },
+          {
+            "id": "bind-dialog",
+            "name": "Bind Profile Dock dialog"
+          }
+        ]
+      },
+      "user_actions": [
+        {
+          "id": "user.profile.dock.open",
+          "name": "Open User Profile",
+          "description": "Open the captured User Profile from the LOOM project shell.",
+          "behavior": "transient",
+          "category": "user/profile"
+        }
+      ],
+      "module": {
+        "entry": "action.js",
+        "version": "1.0.1",
+        "dependencies": [],
+        "styles": [
+          "action.css"
+        ],
+        "order": "00011"
+      },
+      "presentation": {
+        "role": "controller",
+        "mount": {
+          "region": "root"
+        },
+        "layout": {
+          "width": "none",
+          "position": "system",
+          "order": 11
+        }
+      },
+      "config": {
+        "label": "User Profile",
+        "icon": "\ud83d\udc64",
+        "targetActionId": "core.user.profile"
+      },
+      "pegboard": {
+        "preferredDepth": 2,
+        "accent": "green"
+      },
+      "admin_settings": {
+        "title": "Profile Dock",
+        "description": "Moves the User Profile module into the built-in project top bar.",
+        "fields": []
+      },
+      "admin_overrides": {},
+      "extensions": {},
+      "capabilities": {
+        "provides": [],
+        "requires": [],
+        "permissions": []
+      },
+      "order_effective": 11,
+      "order_display": "00011",
+      "order_locked": false,
+      "bootstrap": {},
+      "entry_url": "./templates/projects/baseline/actions/core/user/profile-dock/action.js",
+      "styles": [
+        "./templates/projects/baseline/actions/core/user/profile-dock/action.css"
+      ],
+      "manifest_url": "./templates/projects/baseline/actions/core/user/profile-dock/manifest.json",
+      "fingerprint": "7b8cce75700f4f66",
+      "folder": "actions/core/user/profile-dock",
+      "source": "project"
+    }
+  ]
+}

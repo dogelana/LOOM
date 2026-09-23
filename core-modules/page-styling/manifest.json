@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.7",
+  "enabled": true,
+  "action": {
+    "id": "loom.page.styling",
+    "name": "Page Styling",
+    "description": "LOOM-owned project-level page styling shared automatically by every project.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "loom/core/styling",
+    "tags": [
+      "loom",
+      "core",
+      "project",
+      "styling",
+      "theme",
+      "page",
+      "global-module"
+    ],
+    "steps": [
+      {
+        "id": "resolve-style",
+        "name": "Resolve project page styling"
+      },
+      {
+        "id": "apply-style",
+        "name": "Apply page styling tokens"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [],
+    "order": "00001",
+    "order_locked": true
+  },
+  "config": {
+    "backgroundMode": "soft-gradient",
+    "backgroundColor": "#F6FAF5",
+    "backgroundHighlightColor": "#E5F8E9",
+    "backgroundEdgeColor": "#EEF5EE",
+    "textColor": "#122118",
+    "accentColor": "#168346",
+    "mutedColor": "#6B7D70",
+    "surfaceColor": "#FFFFFF",
+    "borderColor": "#DBE9DD",
+    "surfaceOpacity": 90,
+    "cornerRadius": 28,
+    "fontFamily": "system",
+    "fontScale": 100,
+    "contentWidth": "fluid",
+    "pageGutter": 18,
+    "sectionGap": 24
+  },
+  "pegboard": {
+    "preferredDepth": 1,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Page Styling",
+    "description": "Core LOOM styling for this project. These settings belong to the selected project even though the module itself is supplied globally by LOOM.",
+    "fields": [
+      {
+        "id": "backgroundMode",
+        "label": "Page background",
+        "type": "select",
+        "options": [
+          {
+            "value": "soft-gradient",
+            "label": "Soft Gradient"
+          },
+          {
+            "value": "solid",
+            "label": "Solid Color"
+          },
+          {
+            "value": "transparent",
+            "label": "Transparent"
+          }
+        ]
+      },
+      {
+        "id": "backgroundColor",
+        "label": "Background base",
+        "type": "color"
+      },
+      {
+        "id": "backgroundHighlightColor",
+        "label": "Gradient highlight",
+        "type": "color"
+      },
+      {
+        "id": "backgroundEdgeColor",
+        "label": "Gradient edge",
+        "type": "color"
+      },
+      {
+        "id": "textColor",
+        "label": "Primary text",
+        "type": "color"
+      },
+      {
+        "id": "accentColor",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "id": "mutedColor",
+        "label": "Muted text",
+        "type": "color"
+      },
+      {
+        "id": "surfaceColor",
+        "label": "Surface / chrome",
+        "type": "color"
+      },
+      {
+        "id": "borderColor",
+        "label": "Borders",
+        "type": "color"
+      },
+      {
+        "id": "surfaceOpacity",
+        "label": "Surface opacity",
+        "type": "range",
+        "min": 60,
+        "max": 100,
+        "step": 1,
+        "unit": "%"
+      },
+      {
+        "id": "cornerRadius",
+        "label": "Shared corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "fontFamily",
+        "label": "Page font",
+        "type": "select",
+        "options": [
+          {
+            "value": "system",
+            "label": "LOOM / System"
+          },
+          {
+            "value": "rounded",
+            "label": "Rounded"
+          },
+          {
+            "value": "serif",
+            "label": "Serif"
+          },
+          {
+            "value": "mono",
+            "label": "Monospace"
+          }
+        ]
+      },
+      {
+        "id": "fontScale",
+        "label": "Base font scale",
+        "type": "range",
+        "min": 85,
+        "max": 125,
+        "step": 1,
+        "unit": "%"
+      },
+      {
+        "id": "contentWidth",
+        "label": "Content width",
+        "type": "select",
+        "options": [
+          {
+            "value": "fluid",
+            "label": "Fluid / Full Width"
+          },
+          {
+            "value": "wide",
+            "label": "Wide \u00b7 1440px"
+          },
+          {
+            "value": "standard",
+            "label": "Standard \u00b7 1180px"
+          },
+          {
+            "value": "compact",
+            "label": "Compact \u00b7 960px"
+          }
+        ]
+      },
+      {
+        "id": "pageGutter",
+        "label": "Page side gutter",
+        "type": "range",
+        "min": 8,
+        "max": 48,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "sectionGap",
+        "label": "Module spacing",
+        "type": "range",
+        "min": 8,
+        "max": 48,
+        "step": 1,
+        "unit": "px"
+      }
+    ]
+  }
+}

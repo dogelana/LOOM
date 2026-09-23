@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.7",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.orb-dock",
+    "name": "Orb Dock",
+    "description": "Capture eligible project modules into a responsive, content-sized footer quick-access orb dock with centered section labeling.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.ui.footer-bar",
+    "category": "core/ui/navigation",
+    "tags": [
+      "core",
+      "ui",
+      "footer",
+      "orb",
+      "quick-access",
+      "module-wrapper"
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.2.0",
+    "dependencies": [
+      "core.ui.footer-bar"
+    ],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00007"
+  },
+  "presentation": {
+    "role": "content",
+    "collapsible": false,
+    "mount": {
+      "region": "footer-bar",
+      "slot": "orbs"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 7,
+      "className": "loom-orb-dock-module"
+    }
+  },
+  "config": {
+    "showNames": true,
+    "orbSize": 50,
+    "nameSize": 11,
+    "showSectionTitle": true,
+    "sectionTitle": "More Tools",
+    "shadowBlur": 10,
+    "shadowOpacity": 18,
+    "shadowY": 4,
+    "shadowColor": "#1A2D20",
+    "layoutMode": "carousel",
+    "alignment": "center",
+    "gap": 12,
+    "orbTargets": {}
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Orb Dock",
+    "description": "Turn content modules into footer quick-access orbs. Project Update Log is captured by default when installed; other content modules may be orb-wrapped here.",
+    "fields": [
+      {
+        "id": "showNames",
+        "label": "Show orb names",
+        "type": "checkbox"
+      },
+      {
+        "id": "orbSize",
+        "label": "Orb icon / badge size",
+        "type": "range",
+        "min": 34,
+        "max": 96,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "nameSize",
+        "label": "Orb name size",
+        "type": "range",
+        "min": 8,
+        "max": 20,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "showSectionTitle",
+        "label": "Show section title",
+        "type": "checkbox"
+      },
+      {
+        "id": "sectionTitle",
+        "label": "Section title",
+        "type": "text",
+        "maxLength": 50
+      },
+      {
+        "id": "layoutMode",
+        "label": "Orb layout",
+        "type": "select",
+        "options": [
+          {
+            "value": "carousel",
+            "label": "Horizontal Carousel"
+          },
+          {
+            "value": "wrap",
+            "label": "Responsive Wrap"
+          }
+        ]
+      },
+      {
+        "id": "alignment",
+        "label": "Orb alignment",
+        "type": "select",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "id": "gap",
+        "label": "Orb spacing",
+        "type": "range",
+        "min": 4,
+        "max": 36,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "shadowBlur",
+        "label": "Orb shadow blur",
+        "type": "range",
+        "min": 0,
+        "max": 40,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "shadowY",
+        "label": "Orb shadow vertical offset",
+        "type": "range",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "shadowOpacity",
+        "label": "Orb shadow opacity",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "%"
+      },
+      {
+        "id": "shadowColor",
+        "label": "Orb shadow color",
+        "type": "color"
+      }
+    ],
+    "tools": [
+      {
+        "id": "orb-manager",
+        "label": "Orb Modules",
+        "type": "orb-manager"
+      }
+    ]
+  }
+}

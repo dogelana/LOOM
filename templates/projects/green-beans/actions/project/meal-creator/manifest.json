@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "project.meal-creator",
+    "name": "Meal Creator",
+    "description": "Create named meals from Green Beans Shopping List ingredients, auto-add missing ingredients, and keep Shopping List meal groups synchronized.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "project/meals",
+    "tags": [
+      "project",
+      "green-beans",
+      "meals",
+      "ingredients",
+      "shopping-list",
+      "composition",
+      "persistent"
+    ],
+    "steps": [
+      {
+        "id": "load-state",
+        "name": "Load persistent meal state"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.meal-creator.meal.create",
+      "name": "Create Meal",
+      "behavior": "transient",
+      "category": "meals"
+    },
+    {
+      "id": "user.meal-creator.meal.edit",
+      "name": "Edit Meal",
+      "behavior": "transient",
+      "category": "meals"
+    },
+    {
+      "id": "user.meal-creator.meal.remove",
+      "name": "Remove Meal",
+      "behavior": "transient",
+      "category": "meals"
+    }
+  ],
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "dependencies": [
+      "project.shopping-list"
+    ],
+    "styles": [],
+    "order": "00110"
+  },
+  "extensions": {
+    "green-beans.meal-creator": {
+      "label": "Meal Creator",
+      "description": "Allows compatible Green Beans modules to open meal creation/editing and synchronize ingredient relationships."
+    }
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "full",
+      "align": "stretch",
+      "position": "flow",
+      "order": 110,
+      "className": "green-beans-meal-creator-module"
+    }
+  },
+  "config": {},
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Meal Creator",
+    "description": "Green Beans project-owned meal composition. Meal and ingredient state belongs to the current project user; no administrator content controls.",
+    "fields": []
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "green-beans.meals",
+        "description": "Named meal composition state"
+      }
+    ],
+    "requires": [
+      {
+        "id": "green-beans.shopping-list",
+        "optional": false
+      }
+    ],
+    "permissions": []
+  }
+}

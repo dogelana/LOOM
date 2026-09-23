@@ -1,0 +1,42 @@
+/* @loom-file release=0.12.15 revision=3 policy=package-priority */
+
+.loom-profile-dock-button{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;
+  padding:8px 11px;border:1px solid #d7e6da;border-radius:11px;
+  background:#fff;color:#244d31;font:900 11px/1 Inter,system-ui;
+  cursor:pointer;box-shadow:0 4px 16px rgba(22,74,38,.05);
+}
+.loom-profile-dock-button:hover{background:#f3faf5;border-color:#bfd8c5}
+.loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px}
+.loom-profile-dock-overlay{
+  position:fixed;inset:0;z-index:10000;display:none;place-items:center;
+  padding:22px;background:rgba(10,29,16,.55);backdrop-filter:blur(9px);
+}
+.loom-profile-dock-overlay.open{display:grid}
+.loom-profile-dock-dialog{
+  width:min(980px,100%);max-height:min(88vh,980px);display:flex;flex-direction:column;
+  overflow:hidden;border:1px solid #dbe8dd;border-radius:28px;background:#f7faf7;
+  box-shadow:0 32px 100px rgba(9,41,18,.25);
+}
+.loom-profile-dock-dialog-head{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  padding:15px 18px;border-bottom:1px solid #dce8de;background:#fff;
+  color:#294f34;font:900 13px/1.1 Inter,system-ui;
+}
+.loom-profile-dock-dialog-head button{
+  width:34px;height:34px;border:0;border-radius:10px;background:#edf5ef;color:#48604f;
+  font:800 20px/1 system-ui;cursor:pointer;
+}
+.loom-profile-dock-bank{overflow:auto;padding:18px;min-height:200px}
+.loom-profile-dock-captured.loom-module-frame{border-radius:24px}
+.loom-profile-dock-captured.loom-module-frame>.loom-module-frame-head{display:none!important}
+.loom-profile-dock-captured.loom-module-frame>.loom-module-frame-body{display:block!important;margin:0!important}
+.loom-profile-dock-captured.loom-module-frame>.loom-module-frame-body>[data-loom-module-content]{
+  border-radius:24px!important;margin:0!important;
+}
+@media(max-width:680px){
+  .loom-profile-dock-overlay{padding:8px}
+  .loom-profile-dock-dialog{max-height:94vh;border-radius:20px}
+  .loom-profile-dock-bank{padding:10px}
+  .loom-profile-dock-button span:last-child{display:none}
+}

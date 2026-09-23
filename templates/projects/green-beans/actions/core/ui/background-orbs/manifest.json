@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.background-orbs",
+    "name": "Background Orbs",
+    "description": "Render a reusable ambient energy field with project-provided artwork, LOOM electric circuitry particles, and occasional extensible special particles.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/background",
+    "tags": [
+      "core",
+      "ui",
+      "background",
+      "ambient",
+      "animation",
+      "orbs",
+      "project-extensible",
+      "presence-tracked",
+      "energy",
+      "circuitry",
+      "special-particle"
+    ],
+    "steps": [
+      {
+        "id": "resolve-provider",
+        "name": "Resolve project orb provider"
+      },
+      {
+        "id": "create-field",
+        "name": "Create ambient orb field"
+      },
+      {
+        "id": "animate-field",
+        "name": "Start zero-gravity motion"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.2.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00005"
+  },
+  "presentation": {
+    "role": "ambient-background",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "order": 5
+    }
+  },
+  "config": {
+    "sourceMode": "project",
+    "orbVolume": 70,
+    "speed": 100,
+    "glowLevel": 58,
+    "glowColor": "#8FA8FF",
+    "specialOrbEnabled": true,
+    "specialOrbIntervalSeconds": 42,
+    "specialOrbDurationSeconds": 14,
+    "specialOrbSize": 48
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "blue"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Background Energy Field",
+    "description": "Ambient project background. Project artwork wins when a provider exists; LOOM defaults render small electric circuitry particles instead of bubbles. Occasional special particles can be overridden per project.",
+    "fields": [
+      {
+        "id": "sourceMode",
+        "label": "Orb source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Provided (when available)"
+          },
+          {
+            "value": "loom",
+            "label": "LOOM Default Orbs"
+          }
+        ]
+      },
+      {
+        "id": "orbVolume",
+        "label": "Particle / orb volume",
+        "type": "range",
+        "min": 0,
+        "max": 180,
+        "step": 1,
+        "unit": " particles"
+      },
+      {
+        "id": "speed",
+        "label": "Drift speed",
+        "type": "range",
+        "min": 20,
+        "max": 250,
+        "step": 5,
+        "unit": "%"
+      },
+      {
+        "id": "glowLevel",
+        "label": "Energy glow level",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "%"
+      },
+      {
+        "id": "glowColor",
+        "label": "Glow color",
+        "type": "color",
+        "projectDefaultFromExtension": {
+          "extension": "core.ui.background-orbs.provider",
+          "property": "defaultGlowColor"
+        }
+      },
+      {
+        "id": "specialOrbEnabled",
+        "label": "Occasional special particle",
+        "type": "checkbox"
+      },
+      {
+        "id": "specialOrbIntervalSeconds",
+        "label": "Special particle interval",
+        "type": "range",
+        "min": 12,
+        "max": 180,
+        "step": 1,
+        "unit": " sec"
+      },
+      {
+        "id": "specialOrbDurationSeconds",
+        "label": "Special particle visible time",
+        "type": "range",
+        "min": 5,
+        "max": 36,
+        "step": 1,
+        "unit": " sec"
+      },
+      {
+        "id": "specialOrbSize",
+        "label": "Special particle size",
+        "type": "range",
+        "min": 24,
+        "max": 110,
+        "step": 1,
+        "unit": " px"
+      }
+    ],
+    "tools": [
+      {
+        "id": "orb-default-presets",
+        "label": "Background defaults",
+        "type": "config-presets",
+        "presets": [
+          {
+            "id": "project-defaults",
+            "label": "Use Project Defaults",
+            "reset": true,
+            "values": {},
+            "requiresExtension": "core.ui.background-orbs.provider"
+          },
+          {
+            "id": "loom-defaults",
+            "label": "Use LOOM Defaults",
+            "reset": true,
+            "values": {
+              "sourceMode": "loom"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

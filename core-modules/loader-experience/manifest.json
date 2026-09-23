@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "loom.loader.experience",
+    "name": "LOOM Loader Experience",
+    "description": "Global presentation defaults for LOOM-powered project loading.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/loading"
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00020"
+  },
+  "config": {
+    "showTips": "on",
+    "tipIntervalSeconds": 4,
+    "minimumVisibleMs": 320
+  },
+  "admin_settings": {
+    "title": "Loader Experience",
+    "description": "Controls helpful LOOM tips and minimum loader presentation globally.",
+    "fields": [
+      {
+        "id": "showTips",
+        "label": "Helpful LOOM tips",
+        "type": "select",
+        "options": [
+          {
+            "value": "on",
+            "label": "Show tips"
+          },
+          {
+            "value": "off",
+            "label": "Hide tips"
+          }
+        ]
+      },
+      {
+        "id": "tipIntervalSeconds",
+        "label": "Tip rotation interval",
+        "type": "range",
+        "min": 2,
+        "max": 12,
+        "step": 1,
+        "unit": "s"
+      },
+      {
+        "id": "minimumVisibleMs",
+        "label": "Minimum loader display",
+        "type": "range",
+        "min": 0,
+        "max": 1200,
+        "step": 40,
+        "unit": "ms"
+      }
+    ]
+  }
+}

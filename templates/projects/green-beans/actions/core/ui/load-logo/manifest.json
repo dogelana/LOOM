@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.3",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.load-logo",
+    "name": "Load Project Logo",
+    "description": "Resolve the project logo, contain it safely in the Header Bar, and add an alpha-masked mouse-reactive specular shine that follows the pointer without illuminating transparent pixels.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.ui.header-bar",
+    "category": "core/ui/branding",
+    "tags": [
+      "core",
+      "ui",
+      "branding",
+      "logo",
+      "header-child",
+      "explicit-asset-path"
+    ],
+    "steps": [
+      {
+        "id": "resolve-asset",
+        "name": "Resolve explicit logo asset"
+      },
+      {
+        "id": "create-element",
+        "name": "Create logo element"
+      },
+      {
+        "id": "mount-logo",
+        "name": "Inject logo into header"
+      },
+      {
+        "id": "bind-shine",
+        "name": "Bind alpha-masked interactive shine"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "2.2.1",
+    "dependencies": [
+      "core.ui.header-bar"
+    ],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00001"
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "header-bar",
+      "slot": "brand-media"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "start",
+      "position": "flow",
+      "order": 10,
+      "maxWidth": "100%"
+    }
+  },
+  "config": {
+    "assetPath": "assets/logo.png",
+    "assetScope": "project",
+    "mountSelector": "#feature-stage",
+    "alt": "Green Beans",
+    "fallbackMark": "\ud83c\udf31",
+    "scalePercent": 50,
+    "shineEnabled": true
+  },
+  "pegboard": {
+    "preferredDepth": 3,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Project Logo",
+    "description": "Logo scale is normalized: 50% equals the old 100% size; 100% equals the old 200% maximum.",
+    "fields": [
+      {
+        "id": "scalePercent",
+        "label": "Logo scale",
+        "type": "range",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "unit": "%"
+      }
+    ]
+  }
+}

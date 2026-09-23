@@ -1,0 +1,8 @@
+# @loom-file release=0.12.08 revision=2 policy=package-priority
+DirectoryIndex index.html
+Options -MultiViews
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Preserve a clean /app/ entrypoint and let index.html own client routing.
+  RewriteRule ^$ index.html [L]
+</IfModule>

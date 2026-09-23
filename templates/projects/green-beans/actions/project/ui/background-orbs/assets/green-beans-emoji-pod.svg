@@ -1,0 +1,56 @@
+<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="pod" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8EE85E"/>
+      <stop offset=".48" stop-color="#4FC63F"/>
+      <stop offset="1" stop-color="#1B8E33"/>
+    </linearGradient>
+    <radialGradient id="pea" cx=".35" cy=".28" r=".8">
+      <stop offset="0" stop-color="#B8F77F"/>
+      <stop offset=".48" stop-color="#6BD84C"/>
+      <stop offset="1" stop-color="#2DA43A"/>
+    </radialGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#17692A" flood-opacity=".24"/>
+    </filter>
+  </defs>
+
+  <!-- transparent background by design -->
+
+  <g filter="url(#soft)" transform="rotate(-18 64 64)">
+    <!-- pod body -->
+    <path d="M17 70
+             C24 38, 48 18, 82 20
+             C100 21, 112 32, 114 47
+             C116 60, 108 72, 97 82
+             C82 96, 58 105, 38 99
+             C24 95, 15 84, 17 70Z"
+          fill="url(#pod)"/>
+
+    <!-- opening highlight -->
+    <path d="M29 66
+             C37 42, 57 29, 82 30
+             C95 31, 102 38, 103 47
+             C104 55, 98 62, 90 69
+             C76 80, 56 88, 41 84
+             C32 82, 26 75, 29 66Z"
+          fill="#65D84A" opacity=".9"/>
+
+    <!-- peas -->
+    <circle cx="47" cy="67" r="15" fill="url(#pea)"/>
+    <circle cx="70" cy="59" r="15" fill="url(#pea)"/>
+    <circle cx="91" cy="50" r="14" fill="url(#pea)"/>
+
+    <!-- tiny pea highlights -->
+    <circle cx="42" cy="61" r="4" fill="#D6FFB0" opacity=".78"/>
+    <circle cx="65" cy="53" r="4" fill="#D6FFB0" opacity=".78"/>
+    <circle cx="87" cy="45" r="3.5" fill="#D6FFB0" opacity=".78"/>
+
+    <!-- pod tip -->
+    <path d="M107 29
+             C116 22, 121 17, 124 10
+             C124 20, 120 30, 112 38Z"
+          fill="#2B9C38"/>
+  </g>
+</svg>
