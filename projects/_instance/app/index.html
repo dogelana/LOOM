@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- @loom-file release=0.15.15 revision=16 policy=package-priority -->
+<!-- @loom-file release=0.15.16 revision=17 policy=package-priority -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<title>LOOM Project</title><link rel="stylesheet" href="../../../engine/loom-design.css?v=0.15.15"><link id="loom-project-favicon" rel="icon" href="../../../assets/loom-logo.png?v=0.15.15">
+<title>LOOM Project</title><link rel="stylesheet" href="../../../engine/loom-design.css?v=0.15.16"><link id="loom-project-favicon" rel="icon" href="../../../assets/loom-logo.png?v=0.15.16">
 <style>
 
 :root{--green:#168346;--ink:#132018;--muted:#6b7b70;--line:#d9e6dc;--glass:rgba(255,255,255,.82)}
@@ -96,26 +96,23 @@ body{
     </div>
     <div id="adminTools" class="admin-zone" hidden>
       <span class="admin-label">ADMIN-ONLY TOOLS</span>
-      <div class="links">
-        <a id="adminLink" href="../../../admin/" target="_blank">Project Settings</a>
-        <a id="pegboardLink" href="../../../pegboard/" target="_blank">Pegboard</a>
-        <a id="registryLink" href="../../../registry/" target="_blank">Action Registry</a>
-      </div>
+      <div class="links" data-loom-admin-links></div>
     </div>
   </div>
 </header>
 <main class="stage"><div id="feature-stage"><div id="waitingMessage" class="waiting">Loading project modules…</div></div></main>
 <footer id="loom-footer-root" data-loom-region="footer-root" aria-label="Project footer"></footer>
 </div>
-<script src="../../../engine/config.js?v=0.15.15"></script>
-<script src="../../../engine/loom-brand.js?v=0.15.15"></script>
-<script src="../../../engine/loom-toast.js?v=0.15.15"></script>
-<script src="../../../engine/identity.js?v=0.15.15"></script>
-<script src="../../../engine/identity-entry.js?v=0.15.15"></script>
-<script src="../../../engine/interaction-capture.js?v=0.15.15"></script>
-<script src="../../../engine/event-bus.js?v=0.15.15"></script>
-<script src="../../../engine/registry-client.js?v=0.15.15"></script>
-<script src="../../../engine/action-runtime.js?v=0.15.15"></script>
+<script src="../../../engine/config.js?v=0.15.16"></script>
+<script src="../../../engine/loom-brand.js?v=0.15.16"></script>
+<script src="../../../engine/loom-toast.js?v=0.15.16"></script>
+<script src="../../../engine/identity.js?v=0.15.16"></script>
+<script src="../../../engine/identity-entry.js?v=0.15.16"></script>
+<script src="../../../engine/interaction-capture.js?v=0.15.16"></script>
+<script src="../../../engine/event-bus.js?v=0.15.16"></script>
+<script src="../../../engine/registry-client.js?v=0.15.16"></script>
+<script src="../../../engine/action-runtime.js?v=0.15.16"></script>
+<script src="../../../engine/loom-shell.js?v=0.15.16"></script>
 <script>
 (async()=>{
   await window.LoomIdentityEntry?.ensure?.();
@@ -134,12 +131,6 @@ body{
   const homeLink=document.querySelector('.loom-home-button');
   if(homeLink&&mountContext.homeUrl)homeLink.href=mountContext.homeUrl;
   const adminTools=document.getElementById('adminTools');
-  const adminLink=document.getElementById('adminLink');
-  const pegboardLink=document.getElementById('pegboardLink');
-  const registryLink=document.getElementById('registryLink');
-  if(adminLink)adminLink.href=`../../../admin/?tab=project&project=${encodeURIComponent(project)}`;
-  if(pegboardLink)pegboardLink.href=`../../../pegboard/?project=${encodeURIComponent(project)}`;
-  if(registryLink)registryLink.href=`../../../registry/?project=${encodeURIComponent(project)}`;
 
   const stage=document.getElementById('feature-stage');
   const waiting=document.getElementById('waitingMessage');
@@ -184,7 +175,7 @@ body{
         body:JSON.stringify({action:'status',clientId:runtime.identity.clientId,claim:false})
       });
       const pj=await pr.json();
-      if(pj?.isAdmin)adminTools.hidden=false;
+      if(pj?.isAdmin){adminTools.hidden=false;window.LoomShell?.renderAdminLinks?.(adminTools.querySelector('[data-loom-admin-links]'),{apiBase:'../../../api',project,target:'_blank'});}
     }catch{}
 
     const hideWaiting=()=>{if(stage.children.length>1)waiting?.classList.add('modules-loaded')};

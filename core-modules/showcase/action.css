@@ -1,15 +1,14 @@
-/* @loom-file release=0.15.05 revision=2 policy=package-priority */
+/* @loom-file release=0.15.16 revision=3 policy=package-priority */
 .loom-showcase{width:100%;max-width:100%;min-width:0;color:var(--loom-page-text,var(--ink,#132019));box-sizing:border-box}
 .loom-showcase-card{display:grid;grid-template-columns:minmax(240px,.9fr) minmax(0,1.1fr);width:100%;max-width:100%;min-width:0;min-height:280px;overflow:hidden;border:1px solid var(--loom-page-border,#dce9df);border-radius:var(--loom-page-radius,28px);background:var(--loom-page-surface,#fff);box-shadow:0 18px 55px rgba(20,48,29,.08);box-sizing:border-box}
-.loom-showcase-media{margin:0;min-width:0;min-height:280px;overflow:hidden;background:linear-gradient(145deg,#edf7ef,#dcefe1)}
-.loom-showcase-media img{display:block;width:100%;max-width:100%;height:100%;min-height:280px;max-height:520px;object-fit:cover}
+.loom-showcase-media{margin:0;min-width:0;min-height:280px;overflow:hidden;display:grid;place-items:center;background:var(--loom-showcase-media-bg,transparent);box-sizing:border-box;padding:var(--loom-showcase-image-padding,0)}
+.loom-showcase-media img{display:block;width:100%;max-width:100%;height:100%;min-height:280px;max-height:520px;object-fit:var(--loom-showcase-image-fit,contain);object-position:center center}
 .loom-showcase-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;padding:clamp(24px,5vw,58px);overflow-wrap:anywhere}
 .loom-showcase-eyebrow{font-size:10px;line-height:1;letter-spacing:.17em;font-weight:900;color:var(--loom-page-accent,#168346);margin-bottom:10px}
-.loom-showcase-copy h2{max-width:100%;margin:0;font-size:clamp(28px,4vw,48px);line-height:1;letter-spacing:-.045em;overflow-wrap:anywhere}
+.loom-showcase-copy h2{max-width:100%;margin:0;font-size:clamp(28px,4vw,48px);line-height:1;letter-spacing:-.045em;overflow-wrap:anywhere;color:var(--loom-page-text,#132019)}
 .loom-showcase-copy p{margin:18px 0 0;max-width:68ch;font-size:clamp(14px,1.4vw,18px);line-height:1.68;color:var(--loom-page-muted,#66766c);white-space:pre-wrap;overflow-wrap:anywhere}
 .loom-showcase-no-image .loom-showcase-card{grid-template-columns:1fr}
 .loom-showcase-no-image .loom-showcase-copy{min-height:250px}
-/* When LOOM supplies the expand/collapse header, Showcase becomes the body of that same box. */
 .loom-module-frame[data-loom-frame-for="loom.showcase"]:not(.is-collapsed) .loom-showcase-card{border-top:0;border-top-left-radius:0;border-top-right-radius:0;box-shadow:0 18px 55px rgba(20,48,29,.07)}
 @media(max-width:760px){
   .loom-showcase-card{grid-template-columns:1fr;min-height:0}

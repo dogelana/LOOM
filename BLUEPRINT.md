@@ -1,5 +1,11 @@
-<!-- @loom-file release=0.15.15 revision=27 policy=package-priority -->
+<!-- @loom-file release=0.15.16 revision=28 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
+
+## v0.15.16 — Project-first theming + canonical Admin chrome
+
+Project Identity is now the default source for project-facing visual tokens. LOOM derives safe background/surface/border variations from the canonical primary/accent pair before project module overrides are applied, so modules inherit a coherent theme without sacrificing local control. Core LOOM attribution keeps its own defaults unless an Admin explicitly overrides them.
+
+Admin navigation is also a shared engine concern. `LoomShell` exposes the canonical Admin destinations and project shells consume that same map, preventing developer-tool navigation from drifting page by page. Release-managed project modules continue to supersede legacy project-local implementation copies while legacy configuration may still contribute compatible defaults.
 
 ## v0.15.01 — Showcase core module
 

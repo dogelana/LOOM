@@ -1,3 +1,7 @@
+## v0.15.16 - Project Theme Inheritance + Shared Admin Chrome
+
+LOOM now treats Project Identity colors as the default visual source across project-facing page backgrounds, module headers, shared surfaces, header/footer chrome, and Showcase while preserving local module overrides. Empty UI regions collapse correctly, Showcase media is transparent/contained by default, Powered by LOOM branding is fit-content by default, the Admin toolbar is canonical across LOOM pages, and generated usernames are human-readable maker names.
+
 ## v0.15.15 - Drafts + Toast Feedback
 
 LOOM now protects unfinished project creation work with browser-local drafts and provides one reusable feedback/toast system across LOOM-owned surfaces and project runtimes. Theme Key has been clarified as the advanced **Theme Preset** field.
@@ -24,7 +28,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.12 revision=28 policy=package-priority -->
+<!-- @loom-file release=0.15.16 revision=32 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

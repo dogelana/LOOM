@@ -1,3 +1,15 @@
+# LOOM 0.15.16 - Project Theme Inheritance + Shared Admin Chrome
+
+- Project Identity colors now seed the project page background, highlight/edge tones, text/accent/muted tokens, borders, shared surfaces, module-frame headings, header background, and project-facing footer surfaces. Per-module Admin overrides still win.
+- Added release-managed `core.ui.header-bar` so existing Instance Projects inherit header fixes without package code mutating their project trees. Empty brand-text slots now collapse completely, removing phantom spacing when Header Wordmark is disabled.
+- Hardened Footer/Orb presence handling: the More Tools row remains fully hidden when no captured tools exist, including fallback project copies.
+- Footer shell remains full width by default; the Powered by LOOM attribution row now defaults to fit-content with independent extra width/height padding matching project-brand defaults (100px / 20px total). LOOM attribution colors remain LOOM defaults but are individually overrideable.
+- Showcase images now preserve transparent PNG presentation, use centered `contain` sizing by default, and no longer receive an automatic image backdrop. Admin adds transparent, project-primary, project-accent, page, LOOM-soft, white, and custom background choices plus contain/cover and padding controls.
+- Module-frame headings now inherit the project accent, so Showcase and other native module headers follow Project Identity automatically.
+- Replaced generated `LOOMUser-XXXXXX` names with deterministic two-word maker names plus six hex characters, e.g. `AppWeaver475AFD`, with collision-safe pair retries. Legacy machine-style generated defaults upgrade lazily; user-selected usernames are preserved.
+- `LoomShell` now owns one canonical Admin navigation map for LOOM Settings, Project Settings, Users, Identity Manager, Database, Activity, Pegboard, and Action Registry. Shell pages and project Admin toolbars render from the same structure.
+- LOOM Home links in shared shell chrome now use the same 🏠 marker, and Admin deep links honor all Admin tabs rather than Project Settings only.
+
 # LOOM 0.15.15 - Drafts + Toast Feedback
 
 - Added browser-local autosave/recovery for the Admin Create Project form; clicking away, closing the modal, refreshing, or navigating no longer wastes changed project fields.
@@ -320,7 +332,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.08 revision=25 policy=package-priority -->
+<!-- @loom-file release=0.15.16 revision=33 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

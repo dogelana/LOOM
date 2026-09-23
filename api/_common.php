@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.15 revision=19 policy=package-priority
+// @loom-file release=0.15.16 revision=20 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -82,6 +82,25 @@ function loom_project_brand_colors(string $project): array {
   if($accent==='')$accent=loom_brand_hex($legacy['light_bean']??null,'#168346');
   return ['primary'=>$primary?:'#111111','accent'=>$accent?:'#168346'];
 }
+function loom_mix_hex(string $from,string $to,float $towardTo): string {
+  $a=loom_brand_hex($from,'#000000');$b=loom_brand_hex($to,'#FFFFFF');$t=max(0.0,min(1.0,$towardTo));
+  $av=sscanf(substr($a,1),'%02x%02x%02x');$bv=sscanf(substr($b,1),'%02x%02x%02x');
+  $r=[];for($i=0;$i<3;$i++)$r[$i]=(int)round($av[$i]+(($bv[$i]-$av[$i])*$t));
+  return sprintf('#%02X%02X%02X',$r[0],$r[1],$r[2]);
+}
+function loom_project_brand_theme(string $project): array {
+  $data=loom_project_effective_data($project);$legacy=is_array($data['brand_defaults']??null)?$data['brand_defaults']:[];$colors=loom_project_brand_colors($project);
+  $explicitPrimary=loom_brand_hex($data['brand_primary_color']??null,'');$explicitAccent=loom_brand_hex($data['brand_accent_color']??null,'');
+  $legacyPrimary=loom_brand_hex($legacy['dark_bean']??null,'');$legacyAccent=loom_brand_hex($legacy['light_bean']??null,'');
+  $provided=($explicitPrimary!==''||$explicitAccent!==''||$legacyPrimary!==''||$legacyAccent!=='');
+  $primary=$colors['primary'];$accent=$colors['accent'];
+  return [
+    'provided'=>$provided,'primary'=>$primary,'accent'=>$accent,
+    'background'=>loom_mix_hex($accent,'#FFFFFF',.91),'highlight'=>loom_mix_hex($primary,'#FFFFFF',.86),'edge'=>loom_mix_hex($accent,'#FFFFFF',.95),
+    'surface'=>'#FFFFFF','surfaceSoft'=>loom_mix_hex($accent,'#FFFFFF',.965),'surfaceTint'=>loom_mix_hex($accent,'#FFFFFF',.925),
+    'border'=>loom_mix_hex($accent,'#FFFFFF',.78),'text'=>loom_mix_hex($primary,'#121815',.72),'muted'=>loom_mix_hex($primary,'#667269',.78)
+  ];
+}
 function loom_project_wordmark_lines(string $name): array {
   $display=trim(preg_replace('/[\s_\-–—]+/u',' ',trim($name))??'');
   if($display==='')return ['line1'=>'PROJECT','line2'=>''];
@@ -129,7 +148,7 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     if(is_array($legacy['config']??null))$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacy['config']);
     if(is_array($legacy['presentation']??null))$manifest['presentation']=array_replace_recursive(is_array($manifest['presentation']??null)?$manifest['presentation']:[],$legacy['presentation']);
   }
-  $brand=loom_project_brand_identity($project);
+  $brand=loom_project_brand_identity($project);$theme=loom_project_brand_theme($project);
   if($id==='core.ui.load-logo-text'){
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$admin=loom_module_admin_overrides($project,$id);
     // Backwards compatibility: pre-0.15.14 explicit Logo Text values mean this location was customized.
@@ -145,11 +164,26 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     $cfg['projectWordmark']=$brand;
     $manifest['config']=$cfg;
   }
+  if($theme['provided']&&$id==='loom.page.styling'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
+    $cfg['backgroundColor']=$theme['background'];$cfg['backgroundHighlightColor']=$theme['highlight'];$cfg['backgroundEdgeColor']=$theme['edge'];
+    $cfg['textColor']=$theme['text'];$cfg['accentColor']=$theme['primary'];$cfg['mutedColor']=$theme['muted'];$cfg['surfaceColor']=$theme['surface'];$cfg['borderColor']=$theme['border'];
+    $manifest['config']=$cfg;
+  }
+  if($theme['provided']&&$id==='core.ui.header-bar'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$cfg['backgroundColor']=$theme['surfaceSoft'];$manifest['config']=$cfg;
+  }
   if($id==='core.ui.footer-bar'){
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
     $cfg['projectName']=$brand['name'];$cfg['projectWordmarkLine1']=$brand['line1'];$cfg['projectWordmarkLine2']=$brand['line2'];
     $cfg['projectWordmarkPrimary']=$brand['primary'];$cfg['projectWordmarkAccent']=$brand['accent'];
     $cfg['projectWordmarkFontFamily']=$brand['font_family'];$cfg['projectWordmarkFontWeight']=$brand['font_weight'];$cfg['projectWordmarkFontCss']=$brand['font_css'];
+    if($theme['provided']){$cfg['backgroundColor']=$theme['surfaceTint'];$cfg['brandRowBackground']=$theme['surface'];$cfg['toolsRowBackground']=$theme['surfaceSoft'];}
+    $manifest['config']=$cfg;
+  }
+  if($id==='loom.showcase'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
+    $cfg['projectPrimary']=$theme['primary'];$cfg['projectAccent']=$theme['accent'];$cfg['projectThemeProvided']=$theme['provided'];
     $manifest['config']=$cfg;
   }
   if($id==='core.ui.loader'){

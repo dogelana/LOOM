@@ -1,4 +1,4 @@
-// @loom-file release=0.15.14 revision=2 policy=package-priority
+// @loom-file release=0.15.16 revision=3 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};
@@ -18,13 +18,14 @@ export async function createModule(ctx){
     const width=enumVal(ctx.config[`${prefix}WidthMode`],['full','fit-content'],defaults.width);
     row.dataset.rowAlign=align;
     row.dataset.rowWidth=width;
-    if(prefix==='brandRow'&&width==='fit-content'){
-      const totalX=bounded(ctx.config.brandFitExtraWidth,0,200,100);
-      const totalY=bounded(ctx.config.brandFitExtraHeight,0,200,20);
+    const fitKeys=prefix==='brandRow'?['brandFitExtraWidth','brandFitExtraHeight']:prefix==='loomRow'?['loomFitExtraWidth','loomFitExtraHeight']:null;
+    if(width==='fit-content'&&fitKeys){
+      const totalX=bounded(ctx.config[fitKeys[0]],0,200,100);
+      const totalY=bounded(ctx.config[fitKeys[1]],0,200,20);
       row.dataset.fitPadding='true';
-      row.style.setProperty('--brand-fit-pad-x',`${totalX/2}px`);
-      row.style.setProperty('--brand-fit-pad-y',`${totalY/2}px`);
-      row.style.padding='var(--brand-fit-pad-y) var(--brand-fit-pad-x)';
+      row.style.setProperty('--row-fit-pad-x',`${totalX/2}px`);
+      row.style.setProperty('--row-fit-pad-y',`${totalY/2}px`);
+      row.style.padding='var(--row-fit-pad-y) var(--row-fit-pad-x)';
     }else{
       row.dataset.fitPadding='false';
       row.style.padding=`${px(ctx.config[`${prefix}PaddingY`],0,60,defaults.py)} ${px(ctx.config[`${prefix}PaddingX`],0,80,defaults.px)}`;
@@ -101,8 +102,6 @@ export async function createModule(ctx){
     }
     brandRow.appendChild(project);
     if(!project.childElementCount)brandRow.hidden=true;
-    if(!project.childElementCount)brandRow.hidden=true;
-    if(!project.childElementCount)brandRow.hidden=true;
 
     const toolsRow=document.createElement('div');
     toolsRow.className='loom-footer-row loom-footer-tools-row';
@@ -116,7 +115,7 @@ export async function createModule(ctx){
 
     const loomRow=document.createElement('div');
     loomRow.className='loom-footer-row loom-footer-loom-row';
-    styleRow(loomRow,'loomRow',{align:'center',width:'full',px:18,py:15,radius:22,background:'#FFFFFF'});
+    styleRow(loomRow,'loomRow',{align:'center',width:'fit-content',px:18,py:15,radius:22,background:'#FFFFFF'});
     const sig=document.createElement('div');
     sig.className='loom-footer-loom-signature';
 
@@ -129,6 +128,9 @@ export async function createModule(ctx){
     const copy=document.createElement('div');
     copy.className='loom-footer-loom-copy';
     copy.style.fontSize=px(ctx.config.loomTextSize,10,30,16);
+    copy.style.color=String(ctx.config.loomTextColor||'#455A4B');
+    copy.style.setProperty('--loom-footer-strong',String(ctx.config.loomStrongColor||'#173C24'));
+    copy.style.setProperty('--loom-footer-meta',String(ctx.config.loomMetaColor||'#728078'));
     copy.innerHTML=`<strong>Powered by LOOM</strong><span>LOOM v${window.LoomConfig?.engineVersion||'unknown'} · © 2026 LOOM</span>`;
     sig.appendChild(copy);
     loomRow.appendChild(sig);

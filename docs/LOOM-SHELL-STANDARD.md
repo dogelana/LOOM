@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.16 revision=3 policy=package-priority -->
 # LOOM-Owned Shell Standard
 
 Version: 0.11.25
@@ -67,3 +67,10 @@ Every LOOM-owned shell page uses the static LOOM icon as its browser favicon. `L
 
 ## 0.11.32 Pegboard + visitor presence
 Pegboard now uses a physically bounded shared-shell layout and no longer references removed legacy header DOM. LOOM Home records fresh client identities as temporary visitors before permanent account conversion.
+
+
+## Canonical Admin navigation (0.15.16+)
+
+`LoomShell` owns the Admin destination map. When the active identity is an Admin, shell pages render one shared Admin-only group containing LOOM Settings, Project Settings, Users, Identity Manager, Database, Activity, Pegboard, and Action Registry. Project shells call `LoomShell.renderAdminLinks(...)` so custom project chrome uses the same source of truth rather than copying links manually.
+
+The shared shell normalizes the public Home link as **🏠 LOOM Home**. Bootstrap-only Admin Setup is intentionally not part of the everyday Admin tool group.

@@ -4,7 +4,7 @@
   "action": {
     "id": "core.ui.footer-bar",
     "name": "Footer Bar",
-    "description": "Responsive project footer. Project branding text inherits the canonical Project Identity wordmark by default and can be independently hidden or overridden without depending on the Header Wordmark module.",
+    "description": "LOOM-owned three-zone project footer: project branding, conditional More Tools, and independently styled LOOM attribution with project-theme inheritance and fit-content controls.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -65,7 +65,7 @@
     "toolsRowBackground": "#F4F9F5",
     "loomLogoSize": 50,
     "loomTextSize": 16,
-    "loomRowWidthMode": "full",
+    "loomRowWidthMode": "fit-content",
     "loomRowAlign": "center",
     "loomRowPaddingX": 18,
     "loomRowPaddingY": 15,
@@ -90,7 +90,12 @@
     "projectWordmarkAccent": "#168346",
     "projectWordmarkFontFamily": "League Spartan",
     "projectWordmarkFontWeight": 900,
-    "projectWordmarkFontCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap"
+    "projectWordmarkFontCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap",
+    "loomFitExtraWidth": 100,
+    "loomFitExtraHeight": 20,
+    "loomStrongColor": "#173C24",
+    "loomTextColor": "#455A4B",
+    "loomMetaColor": "#728078"
   },
   "pegboard": {
     "preferredDepth": 2,
@@ -99,7 +104,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Footer Bar",
-    "description": "Control the responsive footer and each independent row. Footer project text now inherits canonical Project Identity branding by default and is independent from the Header Wordmark module.",
+    "description": "Full-width footer shell with independently configurable project-brand, conditional More Tools, and Powered by LOOM rows. Project-facing surfaces inherit Project Identity colors; LOOM attribution keeps LOOM colors by default but every value remains overrideable.",
     "fields": [
       {
         "id": "outerPadding",
@@ -163,7 +168,7 @@
           },
           {
             "value": "hidden",
-            "label": "Hidden · logo only"
+            "label": "Hidden \u00b7 logo only"
           }
         ],
         "help": "Independent from Header Wordmark. Hiding header text does not hide footer text, and vice versa."
@@ -489,12 +494,12 @@
         "type": "select",
         "options": [
           {
-            "value": "full",
-            "label": "Full Width"
+            "value": "fit-content",
+            "label": "Fit Content (Default)"
           },
           {
-            "value": "fit-content",
-            "label": "Fit Content"
+            "value": "full",
+            "label": "Full Width"
           }
         ]
       },
@@ -516,6 +521,24 @@
             "label": "Right"
           }
         ]
+      },
+      {
+        "id": "loomFitExtraWidth",
+        "label": "LOOM fit-content extra width",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomFitExtraHeight",
+        "label": "LOOM fit-content extra height",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
       },
       {
         "id": "loomRowPaddingX",
@@ -547,6 +570,21 @@
       {
         "id": "loomRowBackground",
         "label": "LOOM row background",
+        "type": "color"
+      },
+      {
+        "id": "loomStrongColor",
+        "label": "Powered by LOOM heading color",
+        "type": "color"
+      },
+      {
+        "id": "loomTextColor",
+        "label": "Powered by LOOM text color",
+        "type": "color"
+      },
+      {
+        "id": "loomMetaColor",
+        "label": "Powered by LOOM metadata color",
         "type": "color"
       }
     ]

@@ -1,4 +1,4 @@
-/* @loom-file release=0.12.08 revision=2 policy=package-priority */
+/* @loom-file release=0.15.16 revision=3 policy=package-priority */
 .gb-header-bar{
   width:100%;
   min-width:0;
@@ -59,6 +59,7 @@
   justify-content:flex-start;
   overflow:visible;
 }
+.gb-header-brand-text:empty{display:none}
 .gb-header-utility{flex:0 0 auto;justify-content:flex-end;gap:10px;margin-left:auto;min-height:44px}
 .gb-header-utility:empty{display:none}
 .gb-header-bar[data-width-mode="fit-content"] .gb-header-utility{margin-left:0}

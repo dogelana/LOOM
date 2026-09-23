@@ -64,7 +64,7 @@
     "toolsRowBackground": "#F4F9F5",
     "loomLogoSize": 50,
     "loomTextSize": 16,
-    "loomRowWidthMode": "full",
+    "loomRowWidthMode": "fit-content",
     "loomRowAlign": "center",
     "loomRowPaddingX": 18,
     "loomRowPaddingY": 15,
@@ -72,7 +72,9 @@
     "loomRowBackground": "#FFFFFF",
     "orbSlot": "orbs",
     "brandFitExtraWidth": 100,
-    "brandFitExtraHeight": 20
+    "brandFitExtraHeight": 20,
+    "loomFitExtraWidth": 100,
+    "loomFitExtraHeight": 20
   },
   "pegboard": {
     "preferredDepth": 2,
@@ -367,6 +369,24 @@
             "label": "Right"
           }
         ]
+      },
+      {
+        "id": "loomFitExtraWidth",
+        "label": "LOOM fit-content extra width",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomFitExtraHeight",
+        "label": "LOOM fit-content extra height",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
       },
       {
         "id": "loomRowPaddingX",

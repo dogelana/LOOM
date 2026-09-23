@@ -4,7 +4,7 @@
   "action": {
     "id": "loom.showcase",
     "name": "Showcase",
-    "description": "LOOM project showcase card with persistent media, project-bio-aware summary, and native collapse-frame integration.",
+    "description": "LOOM project showcase card with persistent transparent-friendly media, project-bio-aware summary, project-theme integration, and native collapse-frame integration.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "scope": "project",
     "dependencies": [],
     "styles": [
@@ -36,7 +36,14 @@
     "bioOverride": "",
     "hasImage": false,
     "imageAsset": "assets/showcase.png",
-    "imageVersion": ""
+    "imageVersion": "",
+    "imageFit": "contain",
+    "imageBackgroundMode": "transparent",
+    "imageBackgroundColor": "#FFFFFF",
+    "imagePadding": 0,
+    "projectPrimary": "#111111",
+    "projectAccent": "#168346",
+    "projectThemeProvided": false
   },
   "presentation": {
     "role": "content",
@@ -53,7 +60,7 @@
     "orb": {
       "label": "Showcase",
       "defaultCaptured": false,
-      "defaultEmoji": "🖼️"
+      "defaultEmoji": "\ud83d\uddbc\ufe0f"
     }
   },
   "pegboard": {
@@ -63,8 +70,77 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Showcase",
-    "description": "A project-facing image + summary card. The summary follows the project's canonical LOOM bio by default, or can be overridden only for Showcase. The image lives in the persistent project overlay.",
-    "fields": [],
+    "description": "Project-facing image + summary. Uploaded PNG transparency is preserved. Media centers without cropping by default, and its backdrop can be transparent, project-derived, LOOM-derived, or custom.",
+    "fields": [
+      {
+        "id": "imageFit",
+        "label": "Image fit",
+        "type": "select",
+        "options": [
+          {
+            "value": "contain",
+            "label": "Contain \u00b7 Show Full Image"
+          },
+          {
+            "value": "cover",
+            "label": "Cover \u00b7 Fill / Crop"
+          }
+        ]
+      },
+      {
+        "id": "imageBackgroundMode",
+        "label": "Image background",
+        "type": "select",
+        "options": [
+          {
+            "value": "transparent",
+            "label": "Transparent / Alpha (Default)"
+          },
+          {
+            "value": "project-accent-soft",
+            "label": "Project Accent \u00b7 Soft"
+          },
+          {
+            "value": "project-primary-soft",
+            "label": "Project Primary \u00b7 Soft"
+          },
+          {
+            "value": "page",
+            "label": "Project Page Background"
+          },
+          {
+            "value": "loom-soft",
+            "label": "LOOM Soft Default"
+          },
+          {
+            "value": "white",
+            "label": "White"
+          },
+          {
+            "value": "custom",
+            "label": "Custom Color"
+          }
+        ]
+      },
+      {
+        "id": "imageBackgroundColor",
+        "label": "Custom image background",
+        "type": "color",
+        "visibleWhen": {
+          "field": "imageBackgroundMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "imagePadding",
+        "label": "Image breathing room",
+        "type": "range",
+        "min": 0,
+        "max": 80,
+        "step": 1,
+        "unit": "px"
+      }
+    ],
     "tools": [
       {
         "type": "showcase-manager",

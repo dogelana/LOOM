@@ -4,7 +4,7 @@
   "action": {
     "id": "loom.page.styling",
     "name": "Page Styling",
-    "description": "LOOM-owned project-level page styling shared automatically by every project.",
+    "description": "LOOM-owned project-level styling. Project Identity colors automatically seed page, chrome, headings, surfaces, and shared theme tokens; per-project settings remain independently overrideable.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -32,7 +32,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -64,7 +64,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Page Styling",
-    "description": "Core LOOM styling for this project. These settings belong to the selected project even though the module itself is supplied globally by LOOM.",
+    "description": "Project Identity colors automatically seed these values when the project provides a palette. Save any field here to override that inherited value for this project.",
     "fields": [
       {
         "id": "backgroundMode",
