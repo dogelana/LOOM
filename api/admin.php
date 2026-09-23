@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.01 revision=7 policy=package-priority
+// @loom-file release=0.15.06 revision=8 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -10,7 +10,7 @@ function scan_admin_modules(string $project): array {
     $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
     foreach($it as $file){
       if(!$file->isFile()||strtolower($file->getFilename())!=='manifest.json')continue;
-      $m=read_json_file($file->getPathname());if(!$m||($m['enabled']??true)===false)continue;
+      $m=read_json_file($file->getPathname());if(!$m)continue;
       $id=(string)($m['action']['id']??'');if($id===''||isset($coreIds[$id]))continue;
       $admin=$m['admin_settings']??['fields'=>[]];
       $out[]=[
@@ -35,8 +35,9 @@ function scan_project_declared_extensions(string $project): array {
   $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
   foreach($it as $file){
     if(!$file->isFile()||strtolower($file->getFilename())!=='manifest.json')continue;
-    $m=read_json_file($file->getPathname());if(!$m||($m['enabled']??true)===false)continue;
+    $m=read_json_file($file->getPathname());if(!$m)continue;
     $actionId=(string)($m['action']['id']??'');
+    if($actionId===''||!loom_project_module_enabled($project,$actionId,(bool)($m['enabled']??true)))continue;
     foreach(($m['extensions']??[]) as $extensionId=>$meta){
       if(!is_array($meta))$meta=[];
       $out[(string)$extensionId]=['providerActionId'=>$actionId]+$meta;
@@ -104,8 +105,8 @@ function settings_payload(string $project): array {
     }
   }unset($m);
   $catalog=[];
-  foreach(loom_scan_global_core_modules() as $g){$id=$g['actionId'];$catalog[]=['actionId'=>$id,'name'=>$g['name'],'description'=>$g['description'],'scope'=>'global','source'=>'loom-core','version'=>'core','enabled'=>loom_global_module_enabled($id,true),'locked'=>false];}
-  foreach($mods as $m){$id=$m['actionId'];$catalog[]=['actionId'=>$id,'name'=>$m['name'],'description'=>$m['description'],'scope'=>'project','source'=>$m['source']??'project','version'=>(string)($m['version']??'module'),'enabled'=>loom_project_module_enabled($project,$id,true),'locked'=>false];}
+  foreach(loom_scan_global_core_modules() as $g){$id=$g['actionId'];$catalog[]=['actionId'=>$id,'name'=>$g['name'],'description'=>$g['description'],'scope'=>'global','source'=>'loom-core','version'=>'core','enabled'=>loom_global_module_enabled($id,(bool)($g['manifestEnabled']??true)),'locked'=>false];}
+  foreach($mods as $m){$id=$m['actionId'];$catalog[]=['actionId'=>$id,'name'=>$m['name'],'description'=>$m['description'],'scope'=>'project','source'=>$m['source']??'project','version'=>(string)($m['version']??'module'),'enabled'=>loom_project_module_enabled($project,$id,(bool)($m['manifestEnabled']??true)),'locked'=>false];}
   foreach(loom_html_framer_public_frames($project) as $f){$id='html.frame.'.(string)$f['id'];$catalog[]=['actionId'=>$id,'name'=>(string)($f['title']??'HTML Frame'),'description'=>'HTML Framer package: '.(string)($f['zipName']??''),'scope'=>'project','source'=>'html-framer','version'=>'frame-r'.(string)($f['revision']??1),'enabled'=>loom_project_module_enabled($project,$id,(bool)($f['enabled']??true)),'locked'=>false];}
   usort($catalog,fn($a,$b)=>strcmp($a['scope'],$b['scope'])?:strcmp($a['source'],$b['source'])?:strcasecmp($a['name'],$b['name']));
   return ['project'=>$project,'project_profile'=>loom_project_profile_payload($project),'project_source'=>loom_project_source($project),'modules'=>$mods,'module_catalog'=>$catalog,'extensions'=>$extensions,'updatedAt'=>$saved['updatedAt']??null];

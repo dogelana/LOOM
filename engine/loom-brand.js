@@ -1,6 +1,6 @@
-// @loom-file release=0.15.05 revision=13 policy=package-priority
+// @loom-file release=0.15.06 revision=14 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.05';
+  const CLIENT_RELEASE='0.15.06';
   const VERSION=String(window.LoomConfig?.engineVersion||CLIENT_RELEASE);
   const BRAND_SCRIPT_URL=(()=>{try{return new URL(document.currentScript?.src||'engine/loom-brand.js',location.href)}catch{return null}})();
   const BRAND_API_BASE=(()=>{try{return new URL('../api/',BRAND_SCRIPT_URL||location.href).href.replace(/\/$/,'')}catch{return 'api'}})();

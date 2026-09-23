@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.02 revision=4 policy=package-priority */
+/* @loom-file release=0.15.06 revision=5 policy=package-priority */
 
 .loom-profile-dock-button{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;
@@ -27,6 +27,10 @@
   width:34px;height:34px;border:0;border-radius:10px;background:#edf5ef;color:#48604f;
   font:800 20px/1 system-ui;cursor:pointer;
 }
+.loom-profile-dock-head-actions{display:flex;gap:7px;align-items:center;min-width:0}
+.loom-profile-dock-dialog-head .loom-profile-dock-switch{width:auto;height:34px;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 11px;border-radius:10px;background:#edf5ef;color:#31573c;font:900 10px/1 Inter,system-ui;white-space:nowrap}
+.loom-profile-dock-dialog-head .loom-profile-dock-switch span:first-child{font-size:15px;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.loom-profile-dock-dialog-head .loom-profile-dock-switch:hover{background:#e4f1e7;color:#214c2f}
 .loom-profile-dock-bank{overflow:auto;padding:18px;min-height:200px}
 .loom-profile-dock-captured.loom-module-frame{border-radius:24px}
 .loom-profile-dock-captured.loom-module-frame>.loom-module-frame-head{display:none!important}
@@ -37,6 +41,9 @@
 @media(max-width:680px){
   .loom-profile-dock-overlay{padding:8px}
   .loom-profile-dock-dialog{max-height:94vh;border-radius:20px}
+  .loom-profile-dock-dialog-head{padding:11px 12px;gap:8px}
+  .loom-profile-dock-dialog-head .loom-profile-dock-switch{min-height:38px;height:38px;padding:0 10px}
+  .loom-profile-dock-dialog-head button[data-profile-dock-close]{width:38px;height:38px;flex:0 0 38px}
   .loom-profile-dock-bank{padding:10px}
   .loom-profile-dock-button span:last-child{display:none}
 }

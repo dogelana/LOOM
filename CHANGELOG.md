@@ -1,3 +1,16 @@
+# LOOM 0.15.06 - Identity Switching, Orb Defaults + Canonical Home Version
+
+- Changed `core.ui.background-orbs` to default disabled in Green Beans and baseline project packages/templates.
+- Changed the Green Beans project background-orb provider to default disabled as well.
+- Updated module discovery/Admin catalog semantics so manifest-disabled modules remain visible and an explicit Admin Module Control enable override can force-load them.
+- Updated fallback registries/runtime filtering so static fallback data also respects `enabled: false`, and scoped session registry caches by LOOM release.
+- Added **New guest** and **Choose guest** directly to Switch User while a permanent account is active.
+- Made the identity chooser scroll-safe so New Guest controls cannot disappear below the viewport on smaller/shared devices.
+- Fixed the User Profile dock Switch User button inheriting the 34×34 close-button styling; it now has a dedicated responsive text-button layout.
+- Removed stale hardcoded Home release labels and made Home display the canonical version returned by `api/version.php`.
+- Added explicit anti-cache headers to version/changelog endpoints and re-check Home version on `pageshow` and when a tab becomes visible.
+- Re-ran mobile render, syntax, module discovery/force-enable, manifest-integrity and Instance Vault hot-drop checks.
+
 # LOOM 0.15.05 - Admin Routing, Showcase Frame + Mobile Hardening
 
 - Fixed `/admin/setup/` routing by allowing `admin/.htaccess` to use `index.php index.html` as directory indexes. `/admin/` still prefers the PHP Admin console while `/admin/setup/` can load its HTML entrypoint.
@@ -205,7 +218,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.05 revision=22 policy=package-priority -->
+<!-- @loom-file release=0.15.06 revision=23 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

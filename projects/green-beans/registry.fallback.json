@@ -1,6 +1,6 @@
 {
   "project": "green-beans",
-  "generated_at": "2026-09-23T06:52:18.711123+00:00",
+  "generated_at": "2026-09-23T07:56:36.114523+00:00",
   "discovery": {
     "source": "filesystem-scan",
     "action_root": "projects/green-beans/actions + core-modules(scope=project)",
@@ -641,7 +641,7 @@
     },
     {
       "schema_version": "1.8",
-      "enabled": true,
+      "enabled": false,
       "action": {
         "id": "project.ui.background-orbs.green-beans",
         "name": "Green Beans Background Orb Provider",
@@ -667,7 +667,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.3.0",
+        "version": "1.3.1",
         "dependencies": [],
         "styles": [],
         "order": "00004"
@@ -713,7 +713,7 @@
     },
     {
       "schema_version": "1.8",
-      "enabled": true,
+      "enabled": false,
       "action": {
         "id": "core.ui.background-orbs",
         "name": "Background Orbs",
@@ -753,7 +753,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "dependencies": [],
         "styles": [],
         "order": "00005"
@@ -1859,7 +1859,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "dependencies": [],
         "styles": [
           "action.css"

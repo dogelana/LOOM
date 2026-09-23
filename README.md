@@ -1,4 +1,14 @@
-<!-- @loom-file release=0.15.05 revision=21 policy=package-priority -->
+<!-- @loom-file release=0.15.06 revision=22 policy=package-priority -->
+
+## v0.15.06 - Identity Switching, Orb Defaults + Canonical Home Version
+
+Background Orbs are now opt-in. Both the LOOM background-orb renderer and project-owned background-orb providers ship disabled by default. Module Control remains authoritative: an Admin may explicitly force-enable either module for a project, and the runtime honors that saved override. Disabled manifests remain visible in Admin rather than disappearing from the catalog.
+
+Switch User now always exposes a path to create a new guest. When a permanent account is active, the identity screen offers **New guest**, **Choose guest**, and **Continue**; choosing a guest path signs the permanent account out on that browser without deleting it. The chooser content is scroll-safe on smaller displays.
+
+The project User Profile dock now gives its Switch User control a dedicated responsive button style instead of inheriting the square close-button dimensions.
+
+LOOM Home no longer embeds an old release number as display fallback. Its hero/version badges are populated from `api/version.php` with no-store requests and are refreshed on `pageshow`/visibility return. Canonical version and changelog endpoints also emit explicit no-cache headers.
 
 ## v0.15.05 - Admin Routing, Showcase Frame + Mobile Hardening
 

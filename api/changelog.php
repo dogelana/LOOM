@@ -1,6 +1,9 @@
 <?php
-// @loom-file release=0.12.11 revision=5 policy=package-priority
+// @loom-file release=0.15.06 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 function changelog_version_heading(string $line): ?array {
   if(!preg_match('/^#{1,3}\s+(?:LOOM\s+)?v?(\d+\.\d+(?:\.\d+)?)\s*(?:[—–-]\s*)?(.*)$/u',trim($line),$m))return null;

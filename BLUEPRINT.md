@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.05 revision=17 policy=package-priority -->
+<!-- @loom-file release=0.15.06 revision=18 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -342,3 +342,11 @@ Admin directory routing now explicitly permits both `index.php` and `index.html`
 Collapsible module presentation owns the top edge of an expanded content card. Modules that draw their own card surface must integrate their top border/radius with the LOOM frame rather than visually nesting a second rounded header boundary. Showcase is the reference implementation.
 
 Responsive composition remains an engine concern as well as a module concern: module-frame wrappers guarantee `min-width:0`/`max-width:100%`, project shells may wrap utility controls at phone widths, and individual modules must provide sensible single-column behavior where their content would otherwise become too narrow.
+
+## v0.15.06 — Opt-in ambient modules and canonical Home release identity
+
+A module manifest's `enabled` field is a default, not a permanent exclusion. Module Control may persist an explicit per-project/global state that overrides the manifest default. Discovery and Admin catalog code therefore retain disabled-by-default modules and evaluate `moduleStates` before deciding whether they run. Background Orbs and project orb providers are the first platform feature intentionally shipped opt-in under this rule.
+
+LOOM Home does not treat a package-embedded version string as display authority. The visible release comes from the canonical `api/version.php` response. Static markup may show a neutral loading/unavailable state only; it must not claim an older release when canonical lookup fails.
+
+Identity switching must expose guest creation regardless of whether the active browser context is guest or permanent-account based. Leaving a permanent account for a guest signs out the browser session but never deletes the permanent account.

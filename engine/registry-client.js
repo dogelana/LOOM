@@ -1,4 +1,4 @@
-// @loom-file release=0.12.08 revision=3 policy=package-priority
+// @loom-file release=0.15.06 revision=4 policy=package-priority
 (() => {
   'use strict';
   function normalizeProject(project) {
@@ -21,7 +21,7 @@
     return Math.max(minNormal, parsed);
   }
   function normalizeAndSortRegistry(data) {
-    const modules = Array.isArray(data?.modules) ? data.modules : [];
+    const modules = (Array.isArray(data?.modules) ? data.modules : []).filter(module=>module?.enabled!==false);
     for (const module of modules) {
       const order = effectiveOrder(module);
       module.order_effective = order;
@@ -37,7 +37,7 @@
       this.project = normalizeProject(project);
       this.apiBase = apiBase.replace(/\/$/, '');
       this.fallbackUrl = fallbackUrl;
-      this.lastSource = 'unknown';this.cacheKey=`loom:registry-cache:${this.project}`;this.cachedEtag=null;
+      this.lastSource = 'unknown';this.cacheKey=`loom:registry-cache:${window.LoomConfig?.engineVersion||'current'}:${this.project}`;this.cachedEtag=null;
     }
     async load() {
       const clientId=window.LoomIdentity?.get?.(this.project)?.clientId||'';

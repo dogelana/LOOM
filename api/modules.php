@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.00 revision=8 policy=package-priority
+// @loom-file release=0.15.06 revision=9 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -74,7 +74,7 @@ if(is_dir($actionRoot)){
   foreach($it as $file){
     if(!$file->isFile() || strtolower($file->getFilename())!=='manifest.json')continue;
     $manifest=read_json_file($file->getPathname());
-    if(!$manifest || ($manifest['enabled']??true)===false)continue;
+    if(!$manifest)continue;
     $legacyId=(string)($manifest['action']['id']??'');
     if($legacyId!==''&&!loom_project_module_enabled(safe_slug((string)$project),$legacyId,(bool)($manifest['enabled']??true)))continue;
     if(isset($coreProjectIds[$legacyId]))continue;

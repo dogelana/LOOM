@@ -1,6 +1,6 @@
 {
   "project": "baseline",
-  "generated_at": "2026-09-23T06:52:18.713526+00:00",
+  "generated_at": "2026-09-23T07:56:36.117009+00:00",
   "discovery": {
     "source": "filesystem-scan",
     "action_root": "projects/baseline/actions + core-modules(scope=project)",
@@ -483,7 +483,7 @@
     },
     {
       "schema_version": "1.8",
-      "enabled": true,
+      "enabled": false,
       "action": {
         "id": "core.ui.background-orbs",
         "name": "Background Orbs",
@@ -523,7 +523,7 @@
       },
       "module": {
         "entry": "action.js",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "dependencies": [],
         "styles": [],
         "order": "00005"
@@ -1551,7 +1551,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "dependencies": [],
         "styles": [
           "action.css"

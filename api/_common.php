@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.04 revision=13 policy=package-priority
+// @loom-file release=0.15.06 revision=14 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -368,27 +368,27 @@ function loom_global_core_modules_dir(): string { return root_dir().'/core-modul
 function loom_core_module_records(?string $scope=null): array {
   $root=loom_global_core_modules_dir();$out=[];if(!is_dir($root))return $out;
   foreach(glob($root.'/*/manifest.json')?:[] as $file){
-    $m=read_json_file($file);if(!$m||($m['enabled']??true)===false)continue;
+    $m=read_json_file($file);if(!$m)continue;
     $moduleScope=(string)($m['module']['scope']??'global');if($scope!==null&&$moduleScope!==$scope)continue;
     $id=(string)($m['action']['id']??'');if($id==='')continue;
-    $out[]=['manifest'=>$m,'manifestFile'=>$file,'folder'=>dirname($file),'scope'=>$moduleScope];
+    $out[]=['manifest'=>$m,'manifestFile'=>$file,'folder'=>dirname($file),'scope'=>$moduleScope,'manifestEnabled'=>(bool)($m['enabled']??true)];
   }
   usort($out,fn($a,$b)=>strcmp((string)($a['manifest']['module']['order']??'50000'),(string)($b['manifest']['module']['order']??'50000'))?:strcmp((string)($a['manifest']['action']['id']??''),(string)($b['manifest']['action']['id']??'')));
   return $out;
 }
 function loom_scan_global_core_modules(): array {
   $out=[];
-  foreach(loom_core_module_records('global') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'defaults'=>is_array($m['config']??null)?$m['config']:[]];}
+  foreach(loom_core_module_records('global') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'defaults'=>is_array($m['config']??null)?$m['config']:[],'manifestEnabled'=>(bool)($m['enabled']??true)];}
   return $out;
 }
 function loom_scan_project_core_modules(): array {
   $out=[];
-  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project'];}
+  foreach(loom_core_module_records('project') as $record){$m=$record['manifest'];$id=(string)$m['action']['id'];$out[]=['actionId'=>$id,'name'=>(string)($m['action']['name']??$id),'description'=>(string)($m['action']['description']??''),'order'=>(string)($m['module']['order']??'50000'),'admin_settings'=>is_array($m['admin_settings']??null)?$m['admin_settings']:['fields'=>[]],'presentation'=>is_array($m['presentation']??null)?$m['presentation']:[],'defaults'=>is_array($m['config']??null)?$m['config']:[],'source'=>'core-project','manifestEnabled'=>(bool)($m['enabled']??true)];}
   return $out;
 }
 function loom_global_settings_payload(): array {
   $saved=loom_read_global_settings();$mods=loom_scan_global_core_modules();$effective=[];$states=[];
-  foreach($mods as &$m){$id=$m['actionId'];$override=$saved['modules'][$id]??[];$m['overrides']=is_array($override)?$override:[];$m['values']=array_replace_recursive($m['defaults'],$m['overrides']);$m['enabled']=loom_global_module_enabled($id,true);$states[$id]=['enabled'=>$m['enabled']];$effective[$id]=$m['values'];}unset($m);
+  foreach($mods as &$m){$id=$m['actionId'];$override=$saved['modules'][$id]??[];$m['overrides']=is_array($override)?$override:[];$m['values']=array_replace_recursive($m['defaults'],$m['overrides']);$m['enabled']=loom_global_module_enabled($id,(bool)($m['manifestEnabled']??true));$states[$id]=['enabled'=>$m['enabled']];$effective[$id]=$m['values'];}unset($m);
   return ['modules'=>$mods,'settings'=>$effective,'moduleStates'=>$states,'updatedAt'=>$saved['updatedAt']??null];
 }
 

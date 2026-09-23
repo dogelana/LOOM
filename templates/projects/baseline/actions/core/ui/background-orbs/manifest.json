@@ -1,10 +1,10 @@
 {
   "schema_version": "1.8",
-  "enabled": true,
+  "enabled": false,
   "action": {
     "id": "core.ui.background-orbs",
     "name": "Background Orbs",
-    "description": "Render a reusable ambient energy field with project-provided artwork, LOOM electric circuitry particles, and occasional extensible special particles.",
+    "description": "Optional ambient background energy field. Disabled by default and loaded only when an Admin explicitly enables it for the project.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "dependencies": [],
     "styles": [],
     "order": "00005"
@@ -72,7 +72,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Background Energy Field",
-    "description": "Ambient project background. Project artwork wins when a provider exists; LOOM defaults render small electric circuitry particles instead of bubbles. Occasional special particles can be overridden per project.",
+    "description": "Optional ambient project background. This module is OFF by default; enable it explicitly in Module Control when the project should use ambient orbs/particles.",
     "fields": [
       {
         "id": "sourceMode",

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.02 revision=4 policy=package-priority
+// @loom-file release=0.15.06 revision=5 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null;
 
@@ -58,7 +58,7 @@ export async function createModule(ctx){
       <section class="loom-profile-dock-dialog" role="dialog" aria-modal="true" aria-label="User Profile">
         <header class="loom-profile-dock-dialog-head">
           <div><span aria-hidden="true">👤</span> <strong>${ctx.config.label||'User Profile'}</strong></div>
-          <div style="display:flex;gap:6px;align-items:center"><button type="button" data-profile-switch style="border:0;border-radius:9px;padding:7px 9px;font-weight:900;cursor:pointer">🔄 Switch user</button><button type="button" data-profile-dock-close aria-label="Close User Profile">×</button></div>
+          <div class="loom-profile-dock-head-actions"><button type="button" class="loom-profile-dock-switch" data-profile-switch><span aria-hidden="true">🔄</span><span>Switch User</span></button><button type="button" data-profile-dock-close aria-label="Close User Profile">×</button></div>
         </header>
         <div class="loom-profile-dock-bank" data-loom-region="profile-dock-capture"></div>
       </section>`;
