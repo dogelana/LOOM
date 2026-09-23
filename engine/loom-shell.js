@@ -1,4 +1,4 @@
-// @loom-file release=0.15.08 revision=11 policy=package-priority
+// @loom-file release=0.15.15 revision=12 policy=package-priority
 (() => {
   'use strict';
 
@@ -24,6 +24,7 @@
     ensureFavicon(apiBase);
     const identity=opts.identity||window.LoomIdentity?.get?.('loom-global-shell');
     const settings=opts.settings||await LoomBrand.fetchSettings(apiBase);
+    window.LoomToast?.configureGlobal?.(settings);
 
     let profile=null;
     const header=document.getElementById(opts.headerId||'loomShellHeader');

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.12 revision=6 policy=package-priority
+// @loom-file release=0.15.15 revision=7 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -384,6 +384,7 @@
         cacheBustUrl:(url,version=null)=>runtime._cacheBustUrl(url,version),
         step(stepId,state='completed',detail={}){const e=runtime.bus.emit({type:'action.step',actionId:id,stepId,state,...detail});runtime._log(e)},
         emit(type,detail={}){return runtime.bus.emit({type,actionId:id,...detail})},log(type,detail={}){return runtime._moduleLog(descriptor,type,detail)},
+        toast(message,options={}){return window.LoomToast?.show?.(message,{...options,sourceActionId:id})||null},
         run(fn,detail={}){return runtime.runTransient(id,fn,detail)},begin(detail={}){return runtime.beginPending(id,detail)},complete(detail={}){return runtime.completePending(id,detail)},fail(message,detail={}){return runtime.failPending(id,message,detail)},
         userAction(actionId,detail={}){return runtime.userAction(actionId,detail)},runUserAction(actionId,fn,detail={}){return runtime.runUserAction(actionId,fn,detail)},beginUserAction(actionId,detail={}){return runtime.beginUserAction(actionId,detail)},completeUserAction(actionId,detail={}){return runtime.completeUserAction(actionId,detail)},failUserAction(actionId,message,detail={}){return runtime.failUserAction(actionId,message,detail)},
         resolveAssetPath:async(path,scope='project')=>{

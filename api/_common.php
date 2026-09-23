@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.14 revision=18 policy=package-priority
+// @loom-file release=0.15.15 revision=19 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -156,6 +156,11 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
     $cfg['brandLine1']=$brand['line1'];$cfg['brandLine2']=$brand['line2'];$cfg['brandColor1']=$brand['primary'];$cfg['brandColor2']=$brand['accent'];
     $cfg['brandFontFamily']=$brand['font_family'];$cfg['brandFontWeight']=$brand['font_weight'];$cfg['brandFontCss']=$brand['font_css'];
+    $manifest['config']=$cfg;
+  }
+  if($id==='core.ui.toast-theme'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
+    $cfg['projectPrimary']=$brand['primary'];$cfg['projectAccent']=$brand['accent'];
     $manifest['config']=$cfg;
   }
   return $manifest;

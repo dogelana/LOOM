@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.14 revision=26 policy=package-priority -->
+<!-- @loom-file release=0.15.15 revision=27 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -402,3 +402,10 @@ Live Release Reload warns before refreshing. The default warning is sixty second
 ## v0.15.14 — Canonical Project Branding
 
 Brand data is now separated from presentation location. Project Identity owns canonical wordmark wording, main/accent colors, and canonical font. Header Wordmark, Footer, Loader, Home, and future brand-aware modules consume that identity. Location modules may hide or override their own rendering without mutating canonical project branding.
+
+
+## v0.15.15 — Feedback and pre-project draft boundary
+
+LOOM now distinguishes feedback behavior from feedback presentation. The engine owns the toast/tooltip/requirement mechanism; global settings own platform defaults; project `core.ui.toast-theme` only provides project presentation. Native modules receive the service through runtime context instead of implementing private notification systems.
+
+Project creation drafts intentionally remain browser-local until creation succeeds. This preserves the Clean Instance Protocol: pre-project transient UI state does not manufacture an Instance Project or write mutable data outside a valid project ownership boundary.

@@ -1,3 +1,15 @@
+# LOOM 0.15.15 - Drafts + Toast Feedback
+
+- Added browser-local autosave/recovery for the Admin Create Project form; clicking away, closing the modal, refreshing, or navigating no longer wastes changed project fields.
+- Renamed visible **Theme Key** controls to **Theme Preset** and moved them into Advanced project options; the default remains `default`.
+- Added the shared `LoomToast` feedback service with success, saved, info, warning, error, and required-step states plus safe-area mobile behavior and accessible live-region semantics.
+- Added global `loom.toast` settings for position, duration, visible stack size, and LOOM default colors.
+- Added project-scoped `core.ui.toast-theme`; project toasts inherit canonical project branding by default and can switch to LOOM or custom colors.
+- Added `ctx.toast(...)` to native LOOM module contexts.
+- Added shared `data-loom-tip` tooltips and `data-loom-requires` acknowledgement feedback.
+- Added save/apply confirmation to major LOOM Home and Admin module/project-setting workflows while keeping inline error messages.
+- Added standards for feedback/toasts and pre-project draft ownership.
+
 # LOOM 0.15.14 - Canonical Project Branding
 
 - Introduced one canonical Project Identity wordmark shared by LOOM Home, Loader, Footer, and project-aware modules.

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.07 revision=5 policy=package-priority
+// @loom-file release=0.15.15 revision=6 policy=package-priority
 (() => {
   'use strict';
   const scriptUrl=document.currentScript?.src||new URL('engine/identity-entry.js',document.baseURI).href;
@@ -62,12 +62,12 @@
         <input class="loom-entry-input" maxlength="40" data-name placeholder="Choose a username, or leave blank for a LOOM default" autocomplete="nickname" autofocus>
         <div class="loom-entry-helper">Leave this blank and LOOM will generate a unique username such as <b>LOOMUser-ABC123</b>. You can change it later from User Profile.</div>
         <label class="loom-entry-ack"><input data-ack type="checkbox"><span>I understand this creates the first guest profile for this browser installation. Additional guest profiles can be created later without sharing this profile's activity or project data.</span></label>
-        <button class="loom-entry-btn" data-submit disabled>Create my LOOM guest profile</button>
+        <button class="loom-entry-btn" data-submit data-loom-requires=".loom-entry-ack input" data-loom-require-message="Check the acknowledgement box before creating the first guest profile.">Create my LOOM guest profile</button>
         <div class="loom-entry-msg" data-msg></div>
       </div>`;
     const ack=main.querySelector('[data-ack]'),submit=main.querySelector('[data-submit]');
-    ack.onchange=()=>submit.disabled=!ack.checked;
-    submit.onclick=async()=>{
+    ack.onchange=()=>submit.setAttribute('aria-disabled',String(!ack.checked));submit.setAttribute('aria-disabled','true');
+    submit.onclick=async()=>{if(!ack.checked){window.LoomToast?.required?.('Check the acknowledgement box before creating your guest profile.');ack.focus();return}
       const msg=main.querySelector('[data-msg]');
       try{
         msg.textContent='Creating your first LOOM profile…';

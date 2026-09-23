@@ -1,3 +1,7 @@
+## v0.15.15 - Drafts + Toast Feedback
+
+LOOM now protects unfinished project creation work with browser-local drafts and provides one reusable feedback/toast system across LOOM-owned surfaces and project runtimes. Theme Key has been clarified as the advanced **Theme Preset** field.
+
 ## v0.15.14 - Canonical Project Branding
 
 Project Identity now owns one canonical text brand. Header, Footer, Loader, Home, and project-aware modules inherit it unless a location explicitly overrides or hides it. The internal project slug is never used as visible brand text when the project name is available.
