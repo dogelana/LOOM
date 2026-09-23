@@ -1,3 +1,11 @@
+## 0.15.19 Architecture Addendum
+
+LOOM treats module presentation chrome as policy, not hardcoded UI. Global defaults are declared by `loom.module-presentation`; projects inherit or override them; individual modules may inherit or override the project. Effective policy is resolved server-side into each runtime descriptor and enforced by the runtime. Hiding a title bar removes collapse interaction to avoid invisible controls.
+
+Bootstrap loading is fail-open. Registry discovery and each module stage are bounded so a noncritical endpoint or broken module cannot indefinitely hold the application loader. Loader progress identifies the module currently starting, not the module that previously completed. Social-link canonicalization is local string/URL parsing and must never perform destination health checks during project bootstrap.
+
+Showcase is a Project Identity projection: live project name, dynamic fallback bio, project font, project colors with an optional hue offset, and a deterministic generated badge when no project Showcase image exists. Generated art is presentation-only and does not create persistent files.
+
 ## 0.15.18 Architecture Addendum
 
 - Delegated authorization is capability-first and project-scoped; System Owner remains immutable. See `docs/DELEGATED-ACCESS-STANDARD.md`.
@@ -5,7 +13,7 @@
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.18 revision=30 policy=package-priority -->
+<!-- @loom-file release=0.15.19 revision=31 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

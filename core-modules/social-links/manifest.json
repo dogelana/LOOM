@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "scope": "project",
     "order": "00007",
     "dependencies": [
@@ -67,43 +67,53 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Social Links",
-    "description": "Optional footer links. Leave a URL blank to hide that icon. All visible icons share one color and use bundled Font Awesome Free vector artwork.",
+    "description": "Simple project social handles. Enter a username/handle (preferred) or paste a full profile URL; LOOM canonicalizes locally without contacting the social network.",
     "fields": [
       {
         "id": "websiteUrl",
         "label": "Website URL",
         "type": "text",
-        "help": "Uses the matching globe icon."
+        "help": "Full website URL. If https:// is omitted, LOOM adds it locally. No network validation is performed during project startup.",
+        "maxLength": 500
       },
       {
         "id": "youtubeUrl",
-        "label": "YouTube URL",
+        "label": "YouTube username or URL",
         "type": "text",
-        "help": "Leave blank to hide YouTube."
+        "help": "Example: @YourChannel or YourChannel. LOOM builds https://www.youtube.com/@YourChannel. Full YouTube URLs also work.",
+        "socialPlatform": "youtube",
+        "maxLength": 240
       },
       {
         "id": "facebookUrl",
-        "label": "Facebook URL",
+        "label": "Facebook username or URL",
         "type": "text",
-        "help": "Leave blank to hide Facebook."
+        "help": "Example: YourPage. LOOM builds https://www.facebook.com/YourPage. Full Facebook URLs also work.",
+        "socialPlatform": "facebook",
+        "maxLength": 240
       },
       {
         "id": "tiktokUrl",
-        "label": "TikTok URL",
+        "label": "TikTok username or URL",
         "type": "text",
-        "help": "Leave blank to hide TikTok."
+        "help": "Example: @yourname or yourname. LOOM builds https://www.tiktok.com/@yourname. Full TikTok URLs also work.",
+        "socialPlatform": "tiktok",
+        "maxLength": 240
       },
       {
         "id": "instagramUrl",
-        "label": "Instagram URL",
+        "label": "Instagram username or URL",
         "type": "text",
-        "help": "Leave blank to hide Instagram."
+        "help": "Example: yourname. LOOM builds https://www.instagram.com/yourname/. Full Instagram URLs also work.",
+        "socialPlatform": "instagram",
+        "maxLength": 240
       },
       {
         "id": "customUrl",
         "label": "Custom link URL",
         "type": "text",
-        "help": "Optional extra link using one icon from the matching Font Awesome Free set."
+        "help": "Optional full URL. LOOM validates only the URL shape locally; project startup never resolves or retries the destination.",
+        "maxLength": 500
       },
       {
         "id": "customLabel",

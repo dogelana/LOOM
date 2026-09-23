@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.18 revision=12 policy=package-priority
+// @loom-file release=0.15.19 revision=13 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -106,10 +106,10 @@ function settings_payload(string $project): array {
   }unset($m);
   $catalog=[];
   foreach(loom_scan_global_core_modules() as $g){$id=$g['actionId'];$catalog[]=['actionId'=>$id,'name'=>$g['name'],'description'=>$g['description'],'scope'=>'global','source'=>'loom-core','version'=>'core','enabled'=>loom_global_module_enabled($id,(bool)($g['manifestEnabled']??true)),'locked'=>false,'mobileVisibilitySupported'=>false,'hideOnMobile'=>false];}
-  foreach($mods as $m){$id=$m['actionId'];$defaultHide=(bool)($m['manifestHideOnMobile']??false);$catalog[]=['actionId'=>$id,'name'=>$m['name'],'description'=>$m['description'],'scope'=>'project','source'=>$m['source']??'project','version'=>(string)($m['version']??'module'),'enabled'=>loom_project_module_enabled($project,$id,(bool)($m['manifestEnabled']??true)),'locked'=>false,'mobileVisibilitySupported'=>true,'hideOnMobile'=>loom_project_module_hide_on_mobile($project,$id,$defaultHide),'hideOnMobileDefault'=>$defaultHide];}
-  foreach(loom_html_framer_public_frames($project) as $f){$id='html.frame.'.(string)$f['id'];$catalog[]=['actionId'=>$id,'name'=>(string)($f['title']??'HTML Frame'),'description'=>'HTML Framer package: '.(string)($f['zipName']??''),'scope'=>'project','source'=>'html-framer','version'=>'frame-r'.(string)($f['revision']??1),'enabled'=>loom_project_module_enabled($project,$id,(bool)($f['enabled']??true)),'locked'=>false,'mobileVisibilitySupported'=>true,'hideOnMobile'=>loom_project_module_hide_on_mobile($project,$id,false),'hideOnMobileDefault'=>false];}
+  foreach($mods as $m){$id=$m['actionId'];$defaultHide=(bool)($m['manifestHideOnMobile']??false);$catalog[]=['actionId'=>$id,'name'=>$m['name'],'description'=>$m['description'],'scope'=>'project','source'=>$m['source']??'project','version'=>(string)($m['version']??'module'),'enabled'=>loom_project_module_enabled($project,$id,(bool)($m['manifestEnabled']??true)),'locked'=>false,'mobileVisibilitySupported'=>true,'hideOnMobile'=>loom_project_module_hide_on_mobile($project,$id,$defaultHide),'hideOnMobileDefault'=>$defaultHide,'chrome'=>loom_project_module_presentation_policy($project,$id,is_array($m['presentation']??null)?$m['presentation']:[])];}
+  foreach(loom_html_framer_public_frames($project) as $f){$id='html.frame.'.(string)$f['id'];$catalog[]=['actionId'=>$id,'name'=>(string)($f['title']??'HTML Frame'),'description'=>'HTML Framer package: '.(string)($f['zipName']??''),'scope'=>'project','source'=>'html-framer','version'=>'frame-r'.(string)($f['revision']??1),'enabled'=>loom_project_module_enabled($project,$id,(bool)($f['enabled']??true)),'locked'=>false,'mobileVisibilitySupported'=>true,'hideOnMobile'=>loom_project_module_hide_on_mobile($project,$id,false),'hideOnMobileDefault'=>false,'chrome'=>loom_project_module_presentation_policy($project,$id,['role'=>'content','collapsible'=>true])];}
   usort($catalog,fn($a,$b)=>strcmp($a['scope'],$b['scope'])?:strcmp($a['source'],$b['source'])?:strcasecmp($a['name'],$b['name']));
-  return ['project'=>$project,'project_profile'=>loom_project_profile_payload($project),'project_source'=>loom_project_source($project),'modules'=>$mods,'module_catalog'=>$catalog,'extensions'=>$extensions,'updatedAt'=>$saved['updatedAt']??null];
+  return ['project'=>$project,'project_profile'=>loom_project_profile_payload($project),'project_source'=>loom_project_source($project),'project_presentation'=>loom_project_presentation_effective($project),'modules'=>$mods,'module_catalog'=>$catalog,'extensions'=>$extensions,'updatedAt'=>$saved['updatedAt']??null];
 }
 
 $method=$_SERVER['REQUEST_METHOD']??'GET';
@@ -137,7 +137,7 @@ if($action==='status'){
 $accessProject=safe_slug((string)($body['project']??''));
 $projectActionCaps=[
   'settings'=>'project.view','save'=>'project.modules','reset'=>'project.modules',
-  'module-mobile-visibility'=>'project.modules','project-profile-save'=>'project.settings',
+  'module-mobile-visibility'=>'project.modules','module-presentation-save'=>'project.modules','module-presentation-override'=>'project.modules','project-profile-save'=>'project.settings',
   'project-logo-upload'=>'project.settings','showcase-bio-save'=>'project.content',
   'showcase-image-upload'=>'project.content','showcase-image-remove'=>'project.content',
   'favicon-upload'=>'project.settings','favicon-use-logo'=>'project.settings',
@@ -193,6 +193,16 @@ if($action==='module-mobile-visibility'){
   $known=false;foreach(scan_admin_modules($toggleProject) as $m)if($m['actionId']===$moduleId){$known=true;break;}if(!$known&&str_starts_with($moduleId,'html.frame.'))foreach(loom_html_framer_public_frames($toggleProject) as $f)if($moduleId==='html.frame.'.($f['id']??'')){$known=true;break;}
   if(!$known)json_out(['ok'=>false,'error'=>'project-module-not-found'],404);
   loom_set_project_module_hide_on_mobile($toggleProject,$moduleId,$hide);json_out(['ok'=>true,'scope'=>'project','moduleId'=>$moduleId,'hideOnMobile'=>$hide]+settings_payload($toggleProject));
+}
+if($action==='module-presentation-save'){
+  $toggleProject=safe_slug((string)($body['project']??''));
+  try{loom_set_project_presentation($toggleProject,is_array($body['presentation']??null)?$body['presentation']:[]);}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
+  json_out(['ok'=>true,'message'=>'Project module presentation updated']+settings_payload($toggleProject));
+}
+if($action==='module-presentation-override'){
+  $toggleProject=safe_slug((string)($body['project']??''));$moduleId=(string)($body['moduleId']??'');if($moduleId==='')json_out(['ok'=>false,'error'=>'module-id-required'],400);
+  try{loom_set_project_module_presentation($toggleProject,$moduleId,is_array($body['presentation']??null)?$body['presentation']:[]);}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
+  json_out(['ok'=>true,'message'=>'Module presentation override updated']+settings_payload($toggleProject));
 }
 
 $project=safe_slug((string)($body['project']??'green-beans'));

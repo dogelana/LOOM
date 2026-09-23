@@ -1,4 +1,4 @@
-// @loom-file release=0.15.06 revision=4 policy=package-priority
+// @loom-file release=0.15.19 revision=5 policy=package-priority
 (() => {
   'use strict';
   function normalizeProject(project) {
@@ -45,9 +45,12 @@
       let cached=null;try{cached=JSON.parse(sessionStorage.getItem(this.cacheKey)||'null')}catch{}
       const headers={};if(cached?.etag)headers['If-None-Match']=cached.etag;
       try {
-        const response=await fetch(liveUrl,{cache:'no-cache',headers});
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort('registry-timeout'),8000);
+        let response;
+        try{response=await fetch(liveUrl,{cache:'no-cache',headers,signal:controller.signal})}finally{clearTimeout(timer)}
         if(response.status===304&&cached?.data){this.lastSource='validated-session-cache';return normalizeAndSortRegistry(cached.data)}
-        if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
+        if(!response.ok){const err=new Error(`${response.status} ${response.statusText}`);err.status=response.status;throw err}
         const data=await response.json();if(!data||!Array.isArray(data.modules))throw new Error('Invalid module registry payload');
         const etag=response.headers.get('ETag')||data.registry_etag||null;try{sessionStorage.setItem(this.cacheKey,JSON.stringify({etag,data,storedAt:Date.now()}))}catch{}
         this.lastSource='live-server-scan';return normalizeAndSortRegistry(data);

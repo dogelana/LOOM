@@ -1,4 +1,4 @@
-// @loom-file release=0.15.15 revision=7 policy=package-priority
+// @loom-file release=0.15.19 revision=8 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -87,14 +87,21 @@
       const record=this._bootstrapLoaderRecord();
       if(record?.instance?.setProgress)await record.instance.setProgress({loaded:0,total:targets.length,failed:0,current:null,phase:'loading'});
     }
+    async _bootstrapBegin(descriptor){
+      const state=this.bootstrapLoadState;if(!state||!descriptor||this._isBootstrapLoader(descriptor))return;
+      const id=descriptor.action?.id;if(!id)return;
+      state.current=id;
+      const record=this._bootstrapLoaderRecord();
+      if(record?.instance?.setProgress)await record.instance.setProgress({loaded:state.loaded,total:state.total,failed:state.failed,current:id,phase:'loading'});
+    }
     async _bootstrapProgress(descriptor,status='loaded'){
       const state=this.bootstrapLoadState;if(!state||!descriptor||this._isBootstrapLoader(descriptor))return;
       const id=descriptor.action?.id;if(!id)return;
       if(status==='loaded'&&!state.completedIds.has(id)){state.completedIds.add(id);state.loaded++}
       if(status==='failed'&&!state.failedIds.has(id)){state.failedIds.add(id);state.failed++}
-      state.current=id;
+      if(state.current===id)state.current=null;
       const record=this._bootstrapLoaderRecord();
-      if(record?.instance?.setProgress)await record.instance.setProgress({loaded:state.loaded,total:state.total,failed:state.failed,current:id,phase:'loading'});
+      if(record?.instance?.setProgress)await record.instance.setProgress({loaded:state.loaded,total:state.total,failed:state.failed,current:null,phase:'loading'});
     }
     async _finishBootstrapLoader(){
       const state=this.bootstrapLoadState,record=this._bootstrapLoaderRecord();if(!state||!record)return;
@@ -192,6 +199,8 @@
         .loom-module-frame-head{height:40px;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px 0 16px;border:1px solid rgba(44,103,60,.16);border-bottom:0;border-radius:28px 28px 0 0;background:rgba(255,255,255,.93);backdrop-filter:blur(12px);font:850 10px/1 Inter,ui-sans-serif,system-ui;color:#52665a;letter-spacing:.015em;cursor:pointer;user-select:none;position:relative;z-index:2;box-sizing:border-box}
         .loom-module-frame-head>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .loom-module-frame-head button{width:28px;height:28px;flex:0 0 28px;border:0;border-radius:8px;background:#edf5ef;color:#4c6956;font:900 13px/1 system-ui;cursor:pointer;display:grid;place-items:center;transition:.16s ease}
+        .loom-module-frame.no-collapse .loom-module-frame-head{cursor:default}
+        .loom-module-frame.no-collapse .loom-module-frame-head button{display:none}
         .loom-module-frame-body{min-width:0;width:100%;max-width:100%;margin-top:-1px;box-sizing:border-box}
         .loom-module-frame:not(.is-collapsed) .loom-module-frame-body{display:block}
         .loom-module-frame:not(.is-collapsed) .loom-module-frame-body>[data-loom-module-content]{width:100%;max-width:100%;min-width:0;box-sizing:border-box;border-top-left-radius:0!important;border-top-right-radius:0!important;margin-top:0!important}
@@ -207,22 +216,32 @@
         }
       `;document.head.appendChild(st);this.moduleFrameStyle=st;
     }
-    _isCollapsibleModule(descriptor,host){
-      const p=this._presentation(descriptor);return p?.role==='content'&&host===this.mountRoot&&p?.collapsible!==false;
+    _moduleFramePolicy(descriptor,host){
+      const p=this._presentation(descriptor),chrome=p?.chrome||{};
+      const eligible=p?.role==='content'&&host===this.mountRoot;
+      let titleBarVisible=chrome.titleBarVisible;
+      if(typeof titleBarVisible!=='boolean')titleBarVisible=p?.collapsible!==false;
+      let collapseEnabled=chrome.collapseEnabled;
+      if(typeof collapseEnabled!=='boolean')collapseEnabled=p?.collapsible!==false;
+      if(!titleBarVisible)collapseEnabled=false;
+      return {eligible,titleBarVisible:!!titleBarVisible,collapseEnabled:!!collapseEnabled,initialCollapsed:!!chrome.initialCollapsed};
     }
+    _shouldFrameModule(descriptor,host){const policy=this._moduleFramePolicy(descriptor,host);return policy.eligible&&policy.titleBarVisible}
     _createModuleFrame(descriptor,node){
-      this._ensureModuleFrameStyles();const id=descriptor.action.id;
-      const frame=document.createElement('section');frame.className='loom-module-frame';frame.dataset.module=id;frame.dataset.loomFrameFor=id;frame.setAttribute('aria-label',descriptor.action.name||id);
-      const head=document.createElement('div');head.className='loom-module-frame-head';head.innerHTML=`<span>${String(descriptor.action.name||id).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span><button type="button" aria-label="Collapse or expand ${String(descriptor.action.name||'module').replace(/["<>]/g,'')}">⌄</button>`;
+      this._ensureModuleFrameStyles();const id=descriptor.action.id,policy=this._moduleFramePolicy(descriptor,this.mountRoot);
+      const frame=document.createElement('section');frame.className=`loom-module-frame${policy.collapseEnabled?'':' no-collapse'}`;frame.dataset.module=id;frame.dataset.loomFrameFor=id;frame.setAttribute('aria-label',descriptor.action.name||id);
+      const safeName=String(descriptor.action.name||id).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const head=document.createElement('div');head.className='loom-module-frame-head';head.innerHTML=`<span>${safeName}</span>${policy.collapseEnabled?`<button type="button" aria-label="Collapse or expand ${String(descriptor.action.name||'module').replace(/["<>]/g,'')}">⌄</button>`:''}`;
       const body=document.createElement('div');body.className='loom-module-frame-body';node.removeAttribute('data-module');node.dataset.loomModuleContent=id;body.appendChild(node);frame.append(head,body);
-      const apply=collapsed=>{frame.classList.toggle('is-collapsed',!!collapsed);head.setAttribute('aria-expanded',collapsed?'false':'true')};
-      apply(!!this.moduleLayoutState?.collapsed?.[id]);
-      head.addEventListener('click',()=>{const collapsed=!frame.classList.contains('is-collapsed');apply(collapsed);if(collapsed)this.moduleLayoutState.collapsed[id]=true;else delete this.moduleLayoutState.collapsed[id];this._persistModuleLayoutState();this._log({type:collapsed?'module.ui.collapsed':'module.ui.expanded',actionId:id,name:descriptor.action.name||id})});
+      const apply=collapsed=>{const next=policy.collapseEnabled&&!!collapsed;frame.classList.toggle('is-collapsed',next);head.setAttribute('aria-expanded',next?'false':'true')};
+      const saved=Object.prototype.hasOwnProperty.call(this.moduleLayoutState?.collapsed||{},id);
+      apply(policy.collapseEnabled?(saved?!!this.moduleLayoutState.collapsed[id]:policy.initialCollapsed):false);
+      if(policy.collapseEnabled)head.addEventListener('click',()=>{const collapsed=!frame.classList.contains('is-collapsed');apply(collapsed);if(collapsed)this.moduleLayoutState.collapsed[id]=true;else delete this.moduleLayoutState.collapsed[id];this._persistModuleLayoutState();this._log({type:collapsed?'module.ui.collapsed':'module.ui.expanded',actionId:id,name:descriptor.action.name||id})});
       return frame;
     }
     _mountModuleNode(descriptor,node,fallbackSelector=null){
       const host=this._resolveMountTarget(descriptor,fallbackSelector);
-      if(this._isCollapsibleModule(descriptor,host)){
+      if(this._shouldFrameModule(descriptor,host)){
         const frame=this._createModuleFrame(descriptor,node);this._applyPresentation(frame,descriptor);host.appendChild(frame);
       }else{this._applyPresentation(node,descriptor);host.appendChild(node)}
       this._reflowModuleOrder();
@@ -283,6 +302,11 @@
       const ua=this._userActionDescriptor(id);if(!ua)throw new Error(`Undeclared user action ${id}`);
       return {name:ua.name,description:ua.description||'',kind:'user',behavior:ua.behavior||'transient',parent:ua.parent||ua.moduleActionId,moduleActionId:ua.moduleActionId,moduleName:ua.moduleName,actor:'user',source:'module-ui'};
     }
+    async _withTimeout(work,ms,label){
+      let timer=null;
+      try{return await Promise.race([Promise.resolve(work),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(`${label} timed out after ${ms}ms`)),ms)})])}
+      finally{if(timer)clearTimeout(timer)}
+    }
     async _moduleLog(descriptor,type,detail={}){
       const matches=(descriptor.user_actions||[]).filter(a=>Array.isArray(a.events)&&a.events.includes(type));
       for(const a of matches){const meta=this._userActionMeta(a.id);await this._emitUserActionState(a.id,'active',{...meta,domainEvent:type,...detail})}
@@ -293,19 +317,25 @@
     }
     async _addModule(descriptor,options={}){
       const id=descriptor.action.id;
+      if(!options.skipProgress)await this._bootstrapBegin(descriptor);
       try{
         const record={descriptor,instance:null,styles:[],cleanup:null};this.modules.set(id,record);
         if(descriptor.styles?.length)this._attachStyles(descriptor);
         const moduleUrl=this._cacheBustUrl(this._resolveRuntimeUrl(descriptor.entry_url),descriptor.fingerprint||Date.now());
-        const imported=await import(moduleUrl),factory=imported.createModule||imported.default;
+        const imported=await this._withTimeout(import(moduleUrl),12000,`Module import ${id}`),factory=imported.createModule||imported.default;
         if(typeof factory!=='function')throw new Error(`Module ${id} must export createModule(ctx)`);
-        const ctx=this._createContext(descriptor,record);record.instance=await factory(ctx);if(record.instance?.mount)await record.instance.mount();
+        const ctx=this._createContext(descriptor,record);record.instance=await this._withTimeout(factory(ctx),8000,`Module factory ${id}`);if(record.instance?.mount)await this._withTimeout(record.instance.mount(),10000,`Module mount ${id}`);
         this.bus.emit({type:'module.available',actionId:id,name:descriptor.action.name,kind:descriptor.action.kind,behavior:descriptor.action.behavior,parent:descriptor.action.parent||'core.load',fingerprint:descriptor.fingerprint,order:this._moduleOrder(descriptor),orderDisplay:this._moduleOrderDisplay(descriptor),bootstrap:this._isBootstrapLoader(descriptor)});
         await this._log({type:'module.available',actionId:id,name:descriptor.action.name,kind:descriptor.action.kind,behavior:descriptor.action.behavior,order:this._moduleOrder(descriptor),orderDisplay:this._moduleOrderDisplay(descriptor),bootstrap:this._isBootstrapLoader(descriptor)});
-        if(descriptor.action.autostart||options.bootstrap)await this.activate(id,{trigger:options.bootstrap?'bootstrap':'autostart'});
+        if(descriptor.action.autostart||options.bootstrap)await this._withTimeout(this.activate(id,{trigger:options.bootstrap?'bootstrap':'autostart'}),12000,`Module activation ${id}`);
         if(!options.skipProgress)await this._bootstrapProgress(descriptor,'loaded');
         return true;
       }catch(err){
+        const record=this.modules.get(id);
+        try{if(record?.instance?.unmount)await this._withTimeout(record.instance.unmount({reason:'load-failed'}),2500,`Module cleanup ${id}`)}catch{}
+        if(record)this._detachStyles(record);
+        for(const n of [...document.querySelectorAll('[data-loom-frame-for]')])if(n.dataset.loomFrameFor===id)n.remove();
+        this.modules.delete(id);this.activeActions.delete(id);
         this.bus.emit({type:'module.error',actionId:id,message:String(err.message||err)});
         await this._log({type:'module.error',actionId:id,message:String(err.message||err)});console.error(err);
         if(!options.skipProgress)await this._bootstrapProgress(descriptor,'failed');

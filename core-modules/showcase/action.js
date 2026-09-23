@@ -1,54 +1,30 @@
-// @loom-file release=0.15.17 revision=3 policy=package-priority
+// @loom-file release=0.15.19 revision=4 policy=package-priority
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function cleanBio(v){return String(v??'').trim().slice(0,1800)}
+function clean(v,max=1800){return String(v??'').trim().slice(0,max)}
 function hex(v,f){const s=String(v||'').trim();return /^#[0-9a-f]{6}$/i.test(s)?s.toUpperCase():f}
 function mix(a,b,t){a=hex(a,'#168346');b=hex(b,'#FFFFFF');t=Math.max(0,Math.min(1,Number(t)||0));const av=parseInt(a.slice(1),16),bv=parseInt(b.slice(1),16),out=[16,8,0].map(sh=>Math.round(((av>>sh)&255)+((((bv>>sh)&255)-((av>>sh)&255))*t)));return '#'+out.map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase()}
+function hueShift(color,pct){
+  color=hex(color,'#168346');const n=parseInt(color.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  let rr=r/255,gg=g/255,bb=b/255,max=Math.max(rr,gg,bb),min=Math.min(rr,gg,bb),h=0,s=0,l=(max+min)/2,d=max-min;
+  if(d){s=l>.5?d/(2-max-min):d/(max+min);if(max===rr)h=((gg-bb)/d+(gg<bb?6:0))/6;else if(max===gg)h=((bb-rr)/d+2)/6;else h=((rr-gg)/d+4)/6}
+  h=(h+(Math.max(0,Math.min(100,Number(pct)||0))/100))%1;
+  const hue2=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p};
+  let R,G,B;if(!s)R=G=B=l;else{const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;R=hue2(p,q,h+1/3);G=hue2(p,q,h);B=hue2(p,q,h-1/3)}
+  return '#'+[R,G,B].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function hashSeed(s){let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function rand(seed){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return [seed,seed/4294967296]}
 export function createModule(ctx){
-  let root=null,project=null;
-  async function loadProject(){
-    try{
-      const q=new URLSearchParams({project:ctx.project,_:Date.now().toString()});
-      if(ctx.identity?.clientId)q.set('clientId',ctx.identity.clientId);
-      const r=await ctx.fetchApi(`projects.php?${q.toString()}`,{cache:'no-store'}),j=await r.json();
-      if(r.ok)project=(j.projects||[])[0]||null;
-    }catch{project=null}
-  }
-  function imageUrl(){
-    if(!ctx.config?.hasImage)return '';
-    const asset=String(ctx.config?.imageAsset||'assets/showcase.png').replace(/^\/+/, '');
-    const q=new URLSearchParams({project:ctx.project,path:asset,v:String(ctx.config?.imageVersion||Date.now())});
-    return ctx.apiUrl(`project-asset.php?${q.toString()}`);
-  }
-  function effectiveBio(){if(ctx.config?.bioMode==='custom')return cleanBio(ctx.config?.bioOverride);const live=cleanBio(project?.bio);return live||`${cleanBio(project?.name||ctx.project||'This project')} is powered by LOOM.`}
-  function mediaBackground(){
-    const mode=String(ctx.config?.imageBackgroundMode||'transparent');
-    const primary=hex(ctx.config?.projectPrimary,'#111111'),accent=hex(ctx.config?.projectAccent,'#168346');
-    if(mode==='project-accent-soft')return mix(accent,'#FFFFFF',.88);
-    if(mode==='project-primary-soft')return mix(primary,'#FFFFFF',.90);
-    if(mode==='page')return 'var(--loom-page-background-base,#F6FAF5)';
-    if(mode==='loom-soft')return '#EEF6F0';
-    if(mode==='white')return '#FFFFFF';
-    if(mode==='custom')return hex(ctx.config?.imageBackgroundColor,'#FFFFFF');
-    return 'transparent';
-  }
-  function applyPresentation(){
-    if(!root)return;
-    root.style.setProperty('--loom-showcase-media-bg',mediaBackground());
-    root.style.setProperty('--loom-showcase-image-fit',ctx.config?.imageFit==='cover'?'cover':'contain');
-    root.style.setProperty('--loom-showcase-image-padding',`${Math.max(0,Math.min(80,Number(ctx.config?.imagePadding||0)))}px`);
-  }
-  function render(){
-    if(!root)return;
-    const bio=effectiveBio(),img=imageUrl(),name=project?.name||ctx.project||'Project';
-    root.classList.toggle('loom-showcase-no-image',!img);
-    root.innerHTML=`<section class="loom-showcase-card">${img?`<figure class="loom-showcase-media"><img src="${esc(img)}" alt="${esc(name)} showcase image"></figure>`:''}<div class="loom-showcase-copy"><div class="loom-showcase-eyebrow">SHOWCASE</div><h2>${esc(name)}</h2><p>${bio?esc(bio):'This project has not added a showcase summary yet.'}</p></div></section>`;
-    applyPresentation();
-  }
-  return {
-    async mount(){root=document.createElement('div');root.className='loom-showcase';root.dataset.loomShowcase='1';ctx.mount(root);render()},
-    async activate(){await loadProject();render();await ctx.log?.('showcase.ready',{bioMode:ctx.config?.bioMode==='custom'?'custom':'project',hasImage:!!ctx.config?.hasImage,imageFit:ctx.config?.imageFit||'contain',imageBackgroundMode:ctx.config?.imageBackgroundMode||'transparent'})},
-    async deactivate(){},
-    async unmount(){root?.remove();root=null}
-  }
+  let root=null,project=null,fontLink=null;
+  async function loadProject(){try{const q=new URLSearchParams({project:ctx.project,_:Date.now().toString()});if(ctx.identity?.clientId)q.set('clientId',ctx.identity.clientId);const r=await ctx.fetchApi(`projects.php?${q}`,{cache:'no-store'}),j=await r.json();if(r.ok)project=(j.projects||[])[0]||null}catch{project=null}}
+  function imageUrl(){if(!ctx.config?.hasImage)return '';const asset=String(ctx.config?.imageAsset||'assets/showcase.png').replace(/^\/+/, '');const q=new URLSearchParams({project:ctx.project,path:asset,v:String(ctx.config?.imageVersion||Date.now())});return ctx.apiUrl(`project-asset.php?${q}`)}
+  function effectiveBio(){if(ctx.config?.bioMode==='custom')return clean(ctx.config?.bioOverride);const live=clean(project?.bio);return live||`${clean(project?.name||ctx.project||'This project',140)} is powered by LOOM.`}
+  function mediaBackground(){const mode=String(ctx.config?.imageBackgroundMode||'transparent'),primary=hex(ctx.config?.projectPrimary,'#111111'),accent=hex(ctx.config?.projectAccent,'#168346');if(mode==='project-accent-soft')return mix(accent,'#FFFFFF',.88);if(mode==='project-primary-soft')return mix(primary,'#FFFFFF',.90);if(mode==='page')return 'var(--loom-page-background-base,#F6FAF5)';if(mode==='loom-soft')return '#EEF6F0';if(mode==='white')return '#FFFFFF';if(mode==='custom')return hex(ctx.config?.imageBackgroundColor,'#FFFFFF');return 'transparent'}
+  function headerColor(which){const shift=Math.max(0,Math.min(100,Number(ctx.config?.hueShiftPercent??10))),primary=hex(ctx.config?.projectPrimary,'#111111'),accent=hex(ctx.config?.projectAccent,'#168346'),mode=String(ctx.config?.[which===1?'header1ColorMode':'header2ColorMode']||'');if(mode==='custom')return hex(ctx.config?.[which===1?'header1CustomColor':'header2CustomColor'],which===1?primary:accent);if(mode==='primary')return primary;if(mode==='accent')return accent;return hueShift(which===1?primary:accent,shift)}
+  function ensureFont(){const css=clean(ctx.config?.projectFontCss,800);if(!css||fontLink?.href===css)return;fontLink?.remove();fontLink=document.createElement('link');fontLink.rel='stylesheet';fontLink.href=css;fontLink.dataset.loomShowcaseFont='1';document.head.appendChild(fontLink)}
+  function artBackground(name){let seed=hashSeed(`${ctx.project}|${name}|showcase`),parts=[];const c1=hex(ctx.config?.projectPrimary,'#111111'),c2=hex(ctx.config?.projectAccent,'#168346');for(let i=0;i<11;i++){let a,b,c;[seed,a]=rand(seed);[seed,b]=rand(seed);[seed,c]=rand(seed);const col=i%2?c1:c2,x=Math.round(5+a*90),y=Math.round(5+b*90),size=Math.round(22+c*42);parts.push(`radial-gradient(circle ${size}% at ${x}% ${y}%, ${col} 0%, ${col} 24%, transparent 64%)`)}return parts.join(',')}
+  function generatedBadge(name){const loomLogo=new URL('../../assets/loom-logo.png',import.meta.url).href;return `<figure class="loom-showcase-generated-wrap" aria-label="Generated ${esc(name)} project badge"><div class="loom-showcase-generated-badge" style="--loom-generated-art:${artBackground(name)}"><div class="loom-showcase-generated-name">${esc(String(name).toUpperCase())}</div><div class="loom-showcase-generated-plate"><img src="${esc(loomLogo)}" alt=""><span>POWERED BY LOOM</span></div></div></figure>`}
+  function render(){if(!root)return;ensureFont();const bio=effectiveBio(),bio2=clean(ctx.config?.bio2),header2=clean(ctx.config?.header2,160),img=imageUrl(),name=project?.name||ctx.project||'Project';root.innerHTML=`<section class="loom-showcase-card"><div class="loom-showcase-visual">${img?`<figure class="loom-showcase-media"><img src="${esc(img)}" alt="${esc(name)} showcase image"></figure>`:generatedBadge(name)}</div><div class="loom-showcase-copy"><h2 class="loom-showcase-title-1">${esc(name)}</h2>${header2?`<h3 class="loom-showcase-title-2">${esc(header2)}</h3>`:''}<p class="loom-showcase-bio-1">${esc(bio)}</p>${bio2?`<p class="loom-showcase-bio-2">${esc(bio2)}</p>`:''}</div></section>`;root.style.setProperty('--loom-showcase-media-bg',mediaBackground());root.style.setProperty('--loom-showcase-image-fit',ctx.config?.imageFit==='cover'?'cover':'contain');root.style.setProperty('--loom-showcase-image-padding',`${Math.max(0,Math.min(80,Number(ctx.config?.imagePadding||0)))}px`);root.style.setProperty('--loom-showcase-title-1',headerColor(1));root.style.setProperty('--loom-showcase-title-2',headerColor(2));root.style.setProperty('--loom-showcase-bio-1',hex(ctx.config?.bio1Color,'#000000'));root.style.setProperty('--loom-showcase-bio-2',hex(ctx.config?.bio2Color,'#000000'));root.style.setProperty('--loom-showcase-font',clean(ctx.config?.projectFontFamily,200)||'Inter, ui-sans-serif, system-ui');root.style.setProperty('--loom-showcase-font-weight',String(Math.max(100,Math.min(1000,Number(ctx.config?.projectFontWeight||800)))))}
+  return{async mount(){root=document.createElement('div');root.className='loom-showcase';root.dataset.loomShowcase='1';ctx.mount(root);render()},async activate(){loadProject().then(()=>render()).catch(()=>{});ctx.log?.('showcase.ready',{hasImage:!!ctx.config?.hasImage,generatedDefault:!ctx.config?.hasImage});return()=>{}},async deactivate(){},async unmount(){fontLink?.remove();fontLink=null;root?.remove();root=null}}
 }
 export default createModule;

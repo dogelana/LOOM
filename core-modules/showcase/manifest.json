@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "scope": "project",
     "dependencies": [],
     "styles": [
@@ -43,7 +43,19 @@
     "imagePadding": 0,
     "projectPrimary": "#111111",
     "projectAccent": "#168346",
-    "projectThemeProvided": false
+    "projectThemeProvided": false,
+    "header2": "",
+    "bio2": "",
+    "hueShiftPercent": 10,
+    "header1ColorMode": "shifted-primary",
+    "header2ColorMode": "shifted-accent",
+    "header1CustomColor": "#111111",
+    "header2CustomColor": "#168346",
+    "bio1Color": "#000000",
+    "bio2Color": "#000000",
+    "projectFontFamily": "Inter, ui-sans-serif, system-ui",
+    "projectFontWeight": 800,
+    "projectFontCss": ""
   },
   "presentation": {
     "role": "content",
@@ -70,11 +82,103 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Showcase",
-    "description": "Project-facing image + summary. Uploaded PNG transparency is preserved. Media centers without cropping by default, and its backdrop can be transparent, project-derived, LOOM-derived, or custom.",
+    "description": "Project-facing showcase. Project name and primary bio stay live; optional second headline/bio, shifted branding colors, and a generated LOOM badge give every project a polished default.",
     "fields": [
       {
+        "id": "header2",
+        "label": "Second headline",
+        "type": "text",
+        "maxLength": 160,
+        "help": "Optional. Blank means no second headline."
+      },
+      {
+        "id": "bio2",
+        "label": "Second bio / paragraph",
+        "type": "textarea",
+        "maxLength": 1800,
+        "help": "Optional second paragraph. Blank means it is not rendered."
+      },
+      {
+        "id": "hueShiftPercent",
+        "label": "Showcase branding hue shift",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "Default 10%. Rotates project branding colors clockwise on the color wheel; 0% matches project branding exactly."
+      },
+      {
+        "id": "header1ColorMode",
+        "label": "Primary headline color",
+        "type": "select",
+        "options": [
+          {
+            "value": "shifted-primary",
+            "label": "Project primary + hue shift (Default)"
+          },
+          {
+            "value": "primary",
+            "label": "Project primary exactly"
+          },
+          {
+            "value": "custom",
+            "label": "Custom"
+          }
+        ]
+      },
+      {
+        "id": "header1CustomColor",
+        "label": "Primary headline custom color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "header1ColorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "header2ColorMode",
+        "label": "Second headline color",
+        "type": "select",
+        "options": [
+          {
+            "value": "shifted-accent",
+            "label": "Project accent + hue shift (Default)"
+          },
+          {
+            "value": "accent",
+            "label": "Project accent exactly"
+          },
+          {
+            "value": "custom",
+            "label": "Custom"
+          }
+        ]
+      },
+      {
+        "id": "header2CustomColor",
+        "label": "Second headline custom color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "header2ColorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "bio1Color",
+        "label": "Primary bio color",
+        "type": "color",
+        "help": "Black by default for maximum readability."
+      },
+      {
+        "id": "bio2Color",
+        "label": "Second bio color",
+        "type": "color",
+        "help": "Black by default."
+      },
+      {
         "id": "imageFit",
-        "label": "Image fit",
+        "label": "Uploaded image fit",
         "type": "select",
         "options": [
           {
@@ -89,7 +193,7 @@
       },
       {
         "id": "imageBackgroundMode",
-        "label": "Image background",
+        "label": "Uploaded image background",
         "type": "select",
         "options": [
           {
@@ -124,7 +228,7 @@
       },
       {
         "id": "imageBackgroundColor",
-        "label": "Custom image background",
+        "label": "Custom uploaded-image background",
         "type": "color",
         "visibleWhen": {
           "field": "imageBackgroundMode",
@@ -133,7 +237,7 @@
       },
       {
         "id": "imagePadding",
-        "label": "Image breathing room",
+        "label": "Uploaded image breathing room",
         "type": "range",
         "min": 0,
         "max": 80,

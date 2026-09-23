@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.13 revision=11 policy=package-priority
+// @loom-file release=0.15.19 revision=12 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -51,6 +51,7 @@ function build_runtime_module_descriptor(string $project,array $manifest,string 
   if(!is_array($presentation['responsive']??null))$presentation['responsive']=[];
   $defaultHideOnMobile=(bool)($presentation['responsive']['hideOnMobile']??false);
   $presentation['responsive']['hideOnMobile']=loom_project_module_hide_on_mobile($project,(string)$action['id'],$defaultHideOnMobile);
+  $presentation=loom_apply_project_module_presentation($project,(string)$action['id'],$presentation);
   return [
     'schema_version'=>$manifest['schema_version']??'1.0','enabled'=>true,'action'=>$action,'user_actions'=>array_values($manifest['user_actions']??[]),'module'=>$module,
     'config'=>loom_module_config_with_admin_overrides($project,$manifest),'admin_overrides'=>loom_module_admin_overrides($project,(string)$action['id']),'admin_settings'=>$manifest['admin_settings']??new stdClass(),

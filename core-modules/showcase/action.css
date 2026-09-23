@@ -1,23 +1,19 @@
-/* @loom-file release=0.15.16 revision=3 policy=package-priority */
+/* @loom-file release=0.15.19 revision=4 policy=package-priority */
 .loom-showcase{width:100%;max-width:100%;min-width:0;color:var(--loom-page-text,var(--ink,#132019));box-sizing:border-box}
-.loom-showcase-card{display:grid;grid-template-columns:minmax(240px,.9fr) minmax(0,1.1fr);width:100%;max-width:100%;min-width:0;min-height:280px;overflow:hidden;border:1px solid var(--loom-page-border,#dce9df);border-radius:var(--loom-page-radius,28px);background:var(--loom-page-surface,#fff);box-shadow:0 18px 55px rgba(20,48,29,.08);box-sizing:border-box}
-.loom-showcase-media{margin:0;min-width:0;min-height:280px;overflow:hidden;display:grid;place-items:center;background:var(--loom-showcase-media-bg,transparent);box-sizing:border-box;padding:var(--loom-showcase-image-padding,0)}
+.loom-showcase-card{display:grid;grid-template-columns:minmax(280px,.88fr) minmax(0,1.12fr);width:100%;max-width:100%;min-width:0;min-height:320px;overflow:hidden;border:1px solid var(--loom-page-border,#dce9df);border-radius:var(--loom-page-radius,28px);background:var(--loom-page-surface,#fff);box-shadow:0 18px 55px rgba(20,48,29,.08);box-sizing:border-box}
+.loom-showcase-visual{min-width:0;min-height:320px;display:grid;place-items:center;padding:clamp(18px,3vw,34px);background:transparent;overflow:visible}
+.loom-showcase-media{margin:0;width:100%;height:100%;min-height:280px;overflow:hidden;display:grid;place-items:center;background:var(--loom-showcase-media-bg,transparent);box-sizing:border-box;padding:var(--loom-showcase-image-padding,0);border-radius:22px}
 .loom-showcase-media img{display:block;width:100%;max-width:100%;height:100%;min-height:280px;max-height:520px;object-fit:var(--loom-showcase-image-fit,contain);object-position:center center}
-.loom-showcase-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;padding:clamp(24px,5vw,58px);overflow-wrap:anywhere}
-.loom-showcase-eyebrow{font-size:10px;line-height:1;letter-spacing:.17em;font-weight:900;color:var(--loom-page-accent,#168346);margin-bottom:10px}
-.loom-showcase-copy h2{max-width:100%;margin:0;font-size:clamp(28px,4vw,48px);line-height:1;letter-spacing:-.045em;overflow-wrap:anywhere;color:var(--loom-page-text,#132019)}
-.loom-showcase-copy p{margin:18px 0 0;max-width:68ch;font-size:clamp(14px,1.4vw,18px);line-height:1.68;color:var(--loom-page-muted,#66766c);white-space:pre-wrap;overflow-wrap:anywhere}
-.loom-showcase-no-image .loom-showcase-card{grid-template-columns:1fr}
-.loom-showcase-no-image .loom-showcase-copy{min-height:250px}
+.loom-showcase-generated-wrap{margin:0;width:min(100%,420px);aspect-ratio:1;display:grid;place-items:center;overflow:visible}
+.loom-showcase-generated-badge{position:relative;width:88%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:18%;background:var(--loom-generated-art),linear-gradient(145deg,var(--loom-page-surface,#fff),#fff);border:8px solid rgba(255,255,255,.86);outline:2px solid rgba(15,28,18,.12);box-shadow:inset 0 0 0 5px rgba(15,28,18,.08),inset 0 0 40px rgba(255,255,255,.48),0 28px 54px rgba(20,48,29,.24);overflow:hidden}
+.loom-showcase-generated-badge:after{content:"";position:absolute;inset:8%;border-radius:50%;border:1px solid rgba(255,255,255,.48);box-shadow:inset 0 0 28px rgba(255,255,255,.28);pointer-events:none}
+.loom-showcase-generated-name{position:relative;z-index:2;max-width:88%;font-family:var(--loom-showcase-font,Inter,ui-sans-serif,system-ui);font-weight:900;letter-spacing:.045em;line-height:.92;font-size:clamp(22px,4vw,46px);color:#000;overflow-wrap:anywhere;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+.loom-showcase-generated-plate{position:absolute;z-index:3;left:14%;right:14%;bottom:8%;min-height:44px;padding:7px 12px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.12);box-shadow:0 10px 24px rgba(0,0,0,.16);font:900 9px/1 var(--loom-showcase-font,Inter,ui-sans-serif,system-ui);letter-spacing:.12em;color:#111}
+.loom-showcase-generated-plate img{width:21px;height:21px;object-fit:contain;display:block}
+.loom-showcase-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,62px);overflow-wrap:anywhere;font-family:var(--loom-showcase-font,Inter,ui-sans-serif,system-ui)}
+.loom-showcase-title-1{max-width:100%;margin:0;font-size:clamp(30px,4vw,52px);line-height:.98;letter-spacing:-.04em;overflow-wrap:anywhere;color:var(--loom-showcase-title-1,#168346);font-weight:var(--loom-showcase-font-weight,800)}
+.loom-showcase-title-2{max-width:100%;margin:10px 0 0;font-size:clamp(18px,2.4vw,30px);line-height:1.08;letter-spacing:-.025em;overflow-wrap:anywhere;color:var(--loom-showcase-title-2,#168346);font-weight:var(--loom-showcase-font-weight,800)}
+.loom-showcase-copy p{max-width:68ch;font-size:clamp(14px,1.35vw,18px);line-height:1.68;white-space:pre-wrap;overflow-wrap:anywhere}.loom-showcase-bio-1{margin:20px 0 0;color:var(--loom-showcase-bio-1,#000)}.loom-showcase-bio-2{margin:12px 0 0;color:var(--loom-showcase-bio-2,#000)}
 .loom-module-frame[data-loom-frame-for="loom.showcase"]:not(.is-collapsed) .loom-showcase-card{border-top:0;border-top-left-radius:0;border-top-right-radius:0;box-shadow:0 18px 55px rgba(20,48,29,.07)}
-@media(max-width:760px){
-  .loom-showcase-card{grid-template-columns:1fr;min-height:0}
-  .loom-showcase-media,.loom-showcase-media img{min-height:200px;max-height:340px}
-  .loom-showcase-copy{padding:26px 20px}
-  .loom-showcase-no-image .loom-showcase-copy{min-height:190px}
-}
-@media(max-width:420px){
-  .loom-showcase-copy{padding:22px 16px}
-  .loom-showcase-copy h2{font-size:clamp(25px,10vw,34px)}
-  .loom-showcase-copy p{font-size:14px;line-height:1.6}
-}
+@media(max-width:760px){.loom-showcase-card{grid-template-columns:1fr;min-height:0}.loom-showcase-visual{min-height:260px;padding:20px}.loom-showcase-generated-wrap{width:min(86vw,380px)}.loom-showcase-media,.loom-showcase-media img{min-height:220px;max-height:360px}.loom-showcase-copy{padding:28px 22px}.loom-showcase-generated-plate{left:12%;right:12%}}
+@media(max-width:420px){.loom-showcase-copy{padding:24px 17px}.loom-showcase-title-1{font-size:clamp(27px,10vw,36px)}.loom-showcase-copy p{font-size:14px;line-height:1.6}.loom-showcase-generated-plate{font-size:8px;gap:5px;padding:6px 9px}.loom-showcase-generated-plate img{width:18px;height:18px}}

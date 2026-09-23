@@ -1,3 +1,13 @@
+## v0.15.19 - Social Fast Path + Showcase Identity + Module Chrome
+
+- Fixed bootstrap progress so the loader names the module currently being prepared rather than the module that just finished. A slow module can no longer falsely make Social Links look guilty.
+- Added hard fail-open startup timeouts for module import/factory/mount/activation and an 8-second live registry timeout with session/static fallback.
+- Social Links now prefers simple usernames/handles for YouTube, Facebook, TikTok, and Instagram, accepts full matching URLs, canonicalizes locally, and never resolves social destinations during startup.
+- Added LOOM-global, project-level, and per-module controls for module title bars, collapse capability, and initial expanded/collapsed state.
+- Admin/Project settings cards now start collapsed, remember browser-local open state, and move recently interacted module setting cards toward the top without counting expand/collapse clicks.
+- Showcase removed its visible SHOWCASE label, added optional second headline and second bio, inherits the Project Identity font, derives headline colors from project primary/accent with an adjustable 10% clockwise hue shift, and keeps paragraph text black by default.
+- Showcase now generates a deterministic project badge when no uploaded image exists: circular ridged/shadowed abstract color art, project name, LOOM logo, and POWERED BY LOOM nameplate on transparent surroundings.
+
 ## v0.15.18 - Delegated Admin + Global Navigation + Static URL Framing + Social SEO
 
 LOOM now has capability-based delegated administration with an immutable System Owner, multiple secondary LOOM Admins, and project-scoped Admin/Manager access for permanent accounts or durable Guest Identities. Admin-only navigation defaults to a shared auto-hiding side drawer, global Home/Profile buttons are centrally configurable across header/footer placements, and redundant Admin console navigation has been reduced.
@@ -349,7 +359,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.16 revision=33 policy=package-priority -->
+<!-- @loom-file release=0.15.19 revision=36 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

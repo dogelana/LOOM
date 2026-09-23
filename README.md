@@ -1,3 +1,7 @@
+## v0.15.19 - Social Fast Path + Showcase Identity + Module Chrome
+
+This release hardens project startup and turns module chrome into a first-class LOOM setting. Social profile fields are handle-first and purely local at startup; module loading is fail-open with bounded timeouts; Showcase inherits Project Identity more deeply and creates its own deterministic project badge when no image has been uploaded. Admin settings are browser-local accordions by default, while collapse/title-bar behavior is configurable globally, per project, and per module.
+
 ## v0.15.18 - Delegated Admin + Global Navigation + Static URL Framing + Social SEO
 
 LOOM now has capability-based delegated administration with an immutable System Owner, multiple secondary LOOM Admins, and project-scoped Admin/Manager access for permanent accounts or durable Guest Identities. Admin-only navigation defaults to a shared auto-hiding side drawer, global Home/Profile buttons are centrally configurable across header/footer placements, and redundant Admin console navigation has been reduced.
@@ -38,7 +42,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.18 revision=34 policy=package-priority -->
+<!-- @loom-file release=0.15.19 revision=35 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 
