@@ -13,5 +13,6 @@
     "logo_asset": "assets/logo.png",
     "logo_alt": "New LOOM Project"
   },
-  "engine_version": "0.15.03"
+  "engine_version": "0.15.04",
+  "social_color": "#000000"
 }

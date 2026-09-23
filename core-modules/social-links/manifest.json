@@ -1,0 +1,264 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.social-links",
+    "name": "Social Links",
+    "description": "Injects optional project social and web links into the project footer between project branding and More Tools.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.ui.footer-bar",
+    "category": "loom/project/footer",
+    "tags": [
+      "loom",
+      "core",
+      "project",
+      "footer",
+      "social",
+      "links",
+      "branding"
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "scope": "project",
+    "order": "00007",
+    "dependencies": [
+      "core.ui.footer-bar"
+    ],
+    "styles": [
+      "action.css"
+    ]
+  },
+  "presentation": {
+    "role": "content",
+    "collapsible": false,
+    "mount": {
+      "region": "footer-bar"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "center",
+      "position": "flow",
+      "order": 0,
+      "className": "loom-social-links-module"
+    }
+  },
+  "config": {
+    "facebookUrl": "",
+    "instagramUrl": "",
+    "youtubeUrl": "",
+    "tiktokUrl": "",
+    "websiteUrl": "",
+    "customUrl": "",
+    "customLabel": "Custom link",
+    "customIcon": "link",
+    "colorMode": "project",
+    "manualColor": "#000000",
+    "iconSize": 24
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Social Links",
+    "description": "Optional footer links. Leave a URL blank to hide that icon. All visible icons share one color and use bundled Font Awesome Free vector artwork.",
+    "fields": [
+      {
+        "id": "facebookUrl",
+        "label": "Facebook URL",
+        "type": "text",
+        "help": "Leave blank to hide Facebook."
+      },
+      {
+        "id": "instagramUrl",
+        "label": "Instagram URL",
+        "type": "text",
+        "help": "Leave blank to hide Instagram."
+      },
+      {
+        "id": "youtubeUrl",
+        "label": "YouTube URL",
+        "type": "text",
+        "help": "Leave blank to hide YouTube."
+      },
+      {
+        "id": "tiktokUrl",
+        "label": "TikTok URL",
+        "type": "text",
+        "help": "Leave blank to hide TikTok."
+      },
+      {
+        "id": "websiteUrl",
+        "label": "Website URL",
+        "type": "text",
+        "help": "Uses the matching globe icon."
+      },
+      {
+        "id": "customUrl",
+        "label": "Custom link URL",
+        "type": "text",
+        "help": "Optional extra link using one icon from the matching Font Awesome Free set."
+      },
+      {
+        "id": "customLabel",
+        "label": "Custom link label",
+        "type": "text",
+        "help": "Used for hover/accessibility text."
+      },
+      {
+        "id": "customIcon",
+        "label": "Custom link icon",
+        "type": "select",
+        "options": [
+          {
+            "value": "link",
+            "label": "Link"
+          },
+          {
+            "value": "envelope",
+            "label": "Email / Message"
+          },
+          {
+            "value": "store",
+            "label": "Store"
+          },
+          {
+            "value": "calendar",
+            "label": "Calendar"
+          },
+          {
+            "value": "location",
+            "label": "Location"
+          },
+          {
+            "value": "phone",
+            "label": "Phone"
+          },
+          {
+            "value": "heart",
+            "label": "Heart"
+          },
+          {
+            "value": "star",
+            "label": "Star"
+          },
+          {
+            "value": "community",
+            "label": "Community"
+          },
+          {
+            "value": "book",
+            "label": "Book"
+          },
+          {
+            "value": "music",
+            "label": "Music"
+          },
+          {
+            "value": "camera",
+            "label": "Camera"
+          },
+          {
+            "value": "game",
+            "label": "Game"
+          },
+          {
+            "value": "news",
+            "label": "News"
+          },
+          {
+            "value": "rss",
+            "label": "RSS"
+          },
+          {
+            "value": "shopping",
+            "label": "Shopping"
+          },
+          {
+            "value": "food",
+            "label": "Food"
+          },
+          {
+            "value": "paw",
+            "label": "Paw / Pet"
+          },
+          {
+            "value": "leaf",
+            "label": "Leaf / Nature"
+          },
+          {
+            "value": "github",
+            "label": "GitHub"
+          },
+          {
+            "value": "discord",
+            "label": "Discord"
+          },
+          {
+            "value": "linkedin",
+            "label": "LinkedIn"
+          },
+          {
+            "value": "x",
+            "label": "X / Twitter"
+          },
+          {
+            "value": "pinterest",
+            "label": "Pinterest"
+          },
+          {
+            "value": "spotify",
+            "label": "Spotify"
+          },
+          {
+            "value": "twitch",
+            "label": "Twitch"
+          }
+        ]
+      },
+      {
+        "id": "colorMode",
+        "label": "Icon color source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project default"
+          },
+          {
+            "value": "loom",
+            "label": "LOOM default · black"
+          },
+          {
+            "value": "manual",
+            "label": "Custom color"
+          }
+        ],
+        "help": "Project default is set in Project Identity. LOOM default is solid black."
+      },
+      {
+        "id": "manualColor",
+        "label": "Custom icon color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorMode",
+          "equals": "manual"
+        }
+      },
+      {
+        "id": "iconSize",
+        "label": "Icon size",
+        "type": "range",
+        "min": 18,
+        "max": 42,
+        "step": 1,
+        "unit": "px"
+      }
+    ]
+  }
+}

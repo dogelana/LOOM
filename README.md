@@ -1,4 +1,14 @@
-<!-- @loom-file release=0.15.03 revision=19 policy=package-priority -->
+<!-- @loom-file release=0.15.04 revision=20 policy=package-priority -->
+
+## v0.15.04 - Social Links
+
+LOOM now includes the project-scoped **Social Links** core module (`loom.social-links`). It injects optional social/web icons directly into the standard project footer after project branding and before **More Tools**. No links are configured by default, so existing projects gain no visible footer clutter until an Admin opts in.
+
+Admin can paste Facebook, Instagram, YouTube, TikTok and Website URLs plus one Custom Link. The custom link uses a curated icon picker from the same Font Awesome Free family as the bundled platform artwork. Every icon is rendered from local SVG path data with transparent backgrounds and one shared color. The color source can be **Project default**, **LOOM default (black)** or a manual color. Project Identity now owns the project's default social/footer icon color.
+
+The icon subset is bundled locally from Font Awesome Free 6.7.2, including its license notice, so project footers do not depend on a third-party CDN.
+
+The obsolete Windows `launch.bat` local-development helper is formally retired in this release and is listed as a package tombstone so compatible Deployer runs remove stale server copies.
 
 ## v0.15.03 - Live Release Reload
 

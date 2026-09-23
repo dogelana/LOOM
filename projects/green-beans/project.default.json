@@ -25,12 +25,13 @@
     "logo_asset": "assets/logo.png",
     "logo_alt": "Green Beans"
   },
-  "engine_version": "0.15.03",
+  "engine_version": "0.15.04",
   "identity_model": "guest-profile-generations-v1",
   "brand_defaults": {
     "dark_bean": "#279E38",
     "light_bean": "#A9DF4F",
     "base_logo": "assets/logo.png"
   },
-  "bio": "Green Beans is the family food app that turns \"what are we doing for dinner?\" into a plan, a shopping list and a table full of happy people. Say what you need, approve what you like and share the good stuff. Plan. Eat. Share."
+  "bio": "Green Beans is the family food app that turns \"what are we doing for dinner?\" into a plan, a shopping list and a table full of happy people. Say what you need, approve what you like and share the good stuff. Plan. Eat. Share.",
+  "social_color": "#279E38"
 }

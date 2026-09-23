@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.03 revision=15 policy=package-priority -->
+<!-- @loom-file release=0.15.04 revision=16 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -328,3 +328,9 @@ Shell navigation uses fixed semantic full-color emoji rather than font-dependent
 LOOM clients may remain open while a release is deployed. Client convergence is therefore a platform concern rather than a deployment-transport concern. `loom.release.watch` observes only the canonical deployment commit marker: the deployment manifest fingerprint returned by `api/version.php`. Because compatible Deployer behavior commits that manifest last, clients ignore partially transferred release state and refresh only after canonical health is coherent.
 
 The release watcher lives in the shared LOOM brand/runtime surface so Home, Admin, developer surfaces and project shells participate without project-specific code. It is globally configurable and default-on. A release transition emits `loom:release-will-reload` before cache-busted navigation so stateful modules can snapshot ephemeral drafts.
+
+## v0.15.04 — Footer social-link composition
+
+`loom.social-links` is a reusable project-scoped core capability that composes into the standard footer without moving project-specific social configuration into release-owned project modules. The module activates after the footer region exists, inserts its own row directly after the branding row, and remains visually absent when no links are configured.
+
+Icon geometry is bundled from Font Awesome Free and rendered with `currentColor`; link configuration remains project module settings in the Instance Vault. The project-wide default social color is part of Project Identity, while the module may explicitly choose LOOM black or a manual override. This keeps project identity, module configuration, and package-owned vector assets separated by ownership.

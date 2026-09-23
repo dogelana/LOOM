@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.02 revision=12 policy=package-priority
+// @loom-file release=0.15.04 revision=13 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -460,6 +460,7 @@ function loom_project_profile_payload(string $project): ?array {
     'theme'=>(string)($data['theme']??'default'),
     'version'=>(string)($data['version']??'0.1.0'),
     'engine'=>(string)($data['engine']??'LOOM'),
+    'social_color'=>preg_match('/^#[0-9A-Fa-f]{6}$/',(string)($data['social_color']??''))?strtoupper((string)$data['social_color']):'#000000',
     'branding'=>[
       'logo_asset'=>$asset?:'assets/logo.png',
       'logo_alt'=>(string)($branding['logo_alt']??($data['name']??humanize_project_slug($slug))),
@@ -474,6 +475,7 @@ function loom_write_project_profile(string $project,array $incoming): array {
   if(array_key_exists('tagline',$incoming))$data['tagline']=loom_clean_project_text($incoming['tagline'],140);
   if(array_key_exists('description',$incoming))$data['description']=loom_clean_project_text($incoming['description'],500);
   if(array_key_exists('bio',$incoming))$data['bio']=loom_clean_project_text($incoming['bio'],1800);
+  if(array_key_exists('social_color',$incoming)){$c=strtoupper(trim((string)$incoming['social_color']));if(!preg_match('/^#[0-9A-F]{6}$/',$c))throw new RuntimeException('Project social color must be a 6-digit hex color');$data['social_color']=$c;}
   if(array_key_exists('theme',$incoming)){$theme=preg_replace('/[^a-zA-Z0-9_.-]/','',loom_clean_project_text($incoming['theme'],60));$data['theme']=$theme!==''?$theme:'default';}
   $effective=loom_project_effective_data($slug);
   $branding=is_array($data['branding']??null)?$data['branding']:[];

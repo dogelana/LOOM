@@ -1,3 +1,17 @@
+# LOOM 0.15.04 - Social Links
+
+- Added project-scoped core module `loom.social-links`, enabled by default but visually empty until at least one link is configured.
+- Social Links injects into the standard project footer immediately below project branding and above More Tools.
+- Added Admin URL fields for Facebook, Instagram, YouTube, TikTok, Website and one Custom Link.
+- Added a curated Custom Link icon selector from the same Font Awesome Free family.
+- Bundled transparent resolution-independent SVG path artwork locally; no CDN is required at runtime.
+- All social-link icons share a single color source: Project default, LOOM black, or a manual color.
+- Project Identity now includes a persistent project footer/social icon color.
+- Green Beans defaults its project social color to `#279E38`; baseline/new projects default to `#000000`.
+- Runtime URL normalization accepts ordinary domain-style pasted links and limits rendered links to HTTP/HTTPS.
+- External links open in a new tab with `noopener noreferrer`.
+- Formally retired legacy `launch.bat`; deployment metadata includes a package-priority tombstone for the stale server copy.
+
 # LOOM 0.15.03 - Live Release Reload
 
 - Added global `loom.release.watch` core module, enabled by default.
@@ -179,7 +193,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.03 revision=19 policy=package-priority -->
+<!-- @loom-file release=0.15.04 revision=20 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
