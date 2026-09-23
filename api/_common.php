@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.13 revision=17 policy=package-priority
+// @loom-file release=0.15.14 revision=18 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -96,6 +96,24 @@ function loom_project_wordmark_lines(string $name): array {
   }
   return ['line1'=>implode(' ',array_slice($words,0,$best)),'line2'=>implode(' ',array_slice($words,$best))];
 }
+
+function loom_project_brand_identity(string $project): array {
+  $slug=safe_slug($project);$data=loom_project_effective_data($slug);$branding=is_array($data['branding']??null)?$data['branding']:[];
+  $stored=is_array($branding['wordmark']??null)?$branding['wordmark']:[];
+  $name=loom_clean_project_text($data['name']??humanize_project_slug($slug),140);if($name==='')$name=humanize_project_slug($slug);
+  $auto=loom_project_wordmark_lines($name);$mode=in_array((string)($stored['mode']??'auto'),['auto','custom'],true)?(string)($stored['mode']??'auto'):'auto';
+  $line1=$mode==='custom'?loom_clean_project_text($stored['line1']??'',80):$auto['line1'];
+  $line2=$mode==='custom'?loom_clean_project_text($stored['line2']??'',80):$auto['line2'];
+  if($mode==='custom'&&$line1===''&&$line2===''){$mode='auto';$line1=$auto['line1'];$line2=$auto['line2'];}
+  $colors=loom_project_brand_colors($slug);
+  $fontFamily=loom_clean_project_text($stored['font_family']??'League Spartan',60);if($fontFamily==='')$fontFamily='League Spartan';
+  $fontWeight=max(100,min(950,(int)($stored['font_weight']??900)));
+  $fontCss=$fontFamily==='League Spartan'?'https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap':'';
+  return [
+    'mode'=>$mode,'name'=>$name,'line1'=>$line1,'line2'=>$line2,'auto_line1'=>$auto['line1'],'auto_line2'=>$auto['line2'],
+    'primary'=>$colors['primary'],'accent'=>$colors['accent'],'font_family'=>$fontFamily,'font_weight'=>$fontWeight,'font_css'=>$fontCss
+  ];
+}
 function loom_project_legacy_action_manifest(string $project,string $actionId): ?array {
   $dir=project_dir($project);if(!$dir)return null;$root=$dir.'/actions';if(!is_dir($root))return null;
   $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
@@ -111,13 +129,33 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     if(is_array($legacy['config']??null))$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacy['config']);
     if(is_array($legacy['presentation']??null))$manifest['presentation']=array_replace_recursive(is_array($manifest['presentation']??null)?$manifest['presentation']:[],$legacy['presentation']);
   }
+  $brand=loom_project_brand_identity($project);
   if($id==='core.ui.load-logo-text'){
-    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$legacyCfg=is_array($legacy['config']??null)?$legacy['config']:[];
-    $data=loom_project_effective_data($project);$name=(string)($data['name']??humanize_project_slug($project));$lines=loom_project_wordmark_lines($name);$colors=loom_project_brand_colors($project);
-    if(!array_key_exists('line1',$legacyCfg))$cfg['line1']=$lines['line1'];
-    if(!array_key_exists('line2',$legacyCfg))$cfg['line2']=$lines['line2'];
-    if(!array_key_exists('greenColor',$legacyCfg))$cfg['greenColor']=$colors['primary'];
-    if(!array_key_exists('beanColor',$legacyCfg))$cfg['beanColor']=$colors['accent'];
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$admin=loom_module_admin_overrides($project,$id);
+    // Backwards compatibility: pre-0.15.14 explicit Logo Text values mean this location was customized.
+    $wordingSource=(string)($admin['wordingSource']??((array_key_exists('line1',$admin)||array_key_exists('line2',$admin))?'custom':'project'));
+    $colorSource=(string)($admin['colorSource']??((array_key_exists('greenColor',$admin)||array_key_exists('beanColor',$admin))?'custom':'project'));
+    $fontSource=(string)($admin['fontSource']??(array_key_exists('fontFamily',$admin)?'custom':'project'));
+    $cfg['wordingSource']=in_array($wordingSource,['project','custom'],true)?$wordingSource:'project';
+    $cfg['colorSource']=in_array($colorSource,['project','custom'],true)?$colorSource:'project';
+    $cfg['fontSource']=in_array($fontSource,['project','custom'],true)?$fontSource:'project';
+    if($cfg['wordingSource']==='project'){$cfg['line1']=$brand['line1'];$cfg['line2']=$brand['line2'];}
+    if($cfg['colorSource']==='project'){$cfg['greenColor']=$brand['primary'];$cfg['beanColor']=$brand['accent'];}
+    if($cfg['fontSource']==='project'){$cfg['fontFamily']=$brand['font_family'];$cfg['fontWeight']=$brand['font_weight'];$cfg['fontGoogleCss']=$brand['font_css'];}
+    $cfg['projectWordmark']=$brand;
+    $manifest['config']=$cfg;
+  }
+  if($id==='core.ui.footer-bar'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
+    $cfg['projectName']=$brand['name'];$cfg['projectWordmarkLine1']=$brand['line1'];$cfg['projectWordmarkLine2']=$brand['line2'];
+    $cfg['projectWordmarkPrimary']=$brand['primary'];$cfg['projectWordmarkAccent']=$brand['accent'];
+    $cfg['projectWordmarkFontFamily']=$brand['font_family'];$cfg['projectWordmarkFontWeight']=$brand['font_weight'];$cfg['projectWordmarkFontCss']=$brand['font_css'];
+    $manifest['config']=$cfg;
+  }
+  if($id==='core.ui.loader'){
+    $cfg=is_array($manifest['config']??null)?$manifest['config']:[];
+    $cfg['brandLine1']=$brand['line1'];$cfg['brandLine2']=$brand['line2'];$cfg['brandColor1']=$brand['primary'];$cfg['brandColor2']=$brand['accent'];
+    $cfg['brandFontFamily']=$brand['font_family'];$cfg['brandFontWeight']=$brand['font_weight'];$cfg['brandFontCss']=$brand['font_css'];
     $manifest['config']=$cfg;
   }
   return $manifest;
@@ -618,6 +656,7 @@ function loom_project_profile_payload(string $project): ?array {
   $data=loom_project_effective_data($slug);$branding=is_array($data['branding']??null)?$data['branding']:[];
   $asset=ltrim(str_replace('\\','/',(string)($branding['logo_asset']??'assets/logo.png')),'/');
   $logoUrl=$asset!==''&&!str_contains($asset,'..')?loom_project_asset_url($slug,$asset):null;
+  $wordmark=loom_project_brand_identity($slug);
   return [
     'slug'=>$slug,
     'name'=>(string)($data['name']??humanize_project_slug($slug)),
@@ -630,6 +669,7 @@ function loom_project_profile_payload(string $project): ?array {
     'brand_primary_color'=>loom_project_brand_colors($slug)['primary'],
     'brand_accent_color'=>loom_project_brand_colors($slug)['accent'],
     'social_color'=>loom_brand_hex($data['social_color']??null,loom_project_brand_colors($slug)['primary']),
+    'wordmark'=>$wordmark,
     'branding'=>[
       'logo_asset'=>$asset?:'assets/logo.png',
       'logo_alt'=>(string)($branding['logo_alt']??($data['name']??humanize_project_slug($slug))),
@@ -657,6 +697,16 @@ function loom_write_project_profile(string $project,array $incoming): array {
   $branding['logo_asset']=(string)($branding['logo_asset']??$baseBrand['logo_asset']??'assets/logo.png');
   if(array_key_exists('logo_alt',$incoming))$branding['logo_alt']=loom_clean_project_text($incoming['logo_alt'],120);
   elseif(empty($branding['logo_alt']))$branding['logo_alt']=(string)($data['name']??$effective['name']??humanize_project_slug($slug));
+  if(array_key_exists('wordmark_mode',$incoming)||array_key_exists('wordmark_line1',$incoming)||array_key_exists('wordmark_line2',$incoming)||array_key_exists('wordmark_font_family',$incoming)||array_key_exists('wordmark_font_weight',$incoming)){
+    $wm=is_array($branding['wordmark']??null)?$branding['wordmark']:[];
+    if(array_key_exists('wordmark_mode',$incoming)){$mode=(string)$incoming['wordmark_mode'];if(!in_array($mode,['auto','custom'],true))throw new RuntimeException('Project wordmark mode must be auto or custom');$wm['mode']=$mode;}
+    if(array_key_exists('wordmark_line1',$incoming))$wm['line1']=loom_clean_project_text($incoming['wordmark_line1'],80);
+    if(array_key_exists('wordmark_line2',$incoming))$wm['line2']=loom_clean_project_text($incoming['wordmark_line2'],80);
+    if(array_key_exists('wordmark_font_family',$incoming)){$font=loom_clean_project_text($incoming['wordmark_font_family'],60);if(!in_array($font,['League Spartan','Arial Black','Impact','system-ui','Georgia'],true))throw new RuntimeException('Unsupported project wordmark font');$wm['font_family']=$font;}
+    if(array_key_exists('wordmark_font_weight',$incoming))$wm['font_weight']=max(100,min(950,(int)$incoming['wordmark_font_weight']));
+    if(($wm['mode']??'auto')==='custom'&&trim((string)($wm['line1']??''))===''&&trim((string)($wm['line2']??''))==='')throw new RuntimeException('Custom project wordmark needs at least one line');
+    $branding['wordmark']=$wm;
+  }
   $data['branding']=$branding;$data['updated_at']=server_timestamp();
   $file=loom_project_override_file($slug);ensure_dir(dirname($file));
   $json=json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);

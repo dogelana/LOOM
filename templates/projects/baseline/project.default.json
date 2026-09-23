@@ -11,8 +11,13 @@
   "project_generation": "instance-baseline-v1",
   "branding": {
     "logo_asset": "assets/logo.png",
-    "logo_alt": "New LOOM Project"
+    "logo_alt": "New LOOM Project",
+    "wordmark": {
+      "mode": "auto",
+      "font_family": "League Spartan",
+      "font_weight": 900
+    }
   },
-  "engine_version": "0.15.13",
+  "engine_version": "0.15.14",
   "social_color": "#000000"
 }

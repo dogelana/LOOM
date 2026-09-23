@@ -1,3 +1,14 @@
+# LOOM 0.15.14 - Canonical Project Branding
+
+- Introduced one canonical Project Identity wordmark shared by LOOM Home, Loader, Footer, and project-aware modules.
+- Internal slugs are no longer valid visible footer fallback text; human project names are prettified and auto-balanced instead.
+- Renamed the meaning of `core.ui.load-logo-text` to **Header Wordmark** while keeping its stable action ID. Disabling it now hides header text only.
+- Header Wordmark defaults to canonical Project Identity wording/colors/font and supports header-only custom overrides.
+- Footer project text is now independent from Header Wordmark, with Project Identity / Custom / Hidden (logo-only) modes plus local color/font overrides.
+- Promoted Project Loader to a release-managed project-scoped core module so existing Instance Projects inherit canonical brand wording even when Header Wordmark is disabled.
+- Project Identity now exposes canonical wordmark Auto/Custom mode, line 1/line 2, font, main color, and accent color in one place.
+- Added `docs/PROJECT-BRANDING-STANDARD.md`.
+
 # LOOM 0.15.13 - Project Branding + Instance Delivery + Reload Warning
 
 - Promoted **Logo Text**, **Footer Bar**, and **Orb Dock** into release-managed project-scoped core modules so existing Instance Projects receive fixes without LOOM mutating their persistent project trees.

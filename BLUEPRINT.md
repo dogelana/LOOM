@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.13 revision=25 policy=package-priority -->
+<!-- @loom-file release=0.15.14 revision=26 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -397,3 +397,8 @@ Project identity now includes optional main/accent brand colors. Logo Text deriv
 Instance Project static files are served through a path-preserving virtual namespace so normal browser-relative semantics remain intact even though the persistent bytes live in `instance/projects/<slug>/project/**`.
 
 Live Release Reload warns before refreshing. The default warning is sixty seconds and emits `loom:release-will-reload` immediately with the intended reload time so modules can save drafts or present their own UX.
+
+
+## v0.15.14 — Canonical Project Branding
+
+Brand data is now separated from presentation location. Project Identity owns canonical wordmark wording, main/accent colors, and canonical font. Header Wordmark, Footer, Loader, Home, and future brand-aware modules consume that identity. Location modules may hide or override their own rendering without mutating canonical project branding.

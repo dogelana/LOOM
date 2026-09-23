@@ -1,4 +1,4 @@
-// @loom-file release=0.15.13 revision=1 policy=package-priority
+// @loom-file release=0.15.14 revision=2 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};
@@ -49,10 +49,20 @@ export async function createModule(ctx){
 
   async function build(){
     const logoD=desc('core.ui.load-logo');
-    const textD=desc('core.ui.load-logo-text');
     const logoCfg=logoD.config||{};
-    const textCfg=textD.config||{};
-    ensureFont(textCfg.fontGoogleCss);
+    const wordmarkMode=enumVal(ctx.config.wordmarkMode,['project','custom','hidden'],'project');
+    const colorMode=enumVal(ctx.config.wordmarkColorMode,['project','custom'],'project');
+    const fontMode=enumVal(ctx.config.wordmarkFontMode,['project','custom'],'project');
+    const canonicalLine1=clean(ctx.config.projectWordmarkLine1||ctx.config.projectName||'Project');
+    const canonicalLine2=clean(ctx.config.projectWordmarkLine2||'');
+    const line1=wordmarkMode==='custom'?clean(ctx.config.footerLine1||canonicalLine1):canonicalLine1;
+    const line2=wordmarkMode==='custom'?clean(ctx.config.footerLine2||''):canonicalLine2;
+    const color1=colorMode==='custom'?String(ctx.config.footerColor1||'#111111'):String(ctx.config.projectWordmarkPrimary||'#111111');
+    const color2=colorMode==='custom'?String(ctx.config.footerColor2||'#168346'):String(ctx.config.projectWordmarkAccent||'#168346');
+    const fontFamily=fontMode==='custom'?clean(ctx.config.footerFontFamily||'League Spartan'):clean(ctx.config.projectWordmarkFontFamily||'League Spartan');
+    const fontWeight=fontMode==='custom'?bounded(ctx.config.footerFontWeight,100,950,900):bounded(ctx.config.projectWordmarkFontWeight,100,950,900);
+    const fontCss=fontMode==='custom'?(fontFamily==='League Spartan'?'https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap':''):String(ctx.config.projectWordmarkFontCss||'');
+    ensureFont(fontCss);
 
     const logoUrl=await ctx.resolveAssetPath(logoCfg.assetPath||'assets/logo.png','project');
 
@@ -74,25 +84,25 @@ export async function createModule(ctx){
       const img=document.createElement('img');
       img.className='loom-footer-project-logo';
       img.src=logoUrl;
-      img.alt=logoCfg.alt||`${ctx.project} logo`;
+      img.alt=logoCfg.alt||`${ctx.config.projectName||'Project'} logo`;
       img.style.width=img.style.height=px(ctx.config.projectLogoSize,24,140,64);
       project.appendChild(img);
     }
-    const wm=document.createElement('div');
-    wm.className='loom-footer-wordmark';
-    wm.style.fontFamily=`"${clean(textCfg.fontFamily||'League Spartan').replace(/["<>]/g,'')}",system-ui`;
-    wm.style.fontWeight=String(textCfg.fontWeight||900);
-    wm.style.fontSize=px(ctx.config.projectTextSize,9,44,17);
-    const l1=document.createElement('span');
-    l1.textContent=clean(textCfg.line1||ctx.project);
-    l1.style.color=textCfg.greenColor||'#39A935';
-    const l2=document.createElement('span');
-    l2.textContent=clean(textCfg.line2||'');
-    l2.style.color=textCfg.beanColor||'#A6D94E';
-    wm.append(l1);
-    if(l2.textContent)wm.append(l2);
-    project.appendChild(wm);
+    if(wordmarkMode!=='hidden'){
+      const wm=document.createElement('div');
+      wm.className='loom-footer-wordmark';
+      wm.style.fontFamily=`"${fontFamily.replace(/["<>]/g,'')}",system-ui`;
+      wm.style.fontWeight=String(fontWeight);
+      wm.style.fontSize=px(ctx.config.projectTextSize,9,44,17);
+      const l1=document.createElement('span');l1.textContent=line1;l1.style.color=color1;
+      const l2=document.createElement('span');l2.textContent=line2;l2.style.color=color2;
+      if(l1.textContent)wm.append(l1);if(l2.textContent)wm.append(l2);
+      if(wm.childElementCount)project.appendChild(wm);
+    }
     brandRow.appendChild(project);
+    if(!project.childElementCount)brandRow.hidden=true;
+    if(!project.childElementCount)brandRow.hidden=true;
+    if(!project.childElementCount)brandRow.hidden=true;
 
     const toolsRow=document.createElement('div');
     toolsRow.className='loom-footer-row loom-footer-tools-row';
@@ -141,7 +151,7 @@ export async function createModule(ctx){
       structure:['project-branding','more-tools','loom-attribution'],
       orbSlot:orbs.dataset.loomSlot,
       toolsWidth:toolsRow.dataset.rowWidth,
-      loomMark:'animated'
+      loomMark:'animated',wordmarkMode,colorMode,fontMode,canonicalProjectName:ctx.config.projectName||ctx.project
     });
   }
 

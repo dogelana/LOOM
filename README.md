@@ -1,3 +1,7 @@
+## v0.15.14 - Canonical Project Branding
+
+Project Identity now owns one canonical text brand. Header, Footer, Loader, Home, and project-aware modules inherit it unless a location explicitly overrides or hides it. The internal project slug is never used as visible brand text when the project name is available.
+
 ## v0.15.13 - Project Branding + Instance Delivery + Reload Warning
 
 This release makes new and existing Instance Projects inherit core branding/footer fixes from LOOM itself. Project creation now establishes a usable two-color brand immediately, Instance Project module assets use a path-preserving virtual filesystem, empty More Tools sections disappear, Admin Open Project works from any route depth, and release refreshes provide a one-minute warning by default.

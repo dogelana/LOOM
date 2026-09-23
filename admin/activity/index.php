@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.13 revision=4 policy=package-priority
+// @loom-file release=0.15.14 revision=5 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -11,7 +11,7 @@ if(!loom_request_is_admin()){http_response_code(403);?><!doctype html><html><hea
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <title>LOOM Activity Explorer</title>
-<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.13">
+<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.14">
 <style>
 :root{--ink:#132019;--muted:#6d7b72;--green:#168346;--line:#dce9df;--soft:#f5faf6;--red:#9f2929}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% -10%,#dff6e6,#f6faf6 45%,#edf4ee)}
@@ -52,10 +52,10 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/loom-brand.js?v=0.15.13"></script>
-<script src="../../engine/identity.js?v=0.15.13"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.13"></script>
-<script src="../../engine/loom-shell.js?v=0.15.13"></script>
+<script src="../../engine/loom-brand.js?v=0.15.14"></script>
+<script src="../../engine/identity.js?v=0.15.14"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.14"></script>
+<script src="../../engine/loom-shell.js?v=0.15.14"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];

@@ -3,8 +3,8 @@
   "enabled": true,
   "action": {
     "id": "core.ui.load-logo-text",
-    "name": "Load Logo Text",
-    "description": "Universal release-managed two-line project wordmark. Project names and project brand colors are used automatically until Admin creates explicit Logo Text overrides.",
+    "name": "Header Wordmark",
+    "description": "Header-only project wordmark renderer. By default it inherits the canonical Project Identity wordmark, colors, and font; disabling this module hides header text only.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -35,7 +35,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "dependencies": [
       "core.ui.header-bar"
     ],
@@ -68,7 +68,10 @@
     "greenColor": "#279E38",
     "beanColor": "#A9DF4F",
     "opticalOffsetY": "10px",
-    "fontSize": 54
+    "fontSize": 54,
+    "wordingSource": "project",
+    "colorSource": "project",
+    "fontSource": "project"
   },
   "pegboard": {
     "preferredDepth": 3,
@@ -76,33 +79,95 @@
   },
   "user_actions": [],
   "admin_settings": {
-    "title": "Logo Text",
-    "description": "Edit the project wordmark. New projects automatically balance the project name across up to two lines and inherit project main/accent colors. Saving these fields creates explicit project overrides.",
+    "title": "Header Wordmark / Logo Text",
+    "description": "This module controls text in the HEADER only. Project Identity owns the canonical project wording/colors used by Loader, Home, and Footer. Disable this module to hide header text without changing those other locations, or choose Custom below for a header-only override.",
     "fields": [
       {
+        "id": "wordingSource",
+        "label": "Header wording source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Identity wordmark"
+          },
+          {
+            "value": "custom",
+            "label": "Custom header wording"
+          }
+        ]
+      },
+      {
         "id": "line1",
-        "label": "Top line",
+        "label": "Custom header top line",
         "type": "text",
-        "maxLength": 80
+        "maxLength": 80,
+        "visibleWhen": {
+          "field": "wordingSource",
+          "equals": "custom"
+        }
       },
       {
         "id": "line2",
-        "label": "Bottom line",
+        "label": "Custom header bottom line",
         "type": "text",
-        "maxLength": 80
+        "maxLength": 80,
+        "visibleWhen": {
+          "field": "wordingSource",
+          "equals": "custom"
+        }
       },
       {
-        "id": "fontSize",
-        "label": "Font size",
-        "type": "range",
-        "min": 20,
-        "max": 144,
-        "step": 1,
-        "unit": "px"
+        "id": "colorSource",
+        "label": "Header color source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project main + accent colors"
+          },
+          {
+            "value": "custom",
+            "label": "Custom header colors"
+          }
+        ]
+      },
+      {
+        "id": "greenColor",
+        "label": "Custom header top-line color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorSource",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "beanColor",
+        "label": "Custom header bottom-line color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorSource",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "fontSource",
+        "label": "Header font source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Identity font"
+          },
+          {
+            "value": "custom",
+            "label": "Custom header font"
+          }
+        ]
       },
       {
         "id": "fontFamily",
-        "label": "Font",
+        "label": "Custom header font",
         "type": "select",
         "options": [
           {
@@ -125,17 +190,20 @@
             "value": "Georgia",
             "label": "Georgia"
           }
-        ]
+        ],
+        "visibleWhen": {
+          "field": "fontSource",
+          "equals": "custom"
+        }
       },
       {
-        "id": "greenColor",
-        "label": "Top line color",
-        "type": "color"
-      },
-      {
-        "id": "beanColor",
-        "label": "Bottom line color",
-        "type": "color"
+        "id": "fontSize",
+        "label": "Header wordmark size",
+        "type": "range",
+        "min": 20,
+        "max": 144,
+        "step": 1,
+        "unit": "px"
       }
     ]
   }

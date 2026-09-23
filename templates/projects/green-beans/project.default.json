@@ -23,9 +23,14 @@
   "project_generation": "scratch-2",
   "branding": {
     "logo_asset": "assets/logo.png",
-    "logo_alt": "Green Beans"
+    "logo_alt": "Green Beans",
+    "wordmark": {
+      "mode": "auto",
+      "font_family": "League Spartan",
+      "font_weight": 900
+    }
   },
-  "engine_version": "0.15.13",
+  "engine_version": "0.15.14",
   "identity_model": "guest-profile-generations-v1",
   "brand_defaults": {
     "dark_bean": "#279E38",

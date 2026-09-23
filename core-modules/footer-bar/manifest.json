@@ -4,7 +4,7 @@
   "action": {
     "id": "core.ui.footer-bar",
     "name": "Footer Bar",
-    "description": "Release-managed responsive LOOM footer with project branding, conditional More Tools row, LOOM attribution, and project-scoped customization.",
+    "description": "Responsive project footer. Project branding text inherits the canonical Project Identity wordmark by default and can be independently hidden or overridden without depending on the Header Wordmark module.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -21,7 +21,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.4.0",
+    "version": "2.1.0",
     "dependencies": [],
     "styles": [
       "action.css"
@@ -73,7 +73,24 @@
     "loomRowBackground": "#FFFFFF",
     "orbSlot": "orbs",
     "brandFitExtraWidth": 100,
-    "brandFitExtraHeight": 20
+    "brandFitExtraHeight": 20,
+    "wordmarkMode": "project",
+    "footerLine1": "",
+    "footerLine2": "",
+    "wordmarkColorMode": "project",
+    "footerColor1": "#111111",
+    "footerColor2": "#168346",
+    "wordmarkFontMode": "project",
+    "footerFontFamily": "League Spartan",
+    "footerFontWeight": 900,
+    "projectName": "Project",
+    "projectWordmarkLine1": "PROJECT",
+    "projectWordmarkLine2": "",
+    "projectWordmarkPrimary": "#111111",
+    "projectWordmarkAccent": "#168346",
+    "projectWordmarkFontFamily": "League Spartan",
+    "projectWordmarkFontWeight": 900,
+    "projectWordmarkFontCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap"
   },
   "pegboard": {
     "preferredDepth": 2,
@@ -82,7 +99,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Footer Bar",
-    "description": "Control the responsive footer and each independent row. The default project-branding row is centered and fit-to-content with 100px total extra width and 20px total extra height.",
+    "description": "Control the responsive footer and each independent row. Footer project text now inherits canonical Project Identity branding by default and is independent from the Header Wordmark module.",
     "fields": [
       {
         "id": "outerPadding",
@@ -130,6 +147,137 @@
             "label": "Fit Content"
           }
         ]
+      },
+      {
+        "id": "wordmarkMode",
+        "label": "Footer project text",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Identity wordmark"
+          },
+          {
+            "value": "custom",
+            "label": "Custom footer wording"
+          },
+          {
+            "value": "hidden",
+            "label": "Hidden · logo only"
+          }
+        ],
+        "help": "Independent from Header Wordmark. Hiding header text does not hide footer text, and vice versa."
+      },
+      {
+        "id": "footerLine1",
+        "label": "Custom footer top line",
+        "type": "text",
+        "maxLength": 80,
+        "visibleWhen": {
+          "field": "wordmarkMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "footerLine2",
+        "label": "Custom footer bottom line",
+        "type": "text",
+        "maxLength": 80,
+        "visibleWhen": {
+          "field": "wordmarkMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "wordmarkColorMode",
+        "label": "Footer wordmark colors",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project main + accent colors"
+          },
+          {
+            "value": "custom",
+            "label": "Custom footer colors"
+          }
+        ]
+      },
+      {
+        "id": "footerColor1",
+        "label": "Custom footer top-line color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "wordmarkColorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "footerColor2",
+        "label": "Custom footer bottom-line color",
+        "type": "color",
+        "visibleWhen": {
+          "field": "wordmarkColorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "wordmarkFontMode",
+        "label": "Footer wordmark font",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Identity font"
+          },
+          {
+            "value": "custom",
+            "label": "Custom footer font"
+          }
+        ]
+      },
+      {
+        "id": "footerFontFamily",
+        "label": "Custom footer font",
+        "type": "select",
+        "options": [
+          {
+            "value": "League Spartan",
+            "label": "League Spartan"
+          },
+          {
+            "value": "Arial Black",
+            "label": "Arial Black"
+          },
+          {
+            "value": "Impact",
+            "label": "Impact"
+          },
+          {
+            "value": "system-ui",
+            "label": "System UI"
+          },
+          {
+            "value": "Georgia",
+            "label": "Georgia"
+          }
+        ],
+        "visibleWhen": {
+          "field": "wordmarkFontMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "footerFontWeight",
+        "label": "Custom footer font weight",
+        "type": "range",
+        "min": 100,
+        "max": 950,
+        "step": 50,
+        "visibleWhen": {
+          "field": "wordmarkFontMode",
+          "equals": "custom"
+        }
       },
       {
         "id": "projectLogoSize",
