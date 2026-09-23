@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.23 revision=27 policy=package-priority
+// @loom-file release=0.15.25 revision=28 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -253,6 +253,7 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
   if($id==='core.ui.background-orbs'){
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$admin=loom_module_admin_overrides($project,$id);
     if(!array_key_exists('glowColor',$admin))$cfg['glowColor']=$brand['accent'];
+    $cfg['secondaryGlowColor']=$brand['primary'];
     $manifest['config']=$cfg;
   }
   if($id==='loom.social-links'){
@@ -607,7 +608,7 @@ function loom_module_presentation_global_defaults(): array {
   $cfg=loom_global_module_effective_config('loom.module-presentation');
   return [
     'collapseEnabled'=>(bool)($cfg['collapseEnabled']??false),
-    'titleBarsEnabled'=>(bool)($cfg['titleBarsEnabled']??true),
+    'titleBarsEnabled'=>(bool)($cfg['titleBarsEnabled']??false),
     'initialState'=>in_array((string)($cfg['initialState']??'expanded'),['expanded','collapsed'],true)?(string)$cfg['initialState']:'expanded'
   ];
 }
@@ -632,12 +633,13 @@ function loom_project_module_presentation_policy(string $project,string $actionI
   $cm=(string)($row['collapseMode']??'inherit');if(!in_array($cm,['inherit','enabled','disabled'],true))$cm='inherit';
   $tm=(string)($row['titleBarMode']??'inherit');if(!in_array($tm,['inherit','show','hide'],true))$tm='inherit';
   $im=(string)($row['initialState']??'inherit');if(!in_array($im,['inherit','expanded','collapsed'],true))$im='inherit';
+  $titleText=loom_clean_project_text($row['titleText']??'',100);
   $manifestAllows=($presentation['collapsible']??true)!==false;
   $collapse=$cm==='enabled'?true:($cm==='disabled'?false:($projectPolicy['collapseEnabled']&&$manifestAllows));
   $title=$tm==='show'?true:($tm==='hide'?false:($projectPolicy['titleBarsEnabled']&&($manifestAllows||$cm==='enabled')));
   if(!$title)$collapse=false; // no hidden interaction trap: hiding chrome also removes user collapse controls.
   $initial=$im==='inherit'?$projectPolicy['effectiveInitialState']:$im;
-  return ['collapseMode'=>$cm,'titleBarMode'=>$tm,'initialState'=>$im,'collapseEnabled'=>$collapse,'titleBarVisible'=>$title,'initialCollapsed'=>$initial==='collapsed','manifestCollapsible'=>$manifestAllows,'project'=>$projectPolicy];
+  return ['collapseMode'=>$cm,'titleBarMode'=>$tm,'initialState'=>$im,'titleText'=>$titleText,'collapseEnabled'=>$collapse,'titleBarVisible'=>$title,'initialCollapsed'=>$initial==='collapsed','manifestCollapsible'=>$manifestAllows,'project'=>$projectPolicy];
 }
 function loom_set_project_presentation(string $project,array $incoming): void {
   $s=loom_read_admin_settings($project);$collapse=(string)($incoming['collapseMode']??'inherit');$title=(string)($incoming['titleBarMode']??'inherit');$initial=(string)($incoming['initialState']??'inherit');
@@ -646,9 +648,9 @@ function loom_set_project_presentation(string $project,array $incoming): void {
 }
 function loom_set_project_module_presentation(string $project,string $actionId,array $incoming): void {
   $s=loom_read_admin_settings($project);if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];$row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];
-  $collapse=(string)($incoming['collapseMode']??'inherit');$title=(string)($incoming['titleBarMode']??'inherit');$initial=(string)($incoming['initialState']??'inherit');
+  $collapse=(string)($incoming['collapseMode']??'inherit');$title=(string)($incoming['titleBarMode']??'inherit');$initial=(string)($incoming['initialState']??'inherit');$titleText=loom_clean_project_text($incoming['titleText']??'',100);
   if(!in_array($collapse,['inherit','enabled','disabled'],true)||!in_array($title,['inherit','show','hide'],true)||!in_array($initial,['inherit','expanded','collapsed'],true))throw new RuntimeException('Invalid module presentation override');
-  $row['collapseMode']=$collapse;$row['titleBarMode']=$title;$row['initialState']=$initial;$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
+  $row['collapseMode']=$collapse;$row['titleBarMode']=$title;$row['initialState']=$initial;if($titleText!=='')$row['titleText']=$titleText;else unset($row['titleText']);$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
 }
 function loom_apply_project_module_presentation(string $project,string $actionId,array $presentation): array {
   $policy=loom_project_module_presentation_policy($project,$actionId,$presentation);$presentation['chrome']=$policy;$presentation['collapsible']=$policy['collapseEnabled'];return $presentation;

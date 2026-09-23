@@ -4,7 +4,7 @@
   "action": {
     "id": "core.ui.background-orbs",
     "name": "Background Orbs",
-    "description": "Render the LOOM ambient energy field with inherited project color, brighter circuitry particles, and occasional extensible special particles.",
+    "description": "Render the LOOM ambient energy field with inherited project colors, circular glowing energy particles, and occasional extensible special particles.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "dependencies": [],
     "styles": [],
     "order": "00005",
@@ -67,7 +67,8 @@
     "specialOrbEnabled": true,
     "specialOrbIntervalSeconds": 38,
     "specialOrbDurationSeconds": 15,
-    "specialOrbSize": 54
+    "specialOrbSize": 54,
+    "secondaryGlowColor": "#111111"
   },
   "pegboard": {
     "preferredDepth": 2,
@@ -76,7 +77,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "Background Energy Field",
-    "description": "Ambient project background. LOOM defaults are inherited automatically until this project saves an explicit override. Regular particles are brighter and denser; project providers may still replace their artwork.",
+    "description": "Ambient project background. LOOM defaults are inherited automatically until this project saves an explicit override. Regular LOOM particles are small circular energy orbs that inherit project branding; project providers may still replace their artwork.",
     "fields": [
       {
         "id": "sourceMode",

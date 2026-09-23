@@ -1,3 +1,7 @@
+## 0.15.25 presentation/runtime note
+
+LOOM module chrome is opt-in by default: project modules inherit hidden title bars and disabled collapse unless a global/project/module override says otherwise. Module title text is a project-scoped per-module override, not a hardcoded module requirement. Background energy is a release-managed core visual and inherits project branding while using circular particle geometry. Home project discovery must distinguish loading, empty, and error states. Release convergence must compare against the actual running bundle version and may not surface stale loop-guard warnings after a healthy matching boot.
+
 ## v0.15.24 architecture note — ephemeral release reload markers
 
 Live Release Reload may append reserved `_loom_release` and `_loom_reload` query parameters only to force one fresh document request after the canonical manifest advances. Those parameters are transport metadata, not application state. The newly loaded runtime must consume and remove them with History API replacement before normal use, preserving all unrelated URL state. Release comparison is against the effective runtime engine version, not a stale asset-build constant.
@@ -31,7 +35,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.24 revision=36 policy=package-priority -->
+<!-- @loom-file release=0.15.25 revision=37 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

@@ -1,3 +1,12 @@
+## v0.15.25 - Module Chrome Defaults, Energy Particles, Home Loading, Release Watch
+
+- Changed the LOOM-global module-title-bar default to hidden. Projects that inherit LOOM defaults receive the cleaner behavior automatically; explicit project/module overrides remain authoritative.
+- Added project-scoped per-module custom title text alongside existing per-module title-bar, collapse-capability, and initial-state overrides. Showcase therefore no longer displays the word `Showcase` unless its title bar is explicitly enabled.
+- Rebuilt ordinary LOOM Background Energy particles as small circular glowing energy points instead of elongated strands/line shapes. The field now blends project accent and primary colors while preserving the independent special LOOM-logo orb.
+- Reworked LOOM Home project-list state so `No active projects` is shown only after a successful completed discovery returns zero projects. Slow discovery now renders a dedicated loading state; failures render a distinct error state.
+- Hardened Live Release Reload against stale client-version/config state. The shipped bundle version is never downgraded by an older `LoomConfig.engineVersion`, stale loop-guard state is cleared after a healthy matching boot, and lower-version false-update banners are suppressed.
+- Preserved automatic cleanup of `_loom_release` and `_loom_reload` after the one cache-busting convergence reload.
+
 ## v0.15.24 - Clean Release Reload URLs
 
 - Temporary `_loom_release` and `_loom_reload` cache-busting parameters are now consumed immediately after the refreshed LOOM document boots. LOOM removes only those two reserved parameters with `history.replaceState()`, preserving the real path, unrelated query parameters, and hash without causing another network navigation.
@@ -399,7 +408,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.24 revision=41 policy=package-priority -->
+<!-- @loom-file release=0.15.25 revision=42 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

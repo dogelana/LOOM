@@ -1,3 +1,9 @@
+## v0.15.25 - Quiet Module Chrome + Circular Energy + Honest Home Loading
+
+Module title bars are now hidden by default across LOOM, so modules such as Showcase render without an unwanted generic title unless a project explicitly enables chrome. Project Admin can still override title-bar visibility, collapse behavior, initial state, and now the visible title text for each individual module.
+
+The Background Energy Field now renders small circular glowing particles instead of elongated circuitry strands. Ordinary LOOM particles inherit the project accent/primary colors while the special LOOM-logo orb remains independent. LOOM Home now shows a real project-discovery state instead of briefly claiming there are no active projects, and the release watcher now treats the running bundle version as authoritative over stale config/cache state so an already-current page does not display a false reload-loop warning.
+
 ## v0.15.24 - Clean Release Reload URLs
 
 Live Release Reload still performs one cache-busted navigation after a verified manifest-last deployment, but its internal `_loom_release` / `_loom_reload` parameters are now transient. The freshly loaded LOOM runtime removes them from the address bar without reloading again and without disturbing real project/query/hash state. The watcher also compares against the current runtime engine version, eliminating false repeated-upgrade detection caused by a stale loom-brand build marker.
@@ -60,7 +66,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.24 revision=40 policy=package-priority -->
+<!-- @loom-file release=0.15.25 revision=41 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

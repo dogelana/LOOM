@@ -17,13 +17,13 @@
     ]
   },
   "module": {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "scope": "global",
     "order": "00016"
   },
   "config": {
     "collapseEnabled": false,
-    "titleBarsEnabled": true,
+    "titleBarsEnabled": false,
     "initialState": "expanded"
   },
   "admin_settings": {
@@ -40,7 +40,7 @@
         "id": "titleBarsEnabled",
         "label": "Show module title bars by default",
         "type": "checkbox",
-        "help": "When title bars are hidden, modules render cleanly without LOOM chrome and user collapse controls are unavailable."
+        "help": "Hidden by default. Projects inherit this unless they explicitly show module title bars."
       },
       {
         "id": "initialState",

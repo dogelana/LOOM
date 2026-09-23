@@ -1,4 +1,4 @@
-// @loom-file release=0.15.20 revision=9 policy=package-priority
+// @loom-file release=0.15.25 revision=10 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -240,14 +240,16 @@
       let collapseEnabled=chrome.collapseEnabled;
       if(typeof collapseEnabled!=='boolean')collapseEnabled=p?.collapsible!==false;
       if(!titleBarVisible)collapseEnabled=false;
-      return {eligible,titleBarVisible:!!titleBarVisible,collapseEnabled:!!collapseEnabled,initialCollapsed:!!chrome.initialCollapsed};
+      const titleText=String(chrome.titleText||'').trim();
+      return {eligible,titleBarVisible:!!titleBarVisible,collapseEnabled:!!collapseEnabled,initialCollapsed:!!chrome.initialCollapsed,titleText};
     }
     _shouldFrameModule(descriptor,host){const policy=this._moduleFramePolicy(descriptor,host);return policy.eligible&&policy.titleBarVisible}
     _createModuleFrame(descriptor,node){
       this._ensureModuleFrameStyles();const id=descriptor.action.id,policy=this._moduleFramePolicy(descriptor,this.mountRoot);
-      const frame=document.createElement('section');frame.className=`loom-module-frame${policy.collapseEnabled?'':' no-collapse'}`;frame.dataset.module=id;frame.dataset.loomFrameFor=id;frame.setAttribute('aria-label',descriptor.action.name||id);
-      const safeName=String(descriptor.action.name||id).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      const head=document.createElement('div');head.className='loom-module-frame-head';head.innerHTML=`<span>${safeName}</span>${policy.collapseEnabled?`<button type="button" aria-label="Collapse or expand ${String(descriptor.action.name||'module').replace(/["<>]/g,'')}">⌄</button>`:''}`;
+      const titleName=policy.titleText||String(descriptor.action.name||id);
+      const frame=document.createElement('section');frame.className=`loom-module-frame${policy.collapseEnabled?'':' no-collapse'}`;frame.dataset.module=id;frame.dataset.loomFrameFor=id;frame.setAttribute('aria-label',titleName);
+      const safeName=String(titleName).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const head=document.createElement('div');head.className='loom-module-frame-head';head.innerHTML=`<span>${safeName}</span>${policy.collapseEnabled?`<button type="button" aria-label="Collapse or expand ${String(titleName||'module').replace(/["<>]/g,'')}">⌄</button>`:''}`;
       const body=document.createElement('div');body.className='loom-module-frame-body';node.removeAttribute('data-module');node.dataset.loomModuleContent=id;body.appendChild(node);frame.append(head,body);
       const apply=collapsed=>{const next=policy.collapseEnabled&&!!collapsed;frame.classList.toggle('is-collapsed',next);head.setAttribute('aria-expanded',next?'false':'true')};
       const saved=Object.prototype.hasOwnProperty.call(this.moduleLayoutState?.collapsed||{},id);

@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "dependencies": [],
     "styles": [],
     "order": "00005"
@@ -66,7 +66,8 @@
     "specialOrbEnabled": true,
     "specialOrbIntervalSeconds": 38,
     "specialOrbDurationSeconds": 15,
-    "specialOrbSize": 54
+    "specialOrbSize": 54,
+    "secondaryGlowColor": "#111111"
   },
   "pegboard": {
     "preferredDepth": 2,

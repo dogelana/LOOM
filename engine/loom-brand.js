@@ -1,13 +1,18 @@
-// @loom-file release=0.15.24 revision=30 policy=package-priority
+// @loom-file release=0.15.25 revision=31 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.24';
-  const VERSION=String(window.LoomConfig?.engineVersion||CLIENT_RELEASE);
+  const CLIENT_RELEASE='0.15.25';
+  const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
+  const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
+  const configuredRelease=String(window.LoomConfig?.engineVersion||'').trim();
+  const VERSION=configuredRelease&&compareBootVersions(configuredRelease,CLIENT_RELEASE)>0?configuredRelease:CLIENT_RELEASE;
   function consumeReleaseReloadMarker(){
     try{
-      const u=new URL(location.href),had=u.searchParams.has('_loom_release')||u.searchParams.has('_loom_reload');
+      const u=new URL(location.href),markerVersion=String(u.searchParams.get('_loom_release')||''),had=u.searchParams.has('_loom_release')||u.searchParams.has('_loom_reload');
       if(!had)return false;
       u.searchParams.delete('_loom_release');u.searchParams.delete('_loom_reload');
       history.replaceState(history.state,'',`${u.pathname}${u.search}${u.hash}`);
+      if(!markerVersion||compareBootVersions(markerVersion,VERSION)<=0)sessionStorage.removeItem('loom:last-release-reload');
+      document.getElementById('loom-release-refresh-fallback')?.remove();
       return true;
     }catch{return false}
   }
@@ -79,6 +84,7 @@
     try{const r=await fetch(`${BRAND_API_BASE}/version.php?watch=${Date.now()}`,{cache:'no-store',headers:{'Accept':'application/json'}});if(!r.ok)throw 0;return await r.json()}catch{return null}
   }
   function showReleaseFallback(version){
+    if(compareVersions(version,VERSION)<0)return;
     if(document.getElementById('loom-release-refresh-fallback'))return;
     const el=document.createElement('div');el.id='loom-release-refresh-fallback';el.className='loom-release-refresh-fallback';el.textContent=`LOOM v${version||'new'} is available. Automatic refresh was paused to avoid a reload loop; refresh this page manually.`;document.body?.appendChild(el);
   }
@@ -129,7 +135,14 @@
       const payload=await fetchReleaseWatch();
       if(!releaseIsHealthy(payload))return;
       const fp=releaseFingerprint(payload),server=String(payload.canonicalVersion||'');
-      if(baselineFingerprint===null){baselineFingerprint=fp;baselineVersion=server;if(compareVersions(server,VERSION)>0&&!confirmingFingerprint){confirmingFingerprint=fp;verifyAndReload(fp)}return}
+      if(baselineFingerprint===null){
+        baselineFingerprint=fp;baselineVersion=server;
+        if(compareVersions(server,VERSION)<=0){
+          try{const prior=JSON.parse(sessionStorage.getItem('loom:last-release-reload')||'null');if(!prior||prior.fingerprint===fp||compareVersions(String(prior.version||''),VERSION)<=0)sessionStorage.removeItem('loom:last-release-reload')}catch{}
+          document.getElementById('loom-release-refresh-fallback')?.remove();
+        }
+        if(compareVersions(server,VERSION)>0&&!confirmingFingerprint){confirmingFingerprint=fp;verifyAndReload(fp)}return
+      }
       if(isChange(payload)&&confirmingFingerprint!==fp){confirmingFingerprint=fp;verifyAndReload(fp)}
     };
     await check();

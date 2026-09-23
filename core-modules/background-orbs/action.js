@@ -1,4 +1,4 @@
-// @loom-file release=0.15.23 revision=1 policy=package-priority
+// @loom-file release=0.15.25 revision=2 policy=package-priority
 export async function createModule(ctx){
   let layer=null;
   let style=null;
@@ -72,6 +72,7 @@ export async function createModule(ctx){
     const glowColor=customGlow
       ? String(ctx.config.glowColor||LOOM_DEFAULT_GLOW)
       : (useProject&&provider?.glowColor ? String(provider.glowColor) : String(ctx.config.glowColor||LOOM_DEFAULT_GLOW));
+    const secondaryGlowColor=String(ctx.config.secondaryGlowColor||glowColor);
     const specialGlowColor=useProject&&provider?.specialGlowColor
       ? String(provider.specialGlowColor)
       : glowColor;
@@ -82,6 +83,7 @@ export async function createModule(ctx){
       assetUrl,
       emoji,
       glowColor,
+      secondaryGlowColor,
       specialAssetUrl,
       specialEmoji,
       specialGlowColor,
@@ -103,19 +105,18 @@ export async function createModule(ctx){
         transform-origin:center center;
       }
       .loom-background-orb.is-loom{
-        background:linear-gradient(90deg,transparent 0%,var(--energy-color) 28%,rgba(255,255,255,.96) 52%,var(--energy-color) 72%,transparent 100%);
-        border:0!important;border-radius:999px;
-        box-shadow:0 0 var(--energy-blur) var(--energy-glow),0 0 calc(var(--energy-blur)*2.1) var(--energy-glow-soft);
+        aspect-ratio:1/1;border:0!important;border-radius:50%;
+        background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.98) 0 10%,var(--energy-color) 24%,var(--energy-color-2) 52%,rgba(255,255,255,.12) 68%,transparent 76%);
+        box-shadow:0 0 calc(var(--energy-blur)*.72) var(--energy-glow),0 0 calc(var(--energy-blur)*1.7) var(--energy-glow-soft);
         filter:none!important;
       }
       .loom-background-orb.is-loom.energy-node{
-        border-radius:2px;
-        transform:rotate(45deg);
-        background:linear-gradient(135deg,var(--energy-color),rgba(255,255,255,.98));
+        outline:1px solid rgba(255,255,255,.58);outline-offset:1px;
+        box-shadow:0 0 calc(var(--energy-blur)*.9) var(--energy-glow),0 0 calc(var(--energy-blur)*2.15) var(--energy-glow-soft);
       }
       .loom-background-orb.is-loom::after{
-        content:"";position:absolute;left:50%;top:50%;width:2px;height:2px;transform:translate(-50%,-50%);
-        background:white;border-radius:50%;box-shadow:0 0 7px var(--energy-color);
+        content:"";position:absolute;left:32%;top:28%;width:28%;height:28%;
+        background:rgba(255,255,255,.94);border-radius:50%;box-shadow:0 0 6px rgba(255,255,255,.78);
       }
       .loom-background-orb.is-project{object-fit:contain}
       .loom-background-orb.is-project-emoji,
@@ -164,7 +165,7 @@ export async function createModule(ctx){
     return animation;
   }
 
-  function addOrb({assetUrl,emoji,glowColor},index){
+  function addOrb({assetUrl,emoji,glowColor,secondaryGlowColor},index){
     const node=emoji
       ? document.createElement('span')
       : (assetUrl?document.createElement('img'):document.createElement('div'));
@@ -183,15 +184,9 @@ export async function createModule(ctx){
       node.style.width=`${size}px`;node.style.height=`${size}px`;
     }else{
       const variant=Math.random();
-      if(variant<.16){
-        node.classList.add('energy-node');
-        const size=rand(3.0,7.0);
-        node.style.width=`${size}px`;node.style.height=`${size}px`;
-      }else{
-        const length=variant<.58?rand(10,24):rand(20,44);
-        const thickness=rand(1.5,3.4);
-        node.style.width=`${length}px`;node.style.height=`${thickness}px`;
-      }
+      const size=variant<.20?rand(5.5,10.5):(variant<.68?rand(2.8,6.4):rand(1.8,4.0));
+      if(variant<.20)node.classList.add('energy-node');
+      node.style.width=`${size}px`;node.style.height=`${size}px`;
     }
 
     node.style.left=`${rand(-2,98)}%`;
@@ -200,9 +195,12 @@ export async function createModule(ctx){
 
     const glowAlpha=(glowLevel/100)*.90;
     const blur=Math.round(5+(glowLevel/100)*17);
-    node.style.setProperty('--energy-color',glowColor);
-    node.style.setProperty('--energy-glow',rgba(glowColor,glowAlpha));
-    node.style.setProperty('--energy-glow-soft',rgba(glowColor,glowAlpha*.35));
+    const particleColor=(isLoom&&index%4===0&&secondaryGlowColor)?secondaryGlowColor:glowColor;
+    const particleColor2=(isLoom&&secondaryGlowColor)?(index%4===0?glowColor:secondaryGlowColor):particleColor;
+    node.style.setProperty('--energy-color',particleColor);
+    node.style.setProperty('--energy-color-2',particleColor2);
+    node.style.setProperty('--energy-glow',rgba(particleColor,glowAlpha));
+    node.style.setProperty('--energy-glow-soft',rgba(particleColor,glowAlpha*.35));
     node.style.setProperty('--energy-blur',`${blur}px`);
 
     if(!isLoom){
