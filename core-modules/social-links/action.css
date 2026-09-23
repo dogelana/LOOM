@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.04 revision=1 policy=package-priority */
+/* @loom-file release=0.15.05 revision=2 policy=package-priority */
 .loom-social-links-row{
   width:max-content;max-width:100%;align-self:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
   gap:11px;padding:4px 8px;color:var(--loom-social-color,#000);box-sizing:border-box;
@@ -11,5 +11,5 @@
 .loom-social-link svg{width:var(--loom-social-icon-size,24px);height:var(--loom-social-icon-size,24px);display:block;overflow:visible}
 .loom-social-link:hover{transform:translateY(-2px);background:color-mix(in srgb,currentColor 8%,transparent);border-color:color-mix(in srgb,currentColor 30%,transparent);box-shadow:0 8px 24px color-mix(in srgb,currentColor 13%,transparent)}
 .loom-social-link:focus-visible{outline:3px solid color-mix(in srgb,currentColor 28%,transparent);outline-offset:3px}
-@media(max-width:520px){.loom-social-links-row{gap:8px}.loom-social-link{width:40px;height:40px}}
+@media(max-width:520px){.loom-social-links-row{width:100%;gap:8px;padding-inline:0}.loom-social-link{width:42px;height:42px;flex:0 0 42px}}
 @media(prefers-reduced-motion:reduce){.loom-social-link{transition:none}}

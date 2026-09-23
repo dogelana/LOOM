@@ -4,7 +4,7 @@
   "action": {
     "id": "loom.showcase",
     "name": "Showcase",
-    "description": "LOOM project showcase card with a persistent image and project-bio-aware summary.",
+    "description": "LOOM project showcase card with persistent media, project-bio-aware summary, and native collapse-frame integration.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": true,
@@ -22,7 +22,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scope": "project",
     "dependencies": [],
     "styles": [

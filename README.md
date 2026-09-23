@@ -1,4 +1,12 @@
-<!-- @loom-file release=0.15.04 revision=20 policy=package-priority -->
+<!-- @loom-file release=0.15.05 revision=21 policy=package-priority -->
+
+## v0.15.05 - Admin Routing, Showcase Frame + Mobile Hardening
+
+LOOM now allows Apache directory-index resolution to fall back from `index.php` to `index.html` inside `/admin/`. This makes the package-owned first-Administrator route `/admin/setup/` resolve its existing `admin/setup/index.html` entrypoint on ordinary Apache/Hostinger configurations while `/admin/` continues to prefer `index.php`.
+
+Showcase 1.0.1 now visually merges with LOOM's native expand/collapse frame: the module body removes its duplicate top border/rounded corners when the LOOM frame header is present, producing one continuous card instead of a rounded card nested beneath another rounded bar.
+
+The release also hardens narrow-screen behavior across project shells, collapsible module frames, Showcase, Social Links, Admin, and first-Administrator setup. Main interactive surfaces retain viewport metadata, content containers are constrained to the viewport, long labels/text can shrink or wrap, and mobile controls preserve practical touch targets.
 
 ## v0.15.04 - Social Links
 

@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.04 revision=16 policy=package-priority -->
+<!-- @loom-file release=0.15.05 revision=17 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.01 — Showcase core module
@@ -334,3 +334,11 @@ The release watcher lives in the shared LOOM brand/runtime surface so Home, Admi
 `loom.social-links` is a reusable project-scoped core capability that composes into the standard footer without moving project-specific social configuration into release-owned project modules. The module activates after the footer region exists, inserts its own row directly after the branding row, and remains visually absent when no links are configured.
 
 Icon geometry is bundled from Font Awesome Free and rendered with `currentColor`; link configuration remains project module settings in the Instance Vault. The project-wide default social color is part of Project Identity, while the module may explicitly choose LOOM black or a manual override. This keeps project identity, module configuration, and package-owned vector assets separated by ownership.
+
+## v0.15.05 — Directory entrypoints and responsive composition
+
+Admin directory routing now explicitly permits both `index.php` and `index.html`, in that order. Package-owned subdirectories may therefore expose static entrypoints such as `/admin/setup/` without weakening `Options -Indexes` or changing the primary `/admin/` PHP console.
+
+Collapsible module presentation owns the top edge of an expanded content card. Modules that draw their own card surface must integrate their top border/radius with the LOOM frame rather than visually nesting a second rounded header boundary. Showcase is the reference implementation.
+
+Responsive composition remains an engine concern as well as a module concern: module-frame wrappers guarantee `min-width:0`/`max-width:100%`, project shells may wrap utility controls at phone widths, and individual modules must provide sensible single-column behavior where their content would otherwise become too narrow.

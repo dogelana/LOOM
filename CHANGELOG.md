@@ -1,3 +1,15 @@
+# LOOM 0.15.05 - Admin Routing, Showcase Frame + Mobile Hardening
+
+- Fixed `/admin/setup/` routing by allowing `admin/.htaccess` to use `index.php index.html` as directory indexes. `/admin/` still prefers the PHP Admin console while `/admin/setup/` can load its HTML entrypoint.
+- Updated Showcase core module to 1.0.1. Its body now integrates directly with LOOM's collapse/expand frame instead of rendering a second rounded top border beneath the frame header.
+- Added overflow/min-width guards and mobile header sizing to LOOM collapsible module frames.
+- Hardened project-shell navigation on phones by allowing the top bar/actions to wrap instead of squeezing or overflowing.
+- Hardened Showcase at tablet/phone widths, including single-column media/copy layout, wrapped long titles/bios, and smaller mobile padding.
+- Hardened Social Links mobile wrapping/touch targets.
+- Hardened Admin narrow-screen grids, toolbars, orb rows, HTML Framer controls, tables, and Showcase manager.
+- Hardened first-Administrator setup for narrow phones with stacked full-width actions and reduced spacing.
+- Revalidated viewport metadata, narrow-screen CSS contracts, JS/PHP/JSON syntax, deployment manifest integrity, and clean Instance Vault hot-drop behavior.
+
 # LOOM 0.15.04 - Social Links
 
 - Added project-scoped core module `loom.social-links`, enabled by default but visually empty until at least one link is configured.
@@ -193,7 +205,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.04 revision=20 policy=package-priority -->
+<!-- @loom-file release=0.15.05 revision=22 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

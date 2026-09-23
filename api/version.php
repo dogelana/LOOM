@@ -1,10 +1,10 @@
 <?php
-// @loom-file release=0.15.04 revision=14 policy=package-priority
+// @loom-file release=0.15.05 revision=15 policy=package-priority
 require __DIR__.'/_common.php';
 
 $manifestPath=root_dir().'/.loom-deployment.json';
 $manifest=is_file($manifestPath)?read_json_file($manifestPath):[];
-$canonical=loom_release_version('0.15.04');
+$canonical=loom_release_version('0.15.05');
 
 function loom_extract_version(string $file,string $pattern): ?string {
   if(!is_file($file))return null;
