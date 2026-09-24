@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.6",
+  "enabled": true,
+  "action": {
+    "id": "core.user.profile-dock",
+    "name": "Profile Dock",
+    "description": "Capture the reusable User Profile module out of normal project flow and expose it from the built-in LOOM project top bar.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/user",
+    "tags": [
+      "core",
+      "user",
+      "profile",
+      "dock",
+      "shell",
+      "reusable"
+    ],
+    "steps": [
+      {
+        "id": "mount-button",
+        "name": "Mount User Profile shell button"
+      },
+      {
+        "id": "capture-profile",
+        "name": "Capture User Profile module"
+      },
+      {
+        "id": "bind-dialog",
+        "name": "Bind Profile Dock dialog"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.profile.dock.open",
+      "name": "Open User Profile",
+      "description": "Open the captured User Profile from the LOOM project shell.",
+      "behavior": "transient",
+      "category": "user/profile"
+    }
+  ],
+  "module": {
+    "entry": "action.js",
+    "version": "1.1.0",
+    "dependencies": [],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00011",
+    "scope": "project"
+  },
+  "presentation": {
+    "role": "controller",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "none",
+      "position": "system",
+      "order": 11
+    }
+  },
+  "config": {
+    "label": "User Profile",
+    "icon": "👤",
+    "targetActionId": "core.user.profile"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Profile Dock",
+    "description": "Moves the User Profile module into the built-in project top bar.",
+    "fields": []
+  }
+}

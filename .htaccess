@@ -1,8 +1,13 @@
-# @loom-file release=0.15.18 revision=5 policy=package-priority
+# @loom-file release=0.15.26 revision=6 policy=package-priority
 DirectoryIndex index.php index.html
 Options -MultiViews
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+
+  # Public crawler discovery generated from the live LOOM/project registry.
+  RewriteRule ^robots\.txt$ robots.php [L]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
   # Permanent LOOM Home recovery route. The installation base may be owned by a project.
   RewriteRule ^home/?$ home/index.php [L]

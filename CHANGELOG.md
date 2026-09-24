@@ -1,3 +1,14 @@
+## v0.15.26 - Sharing, Referrals + Deployment-Aware Runtime
+
+- Added LOOM **Sharing & Referrals** as a first-class project-scoped core controller with registered user actions for opening Share, copying links, native sharing, and accepting referral attribution.
+- Added permanent referral persistence in the Instance Vault for guests and permanent accounts. Share links use opaque `loom_ref` codes, survive normal guest onboarding, preserve the intended destination, reject self/duplicate referrals, and retain guest provenance after account registration.
+- Added Share beside LOOM Home/Profile controls, compact emoji-only Share in Powered by LOOM footer navigation by default, Share buttons on LOOM Home project cards, and global Share appearance controls alongside Home/Profile navigation settings.
+- Added user-facing referral statistics inside User Profile and an Admin-only Referrals dashboard with share-link, click, unique-visitor, and attributed-referral history.
+- Promoted User Profile and Profile Dock into release-managed project-scoped core modules so older Instance Projects inherit the current non-blocking profile implementation instead of retaining stale copied startup behavior.
+- Module watchdog timers now **pause while the transactional deployment gate is active**. A deliberate Bridge deployment 503 can no longer age into a false `core.user.profile timed out after 7000ms` failure while LOOM is intentionally paused.
+- Added public About, Documentation, Privacy, and Terms entry points plus dynamic `robots.txt` and `sitemap.xml`. Public project SEO/social metadata remains live and project-aware; Admin/API/Instance/developer surfaces remain excluded from public indexing.
+- Bumped critical startup/chrome assets to 0.15.26 so normal release cache busting is sufficient; manual cache clearing is not part of the expected upgrade flow.
+
 ## v0.15.25 - Module Chrome Defaults, Energy Particles, Home Loading, Release Watch
 
 - Changed the LOOM-global module-title-bar default to hidden. Projects that inherit LOOM defaults receive the cleaner behavior automatically; explicit project/module overrides remain authoritative.
@@ -408,7 +419,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.25 revision=42 policy=package-priority -->
+<!-- @loom-file release=0.15.26 revision=43 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

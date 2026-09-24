@@ -1,3 +1,11 @@
+## v0.15.26 - Sharing & Referral Network
+
+LOOM now has canonical Share controls and durable referral attribution across projects and LOOM-owned pages. Share links preserve their destination through first-time guest onboarding, then attribute the resulting durable Guest Identity or permanent account without exposing account secrets in the URL. Referral state lives in the protected Instance Vault, appears in User Profile statistics, and is inspectable by Administrators. Project share cards continue to use server-rendered current project identity/SEO metadata.
+
+This release also hardens hot deployment behavior: Action Runtime watchdogs pause while Bridge's deployment gate is active, and User Profile/Profile Dock are now release-managed core modules so older Instance Projects inherit the modern non-blocking implementation.
+
+Public crawler discovery gains About, Docs, Privacy, Terms, `robots.txt`, and `sitemap.xml`, while private LOOM surfaces remain explicitly non-indexable.
+
 ## v0.15.25 - Quiet Module Chrome + Circular Energy + Honest Home Loading
 
 Module title bars are now hidden by default across LOOM, so modules such as Showcase render without an unwanted generic title unless a project explicitly enables chrome. Project Admin can still override title-bar visibility, collapse behavior, initial state, and now the visible title text for each individual module.
@@ -66,7 +74,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.25 revision=41 policy=package-priority -->
+<!-- @loom-file release=0.15.26 revision=42 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

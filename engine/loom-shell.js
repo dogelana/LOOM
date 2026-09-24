@@ -1,4 +1,4 @@
-// @loom-file release=0.15.20 revision=15 policy=package-priority
+// @loom-file release=0.15.26 revision=16 policy=package-priority
 (() => {
   'use strict';
 
@@ -23,6 +23,7 @@
       {label:'🛡️ Access',href:new URL(`admin/?tab=access${q}`,base).href},
       {label:'🗄️ Database',href:new URL(`admin/?tab=database${q}`,base).href},
       {label:'📊 Activity',href:new URL(`admin/activity/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
+      {label:'🎁 Referrals',href:new URL(`admin/referrals/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
       {label:'🧩 Pegboard',href:new URL(`pegboard/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
       {label:'🧬 Action Registry',href:new URL(`registry/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href}
     ];
@@ -134,6 +135,7 @@
       const nav=header.querySelector('.loom-shell-chrome-links');
       if(nav){
         const home=document.createElement('a');home.className='loom-global-home-button';home.href=homeHref;home.innerHTML=buttonParts(cfg.home,cfg.home.headerMode);home.title=cfg.home.label;nav.prepend(home);
+        if(opts.share!==false&&window.LoomShare&&identity){await window.LoomShare.init({identity,project:opts.shareProject||'',apiBase});const share=window.LoomShare.createButton('header');window.LoomShare.bindButton(share,{identity,project:opts.shareProject||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});nav.appendChild(share)}
         if(window.LoomIdentityEntry){const switchBtn=document.createElement('button');switchBtn.type='button';switchBtn.className='loom-global-profile-button';switchBtn.innerHTML='<span class="pic" aria-hidden="true">🔄</span><span>Switch User</span>';switchBtn.onclick=()=>window.LoomIdentityEntry.show?.();nav.appendChild(switchBtn)}
         if(opts.profile!==false&&window.LoomGlobalProfile&&identity){const btn=document.createElement('button');btn.type='button';btn.className='loom-global-profile-button';btn.innerHTML=buttonParts(cfg.profile,cfg.profile.headerMode);btn.title=cfg.profile.label;nav.appendChild(btn);profile=LoomGlobalProfile.create({apiBase,identity,projectsProvider:opts.projectsProvider||null});profile.bindButton(btn)}
       }
@@ -141,7 +143,7 @@
     }
     if(footer){
       await LoomBrand.mountShellFooter(footer,{apiBase,settings,navigation:cfg,homeHref});
-      const fp=footer.querySelector('[data-loom-footer-profile]');if(fp&&profile)profile.bindButton(fp);
+      const fs=footer.querySelector('[data-loom-footer-share]');if(fs&&window.LoomShare&&identity)window.LoomShare.bindButton(fs,{identity,project:opts.shareProject||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});const fp=footer.querySelector('[data-loom-footer-profile]');if(fp&&profile)profile.bindButton(fp);
     }
     return {settings,identity,profile,navigation:cfg};
   }

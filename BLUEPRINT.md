@@ -1,3 +1,9 @@
+## v0.15.26 architecture note — canonical sharing + durable referral provenance
+
+Sharing is now a LOOM-native capability rather than a project-specific URL copy feature. Public/share UI delegates canonical link generation and referral persistence to a protected Instance Vault backend. The project runtime controller declares user actions so sharing remains inspectable in Action Registry/Pegboard. Referral ownership follows durable Guest Identity provenance and aggregates attached guest identities when a permanent account is created later.
+
+The deployment gate is also a runtime scheduling boundary: timeout clocks for module import/factory/mount/activation pause while `LoomDeploymentGuard.active` is true. Intentional maintenance therefore cannot masquerade as a module fault. Core User Profile/Profile Dock implementations are release-managed to prevent old Instance Projects from pinning obsolete startup semantics.
+
 ## 0.15.25 presentation/runtime note
 
 LOOM module chrome is opt-in by default: project modules inherit hidden title bars and disabled collapse unless a global/project/module override says otherwise. Module title text is a project-scoped per-module override, not a hardcoded module requirement. Background energy is a release-managed core visual and inherits project branding while using circular particle geometry. Home project discovery must distinguish loading, empty, and error states. Release convergence must compare against the actual running bundle version and may not surface stale loop-guard warnings after a healthy matching boot.
@@ -35,7 +41,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.25 revision=37 policy=package-priority -->
+<!-- @loom-file release=0.15.26 revision=38 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

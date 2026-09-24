@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.25 revision=28 policy=package-priority
+// @loom-file release=0.15.26 revision=29 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -1073,6 +1073,7 @@ require_once __DIR__.'/_migrations.php';
 require_once __DIR__.'/_capabilities.php';
 require_once __DIR__.'/_sandbox.php';
 require_once __DIR__.'/_audit.php';
+require_once __DIR__.'/_referrals.php';
 loom_migration_bootstrap();
 
 // ---- SEO / Social Metadata (v0.15.18) -------------------------------------

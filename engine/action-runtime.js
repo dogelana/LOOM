@@ -1,4 +1,4 @@
-// @loom-file release=0.15.25 revision=10 policy=package-priority
+// @loom-file release=0.15.26 revision=11 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -331,8 +331,18 @@
       return {name:ua.name,description:ua.description||'',kind:'user',behavior:ua.behavior||'transient',parent:ua.parent||ua.moduleActionId,moduleActionId:ua.moduleActionId,moduleName:ua.moduleName,actor:'user',source:'module-ui'};
     }
     async _withTimeout(work,ms,label){
-      let timer=null;
-      try{return await Promise.race([Promise.resolve(work),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(`${label} timed out after ${ms}ms`)),ms)})])}
+      let timer=null,remaining=Math.max(1,Number(ms)||1),last=Date.now();
+      const timeout=new Promise((_,reject)=>{
+        const tick=()=>{
+          const now=Date.now();
+          if(window.LoomDeploymentGuard?.active){last=now;timer=setTimeout(tick,750);return;}
+          remaining-=Math.max(0,now-last);last=now;
+          if(remaining<=0){reject(new Error(`${label} timed out after ${ms}ms`));return;}
+          timer=setTimeout(tick,Math.min(750,remaining));
+        };
+        timer=setTimeout(tick,Math.min(750,remaining));
+      });
+      try{return await Promise.race([Promise.resolve(work),timeout])}
       finally{if(timer)clearTimeout(timer)}
     }
     async _moduleLog(descriptor,type,detail={}){

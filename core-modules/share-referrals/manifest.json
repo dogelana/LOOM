@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.share.referrals",
+    "name": "Sharing & Referrals",
+    "description": "Canonical LOOM sharing links, durable referral attribution, project/core-page sharing, and user/admin referral visibility.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "category": "loom/global/sharing",
+    "tags": [
+      "loom",
+      "sharing",
+      "referrals",
+      "identity",
+      "seo",
+      "social",
+      "audit"
+    ],
+    "steps": [
+      {
+        "id": "capture-referral",
+        "name": "Capture incoming referral"
+      },
+      {
+        "id": "mount-share",
+        "name": "Mount project Share control"
+      },
+      {
+        "id": "attribute-referral",
+        "name": "Attribute durable referral"
+      }
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "user.share.open",
+      "name": "Open Share",
+      "description": "Generate and open the LOOM sharing experience.",
+      "behavior": "transient",
+      "category": "user/sharing"
+    },
+    {
+      "id": "user.share.copy",
+      "name": "Copy Share Link",
+      "description": "Copy a canonical attributed LOOM share link.",
+      "behavior": "transient",
+      "category": "user/sharing"
+    },
+    {
+      "id": "user.share.native",
+      "name": "Native Share",
+      "description": "Send a LOOM link through the platform share sheet.",
+      "behavior": "transient",
+      "category": "user/sharing"
+    },
+    {
+      "id": "user.referral.accept",
+      "name": "Accept Referral Attribution",
+      "description": "Durably attribute a newly arriving LOOM identity to the referring identity.",
+      "behavior": "transient",
+      "category": "user/referrals"
+    }
+  ],
+  "module": {
+    "version": "1.0.0",
+    "scope": "project",
+    "order": "00016",
+    "entry": "action.js",
+    "dependencies": [],
+    "styles": []
+  },
+  "config": {
+    "enabled": true
+  },
+  "admin_settings": {
+    "title": "Sharing & Referrals",
+    "description": "Project participation in LOOM’s global sharing/referral system. Global Share button appearance is configured under Global Navigation & Admin Tools.",
+    "fields": [
+      {
+        "id": "enabled",
+        "label": "Enable sharing + referral attribution for this project",
+        "type": "checkbox"
+      }
+    ]
+  }
+}

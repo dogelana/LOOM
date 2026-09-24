@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- @loom-file release=0.15.25 revision=22 policy=package-priority -->
+<!-- @loom-file release=0.15.26 revision=23 policy=package-priority -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -92,6 +92,7 @@ body{
   <div class="shell-actions">
     <div class="public-zone">
       <a class="loom-home-button" href="../../../home/"><span class="loom-home-icon" aria-hidden="true">🏠</span><span>LOOM Home</span></a>
+      <div id="loomShareSlot" data-loom-shell-slot="share"></div>
       <div id="loomProfileDockSlot" data-loom-shell-slot="profile"></div>
     </div>
     <div id="adminTools" class="admin-zone" hidden>
@@ -103,16 +104,17 @@ body{
 <main class="stage"><div id="feature-stage"><div id="waitingMessage" class="waiting">Loading project modules…</div></div></main>
 <footer id="loom-footer-root" data-loom-region="footer-root" aria-label="Project footer"></footer>
 </div>
-<script src="../../../engine/deployment-guard.js?v=0.15.22"></script><script src="../../../engine/config.js?v=0.15.25"></script>
-<script src="../../../engine/loom-brand.js?v=0.15.25"></script>
-<script src="../../../engine/loom-toast.js?v=0.15.18"></script>
-<script src="../../../engine/identity.js?v=0.15.18"></script>
-<script src="../../../engine/identity-entry.js?v=0.15.18"></script>
-<script src="../../../engine/interaction-capture.js?v=0.15.18"></script>
-<script src="../../../engine/event-bus.js?v=0.15.18"></script>
-<script src="../../../engine/registry-client.js?v=0.15.18"></script>
-<script src="../../../engine/action-runtime.js?v=0.15.25"></script>
-<script src="../../../engine/loom-shell.js?v=0.15.18"></script>
+<script src="../../../engine/deployment-guard.js?v=0.15.26"></script><script src="../../../engine/config.js?v=0.15.26"></script>
+<script src="../../../engine/loom-brand.js?v=0.15.26"></script>
+<script src="../../../engine/loom-toast.js?v=0.15.26"></script>
+<script src="../../../engine/identity.js?v=0.15.26"></script>
+<script src="../../../engine/identity-entry.js?v=0.15.26"></script>
+<script src="../../../engine/interaction-capture.js?v=0.15.26"></script>
+<script src="../../../engine/event-bus.js?v=0.15.26"></script>
+<script src="../../../engine/registry-client.js?v=0.15.26"></script>
+<script src="../../../engine/share-referrals.js?v=0.15.26"></script>
+<script src="../../../engine/action-runtime.js?v=0.15.26"></script>
+<script src="../../../engine/loom-shell.js?v=0.15.26"></script>
 <script>
 (async()=>{
   await window.LoomIdentityEntry?.ensure?.();
