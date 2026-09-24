@@ -1,3 +1,9 @@
+## v0.15.44 - Clean Release Boundary Hotfix
+
+LOOM 0.15.44 is a packaging-integrity hotfix for 0.15.42/0.15.43. The release archive now contains **zero `instance/**` payloads**, matching the clean Instance Protocol declared by `.loom-deployment.json`. Persistent installation state remains server-owned and is never shipped by a release. Runtime behavior from 0.15.43 is otherwise preserved, including the 80% HTML Framer page lane, optional frame interaction lock, viewport-safe sizing, fullscreen, auto-fullscreen selection, project portability, unified Admin chrome, and Green Beans separation.
+
+A release is considered invalid if `release_layout.persistent_root_shipped` is false while any `instance/**` entry exists in the archive.
+
 ## v0.15.43 - HTML Framer Scroll Lane + Interaction Lock
 
 HTML Framer now defaults to 80% of the usable page width, keeping outer LOOM scroll gutters available. Any frame can optionally start interaction-locked (off by default): a centered Unlock control enables the embedded app, and an unlocked frame exposes a Lock frame control beside Full screen. This is especially useful for games and viewport apps that naturally capture wheel/touch input. The preference is project-owned and portable through export/import.

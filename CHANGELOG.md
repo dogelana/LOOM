@@ -1,3 +1,11 @@
+## v0.15.44 - Clean release boundary hotfix
+
+- Removed all accidentally packaged `instance/**` bootstrap/runtime entries from the distributable release.
+- Restored the declared clean-instance contract: `instance/` is persistent installation state and is absent from the release ZIP.
+- Bumped canonical runtime/cache-busting release references to 0.15.44 so Listener/Deployer can commit the package as one trusted release transaction.
+- Preserved all 0.15.43 HTML Framer, Admin, import/export, shared-chrome, and project-separation behavior unchanged.
+- Green Beans remains unbundled and legacy Green Beans release paths remain retired through deployment metadata.
+
 ## v0.15.43 - HTML Framer Scroll Lane + Optional Interaction Lock
 
 - Changed the default HTML Framer width from 100% to **80% of the usable project page width** on desktop and mobile. This deliberately leaves LOOM-owned gutters beside ordinary frames so users can keep scrolling the project page without needing to target a tiny edge. Existing explicit per-frame width choices remain project-owned and are not silently overwritten.

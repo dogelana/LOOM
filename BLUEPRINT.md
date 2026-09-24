@@ -1,3 +1,7 @@
+## v0.15.44 architecture note — persistent Instance state is never a release payload
+
+The clean Instance Protocol is now enforced at the artifact boundary: a LOOM release may describe `instance/` as the persistent server-owned root, but the distributable archive itself contains no `instance/**` entries. Project/runtime state survives independently of release replacement. This prevents Listener verification failures and keeps release manifests eligible for the fast transactional deployment path.
+
 ## v0.15.43 architecture note — framed interaction and page scrolling are separate ownership states
 
 HTML Framer no longer assumes that a visible iframe should always own pointer/wheel interaction. Normal frames default to an 80% page lane, leaving LOOM-owned gutters. A project may opt an individual frame into **interaction-locked** startup: the parent shell owns gestures while locked, the iframe owns them after explicit unlock, and full-screen takeover always implies unlocked interaction. This is transient presentation state; it never changes module order, frame package contents, or the project's scroll model.

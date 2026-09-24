@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.43 revision=13 policy=package-priority
+// @loom-file release=0.15.44 revision=14 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
