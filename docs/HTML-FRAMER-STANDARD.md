@@ -94,3 +94,10 @@ URL capture rejects localhost, private/reserved network targets, and cross-origi
 ## Portable project ownership
 
 HTML Framer packages belong to the project, even though their working files live in the Instance Vault. LOOM 0.15.37 therefore includes them in ordinary Project exports and restores them during Project imports. `frames.json`, extracted package files, and each preserved `source.zip` travel together. Temporary capture/build directories and backup remnants are excluded.
+
+
+## Responsive height contract (0.15.38)
+
+HTML Framer uses content-driven height by default. Every served framed HTML document receives a small LOOM layout bridge that reports its current rendered document height through `postMessage`. The parent runtime accepts layout messages only from its own iframe window and matching frame ID. In `auto` mode the iframe disables inner scrolling and grows with delivered content.
+
+Desktop/tablet and mobile (760px and below) store independent height mode, fixed-height value, and page-width percentage. `fixed` mode is the explicit opt-in for a bounded iframe viewport and browser scrolling. Legacy frame records that predate these fields default to `auto` while retaining their historical numeric height as the future fixed-height value.

@@ -1,3 +1,7 @@
+## v0.15.38 - HTML Framer Auto-Fit + Admin Settings UX
+
+HTML Framer now stretches to the delivered document height by default on both desktop and mobile, so framed packages do not need an inner scrollbar. Fixed-height scrolling remains available as an explicit Admin presentation choice. Desktop/tablet and mobile frame presentation settings are independent, and Admin settings cards expand into a clean full-width lane with overflow-safe responsive controls.
+
 ## v0.15.37 - Portable Project Assets + HTML Framer Migration
 
 Imported Instance Project assets now use one canonical LOOM asset proxy instead of direct `/instance/...` URLs, so project logos and other project-owned assets remain public through LOOM while the Instance Vault itself stays web-denied. This specifically repairs migrated project logos that previously returned HTTP 403 after import.
@@ -140,7 +144,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.37 revision=52 policy=package-priority -->
+<!-- @loom-file release=0.15.38 revision=53 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

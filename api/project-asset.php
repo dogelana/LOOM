@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.37 revision=2 policy=package-priority
+// @loom-file release=0.15.38 revision=2 policy=package-priority
 // LOOM canonical project asset proxy. /instance itself remains web-denied.
 declare(strict_types=1);
 require __DIR__.'/_common.php';

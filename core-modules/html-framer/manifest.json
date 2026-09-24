@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -33,9 +33,13 @@
   },
   "config": {
     "enabled": true,
+    "defaultHeightMode": "auto",
     "defaultFrameHeight": 520,
-    "actionReaderEnabled": true,
-    "defaultFrameWidthPercent": 100
+    "defaultFrameWidthPercent": 100,
+    "defaultMobileHeightMode": "auto",
+    "defaultMobileFrameHeight": 520,
+    "defaultMobileFrameWidthPercent": 100,
+    "actionReaderEnabled": true
   },
   "presentation": {
     "role": "utility",
@@ -57,7 +61,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Each published frame becomes its own sandboxed LOOM module. Action Reader v1 automatically catalogs and tracks observable framed UI actions without requiring the foreign package to know LOOM.",
+    "description": "Drop static HTML ZIP packages into LOOM. Frames stretch to their delivered content height by default with no iframe scrollbar. Desktop and mobile presentation defaults are independent; fixed-height scrolling is an explicit Admin opt-in.",
     "fields": [
       {
         "id": "enabled",
@@ -66,24 +70,84 @@
         "help": "When off, stored HTML frames remain preserved in the Instance Vault but are not added to the project runtime."
       },
       {
+        "id": "defaultHeightMode",
+        "label": "Desktop height behavior",
+        "type": "select",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Stretch to delivered content (recommended)"
+          },
+          {
+            "value": "fixed",
+            "label": "Fixed height + allow scrolling"
+          }
+        ],
+        "help": "Auto-fit is the default and removes the iframe scrollbar by resizing the frame to its delivered document height."
+      },
+      {
         "id": "defaultFrameHeight",
-        "label": "Default new frame height",
+        "label": "Desktop fixed height",
         "type": "range",
-        "min": 240,
-        "max": 1200,
+        "min": 200,
+        "max": 2400,
         "step": 10,
         "unit": "px",
-        "help": "Used for newly imported frames. Each frame can be adjusted independently afterward."
+        "visibleWhen": {
+          "field": "defaultHeightMode",
+          "equals": "fixed"
+        },
+        "help": "Used only when Desktop height behavior is Fixed."
       },
       {
         "id": "defaultFrameWidthPercent",
-        "label": "Default new frame width",
+        "label": "Desktop page width",
         "type": "range",
         "min": 50,
         "max": 100,
         "step": 1,
         "unit": "%",
-        "help": "New HTML frames default to 100% of the usable project page width, independent of the narrower normal content lane. Each frame can be adjusted independently afterward."
+        "help": "Percentage of the usable project page width, not the narrower normal content lane."
+      },
+      {
+        "id": "defaultMobileHeightMode",
+        "label": "Mobile height behavior",
+        "type": "select",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Stretch to delivered content (recommended)"
+          },
+          {
+            "value": "fixed",
+            "label": "Fixed height + allow scrolling"
+          }
+        ],
+        "help": "Independent mobile behavior at 760px and below. Auto-fit remains the default."
+      },
+      {
+        "id": "defaultMobileFrameHeight",
+        "label": "Mobile fixed height",
+        "type": "range",
+        "min": 200,
+        "max": 2400,
+        "step": 10,
+        "unit": "px",
+        "visibleWhen": {
+          "field": "defaultMobileHeightMode",
+          "equals": "fixed"
+        },
+        "help": "Used only when Mobile height behavior is Fixed."
+      },
+      {
+        "id": "defaultMobileFrameWidthPercent",
+        "label": "Mobile page width",
+        "type": "range",
+        "min": 50,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "Independent width for phones and narrow screens."
       },
       {
         "id": "actionReaderEnabled",

@@ -231,6 +231,17 @@ function loom_html_framer_action_reader_client_config(array $frame): array {
   $generic=[];foreach(['click','navigate','submit','change'] as $e)$generic[$e]='html.frame.'.$id.'.dynamic.'.$e;
   return ['schema'=>'loom-framed-action-reader/v1','frameId'=>$id,'catalog'=>$catalog,'generic'=>$generic];
 }
+function loom_html_framer_layout_bridge_script(array $frame): string {
+  $id=json_encode((string)($frame['id']??''),JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+  if($id===false)$id='""';
+  return '<script data-loom-framed-layout="1">(function(){' .
+    'const ID='.$id.';let last=0,raf=0,ro=null,mo=null;' .
+    'function measure(){raf=0;const de=document.documentElement,b=document.body;let h=0;for(const el of [de,b])if(el)h=Math.max(h,el.scrollHeight||0,el.offsetHeight||0,Math.ceil(el.getBoundingClientRect().bottom||0));h=Math.max(1,Math.ceil(h));if(Math.abs(h-last)<2)return;last=h;parent.postMessage({__loomFramedLayout:"v1",frameId:ID,height:h},"*")}' .
+    'function schedule(){if(!raf)raf=requestAnimationFrame(measure)}' .
+    'function start(){schedule();try{ro=new ResizeObserver(schedule);if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}catch{}try{mo=new MutationObserver(schedule);mo.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule).catch(()=>{});[50,150,400,900,1800,3500].forEach(t=>setTimeout(schedule,t))}' .
+    'addEventListener("load",schedule);addEventListener("resize",schedule,{passive:true});if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
+    '})();</script>';
+}
 function loom_html_framer_action_reader_script(array $frame): string {
   $cfg=loom_html_framer_action_reader_client_config($frame);
   $json=json_encode($cfg,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
@@ -447,7 +458,9 @@ function loom_html_framer_remove_tree(string $dir): void {
   foreach($it as $f){$f->isDir()?@rmdir($f->getPathname()):@unlink($f->getPathname());}
   @rmdir($dir);
 }
-function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,int $defaultWidthPercent=100,?string $replaceId=null): array {
+function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,int $defaultWidthPercent=100,?string $replaceId=null,?array $presentationDefaults=null): array {
+  $presentationDefaults=is_array($presentationDefaults)?$presentationDefaults:[];
+  $normalizeMode=static fn($v)=>strtolower((string)$v)==='fixed'?'fixed':'auto';
   $analysis=loom_html_framer_analyze_zip($zipPath,$entrypoint);
   if($analysis['needsEntrypoint'])return ['needsEntrypoint'=>true,'analysis'=>$analysis];
   if($analysis['fatal'])throw new RuntimeException(implode(' ',$analysis['fatal']));
@@ -470,7 +483,13 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
     $order=(int)($existing['order']??(60000+count($registry['frames'])*10));
     $frame=[
       'id'=>$frameId,'title'=>$title,'enabled'=>array_key_exists('enabled',$existing)?(bool)$existing['enabled']:true,
-      'entrypoint'=>$analysis['entrypoint'],'height'=>max(200,min(1600,(int)($existing['height']??$defaultHeight))),'widthPercent'=>max(50,min(100,(int)($existing['widthPercent']??$defaultWidthPercent))),
+      'entrypoint'=>$analysis['entrypoint'],
+      'heightMode'=>$normalizeMode($existing['heightMode']??$presentationDefaults['heightMode']??'auto'),
+      'height'=>max(200,min(2400,(int)($existing['height']??$presentationDefaults['height']??$defaultHeight))),
+      'widthPercent'=>max(50,min(100,(int)($existing['widthPercent']??$presentationDefaults['widthPercent']??$defaultWidthPercent))),
+      'mobileHeightMode'=>$normalizeMode($existing['mobileHeightMode']??$presentationDefaults['mobileHeightMode']??'auto'),
+      'mobileHeight'=>max(200,min(2400,(int)($existing['mobileHeight']??$presentationDefaults['mobileHeight']??$defaultHeight))),
+      'mobileWidthPercent'=>max(50,min(100,(int)($existing['mobileWidthPercent']??$presentationDefaults['mobileWidthPercent']??$defaultWidthPercent))),
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
@@ -532,11 +551,10 @@ function loom_html_framer_serve_transform(string $project,string $frameId,string
         else $data.=$js;
       }
     }
-    if(loom_html_framer_action_reader_enabled($project,$frame)){
-      $bridge=loom_html_framer_action_reader_script($frame);
-      if(stripos($data,'</body>')!==false)$data=preg_replace('~</body>~i',$bridge.'</body>',$data,1)??$data;
-      else $data.=$bridge;
-    }
+    $bridges=loom_html_framer_layout_bridge_script($frame);
+    if(loom_html_framer_action_reader_enabled($project,$frame))$bridges.=loom_html_framer_action_reader_script($frame);
+    if(stripos($data,'</body>')!==false)$data=preg_replace('~</body>~i',$bridges.'</body>',$data,1)??$data;
+    else $data.=$bridges;
     return $data;
   }
   if(loom_html_framer_is_css($path)){
@@ -592,9 +610,15 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.2.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.5.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
-        'frameId'=>$id,'src'=>$src,'height'=>max(200,min(1600,(int)($frame['height']??520))),'widthPercent'=>max(50,min(100,(int)($frame['widthPercent']??100))),
+        'frameId'=>$id,'src'=>$src,
+        'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',
+        'height'=>max(200,min(2400,(int)($frame['height']??520))),
+        'widthPercent'=>max(50,min(100,(int)($frame['widthPercent']??100))),
+        'mobileHeightMode'=>strtolower((string)($frame['mobileHeightMode']??'auto'))==='fixed'?'fixed':'auto',
+        'mobileHeight'=>max(200,min(2400,(int)($frame['mobileHeight']??($frame['height']??520)))),
+        'mobileWidthPercent'=>max(50,min(100,(int)($frame['mobileWidthPercent']??($frame['widthPercent']??100)))),
         'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
         'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
           'declaredActionCount'=>count($readerActions),
@@ -676,7 +700,7 @@ function loom_html_framer_snapshot_asset_name(string $url,string $contentType=''
   }
   return '_snapshot/'.substr(hash('sha256',$url),0,24).'.'.$ext;
 }
-function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520,int $defaultWidthPercent=100): array {
+function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520,int $defaultWidthPercent=100,?array $presentationDefaults=null): array {
   if(!loom_html_framer_zip_supported())throw new RuntimeException('URL capture requires ZipArchive because snapshots enter LOOM through the same validated package pipeline as ZIP imports.');
   $main=loom_html_framer_fetch_remote($url,8*1024*1024,3);$final=$main['url'];
   if(!preg_match('~text/html|application/xhtml\+xml~i',$main['contentType'])&&!preg_match('~<html\b|<!doctype\s+html~i',$main['body']))throw new RuntimeException('Capture URL did not return an HTML document.');
@@ -696,5 +720,5 @@ function loom_html_framer_capture_url(string $project,string $url,int $defaultHe
   @file_put_contents($files.'/index.html',$html,LOCK_EX);
   $zipPath=$tmpBase.'/snapshot.zip';$zip=new ZipArchive();if($zip->open($zipPath,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true){loom_html_framer_remove_tree($tmpBase);throw new RuntimeException('Could not create snapshot package.');}
   $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($files,FilesystemIterator::SKIP_DOTS));foreach($it as $f)if($f->isFile())$zip->addFile($f->getPathname(),str_replace('\\','/',substr($f->getPathname(),strlen($files)+1)));$zip->close();
-  try{$result=loom_html_framer_import($project,$zipPath,'URL Snapshot · '.parse_url($final,PHP_URL_HOST), 'index.html',$defaultHeight,$defaultWidthPercent,null);if(!empty($result['frame']['id'])){$id=$result['frame']['id'];$reg=loom_html_framer_registry($project);if(isset($reg['frames'][$id])){$reg['frames'][$id]['sourceUrl']=$final;$reg['frames'][$id]['captureMode']='url-snapshot';$reg['frames'][$id]['capturedAt']=server_timestamp();$reg['frames'][$id]['snapshotAssetCount']=count($saved);loom_html_framer_write_registry($project,$reg);$result['frame']=$reg['frames'][$id];}}$result['sourceUrl']=$final;$result['captureMode']='url-snapshot';return $result;}finally{loom_html_framer_remove_tree($tmpBase);}
+  try{$result=loom_html_framer_import($project,$zipPath,'URL Snapshot · '.parse_url($final,PHP_URL_HOST), 'index.html',$defaultHeight,$defaultWidthPercent,null,$presentationDefaults);if(!empty($result['frame']['id'])){$id=$result['frame']['id'];$reg=loom_html_framer_registry($project);if(isset($reg['frames'][$id])){$reg['frames'][$id]['sourceUrl']=$final;$reg['frames'][$id]['captureMode']='url-snapshot';$reg['frames'][$id]['capturedAt']=server_timestamp();$reg['frames'][$id]['snapshotAssetCount']=count($saved);loom_html_framer_write_registry($project,$reg);$result['frame']=$reg['frames'][$id];}}$result['sourceUrl']=$final;$result['captureMode']='url-snapshot';return $result;}finally{loom_html_framer_remove_tree($tmpBase);}
 }

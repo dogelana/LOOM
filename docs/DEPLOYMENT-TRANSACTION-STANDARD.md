@@ -1,7 +1,7 @@
-<!-- @loom-file release=0.15.37 revision=8 policy=package-priority -->
+<!-- @loom-file release=0.15.38 revision=9 policy=package-priority -->
 # LOOM Deployment Transaction Standard
 
-LOOM release: **0.15.37**
+LOOM release: **0.15.38**
 
 `/.loom-deployment.json` is the single canonical platform release authority. A deployment is not complete until the server copy of that manifest is committed.
 

@@ -1,3 +1,12 @@
+## v0.15.38 - HTML Framer Auto-Fit + Admin Settings UX
+
+- HTML Framer now defaults to **Stretch to delivered content** height on desktop and mobile. The sandbox posts document-height changes back to LOOM through a dedicated layout bridge, and LOOM resizes the iframe instead of clipping content behind an inner scrollbar.
+- Fixed-height iframe scrolling is now an explicit Admin choice rather than the default behavior. Existing numeric frame heights remain preserved as the value used when Fixed mode is selected.
+- HTML Framer presentation is split into independent Desktop/Tablet and Mobile (≤760px) controls for height behavior, fixed height, and page-width percentage.
+- Newly imported ZIP frames and static URL captures inherit the selected project HTML Framer desktop/mobile defaults. Legacy frame registries without height-mode fields safely resolve to auto-fit.
+- Admin settings cards no longer visually stretch neighboring cards when expanded. Open settings cards receive the full grid lane, project/global module fields use a responsive two-column layout on larger screens, and controls are constrained against horizontal overflow.
+- HTML Framer manager rows now use responsive Desktop and Mobile device panels so the editor stays clean on narrow Admin layouts.
+
 ## v0.15.37 - Portable Project Assets & HTML Framer Migration
 
 - Fixed imported Instance Project logos returning HTTP 403 because LOOM Home could generate a direct URL beneath the intentionally web-denied `/instance` vault.
@@ -536,7 +545,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.37 revision=54 policy=package-priority -->
+<!-- @loom-file release=0.15.38 revision=55 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

@@ -1,3 +1,7 @@
+## v0.15.38 architecture note — framed content owns its natural height
+
+HTML Framer is content-height driven by default. The framed document reports its rendered height through the sandbox boundary; the LOOM runtime owns the outer iframe size and removes inner scrolling unless an Admin deliberately chooses Fixed height. Desktop and mobile presentation are separate responsive profiles. Admin settings layout follows the same single-source responsive rule: expanded configuration receives a full-width lane rather than stretching unrelated neighbor cards.
+
 ## v0.15.37 architecture note — project structure must remain portable
 
 A project is more than its release/runtime folder. Project-owned structural systems stored in the Instance Vault—most importantly HTML Framer packages—must travel with ordinary Project export/import operations. Framer `frames.json`, extracted package files, and source ZIPs are therefore structural project payloads, while transient build/capture directories remain excluded.
@@ -101,7 +105,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.37 revision=48 policy=package-priority -->
+<!-- @loom-file release=0.15.38 revision=49 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults
