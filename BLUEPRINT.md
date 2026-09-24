@@ -1,3 +1,7 @@
+## v0.15.40 architecture note — the outer page owns height in auto Framer mode
+
+HTML Framer auto mode treats vertical iframe scrolling as an integration failure rather than a normal presentation choice. The framed bridge expands accidental nested vertical scrollers/clippers and reports intrinsic delivered height; the parent iframe grows to that report. Fixed-height mode is the explicit exception. Admin configuration uses a deterministic collapsed-first accordion state model; recent-use ranking is persisted without moving panels underneath an active interaction.
+
 ## v0.15.39 architecture note — framed apps may temporarily own the viewport
 
 HTML Framer remains a project module in normal flow, but a user may explicitly elevate one frame into a temporary full-page presentation state. The runtime portals only the framed surface to the document body, locks background LOOM scrolling, preserves the original module placeholder, and restores the exact DOM position on exit. This is presentation state only; it never rewrites project/module ordering or persisted layout.

@@ -234,13 +234,26 @@ function loom_html_framer_action_reader_client_config(array $frame): array {
 function loom_html_framer_layout_bridge_script(array $frame): string {
   $id=json_encode((string)($frame['id']??''),JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
   if($id===false)$id='""';
-  return '<script data-loom-framed-layout="1">(function(){' .
-    'const ID='.$id.';let last=0,raf=0,ro=null,mo=null;' .
-    'function measure(){raf=0;const de=document.documentElement,b=document.body;let h=0;for(const el of [de,b])if(el)h=Math.max(h,el.scrollHeight||0,el.offsetHeight||0,Math.ceil(el.getBoundingClientRect().bottom||0));h=Math.max(1,Math.ceil(h));if(Math.abs(h-last)<2)return;last=h;parent.postMessage({__loomFramedLayout:"v1",frameId:ID,height:h},"*")}' .
+  $desktopAuto=strtolower((string)($frame['heightMode']??'auto'))!=='fixed';
+  $mobileAuto=strtolower((string)($frame['mobileHeightMode']??($frame['heightMode']??'auto')))!=='fixed';
+  $cfg=json_encode(['desktopAuto'=>$desktopAuto,'mobileAuto'=>$mobileAuto,'breakpoint'=>760],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+  if($cfg===false)$cfg='{"desktopAuto":true,"mobileAuto":true,"breakpoint":760}';
+  return '<script data-loom-framed-layout="2">(function(){' .
+    'const ID='.$id.',C='.$cfg.';let last=0,raf=0,ro=null,mo=null,mq=null,started=false;const forced=new Map();' .
+    'function isAuto(){return (mq&&mq.matches)?C.mobileAuto:C.desktopAuto}' .
+    'function remember(el,p){let rec=forced.get(el);if(!rec){rec={};forced.set(el,rec)}if(!(p in rec))rec[p]=[el.style.getPropertyValue(p),el.style.getPropertyPriority(p)]}' .
+    'function force(el,p,v){if(!el)return;remember(el,p);if(el.style.getPropertyValue(p)===String(v)&&el.style.getPropertyPriority(p)==="important")return;el.style.setProperty(p,v,"important")}' .
+    'function restore(){for(const [el,rec] of forced){if(!el||!el.style)continue;for(const [p,val] of Object.entries(rec)){if(val[0])el.style.setProperty(p,val[0],val[1]||"");else el.style.removeProperty(p)}}forced.clear()}' .
+    'function relax(){if(!isAuto()){restore();return}const de=document.documentElement,b=document.body;if(de){force(de,"height","auto");force(de,"min-height","0");force(de,"max-height","none");force(de,"overflow-y","visible")}if(b){force(b,"height","auto");force(b,"min-height","0");force(b,"max-height","none");force(b,"overflow-y","visible")}if(!b)return;let n=0;for(const el of b.querySelectorAll("*")){if(++n>5000)break;if(el.matches("textarea,select,[data-loom-preserve-scroll]"))continue;let cs;try{cs=getComputedStyle(el)}catch{continue}if(cs.position==="fixed"||cs.position==="sticky")continue;const oy=cs.overflowY;if(!/(auto|scroll|hidden|clip)/.test(oy))continue;if((el.scrollHeight||0)>(el.clientHeight||0)+2){force(el,"height",Math.max(el.scrollHeight||0,Math.ceil(el.getBoundingClientRect().height||0))+"px");force(el,"min-height","0");force(el,"max-height","none");force(el,"overflow-y","visible")}}}' .
+    'function height(){const de=document.documentElement,b=document.body;let h=0;for(const el of [de,b])if(el)h=Math.max(h,el.scrollHeight||0,el.offsetHeight||0,Math.ceil(el.getBoundingClientRect().height||0));if(b){for(const el of b.children){let cs;try{cs=getComputedStyle(el)}catch{continue}if(cs.position==="fixed")continue;const r=el.getBoundingClientRect();h=Math.max(h,Math.ceil(r.bottom+(window.scrollY||0)))}}return Math.max(1,Math.ceil(h))}' .
+    'function measure(){raf=0;relax();const h=height();if(Math.abs(h-last)<2)return;last=h;parent.postMessage({__loomFramedLayout:"v2",frameId:ID,height:h,auto:isAuto()},"*")}' .
     'function schedule(){if(!raf)raf=requestAnimationFrame(measure)}' .
-    'function start(){schedule();try{ro=new ResizeObserver(schedule);if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}catch{}try{mo=new MutationObserver(schedule);mo.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule).catch(()=>{});[50,150,400,900,1800,3500].forEach(t=>setTimeout(schedule,t))}' .
+    'function watchExpanded(){if(!ro||!document.body)return;let n=0;for(const el of document.body.querySelectorAll("*")){if(++n>2000)break;try{if((el.scrollHeight||0)>(el.clientHeight||0)+2)ro.observe(el)}catch{}}}' .
+    'function start(){if(started)return;started=true;mq=matchMedia("(max-width:"+C.breakpoint+"px)");try{mq.addEventListener("change",()=>{restore();last=0;schedule()})}catch{mq.addListener&&mq.addListener(()=>{restore();last=0;schedule()})}try{ro=new ResizeObserver(()=>{schedule()});if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body);watchExpanded()}catch{}try{mo=new MutationObserver(()=>{schedule();watchExpanded()});mo.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule).catch(()=>{});[0,40,120,300,700,1400,2800,5000].forEach(t=>setTimeout(schedule,t))}' .
+    'addEventListener("message",e=>{const m=e.data;if(!m||typeof m!=="object"||m.__loomFramedLayoutRequest!=="measure"||String(m.frameId||"")!==String(ID))return;last=0;schedule()});' .
+    'addEventListener("load",schedule);addEventListener("resize",()=>{last=0;schedule()},{passive:true});addEventListener("transitionend",schedule,true);addEventListener("animationend",schedule,true);addEventListener("input",schedule,true);addEventListener("change",schedule,true);' .
     'addEventListener("keydown",e=>{if(e.key==="Escape")parent.postMessage({__loomFramedFullscreen:"exit",frameId:ID},"*")},true);' .
-    'addEventListener("load",schedule);addEventListener("resize",schedule,{passive:true});if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
+    'if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
     '})();</script>';
 }
 function loom_html_framer_action_reader_script(array $frame): string {
@@ -612,7 +625,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.6.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.7.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,
         'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',

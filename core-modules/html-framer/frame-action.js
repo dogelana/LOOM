@@ -1,10 +1,10 @@
-// @loom-file release=0.15.39 revision=7 policy=package-priority
+// @loom-file release=0.15.40 revision=8 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
 // Frames auto-fit delivered document height by default. Fixed-height scrolling is explicit Admin opt-in.
 // Optional full-page takeover portals the frame above LOOM chrome and restores it losslessly on exit.
 export function createModule(ctx){
   let root=null,surface=null,stage=null,frame=null,fullscreenDock=null,fullscreenButton=null;
-  let onMessage=null,mobileMedia=null,onMobileChange=null,onKeyDown=null,onViewportChange=null;
+  let onMessage=null,mobileMedia=null,onMobileChange=null,onKeyDown=null,onViewportChange=null,onFrameLoad=null;
   let fullscreen=false,placeholder=null,scrollX=0,scrollY=0,documentStyleSnapshot=null;
   const autoHeight={desktop:null,mobile:null};
   const clamp=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback};
@@ -51,6 +51,16 @@ export function createModule(ctx){
     fullscreenButton.onblur=()=>{fullscreenButton.style.outline=''};
     fullscreenButton.onclick=()=>setFullscreen(!fullscreen,'control');
     fullscreenDock.appendChild(fullscreenButton);updateFullscreenControl();return fullscreenDock;
+  }
+  function requestMeasure(reason='parent'){
+    if(!frame?.contentWindow)return;
+    const p=profile();
+    try{frame.contentWindow.postMessage({__loomFramedLayoutRequest:'measure',frameId:String(ctx.config.frameId||''),device:p.key,heightMode:p.heightMode,reason},'*')}catch{}
+  }
+  function scheduleMeasure(reason='parent'){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>requestMeasure(reason)));
+    setTimeout(()=>requestMeasure(reason),90);
+    setTimeout(()=>requestMeasure(reason),320);
   }
   function applyAutoHeight(raw){
     if(!frame)return;
@@ -128,7 +138,7 @@ export function createModule(ctx){
       if(fullscreen)setFullscreen(false,'frame-escape');
       return;
     }
-    if(msg.__loomFramedLayout==='v1'){
+    if(msg.__loomFramedLayout==='v1'||msg.__loomFramedLayout==='v2'){
       applyAutoHeight(msg.height);
       return;
     }
@@ -144,7 +154,7 @@ export function createModule(ctx){
     root=document.createElement('section');root.className='loom-html-framer-module';root.dataset.htmlFrameId=String(ctx.config.frameId||'');
     surface=document.createElement('div');surface.className='loom-html-framer-surface';
     stage=document.createElement('div');
-    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.style.cssText='display:block;width:100%;height:240px;border:0;background:#fff;overflow:hidden;';
+    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${Math.max(360,viewportHeight())}px;border:0;background:#fff;overflow:hidden;`;
     stage.appendChild(frame);surface.appendChild(stage);const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();return root;
   }
   function fitToPageLane(){
@@ -165,12 +175,16 @@ export function createModule(ctx){
     if(p.heightMode==='fixed'){
       frame.setAttribute('scrolling','auto');frame.style.overflow='auto';frame.style.height=`${p.fixedHeight}px`;
     }else{
-      frame.setAttribute('scrolling','no');frame.style.overflow='hidden';frame.style.height=`${autoHeight[p.key]||240}px`;
+      frame.setAttribute('scrolling','no');frame.style.overflow='hidden';
+      // Bootstrap auto-fit at a real viewport height so foreign 100vh layouts never get trapped in a tiny 240px iframe.
+      frame.style.height=`${autoHeight[p.key]||Math.max(360,viewportHeight())}px`;
+      scheduleMeasure('responsive-layout');
     }
   }
   function cleanup(){
     if(fullscreen)setFullscreen(false,'cleanup');
     if(onMessage)removeEventListener('message',onMessage);onMessage=null;
+    if(frame&&onFrameLoad)frame.removeEventListener('load',onFrameLoad);onFrameLoad=null;
     if(onKeyDown)removeEventListener('keydown',onKeyDown,true);onKeyDown=null;
     if(onViewportChange){removeEventListener('resize',onViewportChange);try{window.visualViewport?.removeEventListener('resize',onViewportChange)}catch{}}onViewportChange=null;
     if(mobileMedia&&onMobileChange){try{mobileMedia.removeEventListener('change',onMobileChange)}catch{mobileMedia.removeListener?.(onMobileChange)}}
@@ -181,11 +195,12 @@ export function createModule(ctx){
     async mount(){},
     async activate(){
       if(root)return;ctx.step('mount-frame','active',{frameId:ctx.config.frameId});ctx.mount(build());
-      mobileMedia=matchMedia('(max-width: 760px)');onMobileChange=()=>applyResponsiveLayout();try{mobileMedia.addEventListener('change',onMobileChange)}catch{mobileMedia.addListener?.(onMobileChange)}
+      mobileMedia=matchMedia('(max-width: 760px)');onMobileChange=()=>{applyResponsiveLayout();scheduleMeasure('device-profile-change')};try{mobileMedia.addEventListener('change',onMobileChange)}catch{mobileMedia.addListener?.(onMobileChange)}
       onMessage=event=>{handleMessage(event).catch(()=>{})};addEventListener('message',onMessage);
+      onFrameLoad=()=>scheduleMeasure('iframe-load');frame.addEventListener('load',onFrameLoad);
       onKeyDown=event=>{if(fullscreen&&event.key==='Escape'){event.preventDefault();setFullscreen(false,'escape')}};addEventListener('keydown',onKeyDown,true);
-      onViewportChange=()=>{if(fullscreen)applyResponsiveLayout()};addEventListener('resize',onViewportChange,{passive:true});try{window.visualViewport?.addEventListener('resize',onViewportChange,{passive:true})}catch{}
-      queueMicrotask(()=>applyResponsiveLayout());
+      onViewportChange=()=>{applyResponsiveLayout();scheduleMeasure('viewport-change')};addEventListener('resize',onViewportChange,{passive:true});try{window.visualViewport?.addEventListener('resize',onViewportChange,{passive:true})}catch{}
+      queueMicrotask(()=>{applyResponsiveLayout();scheduleMeasure('activate')});
       ctx.step('mount-frame','completed',{frameId:ctx.config.frameId});
       const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,fullscreenEnabled:fullscreenAllowed(),actionReaderSummary:ctx.config.actionReaderSummary||null});
       return()=>cleanup();

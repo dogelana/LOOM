@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -62,7 +62,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Frames stretch to delivered content height by default with no iframe scrollbar. Desktop and mobile presentation defaults are independent; fixed-height scrolling is explicit Admin opt-in. Frames may also expose a full-screen/full-page takeover control.",
+    "description": "Drop static HTML ZIP packages into LOOM. Auto-fit is the default: LOOM expands the frame and relaxes nested vertical scroll containers so delivered content is shown without an inner scrollbar. Desktop/mobile fixed-height scrolling remains explicit Admin opt-in; full-screen remains available per frame.",
     "fields": [
       {
         "id": "enabled",
@@ -84,7 +84,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Auto-fit is the default and removes the iframe scrollbar by resizing the frame to its delivered document height."
+        "help": "Auto-fit is the default. LOOM measures the delivered page, expands nested vertical scroll containers, and grows the iframe instead of clipping content behind an inner scrollbar."
       },
       {
         "id": "defaultFrameHeight",
@@ -124,7 +124,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Independent mobile behavior at 760px and below. Auto-fit remains the default."
+        "help": "Independent mobile behavior at 760px and below. Auto-fit remeasures responsive wrapping and expands nested vertical scroll containers instead of creating iframe scrollbars."
       },
       {
         "id": "defaultMobileFrameHeight",

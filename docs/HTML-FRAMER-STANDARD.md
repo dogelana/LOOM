@@ -112,3 +112,10 @@ When entered, LOOM portals the frame runtime surface above the normal project sh
 The height contract remains authoritative while full screen. In `auto` mode the iframe itself remains non-scrollable and expands to at least the viewport height; content taller than the viewport flows as a full-page surface. In `fixed` mode the iframe fills the viewport and its explicitly enabled internal scrolling remains available. Desktop/mobile profiles continue to switch normally during orientation and viewport changes.
 
 The project-level `defaultFullscreenEnabled` setting controls the default for newly imported frames. Each frame persists its own `fullscreenEnabled` value in `frames.json`, so the preference travels with normal Project export/import bundles. Legacy frames with no stored value default to enabled.
+
+
+## True auto-fit / no-inner-scroll contract (0.15.40)
+
+The default HTML Framer presentation is **auto** on desktop and mobile. LOOM boots auto frames at a real viewport height so `100vh` foreign layouts cannot lock themselves into an artificially short iframe, then uses layout bridge v2 to continuously measure delivered content. In auto mode the bridge also expands vertically constrained nested scroll/clipping containers when their content exceeds their client height. This makes the outer LOOM page, not the iframe, own normal page scrolling.
+
+A framed package may mark a deliberate internal vertical scroller with `data-loom-preserve-scroll`. Admin fixed-height mode is the explicit alternative: the iframe becomes bounded and scrolling is allowed.

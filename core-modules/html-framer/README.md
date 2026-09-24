@@ -145,3 +145,8 @@ Each frame may expose a LOOM-owned **Full screen** button. It temporarily lifts 
 - `Escape` exits full screen from either the parent page or the framed document.
 - Admin can disable the control per frame, and can set the default for newly imported frames.
 - The persisted `fullscreenEnabled` setting travels with Project export/import because it is stored in the frame registry.
+
+
+## True auto-fit contract (0.15.40)
+
+Auto height is now deliberately hostile to accidental nested vertical scrolling. The delivered page starts with a real viewport-sized iframe rather than a 240px bootstrap, then the injected layout bridge measures the document and relaxes vertically constrained `auto`, `scroll`, `hidden`, or `clip` containers whose content is taller than their client box. The parent iframe remains `scrolling=no` in auto mode and is resized from bridge reports. A framed app can opt a deliberate internal scroller out of this relaxation with `data-loom-preserve-scroll`. Fixed-height mode remains the Admin-controlled path for a bounded iframe with scrolling.

@@ -1,3 +1,7 @@
+## v0.15.40 - True HTML Framer Auto-Fit + Admin Accordion Stability
+
+HTML Framer auto mode now expands the delivered app instead of accepting nested vertical scroll containers, with a real viewport bootstrap and continuous layout re-measure handshake on desktop and mobile. Fixed-height mode is still the intentional scrolling mode. Admin settings return to collapsed-first deterministic accordions that remember state and sort recent panels only on render, never while the Admin is interacting inside a card.
+
 ## v0.15.39 - HTML Framer Full-Screen Takeover
 
 HTML Framer modules can now become a true full-page experience on demand. Every frame may expose a polished **Full screen** control that lifts the frame above the project shell, hides LOOM chrome from view, fills the browser viewport on desktop or mobile, and returns the module to its exact original location when closed. Auto-fit frames preserve the no-inner-scrollbar contract; Fixed-height frames retain their intentionally scrollable viewport behavior. Admin can set the default globally for new frames and enable/disable the control per frame.

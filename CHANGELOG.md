@@ -1,3 +1,13 @@
+## v0.15.40 - HTML Framer True Auto-Fit + Deterministic Admin Accordions
+
+- Reworked HTML Framer auto-height around a layout bridge v2. Auto frames now bootstrap at a real viewport height instead of 240px, preventing `100vh` applications from being permanently trapped in a tiny viewport.
+- Auto-fit now relaxes nested vertical `auto`, `scroll`, `hidden`, and `clip` containers when their delivered content exceeds the container, allowing the iframe itself to grow instead of creating nested scrollbars. Deliberate internal scrollers can opt out with `data-loom-preserve-scroll`.
+- Parent and framed page now have an explicit re-measure handshake on load, responsive-profile changes, viewport changes, transitions, animations, form changes, font completion, DOM mutations, and resize observation. Desktop and mobile remain independent.
+- Fixed-height mode remains the only default-supported path that intentionally enables iframe scrolling. Full-screen behavior remains intact. HTML Framer runtime is now 1.7.0.
+- Rebuilt Admin settings accordion state as a deterministic v2 model. Panels are collapsed by default on first use, explicitly remember open/closed state after the Admin changes them, and recent-use ordering is updated when a panel is opened rather than continuously while typing or clicking inside it.
+- Removed the live card-reordering behavior that made panels appear to jump, close, stretch, or swap positions during editing. Expanded cards still receive the full settings lane; collapsed cards stay compact.
+- Added late-layout containment rules for all Admin controls and rebuilt HTML Framer Admin rows into overflow-safe responsive grids.
+
 ## v0.15.39 - HTML Framer Full-Screen Takeover
 
 - Added a first-class **Full screen** control to HTML Framer modules. A framed package can temporarily take over the entire browser viewport so project content can be used like a standalone page without LOOM header, footer, module chrome, or neighboring modules competing for space.
@@ -555,7 +565,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.39 revision=56 policy=package-priority -->
+<!-- @loom-file release=0.15.40 revision=57 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
