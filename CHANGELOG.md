@@ -1,3 +1,15 @@
+## v0.15.30 - Portable Project Bundles + Full-State Backup / Restore
+
+- Added a LOOM-native **Export, Import & Restore** core system with an Admin Backup & Restore workspace and canonical Action Registry entries.
+- Added five export modes: **Project**, **Project + Data**, **All Projects**, **All Projects + Data**, and **Full LOOM State**.
+- Project bundles preserve project runtime structure, branding, project assets/overlays, project overrides, and module/Admin settings while intentionally excluding unrelated server identities, sessions, referrals, telemetry, and secrets unless a data-bearing/full-state mode is explicitly selected.
+- Project imports create **Instance Projects by default**, allowing a release-managed project to be migrated into installation-owned state without continuing to ship it in future LOOM packages.
+- Full-state backup captures protected Instance Vault state plus portable LOOM database application rows when a database is available. Database connection credentials, active authentication sessions, capability/admin tokens, and guest recovery secrets are excluded.
+- Database payloads are infrastructure-independent. If the destination has no configured database, LOOM stages the payload safely under protected Instance storage for later application after a database is attached.
+- Import is always **upload → checksum verification → preview → explicit strategy → apply**. Strategies include create-new, merge, replace, and skip. Full-state restore requires System Owner authority plus the confirmation phrase `RESTORE LOOM`.
+- Replace/full restore paths create protected rollback snapshots before mutation. Generated exports and rollback artifacts live only under the Instance Vault and remain outside normal release/Git synchronization.
+- Added `docs/EXPORT-IMPORT-BACKUP-STANDARD.md`.
+
 ## v0.15.29 - Admin Identity + Project Access UX Hardening
 
 - Fixed Identity Manager startup failures caused by running legacy Guest Identity discovery/backfill synchronously on every list request. The normal list path is lightweight again, and Admin now handles non-JSON upstream/server error responses gracefully instead of throwing `Unexpected token '<'`.
@@ -444,7 +456,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.29 revision=46 policy=package-priority -->
+<!-- @loom-file release=0.15.30 revision=47 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

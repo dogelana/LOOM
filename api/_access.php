@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.29 revision=3 policy=package-priority
+// @loom-file release=0.15.30 revision=4 policy=package-priority
 // LOOM delegated administration: immutable System Owner, delegated LOOM Admins,
 // and project-scoped Admin/Manager grants for permanent accounts or guest profiles.
 declare(strict_types=1);
@@ -79,8 +79,8 @@ function loom_access_project_role(string $clientId,string $project): string {
   $g=loom_access_project_grant_for_client($clientId,$project);$role=(string)($g['role']??'');return in_array($role,['project-admin','project-manager'],true)?$role:'member';
 }
 function loom_access_effective_capabilities(string $clientId,string $project=''): array {
-  if(loom_access_is_system_owner($clientId))return ['system.owner','loom.admin','loom.admins.manage','loom.settings','loom.database','loom.identities','loom.activity','project.view','project.settings','project.modules','project.content','project.users','project.access','html-framer.manage'];
-  if(loom_access_client_is_loom_admin($clientId))return ['loom.admin','loom.settings','loom.database','loom.identities','loom.activity','project.view','project.settings','project.modules','project.content','project.users','project.access','html-framer.manage'];
+  if(loom_access_is_system_owner($clientId))return ['system.owner','loom.admin','loom.admins.manage','loom.settings','loom.database','loom.identities','loom.activity','loom.backup','loom.backup.full','project.view','project.settings','project.modules','project.content','project.users','project.access','html-framer.manage'];
+  if(loom_access_client_is_loom_admin($clientId))return ['loom.admin','loom.settings','loom.database','loom.identities','loom.activity','loom.backup','project.view','project.settings','project.modules','project.content','project.users','project.access','html-framer.manage'];
   if($project!==''){$g=loom_access_project_grant_for_client($clientId,$project);if($g){$caps=loom_access_role_capabilities((string)($g['role']??''));foreach(($g['capabilities']??[]) as $cap)if(is_string($cap)&&$cap!=='')$caps[]=$cap;return array_values(array_unique($caps));}}
   return [];
 }

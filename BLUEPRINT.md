@@ -1,3 +1,11 @@
+## v0.15.30 architecture note — state portability is not release payload
+
+LOOM now distinguishes three artifact classes explicitly: **release packages** install replaceable LOOM code, **project bundles** move a project between installations, and **full-state backups** recover installation-owned persistent state. Only the latter two may intentionally contain Instance-derived data; ordinary LOOM release ZIPs still contain zero real `/instance/**` state.
+
+Project portability is built around the canonical project runtime plus project overlays/overrides/settings and imports into the Instance Vault by default. This allows a historical release project to become a private Instance Project without teaching future LOOM releases about that project.
+
+Import is transactional in intent: bundle hashes are verified before preview; conflicts require an explicit strategy; replace/full-state operations snapshot affected persistent state first; full-state restore is System Owner-only and requires a typed confirmation phrase. Database portability serializes LOOM application rows, not connection credentials. When no destination database exists, the payload becomes a protected pending import rather than being discarded.
+
 ## v0.15.29 architecture note — human identity first + explicit project authority
 
 Administrative identity surfaces render canonical usernames first and opaque IDs second. Internal IDs remain stable keys and searchable support evidence, but they are not the primary UI label. Identity list reads must stay non-destructive and bounded; legacy discovery/migration work may not sit on the critical Admin render path.
@@ -57,7 +65,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.29 revision=41 policy=package-priority -->
+<!-- @loom-file release=0.15.30 revision=42 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

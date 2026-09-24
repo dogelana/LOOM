@@ -1,3 +1,13 @@
+## v0.15.30 - Export, Import & Restore
+
+LOOM now has a first-class portable bundle system for project migration, backups, and complete installation recovery. Admin can export one project without server-specific data, one project with its project-owned data, all projects with or without project data, or a System Owner-only full LOOM state backup.
+
+Portable project bundles import as Instance Projects by default, so a project can be moved to another LOOM installation—or promoted out of the release tree—without continuing to ship that project in LOOM core releases. Every bundle includes a versioned manifest and SHA-256 file inventory; imports are verified and previewed before any write occurs.
+
+Full LOOM backups intentionally separate application state from infrastructure secrets. Database rows can be exported as portable LOOM data, but database host/user/password configuration, live auth sessions, Admin/capability secrets, and guest recovery secrets are not exported. If a destination has no database yet, imported database data is staged safely until one is configured.
+
+Open **Admin → Backup & Restore** for export/import controls. See `docs/EXPORT-IMPORT-BACKUP-STANDARD.md` for the portability contract.
+
 ## v0.15.29 - Identity/Admin Access Clarity
 
 LOOM Admin now treats usernames as the primary human-facing identity everywhere while keeping Guest/User/Client IDs as secondary support metadata. Identity Manager no longer performs expensive legacy discovery during its normal list request, avoiding host timeout/HTML error pages that previously surfaced as JSON parsing failures.
@@ -90,7 +100,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.29 revision=45 policy=package-priority -->
+<!-- @loom-file release=0.15.30 revision=46 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

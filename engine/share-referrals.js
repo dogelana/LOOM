@@ -1,4 +1,4 @@
-// @loom-file release=0.15.29 revision=4 policy=package-priority
+// @loom-file release=0.15.30 revision=4 policy=package-priority
 (() => {
   'use strict';
   const script=document.currentScript;

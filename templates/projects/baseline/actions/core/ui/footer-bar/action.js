@@ -1,4 +1,4 @@
-// @loom-file release=0.15.29 revision=8 policy=package-priority
+// @loom-file release=0.15.30 revision=8 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};

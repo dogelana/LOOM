@@ -1,4 +1,4 @@
-// @loom-file release=0.15.29 revision=19 policy=package-priority
+// @loom-file release=0.15.30 revision=20 policy=package-priority
 (() => {
   'use strict';
 
@@ -24,6 +24,7 @@
       {label:'🗄️ Database',href:new URL(`admin/?tab=database${q}`,base).href},
       {label:'📊 Activity',href:new URL(`admin/activity/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
       {label:'🎁 Referrals',href:new URL(`admin/referrals/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
+      {label:'📦 Backup & Restore',href:new URL('admin/backups/',base).href},
       {label:'🧩 Pegboard',href:new URL(`pegboard/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href},
       {label:'🧬 Action Registry',href:new URL(`registry/${p?`?project=${encodeURIComponent(p)}`:''}`,base).href}
     ];

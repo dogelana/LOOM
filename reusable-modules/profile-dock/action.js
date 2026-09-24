@@ -1,4 +1,4 @@
-// @loom-file release=0.15.29 revision=9 policy=package-priority
+// @loom-file release=0.15.30 revision=9 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null,profileControl=null,profileControlPromise=null;
 

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.29 revision=2 policy=package-priority
+// @loom-file release=0.15.30 revision=2 policy=package-priority
 // Delegated Access Control API.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
