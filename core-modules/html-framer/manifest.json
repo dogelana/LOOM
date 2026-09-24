@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -35,10 +35,10 @@
     "enabled": true,
     "defaultHeightMode": "auto",
     "defaultFrameHeight": 520,
-    "defaultFrameWidthPercent": 100,
+    "defaultFrameWidthPercent": 80,
     "defaultMobileHeightMode": "auto",
     "defaultMobileFrameHeight": 520,
-    "defaultMobileFrameWidthPercent": 100,
+    "defaultMobileFrameWidthPercent": 80,
     "actionReaderEnabled": true,
     "defaultFullscreenEnabled": true
   },
@@ -62,7 +62,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Smart auto-fit preserves foreign app layout: normal document pages grow with content, while viewport-style apps/games stay a stable viewport without iframe scrollbars or layout pulsing. Desktop/mobile fixed-height scrolling remains explicit Admin opt-in; full-screen remains available per frame.",
+    "description": "Drop static HTML ZIP packages into LOOM. Smart auto-fit preserves foreign app layout. Frames default to 80% of the usable page width so the surrounding LOOM page remains easy to scroll; any individual frame can optionally start interaction-locked and be unlocked from a centered control.",
     "fields": [
       {
         "id": "enabled",
@@ -108,7 +108,7 @@
         "max": 100,
         "step": 1,
         "unit": "%",
-        "help": "Percentage of the usable project page width, not the narrower normal content lane."
+        "help": "Percentage of the usable project page width. Default is 80%, leaving page gutters available for normal LOOM scrolling."
       },
       {
         "id": "defaultMobileHeightMode",
@@ -148,7 +148,7 @@
         "max": 100,
         "step": 1,
         "unit": "%",
-        "help": "Independent width for phones and narrow screens."
+        "help": "Independent phone/narrow-screen width. Default is 80%; Admin can raise it to 100% when a full-bleed mobile app is intentional."
       },
       {
         "id": "defaultFullscreenEnabled",

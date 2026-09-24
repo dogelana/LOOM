@@ -1,3 +1,12 @@
+## v0.15.43 - HTML Framer Scroll Lane + Optional Interaction Lock
+
+- Changed the default HTML Framer width from 100% to **80% of the usable project page width** on desktop and mobile. This deliberately leaves LOOM-owned gutters beside ordinary frames so users can keep scrolling the project page without needing to target a tiny edge. Existing explicit per-frame width choices remain project-owned and are not silently overwritten.
+- Added an optional per-frame **Start locked** interaction mode, off by default. When enabled, the iframe starts behind a transparent LOOM interaction shield: wheel/touch gestures scroll the outer LOOM page, while a centered **Unlock frame** control restores normal app interaction.
+- After unlocking, a **Lock frame** control appears beside **Full screen** so the user can return to pass-through page scrolling at any time. Entering full screen automatically unlocks the frame because the framed app owns the viewport in that mode.
+- Interaction-lock preference is stored in the project HTML Framer registry and therefore travels with normal Project export/import.
+- HTML Framer runtime version is now 1.10.0.
+- GitHub release-tree cleanup is handled by Bridge Suite 8.8 / Deployer 5.7, which applies LOOM manifest retirements to the local Git working tree before `git add -A`; this allows stale bundled Green Beans paths left behind by overlay extraction to become real deletion commits.
+
 ## v0.15.42 - Viewport-Safe HTML Framer Stability
 
 - Fixed the remaining HTML Framer jump/flash loop using the supplied Lint Away game as the compatibility reference. The game is a true viewport application (`html`, `body`, and the app shell own 100% height; body scrolling is intentionally locked; internal panels manage their own overflow), which must not be rewritten like a long document.

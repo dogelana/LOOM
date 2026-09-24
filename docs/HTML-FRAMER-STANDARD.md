@@ -138,3 +138,10 @@ Auto-fit must preserve the imported application's layout ownership. Layout bridg
 The bridge must not rewrite arbitrary foreign `overflow`, `height`, `min-height`, or `max-height` rules. Foreign application state/HUD text changes are not shell-layout events. Height-only iframe resizes from the parent are ignored as intrinsic remeasurement triggers, while width/profile changes, fonts, transitions, forms, and explicit parent requests may remeasure safely.
 
 At serve time LOOM removes historical `data-loom-framed-layout` and `data-loom-framed-action-reader` script copies before injecting the current implementation. Exactly one LOOM bridge owns each served framed document.
+
+
+## Page-scroll lane and interaction lock (0.15.43)
+
+The default desktop and mobile frame width is 80% of the usable project page lane. This is intentional: outer gutters remain LOOM-owned scroll targets. Width remains configurable from 50–100% per device profile and per frame.
+
+A frame may set `interactionLockEnabled=true`. This setting is off by default and is persisted in `frames.json`. While locked, the iframe does not receive pointer interaction and a transparent parent-owned shield lets wheel/touch gestures operate on the LOOM page. A centered Unlock control restores iframe interaction. The user can subsequently lock it again from the runtime dock beside Full screen. Entering full screen always unlocks interaction.

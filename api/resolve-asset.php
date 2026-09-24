@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.42 revision=6 policy=package-priority
+// @loom-file release=0.15.43 revision=6 policy=package-priority
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 

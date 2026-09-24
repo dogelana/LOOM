@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.42 revision=11 policy=package-priority
+// @loom-file release=0.15.43 revision=13 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
@@ -26,10 +26,10 @@ function html_framer_presentation_defaults(string $project): array {
   return [
     'heightMode'=>$mode($cfg['defaultHeightMode']??'auto'),
     'height'=>max(200,min(2400,(int)($cfg['defaultFrameHeight']??520))),
-    'widthPercent'=>max(50,min(100,(int)($cfg['defaultFrameWidthPercent']??100))),
+    'widthPercent'=>max(50,min(100,(int)($cfg['defaultFrameWidthPercent']??80))),
     'mobileHeightMode'=>$mode($cfg['defaultMobileHeightMode']??'auto'),
     'mobileHeight'=>max(200,min(2400,(int)($cfg['defaultMobileFrameHeight']??($cfg['defaultFrameHeight']??520)))),
-    'mobileWidthPercent'=>max(50,min(100,(int)($cfg['defaultMobileFrameWidthPercent']??($cfg['defaultFrameWidthPercent']??100)))),
+    'mobileWidthPercent'=>max(50,min(100,(int)($cfg['defaultMobileFrameWidthPercent']??($cfg['defaultFrameWidthPercent']??80)))),
     'fullscreenEnabled'=>array_key_exists('defaultFullscreenEnabled',$cfg)?(bool)$cfg['defaultFullscreenEnabled']:true
   ];
 }
@@ -91,6 +91,7 @@ try{
     if(array_key_exists('mobileHeight',$raw))$frame['mobileHeight']=max(200,min(2400,(int)$raw['mobileHeight']));
     if(array_key_exists('mobileWidthPercent',$raw))$frame['mobileWidthPercent']=max(50,min(100,(int)$raw['mobileWidthPercent']));
     if(array_key_exists('fullscreenEnabled',$raw))$frame['fullscreenEnabled']=(bool)$raw['fullscreenEnabled'];
+    if(array_key_exists('interactionLockEnabled',$raw))$frame['interactionLockEnabled']=(bool)$raw['interactionLockEnabled'];
     $frame['revision']=max(1,(int)($frame['revision']??1)+1);$frame['updatedAt']=server_timestamp();
     $registry['frames'][$frameId]=$frame;loom_html_framer_write_registry($project,$registry);
   }elseif($action==='move'){

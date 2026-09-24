@@ -472,7 +472,7 @@ function loom_html_framer_remove_tree(string $dir): void {
   foreach($it as $f){$f->isDir()?@rmdir($f->getPathname()):@unlink($f->getPathname());}
   @rmdir($dir);
 }
-function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,int $defaultWidthPercent=100,?string $replaceId=null,?array $presentationDefaults=null): array {
+function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,int $defaultWidthPercent=80,?string $replaceId=null,?array $presentationDefaults=null): array {
   $presentationDefaults=is_array($presentationDefaults)?$presentationDefaults:[];
   $normalizeMode=static fn($v)=>strtolower((string)$v)==='fixed'?'fixed':'auto';
   $analysis=loom_html_framer_analyze_zip($zipPath,$entrypoint);
@@ -505,6 +505,7 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
       'mobileHeight'=>max(200,min(2400,(int)($existing['mobileHeight']??$presentationDefaults['mobileHeight']??$defaultHeight))),
       'mobileWidthPercent'=>max(50,min(100,(int)($existing['mobileWidthPercent']??$presentationDefaults['mobileWidthPercent']??$defaultWidthPercent))),
       'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$existing)?(bool)$existing['fullscreenEnabled']:(bool)($presentationDefaults['fullscreenEnabled']??true),
+      'interactionLockEnabled'=>array_key_exists('interactionLockEnabled',$existing)?(bool)$existing['interactionLockEnabled']:false,
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
@@ -629,16 +630,17 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.9.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.10.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,
         'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',
         'height'=>max(200,min(2400,(int)($frame['height']??520))),
-        'widthPercent'=>max(50,min(100,(int)($frame['widthPercent']??100))),
+        'widthPercent'=>max(50,min(100,(int)($frame['widthPercent']??80))),
         'mobileHeightMode'=>strtolower((string)($frame['mobileHeightMode']??'auto'))==='fixed'?'fixed':'auto',
         'mobileHeight'=>max(200,min(2400,(int)($frame['mobileHeight']??($frame['height']??520)))),
-        'mobileWidthPercent'=>max(50,min(100,(int)($frame['mobileWidthPercent']??($frame['widthPercent']??100)))),
+        'mobileWidthPercent'=>max(50,min(100,(int)($frame['mobileWidthPercent']??($frame['widthPercent']??80)))),
         'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$frame)?(bool)$frame['fullscreenEnabled']:true,
+        'interactionLockEnabled'=>array_key_exists('interactionLockEnabled',$frame)?(bool)$frame['interactionLockEnabled']:false,
         'autoFullscreenOnLoad'=>$autoFullscreenFrameId!==''&&hash_equals($autoFullscreenFrameId,$id),
         'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
         'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
@@ -721,7 +723,7 @@ function loom_html_framer_snapshot_asset_name(string $url,string $contentType=''
   }
   return '_snapshot/'.substr(hash('sha256',$url),0,24).'.'.$ext;
 }
-function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520,int $defaultWidthPercent=100,?array $presentationDefaults=null): array {
+function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520,int $defaultWidthPercent=80,?array $presentationDefaults=null): array {
   if(!loom_html_framer_zip_supported())throw new RuntimeException('URL capture requires ZipArchive because snapshots enter LOOM through the same validated package pipeline as ZIP imports.');
   $main=loom_html_framer_fetch_remote($url,8*1024*1024,3);$final=$main['url'];
   if(!preg_match('~text/html|application/xhtml\+xml~i',$main['contentType'])&&!preg_match('~<html\b|<!doctype\s+html~i',$main['body']))throw new RuntimeException('Capture URL did not return an HTML document.');

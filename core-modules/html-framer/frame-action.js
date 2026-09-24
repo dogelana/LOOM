@@ -1,11 +1,11 @@
-// @loom-file release=0.15.42 revision=10 policy=package-priority
+// @loom-file release=0.15.43 revision=12 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
 // Frames auto-fit delivered document height by default. Fixed-height scrolling is explicit Admin opt-in.
 // Optional full-page takeover portals the frame above LOOM chrome and restores it losslessly on exit.
 export function createModule(ctx){
-  let root=null,surface=null,stage=null,frame=null,fullscreenDock=null,fullscreenButton=null;
+  let root=null,surface=null,stage=null,frame=null,fullscreenDock=null,fullscreenButton=null,lockButton=null,lockOverlay=null,unlockButton=null;
   let onMessage=null,mobileMedia=null,onMobileChange=null,onKeyDown=null,onViewportChange=null,onFrameLoad=null;
-  let fullscreen=false,placeholder=null,scrollX=0,scrollY=0,documentStyleSnapshot=null;
+  let fullscreen=false,placeholder=null,scrollX=0,scrollY=0,documentStyleSnapshot=null,interactionLocked=false;
   let autoFullscreenTimer=null;
   const autoHeight={desktop:null,mobile:null};
   const autoLayoutKind={desktop:null,mobile:null};
@@ -17,6 +17,7 @@ export function createModule(ctx){
   const isMobile=()=>!!mobileMedia?.matches;
   const fullscreenAllowed=()=>ctx.config.fullscreenEnabled!==false;
   const autoFullscreenOnLoad=()=>ctx.config.autoFullscreenOnLoad===true;
+  const interactionLockConfigured=()=>ctx.config.interactionLockEnabled===true;
   const viewportHeight=()=>Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||document.documentElement.clientHeight||720));
   function profile(){
     const mobile=isMobile();
@@ -24,38 +25,51 @@ export function createModule(ctx){
       key:mobile?'mobile':'desktop',mobile,
       heightMode:mode(mobile?ctx.config.mobileHeightMode:ctx.config.heightMode),
       fixedHeight:clamp(mobile?ctx.config.mobileHeight:ctx.config.height,200,2400,520),
-      widthPercent:clamp(mobile?ctx.config.mobileWidthPercent:ctx.config.widthPercent,50,100,100)
+      widthPercent:clamp(mobile?ctx.config.mobileWidthPercent:ctx.config.widthPercent,50,100,80)
     };
   }
   function safeTarget(raw){
     if(!raw||typeof raw!=='object')return null;
     return {tag:clean(raw.tag),id:clean(raw.id),name:clean(raw.name),type:clean(raw.type),role:clean(raw.role),ordinal:Number(raw.ordinal||0)||null};
   }
+  const pillButtonStyle='pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 12px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:rgba(18,30,22,.88);color:#fff;font:800 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 7px 24px rgba(0,0,0,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:transform .16s ease,background .16s ease,box-shadow .16s ease;';
+  function setPillContent(button,icon,label){if(!button)return;button.replaceChildren();const i=document.createElement('span');i.textContent=icon;i.setAttribute('aria-hidden','true');i.style.cssText='font-size:16px;line-height:1;';const l=document.createElement('span');l.textContent=label;l.style.cssText='white-space:nowrap;';button.append(i,l)}
+  function syncInteractionLockUI(){
+    if(!frame)return;
+    if(!interactionLockConfigured()||fullscreen)interactionLocked=false;
+    frame.style.pointerEvents=interactionLocked?'none':'auto';
+    if(lockOverlay)lockOverlay.style.display=interactionLocked?'grid':'none';
+    if(lockButton){lockButton.hidden=!interactionLockConfigured()||fullscreen;lockButton.setAttribute('aria-pressed',interactionLocked?'true':'false');lockButton.title=interactionLocked?'Unlock this HTML frame':'Temporarily lock this frame so wheel/touch scrolls the LOOM page';setPillContent(lockButton,interactionLocked?'🔓':'🔒',interactionLocked?'Unlock':'Lock frame')}
+  }
+  function setInteractionLocked(next,reason='control'){
+    const wanted=!!next&&interactionLockConfigured()&&!fullscreen;if(wanted===interactionLocked){syncInteractionLockUI();return}
+    interactionLocked=wanted;syncInteractionLockUI();
+    try{Promise.resolve(ctx.log('html-framer.interaction-lock.changed',{frameId:ctx.config.frameId,locked:interactionLocked,reason})).catch(()=>{})}catch{}
+  }
   function updateFullscreenControl(){
-    if(!fullscreenDock||!fullscreenButton)return;
+    if(!fullscreenDock)return;
     fullscreenDock.style.position=fullscreen?'fixed':'absolute';
     fullscreenDock.style.top=fullscreen?'max(12px, env(safe-area-inset-top))':'12px';
     fullscreenDock.style.right=fullscreen?'max(12px, env(safe-area-inset-right))':'12px';
     fullscreenDock.style.zIndex=fullscreen?'2147483646':'30';
-    fullscreenButton.setAttribute('aria-pressed',fullscreen?'true':'false');
-    fullscreenButton.setAttribute('aria-label',fullscreen?'Exit HTML frame full screen':'Open HTML frame full screen');
-    fullscreenButton.title=fullscreen?'Return to LOOM':'Use this HTML frame as a full page';
-    const icon=fullscreen?'↙':'⛶',label=fullscreen?'Exit full screen':'Full screen';
-    fullscreenButton.replaceChildren();
-    const iconNode=document.createElement('span');iconNode.textContent=icon;iconNode.setAttribute('aria-hidden','true');iconNode.style.cssText='font-size:16px;line-height:1;';
-    const labelNode=document.createElement('span');labelNode.textContent=label;labelNode.style.cssText='white-space:nowrap;';
-    fullscreenButton.append(iconNode,labelNode);
+    if(fullscreenButton){fullscreenButton.setAttribute('aria-pressed',fullscreen?'true':'false');fullscreenButton.setAttribute('aria-label',fullscreen?'Exit HTML frame full screen':'Open HTML frame full screen');fullscreenButton.title=fullscreen?'Return to LOOM':'Use this HTML frame as a full page';setPillContent(fullscreenButton,fullscreen?'↙':'⛶',fullscreen?'Exit full screen':'Full screen')}
+    syncInteractionLockUI();
   }
+  function wirePill(button){button.onmouseenter=()=>{button.style.transform='translateY(-1px)';button.style.background='rgba(10,24,15,.96)';button.style.boxShadow='0 10px 30px rgba(0,0,0,.26)'};button.onmouseleave=()=>{button.style.transform='';button.style.background='rgba(18,30,22,.88)';button.style.boxShadow='0 7px 24px rgba(0,0,0,.2)'};button.onfocus=()=>{button.style.outline='3px solid color-mix(in srgb,var(--loom-accent,#20a05a) 45%,white)';button.style.outlineOffset='2px'};button.onblur=()=>{button.style.outline=''}}
   function buildFullscreenControl(){
-    if(!fullscreenAllowed())return null;
-    fullscreenDock=document.createElement('div');fullscreenDock.className='loom-html-framer-fullscreen-dock';fullscreenDock.style.cssText='position:absolute;top:12px;right:12px;z-index:30;display:flex;align-items:center;pointer-events:none;';
-    fullscreenButton=document.createElement('button');fullscreenButton.type='button';fullscreenButton.className='loom-html-framer-fullscreen-toggle';fullscreenButton.style.cssText='pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 12px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:rgba(18,30,22,.88);color:#fff;font:800 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em;box-shadow:0 7px 24px rgba(0,0,0,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:transform .16s ease,background .16s ease,box-shadow .16s ease;';
-    fullscreenButton.onmouseenter=()=>{fullscreenButton.style.transform='translateY(-1px)';fullscreenButton.style.background='rgba(10,24,15,.96)';fullscreenButton.style.boxShadow='0 10px 30px rgba(0,0,0,.26)'};
-    fullscreenButton.onmouseleave=()=>{fullscreenButton.style.transform='';fullscreenButton.style.background='rgba(18,30,22,.88)';fullscreenButton.style.boxShadow='0 7px 24px rgba(0,0,0,.2)'};
-    fullscreenButton.onfocus=()=>{fullscreenButton.style.outline='3px solid color-mix(in srgb,var(--loom-accent,#20a05a) 45%,white)';fullscreenButton.style.outlineOffset='2px'};
-    fullscreenButton.onblur=()=>{fullscreenButton.style.outline=''};
-    fullscreenButton.onclick=()=>setFullscreen(!fullscreen,'control');
-    fullscreenDock.appendChild(fullscreenButton);updateFullscreenControl();return fullscreenDock;
+    if(!fullscreenAllowed()&&!interactionLockConfigured())return null;
+    fullscreenDock=document.createElement('div');fullscreenDock.className='loom-html-framer-fullscreen-dock';fullscreenDock.style.cssText='position:absolute;top:12px;right:12px;z-index:30;display:flex;gap:7px;align-items:center;pointer-events:none;';
+    if(interactionLockConfigured()){lockButton=document.createElement('button');lockButton.type='button';lockButton.className='loom-html-framer-lock-toggle';lockButton.style.cssText=pillButtonStyle;wirePill(lockButton);lockButton.onclick=()=>setInteractionLocked(!interactionLocked,'dock');fullscreenDock.appendChild(lockButton)}
+    if(fullscreenAllowed()){fullscreenButton=document.createElement('button');fullscreenButton.type='button';fullscreenButton.className='loom-html-framer-fullscreen-toggle';fullscreenButton.style.cssText=pillButtonStyle;wirePill(fullscreenButton);fullscreenButton.onclick=()=>{if(interactionLocked)setInteractionLocked(false,'fullscreen');setFullscreen(!fullscreen,'control')};fullscreenDock.appendChild(fullscreenButton)}
+    updateFullscreenControl();return fullscreenDock;
+  }
+  function buildInteractionLockOverlay(){
+    if(!interactionLockConfigured())return null;
+    lockOverlay=document.createElement('div');lockOverlay.className='loom-html-framer-interaction-lock';lockOverlay.setAttribute('aria-live','polite');lockOverlay.style.cssText='position:absolute;inset:0;z-index:24;display:none;place-items:center;pointer-events:auto;touch-action:pan-y pinch-zoom;overscroll-behavior:auto;background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.035));';
+    const card=document.createElement('div');card.style.cssText='display:grid;gap:7px;justify-items:center;max-width:min(88%,340px);padding:13px 16px;border:1px solid rgba(255,255,255,.45);border-radius:18px;background:rgba(18,30,22,.86);color:#fff;box-shadow:0 12px 34px rgba(0,0,0,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:center;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
+    const note=document.createElement('div');note.textContent='Frame locked · scroll LOOM normally';note.style.cssText='font:800 11px/1.25 system-ui;opacity:.82;';
+    unlockButton=document.createElement('button');unlockButton.type='button';unlockButton.textContent='🔓 Unlock frame';unlockButton.style.cssText='border:1px solid rgba(255,255,255,.3);border-radius:999px;background:#fff;color:#173f27;padding:9px 14px;font:900 12px/1 system-ui;cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,.18);';unlockButton.onclick=e=>{e.preventDefault();e.stopPropagation();setInteractionLocked(false,'center-unlock')};
+    card.append(note,unlockButton);lockOverlay.appendChild(card);return lockOverlay;
   }
   function requestMeasure(reason='parent'){
     if(!frame?.contentWindow)return;
@@ -142,6 +156,7 @@ export function createModule(ctx){
   function setFullscreen(next,reason='api'){
     next=!!next&&fullscreenAllowed();if(!root||next===fullscreen)return;
     if(next){
+      if(interactionLocked)setInteractionLocked(false,'fullscreen');
       const current=window.__loomHtmlFramerFullscreenExit;if(typeof current==='function'&&current!==exitFromGlobal){try{current()}catch{}}
       scrollX=window.scrollX||0;scrollY=window.scrollY||0;
       placeholder=document.createComment(`loom-html-framer:${String(ctx.config.frameId||'')}`);
@@ -184,7 +199,7 @@ export function createModule(ctx){
     surface=document.createElement('div');surface.className='loom-html-framer-surface';
     stage=document.createElement('div');
     frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${Math.max(360,viewportHeight())}px;border:0;background:#fff;overflow:hidden;overflow-anchor:none;`;
-    stage.appendChild(frame);surface.appendChild(stage);const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();return root;
+    stage.appendChild(frame);surface.appendChild(stage);const lock=buildInteractionLockOverlay();if(lock)surface.appendChild(lock);const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();interactionLocked=interactionLockConfigured();syncInteractionLockUI();return root;
   }
   function fitToPageLane(){
     if(!root||!surface||fullscreen)return;
@@ -221,7 +236,7 @@ export function createModule(ctx){
     mobileMedia=null;onMobileChange=null;placeholder?.remove();placeholder=null;restoreDocumentScrollLock();
     if(autoFullscreenTimer){clearTimeout(autoFullscreenTimer);autoFullscreenTimer=null}
     for(const key of ['desktop','mobile'])if(heightTimer[key]){clearTimeout(heightTimer[key]);heightTimer[key]=null}
-    root?.remove();root=null;surface=null;stage=null;frame=null;fullscreenDock=null;fullscreenButton=null;
+    root?.remove();root=null;surface=null;stage=null;frame=null;fullscreenDock=null;fullscreenButton=null;lockButton=null;lockOverlay=null;unlockButton=null;interactionLocked=false;
   }
   return{
     async mount(){},
@@ -239,7 +254,7 @@ export function createModule(ctx){
       }
       queueMicrotask(()=>{applyResponsiveLayout();scheduleMeasure('activate')});
       ctx.step('mount-frame','completed',{frameId:ctx.config.frameId});
-      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,autoLayoutKind:autoLayoutKind[p.key]||null,fullscreenEnabled:fullscreenAllowed(),autoFullscreenOnLoad:autoFullscreenOnLoad(),actionReaderSummary:ctx.config.actionReaderSummary||null});
+      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,autoLayoutKind:autoLayoutKind[p.key]||null,fullscreenEnabled:fullscreenAllowed(),autoFullscreenOnLoad:autoFullscreenOnLoad(),interactionLockEnabled:interactionLockConfigured(),actionReaderSummary:ctx.config.actionReaderSummary||null});
       return()=>cleanup();
     },async deactivate(){cleanup()},async unmount(){cleanup()}
   };

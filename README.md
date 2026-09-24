@@ -1,3 +1,7 @@
+## v0.15.43 - HTML Framer Scroll Lane + Interaction Lock
+
+HTML Framer now defaults to 80% of the usable page width, keeping outer LOOM scroll gutters available. Any frame can optionally start interaction-locked (off by default): a centered Unlock control enables the embedded app, and an unlocked frame exposes a Lock frame control beside Full screen. This is especially useful for games and viewport apps that naturally capture wheel/touch input. The preference is project-owned and portable through export/import.
+
 ## v0.15.42 - Viewport-Safe HTML Framer Stability
 
 HTML Framer auto sizing now understands the difference between a normal scrolling document and a viewport-style application/game. Document pages expand the iframe to their natural height. Viewport apps keep their own 100%-height layout and intentional internal overflow while LOOM gives them one stable viewport-sized frame. The bridge no longer rewrites foreign nested scroll/hidden containers, and busy HUD/text updates no longer retrigger height negotiation. This eliminates the Showcase/Framer up-down flashing seen with full-screen-style games such as the supplied Lint Away package. Historical injected bridge copies are stripped at serve time so only the current layout bridge runs.

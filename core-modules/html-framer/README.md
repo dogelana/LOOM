@@ -129,7 +129,7 @@ Named JavaScript functions/listener registrations are surfaced as analysis hints
 
 ## Frame layout and LOOM chrome
 
-New frames default to **100% of the usable project page width**, centered. Admin can change the project default for future imports and can set each frame independently from 50–100% width. Existing frames without an explicit width inherit 100%.
+New frames default to **80% of the usable project page width**, centered, leaving LOOM-owned gutters available for normal page scrolling. Admin can change the project default for future imports and can set each frame independently from 50–100% width. Existing frames with explicit saved widths keep those project-owned values.
 
 HTML Framer uses LOOM's **page-width breakout lane** rather than the normal project content lane. Ordinary project modules remain inside the comfortable capped content column; HTML frames can expand against the whole usable page width without changing the rest of the project's layout.
 
@@ -166,3 +166,8 @@ Layout bridge v4 does not mutate foreign application layout. It classifies the f
 This is especially important for animation/game packages that continuously update HUD text. Text churn no longer causes layout measurements, and parent height-only resizes are ignored as intrinsic content changes. The detected layout family is locked per desktop/mobile profile so surrounding LOOM modules cannot pulse around the frame.
 
 Serving also removes any legacy LOOM bridge script already present in an older imported/exported HTML file before injecting the current bridge, so there is never more than one active LOOM layout/action instrumentation layer.
+
+
+### Optional interaction lock
+
+Each frame can independently enable **Start locked**. It is off by default. Locked frames preserve their visuals but temporarily stop receiving pointer/wheel/touch interaction, allowing the surrounding LOOM page to scroll naturally. A centered Unlock control re-enables the app, and the runtime dock then provides Lock frame beside Full screen. Full-screen takeover always unlocks the frame. The setting is stored in `frames.json`, so Project export/import preserves it.

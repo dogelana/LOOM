@@ -1,3 +1,7 @@
+## v0.15.43 architecture note — framed interaction and page scrolling are separate ownership states
+
+HTML Framer no longer assumes that a visible iframe should always own pointer/wheel interaction. Normal frames default to an 80% page lane, leaving LOOM-owned gutters. A project may opt an individual frame into **interaction-locked** startup: the parent shell owns gestures while locked, the iframe owns them after explicit unlock, and full-screen takeover always implies unlocked interaction. This is transient presentation state; it never changes module order, frame package contents, or the project's scroll model.
+
 ## v0.15.42 architecture note — framed layout ownership is classified, not rewritten
 
 HTML Framer auto mode now has two intrinsic layout families. **Document flow** means LOOM owns the outer page height and the iframe follows the framed document's natural height. **Viewport app flow** means the imported application intentionally owns a viewport-sized canvas/shell (for example `height:100%` plus body overflow locking and internal panels), so LOOM preserves that contract and assigns a stable viewport-height iframe. The bridge never expands arbitrary nested overflow containers. Layout-family detection is locked per desktop/mobile profile until reload, and document-height changes settle before parent layout movement. This keeps module order visually stable and prevents application animation/HUD updates from becoming shell-layout events.
