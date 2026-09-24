@@ -126,3 +126,15 @@ A framed package may mark a deliberate internal vertical scroller with `data-loo
 Auto height must never create a parent/child resize feedback loop. The framed bridge ignores iframe-height-only resize events caused by the parent, MutationObserver does not watch the bridge's own style-attribute writes, and parent height application uses hysteresis: meaningful growth may apply immediately, while shrinkage is confirmed before changing the project layout. Module DOM order remains untouched by height measurement.
 
 A project may designate zero or one installed HTML frame for automatic full-screen takeover at project load. The persisted selector is `autoFullscreenFrameId` in the project-owned HTML Framer registry. The default is empty/off. Runtime activation is conditional on the selected frame being present, enabled, and full-screen-enabled.
+
+
+## Viewport-safe auto-fit rule (0.15.42)
+
+Auto-fit must preserve the imported application's layout ownership. Layout bridge v4 classifies each desktop/mobile profile as either **document** or **viewport**.
+
+- **Document** pages report natural document height. LOOM keeps iframe scrolling disabled and resizes the outer frame after the reported height settles.
+- **Viewport** applications are intentionally built around the viewport itself, typically with `html/body` or an app shell at 100% height plus body overflow locking and deliberate internal panels. LOOM gives these packages a stable viewport-height iframe and does not attempt to expand their internal scrollers.
+
+The bridge must not rewrite arbitrary foreign `overflow`, `height`, `min-height`, or `max-height` rules. Foreign application state/HUD text changes are not shell-layout events. Height-only iframe resizes from the parent are ignored as intrinsic remeasurement triggers, while width/profile changes, fonts, transitions, forms, and explicit parent requests may remeasure safely.
+
+At serve time LOOM removes historical `data-loom-framed-layout` and `data-loom-framed-action-reader` script copies before injecting the current implementation. Exactly one LOOM bridge owns each served framed document.

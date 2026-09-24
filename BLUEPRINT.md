@@ -1,3 +1,7 @@
+## v0.15.42 architecture note — framed layout ownership is classified, not rewritten
+
+HTML Framer auto mode now has two intrinsic layout families. **Document flow** means LOOM owns the outer page height and the iframe follows the framed document's natural height. **Viewport app flow** means the imported application intentionally owns a viewport-sized canvas/shell (for example `height:100%` plus body overflow locking and internal panels), so LOOM preserves that contract and assigns a stable viewport-height iframe. The bridge never expands arbitrary nested overflow containers. Layout-family detection is locked per desktop/mobile profile until reload, and document-height changes settle before parent layout movement. This keeps module order visually stable and prevents application animation/HUD updates from becoming shell-layout events.
+
 ## v0.15.41 architecture note — frame sizing is not module ordering
 
 HTML Framer owns only its own measured height; it must never reorder project modules or create a parent/child resize feedback loop. Layout bridge v3 treats iframe-height-only resize events as parent effects, while the parent runtime applies stable/hysteretic height changes. Automatic full-screen launch is a project-owned registry preference selecting zero or one installed frame and is separate from module order/presentation.

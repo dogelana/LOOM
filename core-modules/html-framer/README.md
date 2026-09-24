@@ -149,7 +149,7 @@ Each frame may expose a LOOM-owned **Full screen** button. It temporarily lifts 
 
 ## True auto-fit contract (0.15.40)
 
-Auto height is now deliberately hostile to accidental nested vertical scrolling. The delivered page starts with a real viewport-sized iframe rather than a 240px bootstrap, then the injected layout bridge measures the document and relaxes vertically constrained `auto`, `scroll`, `hidden`, or `clip` containers whose content is taller than their client box. The parent iframe remains `scrolling=no` in auto mode and is resized from bridge reports. A framed app can opt a deliberate internal scroller out of this relaxation with `data-loom-preserve-scroll`. Fixed-height mode remains the Admin-controlled path for a bounded iframe with scrolling.
+Auto height boots from a useful viewport-sized iframe and uses a sandbox-local layout bridge to report intrinsic framed layout to LOOM. Historical 0.15.40 behavior attempted to expand nested overflow containers; 0.15.42 supersedes that behavior with the viewport-safe contract below. Fixed-height mode remains the Admin-controlled path for a bounded iframe with iframe scrolling.
 
 
 ## Stable auto-fit and project launch full screen (0.15.41)
@@ -157,3 +157,12 @@ Auto height is now deliberately hostile to accidental nested vertical scrolling.
 Layout bridge v3 prevents parent iframe height changes from immediately retriggering another auto-height cycle. Height growth is applied immediately; shrinkage requires confirmation, and small rounding/font deltas are ignored. This removes the feedback loop that could make surrounding project modules appear to jump up/down while a framed app settled.
 
 Each project may also persist one optional `autoFullscreenFrameId` in its HTML Framer registry. The setting is off by default, is exported/imported with `frames.json`, and only activates when that frame is live and permits full screen. Missing, disabled, or deleted selections safely fall back to the normal LOOM project surface.
+
+
+## Viewport-safe smart auto-fit (0.15.42)
+
+Layout bridge v4 does not mutate foreign application layout. It classifies the framed package as ordinary **document flow** or a **viewport application**. Documents grow the outer iframe to their natural height after measurements settle. Viewport apps/games keep their intentional 100%-height/body-overflow/internal-panel behavior and receive one stable viewport-height iframe.
+
+This is especially important for animation/game packages that continuously update HUD text. Text churn no longer causes layout measurements, and parent height-only resizes are ignored as intrinsic content changes. The detected layout family is locked per desktop/mobile profile so surrounding LOOM modules cannot pulse around the frame.
+
+Serving also removes any legacy LOOM bridge script already present in an older imported/exported HTML file before injecting the current bridge, so there is never more than one active LOOM layout/action instrumentation layer.

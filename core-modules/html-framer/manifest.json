@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.7.0",
+    "version": "1.9.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -62,7 +62,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Auto-fit is the default: LOOM expands the frame and relaxes nested vertical scroll containers so delivered content is shown without an inner scrollbar. Desktop/mobile fixed-height scrolling remains explicit Admin opt-in; full-screen remains available per frame.",
+    "description": "Drop static HTML ZIP packages into LOOM. Smart auto-fit preserves foreign app layout: normal document pages grow with content, while viewport-style apps/games stay a stable viewport without iframe scrollbars or layout pulsing. Desktop/mobile fixed-height scrolling remains explicit Admin opt-in; full-screen remains available per frame.",
     "fields": [
       {
         "id": "enabled",
@@ -84,7 +84,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Auto-fit is the default. LOOM measures the delivered page, expands nested vertical scroll containers, and grows the iframe instead of clipping content behind an inner scrollbar."
+        "help": "Auto-fit is the default. LOOM detects ordinary document pages versus viewport-style apps/games. Documents grow with content; viewport apps keep their intentional 100%-height/internal-layout contract without shell oscillation."
       },
       {
         "id": "defaultFrameHeight",
@@ -124,7 +124,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Independent mobile behavior at 760px and below. Auto-fit remeasures responsive wrapping and expands nested vertical scroll containers instead of creating iframe scrollbars."
+        "help": "Independent mobile behavior at 760px and below. Smart auto-fit preserves responsive document flow and viewport-style mobile apps without creating an iframe scrollbar."
       },
       {
         "id": "defaultMobileFrameHeight",

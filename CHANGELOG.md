@@ -1,3 +1,13 @@
+## v0.15.42 - Viewport-Safe HTML Framer Stability
+
+- Fixed the remaining HTML Framer jump/flash loop using the supplied Lint Away game as the compatibility reference. The game is a true viewport application (`html`, `body`, and the app shell own 100% height; body scrolling is intentionally locked; internal panels manage their own overflow), which must not be rewritten like a long document.
+- Replaced layout bridge v3 with **v4 smart auto-fit**. Auto mode now classifies framed content as either `document` flow or `viewport` app flow. Ordinary pages still grow with delivered document height; viewport-style games/apps receive a stable browser-viewport-height frame instead of recursive content expansion.
+- Removed the invasive auto-fit behavior that rewrote nested `overflow:auto|scroll|hidden|clip` containers. LOOM no longer mutates foreign application layout just to eliminate an iframe scrollbar; deliberate internal scrollers and full-screen app layouts remain owned by the imported app.
+- Removed high-frequency DOM text mutation measurement from the bridge. Busy games that update HUD numbers every animation frame no longer trigger repeated parent height negotiation. Resize/font/transition/form and explicit remeasure paths remain.
+- Parent runtime now locks the detected auto-layout family per desktop/mobile profile and requires document-height changes to settle before moving surrounding LOOM modules. This prevents Showcase/HTML Framer from appearing to swap above/below each other due to viewport oscillation.
+- HTML serving now strips any historical LOOM-injected layout/action-reader bridge copies before injecting the current bridge, guaranteeing one active bridge implementation even when an old project export contains legacy instrumentation.
+- Manual and project-launch auto full screen remain intact. HTML Framer runtime version is now 1.9.0.
+
 ## v0.15.41 - Stable HTML Framer Layout + Optional Auto Full Screen
 
 - Replaced HTML Framer layout bridge v2 with v3 to stop iframe-height feedback loops that could make project UI appear to bounce between neighboring modules. Parent-driven height-only iframe resizes no longer trigger a fresh intrinsic measurement cycle.
