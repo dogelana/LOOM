@@ -1,9 +1,6 @@
-// @loom-file release=0.15.27 revision=5 policy=package-priority
+// @loom-file release=0.15.28 revision=8 policy=package-priority
 export async function createModule(ctx){
-  let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null;
-  let chromeProfile={emoji:String(ctx.config.icon||'👤'),label:String(ctx.config.label||'LOOM Profile'),mode:'both'};
-  try{const gs=await window.LoomBrand?.fetchSettings?.(ctx.apiBase),n=gs?.settings?.['loom.navigation.chrome']||{};chromeProfile={emoji:String(n.profileEmoji||ctx.config.icon||'👤'),label:String(n.profileLabel||ctx.config.label||'LOOM Profile'),mode:['both','emoji','text'].includes(n.profileHeaderMode)?n.profileHeaderMode:'both'}}catch{}
-  const profileMarkup=()=>chromeProfile.mode==='emoji'?`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span class="loom-profile-dock-sr">${chromeProfile.label}</span>`:chromeProfile.mode==='text'?`<span>${chromeProfile.label}</span>`:`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span>${chromeProfile.label}</span>`;
+  let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null,profileControl=null,profileControlPromise=null;
 
   function targetProfileContainer(){
     /* User Profile may be wrapped by LOOM module chrome OR mounted directly when title bars
@@ -41,17 +38,29 @@ export async function createModule(ctx){
     document.body.style.overflow='';
   }
 
-  function mountButton(){
+  async function resolveProfileControl(){
+    if(profileControl)return profileControl;
+    if(!profileControlPromise)profileControlPromise=(async()=>{
+      try{const settings=await window.LoomBrand?.fetchSettings?.(ctx.apiBase);const def=window.LoomShell?.navConfig?.(settings)?.profile;if(def)return def}catch{}
+      return {emoji:ctx.config.icon||'👤',label:ctx.config.label||'LOOM Profile',headerMode:'both'};
+    })();
+    profileControl=await profileControlPromise;return profileControl;
+  }
+
+  async function mountButton(){
     const slot=document.querySelector('[data-loom-shell-slot="profile"]')||document.getElementById('loomProfileDockSlot');
     if(!slot)return false;
     if(slot.querySelector('[data-profile-dock-button]'))return true;
-    button=document.createElement('button');
+    const def=await resolveProfileControl();
+    button=window.LoomShell?.createControlButton
+      ? window.LoomShell.createControlButton(def,{mode:def.headerMode||'both',control:'profile',className:'loom-profile-dock-button'})
+      : document.createElement('button');
     button.type='button';
     button.dataset.profileDockButton='1';
-    button.className='loom-profile-dock-button';
-    button.innerHTML=profileMarkup();button.title=chromeProfile.label;
+    if(!button.classList.contains('loom-profile-dock-button'))button.className='loom-profile-dock-button';
+    if(!button.innerHTML)button.innerHTML=`<span class="loom-profile-dock-icon" aria-hidden="true">${def.emoji||'👤'}</span><span>${def.label||'LOOM Profile'}</span>`;
     button.addEventListener('click',open);
-    button.addEventListener('contextmenu',e=>{e.preventDefault();window.LoomIdentityEntry?.show?.()});
+    button.addEventListener('contextmenu',e=>{e.preventDefault();window.LoomIdentityEntry?.show?.({reloadAfterSelect:true})});
     slot.appendChild(button);
     return true;
   }
@@ -63,14 +72,14 @@ export async function createModule(ctx){
     overlay.innerHTML=`
       <section class="loom-profile-dock-dialog" role="dialog" aria-modal="true" aria-label="User Profile">
         <header class="loom-profile-dock-dialog-head">
-          <div><span aria-hidden="true">${chromeProfile.emoji}</span> <strong>${chromeProfile.label}</strong></div>
-          <div style="display:flex;gap:6px;align-items:center"><button type="button" data-profile-switch style="border:0;border-radius:9px;padding:7px 9px;font-weight:900;cursor:pointer">Switch user</button><button type="button" data-profile-dock-close aria-label="Close User Profile">×</button></div>
+          <div><span aria-hidden="true">👤</span> <strong>${ctx.config.label||'User Profile'}</strong></div>
+          <div class="loom-profile-dock-head-actions"><button type="button" class="loom-profile-dock-switch" data-profile-switch><span aria-hidden="true">🔄</span><span>Switch User</span></button><button type="button" data-profile-dock-close aria-label="Close User Profile">×</button></div>
         </header>
         <div class="loom-profile-dock-bank" data-loom-region="profile-dock-capture"></div>
       </section>`;
     document.body.appendChild(overlay);
     bank=overlay.querySelector('.loom-profile-dock-bank');
-    overlay.querySelector('[data-profile-dock-close]').onclick=close;overlay.querySelector('[data-profile-switch]').onclick=()=>{close();window.LoomIdentityEntry?.show?.()};
+    overlay.querySelector('[data-profile-dock-close]').onclick=close;overlay.querySelector('[data-profile-switch]').onclick=()=>{close();window.LoomIdentityEntry?.show?.({reloadAfterSelect:true})};
     overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
     addEventListener('keydown',onKey);
   }
@@ -91,8 +100,8 @@ export async function createModule(ctx){
     async activate(){
       document.documentElement.classList.add('loom-profile-dock-controller-ready');
       mountOverlay();
-      mountButton();
-      observer=new MutationObserver(()=>{mountButton();capture()});
+      await mountButton();
+      observer=new MutationObserver(()=>{void mountButton();capture()});
       observer.observe(document.body,{childList:true,subtree:true});
       capture();
       await ctx.log('profile-dock.ready',{target:'core.user.profile',shellSlot:'profile'});
@@ -101,7 +110,7 @@ export async function createModule(ctx){
     async deactivate(){
       document.documentElement.classList.remove('loom-profile-dock-controller-ready');
       observer?.disconnect();removeEventListener('keydown',onKey);close();restoreProfile();button?.remove();overlay?.remove();
-      button=overlay=bank=null;
+      button=overlay=bank=profileControl=profileControlPromise=null;
     },
     async unmount(){
       document.documentElement.classList.remove('loom-profile-dock-controller-ready');

@@ -20,7 +20,7 @@
     ]
   },
   "module": {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "scope": "global",
     "order": "00015"
   },
@@ -40,7 +40,10 @@
     "shareHeaderMode": "both",
     "shareFooterMode": "emoji",
     "shareNative": true,
-    "shareReferralBanner": true
+    "shareReferralBanner": true,
+    "switchEmoji": "🔄",
+    "switchLabel": "Switch User",
+    "switchHeaderMode": "both"
   },
   "admin_settings": {
     "title": "Global Navigation & Admin Tools",
@@ -189,6 +192,37 @@
         "id": "shareReferralBanner",
         "label": "Show gentle “Referred by” confirmation",
         "type": "checkbox"
+      },
+      {
+        "id": "switchEmoji",
+        "label": "Switch User emoji",
+        "type": "text",
+        "maxLength": 12
+      },
+      {
+        "id": "switchLabel",
+        "label": "Switch User text",
+        "type": "text",
+        "maxLength": 40
+      },
+      {
+        "id": "switchHeaderMode",
+        "label": "Switch User button in top bar",
+        "type": "select",
+        "options": [
+          {
+            "value": "both",
+            "label": "Emoji + text (Default)"
+          },
+          {
+            "value": "emoji",
+            "label": "Emoji only"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
       },
       {
         "id": "profileEmoji",

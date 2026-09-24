@@ -1,4 +1,4 @@
-// @loom-file release=0.15.27 revision=17 policy=package-priority
+// @loom-file release=0.15.28 revision=18 policy=package-priority
 (() => {
   'use strict';
 
@@ -53,7 +53,8 @@
       adminToolsPresentation:x.adminToolsPresentation==='top-bar'?'top-bar':'drawer',
       adminDrawerSide:x.adminDrawerSide==='left'?'left':'right',
       home:{emoji:String(x.homeEmoji||'🏠'),label:String(x.homeLabel||'LOOM Home'),headerMode:mode(x.homeHeaderMode),footerMode:mode(x.homeFooterMode,'emoji')},
-      profile:{emoji:String(x.profileEmoji||'👤'),label:String(x.profileLabel||'LOOM Profile'),headerMode:mode(x.profileHeaderMode),footerMode:mode(x.profileFooterMode,'emoji')}
+      profile:{emoji:String(x.profileEmoji||'👤'),label:String(x.profileLabel||'LOOM Profile'),headerMode:mode(x.profileHeaderMode),footerMode:mode(x.profileFooterMode,'emoji')},
+      switchUser:{emoji:String(x.switchEmoji||'🔄'),label:String(x.switchLabel||'Switch User'),headerMode:mode(x.switchHeaderMode)}
     };
   }
   function buttonParts(def,mode='both'){
@@ -63,6 +64,58 @@
     return `<span class="loom-global-nav-emoji" aria-hidden="true">${escapeHtml(emoji)}</span><span>${escapeHtml(label)}</span>`;
   }
   function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function ensureControlStyle(){
+    if(document.getElementById('loom-shell-user-controls-style'))return;
+    const style=document.createElement('style');style.id='loom-shell-user-controls-style';style.textContent=`
+      .loom-global-controls{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;vertical-align:middle}
+      .loom-global-control-slot{display:inline-flex;align-items:center;justify-content:center;min-width:0}
+      .loom-global-control{box-sizing:border-box;min-height:36px;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px;padding:8px 11px!important;border:1px solid #d5e4d8!important;border-radius:11px!important;background:linear-gradient(180deg,#fff,#f6faf7)!important;color:#244d31!important;text-decoration:none!important;font:900 10px/1 Inter,system-ui!important;white-space:nowrap;cursor:pointer;box-shadow:0 4px 15px rgba(22,74,38,.045);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+      .loom-global-control:hover{transform:translateY(-1px);border-color:#bcd7c3!important;box-shadow:0 8px 20px rgba(22,74,38,.08)}
+      .loom-global-control .loom-global-nav-emoji,.loom-global-control .pic,.loom-global-control .loom-share-emoji,.loom-global-control .loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+      .loom-global-control[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+      @media(max-width:680px){.loom-global-controls{gap:6px}.loom-global-control{min-height:36px;padding:7px 9px!important;font-size:9px!important}}
+    `;document.head.appendChild(style);
+  }
+  function createControlButton(def={},opts={}){
+    ensureControlStyle();
+    const mode=['both','emoji','text'].includes(opts.mode)?opts.mode:'both';
+    const node=opts.href?document.createElement('a'):document.createElement('button');
+    if(!opts.href)node.type='button';else node.href=opts.href;
+    node.className=`loom-global-control ${opts.className||''}`.trim();
+    node.dataset.loomGlobalControl=String(opts.control||'custom');
+    node.innerHTML=buttonParts(def,mode);node.title=String(opts.title||def.label||'');
+    if(typeof opts.onClick==='function')node.addEventListener('click',opts.onClick);
+    return node;
+  }
+  async function mountUserControls(host,opts={}){
+    if(!host)return {profile:null,wrapper:null};ensureControlStyle();
+    let wrap=host.matches?.('[data-loom-user-controls]')?host:host.querySelector?.('[data-loom-user-controls]');
+    if(!wrap){wrap=document.createElement('div');wrap.dataset.loomUserControls='1';wrap.className='loom-global-controls';if(opts.prepend)host.prepend(wrap);else host.appendChild(wrap)}
+    wrap.replaceChildren();
+    const settings=opts.settings||await window.LoomBrand?.fetchSettings?.(opts.apiBase||'api')||{};
+    const cfg=navConfig(settings),apiBase=opts.apiBase||'api',identity=opts.identity||window.LoomIdentity?.get?.('loom-global-controls');
+    const base=installRoot(apiBase),homeHref=opts.homeHref||new URL('home/',base).href;
+    wrap.appendChild(createControlButton(cfg.home,{href:homeHref,mode:cfg.home.headerMode,control:'home'}));
+    if(opts.shareMode==='slot'){
+      const slot=document.createElement('span');slot.className='loom-global-control-slot';slot.dataset.loomShellSlot='share';if(opts.shareSlotId)slot.id=opts.shareSlotId;wrap.appendChild(slot);
+    }else if(opts.share!==false&&window.LoomShare&&identity){
+      await window.LoomShare.init({identity,project:opts.shareProject||opts.project||'',apiBase});
+      const shareCfg=window.LoomShare.config||{emoji:'🔗',label:'Share',headerMode:'both'};
+      const share=createControlButton({emoji:shareCfg.emoji||'🔗',label:shareCfg.label||'Share'},{mode:shareCfg.headerMode||'both',control:'share',className:'loom-share-button'});
+      window.LoomShare.bindButton(share,{identity,project:opts.shareProject||opts.project||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});wrap.appendChild(share);
+    }
+    if(window.LoomIdentityEntry&&opts.switchUser!==false){
+      wrap.appendChild(createControlButton(cfg.switchUser,{mode:cfg.switchUser.headerMode,control:'switch-user',onClick:()=>window.LoomIdentityEntry.show?.({reloadAfterSelect:opts.reloadAfterSwitch!==false})}));
+    }
+    let profile=null;
+    if(opts.profileMode==='slot'){
+      const slot=document.createElement('span');slot.className='loom-global-control-slot';slot.dataset.loomShellSlot='profile';if(opts.profileSlotId)slot.id=opts.profileSlotId;wrap.appendChild(slot);
+    }else if(opts.profile!==false&&window.LoomGlobalProfile&&identity){
+      const btn=createControlButton(cfg.profile,{mode:cfg.profile.headerMode,control:'profile'});wrap.appendChild(btn);
+      profile=window.LoomGlobalProfile.create({apiBase,identity,projectsProvider:opts.projectsProvider||null});profile.bindButton(btn);
+    }
+    return {profile,wrapper:wrap,navigation:cfg};
+  }
   function ensureAdminStyle(){
     if(document.getElementById('loom-shell-admin-zone-style'))return;
     const style=document.createElement('style');style.id='loom-shell-admin-zone-style';style.textContent=`
@@ -133,12 +186,7 @@
       const shellLinks=(opts.links||[]).filter(x=>!/loom home/i.test(String(x?.label||'')));
       await LoomBrand.mountShellHeader(header,{apiBase,settings,pageTitle:opts.pageTitle||'LOOM',links:shellLinks});
       const nav=header.querySelector('.loom-shell-chrome-links');
-      if(nav){
-        const home=document.createElement('a');home.className='loom-global-home-button';home.href=homeHref;home.innerHTML=buttonParts(cfg.home,cfg.home.headerMode);home.title=cfg.home.label;nav.prepend(home);
-        if(opts.share!==false&&window.LoomShare&&identity){await window.LoomShare.init({identity,project:opts.shareProject||'',apiBase});const share=window.LoomShare.createButton('header');window.LoomShare.bindButton(share,{identity,project:opts.shareProject||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});nav.appendChild(share)}
-        if(window.LoomIdentityEntry){const switchBtn=document.createElement('button');switchBtn.type='button';switchBtn.className='loom-global-profile-button';switchBtn.innerHTML='<span class="pic" aria-hidden="true">🔄</span><span>Switch User</span>';switchBtn.onclick=()=>window.LoomIdentityEntry.show?.();nav.appendChild(switchBtn)}
-        if(opts.profile!==false&&window.LoomGlobalProfile&&identity){const btn=document.createElement('button');btn.type='button';btn.className='loom-global-profile-button';btn.innerHTML=buttonParts(cfg.profile,cfg.profile.headerMode);btn.title=cfg.profile.label;nav.appendChild(btn);profile=LoomGlobalProfile.create({apiBase,identity,projectsProvider:opts.projectsProvider||null});profile.bindButton(btn)}
-      }
+      if(nav){const controls=await mountUserControls(nav,{apiBase,settings,identity,homeHref,share:opts.share!==false,shareProject:opts.shareProject||'',shareUrl:opts.shareUrl||location.href,shareTitle:opts.shareTitle||document.title,profile:opts.profile!==false,projectsProvider:opts.projectsProvider||null,reloadAfterSwitch:true,prepend:true});profile=controls.profile}
       if(opts.adminTools!==false){const status=await adminStatus(apiBase,identity,opts.project||'');const canAdmin=!!status?.isAdmin||['system-owner','loom-admin','project-admin','project-manager'].includes(status?.projectRole);if(canAdmin)mountAdminTools({apiBase,project:opts.project||'',target:opts.adminTarget||'_self',settings,host:opts.adminHost||header.querySelector('[data-loom-admin-links]'),status})}
     }
     if(footer){
@@ -148,5 +196,5 @@
     return {settings,identity,profile,navigation:cfg};
   }
 
-  window.LoomShell=Object.freeze({mount,adminStatus,canonicalAdminLinks,projectAdminQuickLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
+  window.LoomShell=Object.freeze({mount,mountUserControls,createControlButton,ensureControlStyle,adminStatus,canonicalAdminLinks,projectAdminQuickLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
 })();

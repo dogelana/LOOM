@@ -1,3 +1,12 @@
+## v0.15.28 - Unified User Controls + Identity Refresh + Denser Energy Field
+
+- Replaced separately hand-built Home/Share/Switch/Profile header controls with one shared LOOM user-control factory. LOOM Home and project shells now use the same sizing, spacing, vertical centering, and horizontal alignment rules.
+- Project headers now include **Switch User** between Share and User Profile. Share and project User Profile remain modular; their buttons occupy shared shell slots and use the same core factory when enabled.
+- Explicit user switching performs a clean same-page reload after selection so project identity, profile data, permissions, referrals, and modules rebuild for the selected user instead of retaining stale UI.
+- Guest chooser names resolve from the canonical current LOOM profile username. Legacy `LOOMUser-XXXXXX` labels are lazily migrated to readable maker names and synchronized back into guest-profile records. First-run helper copy now shows the modern naming format.
+- Background Energy Field default density doubled from 96 to **192** particles. Special particles arrive about twice as often, with the default interval reduced from 38 to **19 seconds**. Historical copied orb-default manifests remain recognized as inherited defaults, so untouched older projects receive the new values automatically while explicit Admin overrides remain pinned.
+- Navigation Chrome now also exposes Switch User emoji/text/display-mode settings.
+
 ## v0.15.27 - Profile Dock Capture Hardening
 
 - Fixed User Profile occasionally rendering as a normal full-page module when module title bars are hidden. Profile Dock now captures either the framed profile container or the direct unframed `core.user.profile` root.
@@ -426,7 +435,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.27 revision=44 policy=package-priority -->
+<!-- @loom-file release=0.15.28 revision=45 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

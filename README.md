@@ -1,3 +1,7 @@
+## v0.15.28 - Unified User Controls + Identity Continuity
+
+LOOM now renders Home, Share, Switch User, and Profile controls through one shared core control system. Project headers gain the missing Switch User control, explicit identity changes reload the current destination cleanly, guest chooser names stay synchronized with canonical LOOM usernames, and inherited ambient defaults now provide 192 energy particles with special particles appearing about twice as often.
+
 ## v0.15.27 - Profile Dock Capture Hardening
 
 LOOM now treats shell/controller modules as structural startup providers so Profile Dock is established before ordinary project content mounts. User Profile capture works whether the profile is wrapped in module chrome or mounted directly with title bars hidden, and a dock-readiness flash guard prevents the full profile from briefly appearing in normal project flow. Existing Instance Projects inherit the release-managed fix automatically.
@@ -78,7 +82,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.27 revision=43 policy=package-priority -->
+<!-- @loom-file release=0.15.28 revision=44 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

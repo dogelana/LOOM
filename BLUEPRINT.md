@@ -1,3 +1,7 @@
+## 0.15.28 architecture note — one user-control system
+
+Permanent user-facing shell controls are a shared LOOM primitive. Surfaces may bind a global profile implementation or a project-scoped profile slot, but Home, Share, Switch User, and Profile controls use one factory and alignment contract. Explicit identity switching is a context boundary and refreshes the current destination after selection so modules cannot retain stale user state. Guest chooser display names resolve from canonical Global Profile identity rather than stale historical labels. Ambient project defaults remain release-inherited unless an Admin saves an explicit override.
+
 ## v0.15.27 architecture note — controller-first capture invariants
 
 Project-shell controllers that rehome or capture modules are startup-structural, not ordinary content. Action Runtime therefore establishes `presentation.role=controller` modules alongside region providers before concurrent content loading. Profile Dock accepts both framed (`data-loom-frame-for`) and direct (`data-module`) User Profile representations, preserving correctness when global/project/module title bars are disabled. A controller-readiness visibility guard eliminates transient profile leakage before the MutationObserver reparents the profile into its dialog bank.
@@ -45,7 +49,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.27 revision=39 policy=package-priority -->
+<!-- @loom-file release=0.15.28 revision=40 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

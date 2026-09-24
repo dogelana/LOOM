@@ -1,4 +1,4 @@
-// @loom-file release=0.15.25 revision=2 policy=package-priority
+// @loom-file release=0.15.28 revision=3 policy=package-priority
 export async function createModule(ctx){
   let layer=null;
   let style=null;
@@ -13,11 +13,11 @@ export async function createModule(ctx){
   const adminOverrides=ctx.descriptor?.admin_overrides||{};
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,Number(v)||0));
   const sourceMode=String(ctx.config.sourceMode||'project');
-  const orbVolume=Math.round(clamp(ctx.config.orbVolume??96,0,180));
+  const orbVolume=Math.round(clamp(ctx.config.orbVolume??192,0,360));
   const speed=clamp(ctx.config.speed??135,20,250);
   const glowLevel=clamp(ctx.config.glowLevel??74,0,100);
   const specialEnabled=ctx.config.specialOrbEnabled!==false&&String(ctx.config.specialOrbEnabled||'on')!=='off';
-  const specialIntervalSeconds=clamp(ctx.config.specialOrbIntervalSeconds??38,12,180);
+  const specialIntervalSeconds=clamp(ctx.config.specialOrbIntervalSeconds??19,8,180);
   const specialDurationSeconds=clamp(ctx.config.specialOrbDurationSeconds??15,5,36);
   const specialSize=clamp(ctx.config.specialOrbSize??54,24,110);
 

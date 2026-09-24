@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.02 revision=2 policy=package-priority
+// @loom-file release=0.15.28 revision=3 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 
@@ -27,9 +27,14 @@ function loom_guest_profile_name_available(array $s,string $installationId,strin
 function loom_guest_profile_id(): string { return 'gprof_'.bin2hex(random_bytes(10)); }
 function loom_guest_installation_id(string $value): string { $v=safe_token($value);return str_starts_with($v,'install_')?$v:''; }
 function loom_guest_profile_avatar_mode(string $preset): string { return 'loom-default'; }
+function loom_guest_profile_effective_display_name(array $p): string {
+  $g=(string)($p['currentGeneration']??'1');$row=$p['generations'][$g]??[];$cid=safe_token((string)($row['clientId']??''));
+  if($cid!=='')try{$ownerId=function_exists('loom_guest_canonical_client_id')?loom_guest_canonical_client_id($cid):$cid;$gp=loom_global_profile_ensure_for_owner('client',$ownerId);$u=loom_clean_username((string)($gp['username']??''));if($u!=='')return $u;}catch(Throwable $e){}
+  $fallback=loom_clean_username((string)($p['displayName']??''));return $fallback!==''?$fallback:'Guest';
+}
 function loom_guest_profile_public(array $p): array {
   $g=(string)($p['currentGeneration']??'1');$row=$p['generations'][$g]??[];
-  return ['guestProfileId'=>$p['guestProfileId'],'displayName'=>$p['displayName'],'avatarPreset'=>'loom-default','currentGeneration'=>(int)$g,'currentClientId'=>$row['clientId']??null,'currentGuestId'=>$row['guestId']??null,'lastClaimedUserId'=>$p['lastClaimedUserId']??null,'createdAt'=>$p['createdAt']??null,'updatedAt'=>$p['updatedAt']??null,'generationStatus'=>$row['status']??'active'];
+  return ['guestProfileId'=>$p['guestProfileId'],'displayName'=>loom_guest_profile_effective_display_name($p),'avatarPreset'=>'loom-default','currentGeneration'=>(int)$g,'currentClientId'=>$row['clientId']??null,'currentGuestId'=>$row['guestId']??null,'lastClaimedUserId'=>$p['lastClaimedUserId']??null,'createdAt'=>$p['createdAt']??null,'updatedAt'=>$p['updatedAt']??null,'generationStatus'=>$row['status']??'active'];
 }
 function loom_guest_profile_get(string $profileId): ?array { $s=loom_guest_profiles_store();$p=$s['profiles'][safe_token($profileId)]??null;return is_array($p)?$p:null; }
 function loom_guest_profile_for_client(string $clientId): ?array { $s=loom_guest_profiles_store();$pid=(string)($s['clientProfileMap'][safe_token($clientId)]??'');$p=$pid!==''?($s['profiles'][$pid]??null):null;return is_array($p)?$p:null; }
@@ -58,7 +63,7 @@ function loom_guest_profile_adopt_legacy(string $installationId,string $legacyCl
   $p=['guestProfileId'=>$pid,'displayName'=>$display,'avatarPreset'=>$preset,'currentGeneration'=>1,'generations'=>['1'=>['generation'=>1,'clientId'=>$legacyClientId,'guestId'=>$guest['guestId'],'status'=>'active','createdAt'=>$guest['createdAt']??$now,'claimedAt'=>null,'userId'=>$guest['attachedUserId']??null]],'lastClaimedUserId'=>$guest['attachedUserId']??null,'createdAt'=>$guest['createdAt']??$now,'updatedAt'=>$now];
   $s=loom_guest_profiles_store();$s['profiles'][$pid]=$p;$s['installationMap'][$installationId]=array_values(array_unique(array_merge($s['installationMap'][$installationId]??[],[$pid])));$s['clientProfileMap'][$legacyClientId]=$pid;loom_guest_profiles_write($s);loom_identity_audit('guest-profile.legacy-adopted',['guestProfileId'=>$pid,'installationId'=>$installationId,'clientId'=>$legacyClientId]);return loom_guest_profile_public($p);
 }
-function loom_guest_profiles_for_installation(string $installationId): array { $installationId=loom_guest_installation_id($installationId);if($installationId==='')return [];$s=loom_guest_profiles_store();$out=[];foreach($s['installationMap'][$installationId]??[] as $pid){$p=$s['profiles'][$pid]??null;if(is_array($p))$out[]=loom_guest_profile_public($p);}usort($out,fn($a,$b)=>strcmp((string)$a['createdAt'],(string)$b['createdAt']));return $out; }
+function loom_guest_profiles_for_installation(string $installationId): array { $installationId=loom_guest_installation_id($installationId);if($installationId==='')return [];$s=loom_guest_profiles_store();$out=[];$changed=false;foreach($s['installationMap'][$installationId]??[] as $pid){$p=$s['profiles'][$pid]??null;if(!is_array($p))continue;$effective=loom_guest_profile_effective_display_name($p);if($effective!==''&&$effective!==(string)($p['displayName']??'')&&loom_guest_profile_name_available($s,$installationId,$effective,(string)$pid)){$p['displayName']=$effective;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}$out[]=loom_guest_profile_public($p);}if($changed)loom_guest_profiles_write($s);usort($out,fn($a,$b)=>strcmp((string)$a['createdAt'],(string)$b['createdAt']));return $out; }
 function loom_guest_profile_update(string $installationId,string $profileId,?string $displayName=null,?string $avatarPreset=null): array {
   $installationId=loom_guest_installation_id($installationId);$profileId=safe_token($profileId);$s=loom_guest_profiles_store();if(!in_array($profileId,$s['installationMap'][$installationId]??[],true)||!isset($s['profiles'][$profileId]))throw new RuntimeException('Guest profile is not available on this installation.');$p=$s['profiles'][$profileId];
   if($displayName!==null){$name=loom_clean_username($displayName);if($name==='')throw new RuntimeException('Guest name cannot be empty.');if(!loom_guest_profile_name_available($s,$installationId,$name,$profileId))throw new RuntimeException('That guest name is already in use on this device.');$p['displayName']=$name;}
@@ -67,6 +72,7 @@ function loom_guest_profile_update(string $installationId,string $profileId,?str
 function loom_guest_profile_claim_generation(string $clientId,string $userId,string $mode='login'): ?array {
   $clientId=safe_token($clientId);$userId=safe_token($userId);if($clientId===''||$userId==='')return null;$s=loom_guest_profiles_store();$pid=(string)($s['clientProfileMap'][$clientId]??'');if($pid===''||!isset($s['profiles'][$pid]))return null;$p=$s['profiles'][$pid];$current=(int)($p['currentGeneration']??1);$key=(string)$current;$row=$p['generations'][$key]??null;if(!is_array($row)||($row['clientId']??'')!==$clientId)return null;
   if(($row['status']??'active')!=='claimed'){$row['status']='claimed';$row['claimedAt']=server_timestamp();$row['userId']=$userId;$row['claimMode']=$mode;$p['generations'][$key]=$row;}
+  $effectiveName=loom_guest_profile_effective_display_name($p);if($effectiveName!=='')$p['displayName']=$effectiveName;
   $next=$current+1;$nextKey=(string)$next;if(!isset($p['generations'][$nextKey])){$nextClient=loom_guest_profile_make_client();$guest=loom_guest_create_for_client($nextClient);$p['generations'][$nextKey]=['generation'=>$next,'clientId'=>$nextClient,'guestId'=>$guest['guestId'],'status'=>'active','createdAt'=>server_timestamp(),'claimedAt'=>null,'userId'=>null];$s['clientProfileMap'][$nextClient]=$pid;loom_guest_profile_seed_generation_profile($nextClient,$p['displayName'],$p['avatarPreset']);}
   $p['currentGeneration']=$next;$p['lastClaimedUserId']=$userId;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;loom_guest_profiles_write($s);$nextRow=$p['generations'][$nextKey];loom_identity_audit('guest-profile.generation-claimed',['guestProfileId'=>$pid,'generation'=>$current,'clientId'=>$clientId,'userId'=>$userId,'nextGeneration'=>$next,'nextClientId'=>$nextRow['clientId'],'mode'=>$mode]);return ['profile'=>loom_guest_profile_public($p),'claimedGeneration'=>$current,'resumeGuestClientId'=>$nextRow['clientId']];
 }

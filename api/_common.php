@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.27 revision=30 policy=package-priority
+// @loom-file release=0.15.28 revision=31 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -202,9 +202,12 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
         // Old Instance Projects contain a copied snapshot of the former LOOM defaults.
         // Treat values equal to that historical default set as inherited, not as user intent,
         // so future LOOM default tuning reaches existing projects. Real legacy deviations survive.
-        $historic=['sourceMode'=>'project','orbVolume'=>70,'speed'=>100,'glowLevel'=>58,'glowColor'=>'#8FA8FF','specialOrbEnabled'=>true,'specialOrbIntervalSeconds'=>42,'specialOrbDurationSeconds'=>14,'specialOrbSize'=>48];
-        $delta=[];foreach($legacyConfig as $key=>$value)if(!array_key_exists($key,$historic)||$historic[$key]!==$value)$delta[$key]=$value;
-        if($delta)$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$delta);
+        $historicSets=[
+          ['sourceMode'=>'project','orbVolume'=>70,'speed'=>100,'glowLevel'=>58,'glowColor'=>'#8FA8FF','specialOrbEnabled'=>true,'specialOrbIntervalSeconds'=>42,'specialOrbDurationSeconds'=>14,'specialOrbSize'=>48],
+          ['sourceMode'=>'project','orbVolume'=>96,'speed'=>135,'glowLevel'=>74,'glowColor'=>'#168346','specialOrbEnabled'=>true,'specialOrbIntervalSeconds'=>38,'specialOrbDurationSeconds'=>15,'specialOrbSize'=>54,'secondaryGlowColor'=>'#111111']
+        ];
+        $isInheritedSnapshot=false;foreach($historicSets as $historic){$match=true;foreach($legacyConfig as $key=>$value){if(!array_key_exists($key,$historic)||$historic[$key]!==$value){$match=false;break;}}if($match){$isInheritedSnapshot=true;break;}}
+        if(!$isInheritedSnapshot){$delta=$legacyConfig;if($delta)$manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$delta);}
       } else {
         $manifest['config']=array_replace_recursive(is_array($manifest['config']??null)?$manifest['config']:[],$legacyConfig);
       }

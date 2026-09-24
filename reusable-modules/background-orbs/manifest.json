@@ -40,7 +40,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "dependencies": [],
     "styles": [],
     "order": "00005",
@@ -60,12 +60,12 @@
   },
   "config": {
     "sourceMode": "project",
-    "orbVolume": 96,
+    "orbVolume": 192,
     "speed": 135,
     "glowLevel": 74,
     "glowColor": "#168346",
     "specialOrbEnabled": true,
-    "specialOrbIntervalSeconds": 38,
+    "specialOrbIntervalSeconds": 19,
     "specialOrbDurationSeconds": 15,
     "specialOrbSize": 54,
     "secondaryGlowColor": "#111111"
@@ -99,10 +99,10 @@
         "label": "Particle / orb volume",
         "type": "range",
         "min": 0,
-        "max": 180,
+        "max": 360,
         "step": 1,
         "unit": " particles",
-        "help": "LOOM default is 96 particles. Projects with no saved override inherit future LOOM default changes."
+        "help": "LOOM default is 192 particles. Projects with no saved override inherit future LOOM default changes."
       },
       {
         "id": "speed",
@@ -146,7 +146,8 @@
         "min": 12,
         "max": 180,
         "step": 1,
-        "unit": " sec"
+        "unit": " sec",
+        "help": "LOOM default is 19 seconds, roughly twice the previous special-particle frequency."
       },
       {
         "id": "specialOrbDurationSeconds",
