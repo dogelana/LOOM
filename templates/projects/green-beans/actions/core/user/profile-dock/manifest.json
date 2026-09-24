@@ -44,7 +44,7 @@
   ],
   "module": {
     "entry": "action.js",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "dependencies": [],
     "styles": [
       "action.css"

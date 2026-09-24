@@ -1,3 +1,3 @@
 <?php
-// @loom-file release=0.15.26 revision=1 policy=package-priority
+// @loom-file release=0.15.27 revision=2 policy=package-priority
 require __DIR__.'/api/_common.php';header('Content-Type: application/xml; charset=utf-8');header('Cache-Control: public, max-age=300');$urls=[];$base=rtrim(web_base_path(),'/');foreach(['/home/','/about','/docs/','/privacy','/terms'] as $p)$urls[]=loom_absolute_web_url($base.$p);foreach(loom_all_project_slugs() as $slug){$m=loom_project_social_meta($slug);if(($m['robots']??'index,follow')==='index,follow')$urls[]=$m['url'];}$urls=array_values(array_unique(array_filter($urls)));echo '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";foreach($urls as $u)echo '  <url><loc>'.htmlspecialchars((string)$u,ENT_XML1|ENT_QUOTES,'UTF-8').'</loc></url>'."\n";echo '</urlset>';

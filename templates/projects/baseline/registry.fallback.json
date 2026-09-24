@@ -1554,7 +1554,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "dependencies": [],
         "styles": [
           "action.css"
@@ -1602,7 +1602,7 @@
         "./templates/projects/baseline/actions/core/user/profile-dock/action.css"
       ],
       "manifest_url": "./templates/projects/baseline/actions/core/user/profile-dock/manifest.json",
-      "fingerprint": "7b8cce75700f4f66",
+      "fingerprint": "460de9b20079fa27",
       "folder": "actions/core/user/profile-dock",
       "source": "project"
     }

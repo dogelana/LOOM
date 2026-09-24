@@ -1,3 +1,7 @@
+## v0.15.27 - Profile Dock Capture Hardening
+
+LOOM now treats shell/controller modules as structural startup providers so Profile Dock is established before ordinary project content mounts. User Profile capture works whether the profile is wrapped in module chrome or mounted directly with title bars hidden, and a dock-readiness flash guard prevents the full profile from briefly appearing in normal project flow. Existing Instance Projects inherit the release-managed fix automatically.
+
 ## v0.15.26 - Sharing & Referral Network
 
 LOOM now has canonical Share controls and durable referral attribution across projects and LOOM-owned pages. Share links preserve their destination through first-time guest onboarding, then attribute the resulting durable Guest Identity or permanent account without exposing account secrets in the URL. Referral state lives in the protected Instance Vault, appears in User Profile statistics, and is inspectable by Administrators. Project share cards continue to use server-rendered current project identity/SEO metadata.
@@ -74,7 +78,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.26 revision=42 policy=package-priority -->
+<!-- @loom-file release=0.15.27 revision=43 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

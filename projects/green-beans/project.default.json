@@ -30,7 +30,7 @@
       "font_weight": 900
     }
   },
-  "engine_version": "0.15.26",
+  "engine_version": "0.15.27",
   "identity_model": "guest-profile-generations-v1",
   "brand_defaults": {
     "dark_bean": "#279E38",

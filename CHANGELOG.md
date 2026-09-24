@@ -1,3 +1,10 @@
+## v0.15.27 - Profile Dock Capture Hardening
+
+- Fixed User Profile occasionally rendering as a normal full-page module when module title bars are hidden. Profile Dock now captures either the framed profile container or the direct unframed `core.user.profile` root.
+- Action Runtime now loads shell/controller modules in the structural startup phase before concurrent ordinary content, eliminating the race where User Profile could mount before Profile Dock was observing the page.
+- Added a dock-readiness visibility guard so User Profile cannot flash in normal project flow during the tiny reparenting window.
+- Updated Profile Dock implementations/templates and cache/version tokens to 0.15.27; release-managed core behavior means existing Instance Projects inherit the fix without mutating their persistent project trees.
+
 ## v0.15.26 - Sharing, Referrals + Deployment-Aware Runtime
 
 - Added LOOM **Sharing & Referrals** as a first-class project-scoped core controller with registered user actions for opening Share, copying links, native sharing, and accepting referral attribution.
@@ -419,7 +426,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.26 revision=43 policy=package-priority -->
+<!-- @loom-file release=0.15.27 revision=44 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

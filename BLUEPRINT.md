@@ -1,3 +1,7 @@
+## v0.15.27 architecture note — controller-first capture invariants
+
+Project-shell controllers that rehome or capture modules are startup-structural, not ordinary content. Action Runtime therefore establishes `presentation.role=controller` modules alongside region providers before concurrent content loading. Profile Dock accepts both framed (`data-loom-frame-for`) and direct (`data-module`) User Profile representations, preserving correctness when global/project/module title bars are disabled. A controller-readiness visibility guard eliminates transient profile leakage before the MutationObserver reparents the profile into its dialog bank.
+
 ## v0.15.26 architecture note — canonical sharing + durable referral provenance
 
 Sharing is now a LOOM-native capability rather than a project-specific URL copy feature. Public/share UI delegates canonical link generation and referral persistence to a protected Instance Vault backend. The project runtime controller declares user actions so sharing remains inspectable in Action Registry/Pegboard. Referral ownership follows durable Guest Identity provenance and aggregates attached guest identities when a permanent account is created later.
@@ -41,7 +45,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.26 revision=38 policy=package-priority -->
+<!-- @loom-file release=0.15.27 revision=39 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

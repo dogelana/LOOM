@@ -1,4 +1,4 @@
-// @loom-file release=0.15.26 revision=11 policy=package-priority
+// @loom-file release=0.15.27 revision=12 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -305,8 +305,11 @@
       }
       const additions=runtimeModules.filter(descriptor=>!(isBoot&&this._isBootstrapLoader(descriptor))&&!this.modules.has(descriptor.action.id));
       if(isBoot){
-        /* Region providers establish mount targets first; independent modules then load concurrently. */
-        const structural=additions.filter(d=>d?.presentation?.role==='region'),ordinary=additions.filter(d=>d?.presentation?.role!=='region');
+        /* Region providers and shell/controller modules establish capture/mount targets first;
+           independent content modules then load concurrently. Controllers are structural because
+           they may need to observe/rehome content the instant it mounts (for example Profile Dock). */
+        const structuralRoles=new Set(['region','controller']);
+        const structural=additions.filter(d=>structuralRoles.has(d?.presentation?.role)),ordinary=additions.filter(d=>!structuralRoles.has(d?.presentation?.role));
         for(const descriptor of structural)await this._addModule(descriptor,{skipProgress:false});
         await this._loadModuleBatch(ordinary,{skipProgress:false});
       }else{

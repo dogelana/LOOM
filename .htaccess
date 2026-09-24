@@ -1,4 +1,4 @@
-# @loom-file release=0.15.26 revision=6 policy=package-priority
+# @loom-file release=0.15.27 revision=7 policy=package-priority
 DirectoryIndex index.php index.html
 Options -MultiViews
 <IfModule mod_rewrite.c>

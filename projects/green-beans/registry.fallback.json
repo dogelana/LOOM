@@ -1867,7 +1867,7 @@
       ],
       "module": {
         "entry": "action.js",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "dependencies": [],
         "styles": [
           "action.css"
@@ -1915,7 +1915,7 @@
         "./projects/green-beans/actions/core/user/profile-dock/action.css"
       ],
       "manifest_url": "./projects/green-beans/actions/core/user/profile-dock/manifest.json",
-      "fingerprint": "7b8cce75700f4f66",
+      "fingerprint": "a0d1f8612785a205",
       "folder": "actions/core/user/profile-dock",
       "source": "project"
     },

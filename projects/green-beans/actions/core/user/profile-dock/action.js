@@ -1,18 +1,21 @@
-// @loom-file release=0.15.18 revision=6 policy=package-priority
+// @loom-file release=0.15.27 revision=7 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null;
   let chromeProfile={emoji:String(ctx.config.icon||'👤'),label:String(ctx.config.label||'LOOM Profile'),mode:'both'};
   try{const gs=await window.LoomBrand?.fetchSettings?.(ctx.apiBase),n=gs?.settings?.['loom.navigation.chrome']||{};chromeProfile={emoji:String(n.profileEmoji||ctx.config.icon||'👤'),label:String(n.profileLabel||ctx.config.label||'LOOM Profile'),mode:['both','emoji','text'].includes(n.profileHeaderMode)?n.profileHeaderMode:'both'}}catch{}
   const profileMarkup=()=>chromeProfile.mode==='emoji'?`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span class="loom-profile-dock-sr">${chromeProfile.label}</span>`:chromeProfile.mode==='text'?`<span>${chromeProfile.label}</span>`:`<span class="loom-profile-dock-icon" aria-hidden="true">${chromeProfile.emoji}</span><span>${chromeProfile.label}</span>`;
 
-  function targetFrame(){
+  function targetProfileContainer(){
+    /* User Profile may be wrapped by LOOM module chrome OR mounted directly when title bars
+       are disabled. Profile Dock must capture either representation. */
     return document.querySelector('[data-loom-frame-for="core.user.profile"]')
       || document.querySelector('[data-loom-module-content="core.user.profile"]')?.closest('.loom-module-frame')
+      || document.querySelector('[data-module="core.user.profile"]')
       || null;
   }
 
   function capture(){
-    const frame=targetFrame();
+    const frame=targetProfileContainer();
     if(!frame||!bank||bank.contains(frame))return;
     restore={parent:frame.parentNode,next:frame.nextSibling};
     captured=frame;
@@ -86,6 +89,7 @@ export async function createModule(ctx){
   return{
     async mount(){},
     async activate(){
+      document.documentElement.classList.add('loom-profile-dock-controller-ready');
       mountOverlay();
       mountButton();
       observer=new MutationObserver(()=>{mountButton();capture()});
@@ -95,10 +99,12 @@ export async function createModule(ctx){
       return()=>{};
     },
     async deactivate(){
+      document.documentElement.classList.remove('loom-profile-dock-controller-ready');
       observer?.disconnect();removeEventListener('keydown',onKey);close();restoreProfile();button?.remove();overlay?.remove();
       button=overlay=bank=null;
     },
     async unmount(){
+      document.documentElement.classList.remove('loom-profile-dock-controller-ready');
       observer?.disconnect();removeEventListener('keydown',onKey);close();restoreProfile();button?.remove();overlay?.remove();
     }
   };

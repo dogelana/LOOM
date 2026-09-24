@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.06 revision=5 policy=package-priority */
+/* @loom-file release=0.15.27 revision=6 policy=package-priority */
 
 .loom-profile-dock-button{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;
@@ -47,3 +47,9 @@
   .loom-profile-dock-bank{padding:10px}
   .loom-profile-dock-button span:last-child{display:none}
 }
+
+/* Once the dock controller is alive, suppress any newly mounted raw/framed profile until
+   the controller reparents it into the dialog bank. This prevents one-frame profile flashes. */
+html.loom-profile-dock-controller-ready [data-module="core.user.profile"]:not(.loom-profile-dock-captured),
+html.loom-profile-dock-controller-ready [data-loom-frame-for="core.user.profile"]:not(.loom-profile-dock-captured){visibility:hidden!important}
+html.loom-profile-dock-controller-ready .loom-profile-dock-bank .loom-profile-dock-captured{visibility:visible!important}

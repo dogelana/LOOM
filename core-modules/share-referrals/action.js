@@ -1,4 +1,4 @@
-// @loom-file release=0.15.26 revision=2 policy=package-priority
+// @loom-file release=0.15.27 revision=3 policy=package-priority
 export function createModule(ctx){
   let button=null,observer=null,statsBusy=false;
   async function injectReferralStats(){

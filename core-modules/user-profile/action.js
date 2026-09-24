@@ -1,4 +1,4 @@
-// @loom-file release=0.15.26 revision=6 policy=package-priority
+// @loom-file release=0.15.27 revision=7 policy=package-priority
 export async function createModule(ctx){
   let root=null,style=null,timer=null,data=null,mounted=false,avatarProvider=null;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
