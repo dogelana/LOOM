@@ -1,3 +1,14 @@
+## v0.15.37 - Portable Project Assets & HTML Framer Migration
+
+- Fixed imported Instance Project logos returning HTTP 403 because LOOM Home could generate a direct URL beneath the intentionally web-denied `/instance` vault.
+- Added a canonical project-asset resolver/proxy contract: project-owned assets now load through `api/project-asset.php` whether their bytes come from an overlay upload, an imported Instance Project runtime, or a release-managed project.
+- Fresh project-logo replacements now use the same proxy URL contract, eliminating path behavior differences before and after migration.
+- Reclassified HTML Framer packages as **project structure**. Plain Project exports now include `frames.json`, extracted frame files, and preserved `source.zip` packages.
+- Project + Data exports keep HTML Framer portable without duplicating it inside the data payload.
+- Project imports restore included HTML Framer structure into the destination Instance Project and report whether frame packages were restored.
+- Older portable bundles remain compatible. If an older plain Project export never contained HTML Framer bytes, LOOM does not invent them; an older Project + Data or Full LOOM backup can still carry those files.
+- Green Beans remains an imported Instance Project and is not bundled with LOOM.
+
 ## v0.15.36 - Unified Native Chrome & Admin Authorization
 
 - Fixed protected LOOM-native pages incorrectly returning **Administrator access required** while the same browser was already recognized as Admin by the main Admin console.
@@ -525,7 +536,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.36 revision=53 policy=package-priority -->
+<!-- @loom-file release=0.15.37 revision=54 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

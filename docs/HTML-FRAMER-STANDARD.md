@@ -90,3 +90,7 @@ The iframe used by HTML Framer is an isolation boundary around LOOM's local/stat
 A live production connection can be implemented in several different ways depending on the target system: a remote iframe when the target site's CSP / `frame-ancestors` / `X-Frame-Options` permits it, a native/API integration, or a deliberately engineered server-side proxy/adapter. A remote iframe is therefore one possible live integration, not the only one.
 
 URL capture rejects localhost, private/reserved network targets, and cross-origin asset crawling, and applies bounded download/file limits before feeding content into the existing HTML Framer validation pipeline.
+
+## Portable project ownership
+
+HTML Framer packages belong to the project, even though their working files live in the Instance Vault. LOOM 0.15.37 therefore includes them in ordinary Project exports and restores them during Project imports. `frames.json`, extracted package files, and each preserved `source.zip` travel together. Temporary capture/build directories and backup remnants are excluded.

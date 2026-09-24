@@ -95,3 +95,7 @@ The project selector in Backup & Restore is input only for **Project** and **Pro
 Generated-backup listings show a human scope label rather than pretending every artifact belongs to the currently selected project. v0.15.31 also normalizes already-generated v0.15.30 metadata whose global export accidentally retained the project selector. The ZIP payload itself was still global; the incorrect field was generated-backup metadata.
 
 Download authorization is derived from `exportType`, not from that display metadata. A stale project field can never downgrade an all-project/full backup into project-scoped authorization.
+
+## Project-owned HTML Framer portability
+
+Starting with LOOM 0.15.37, HTML Framer packages are classified as project structure. A plain **Project** export includes the project HTML Framer registry, extracted frame files, and preserved source ZIPs. **Project + Data** adds project-owned runtime/data state on top of that and does not duplicate the Framer payload. Imports restore the Framer payload into the destination Instance Project before runtime discovery. Bundles produced by older LOOM versions remain importable; if an older plain Project bundle did not contain its Framer files, LOOM cannot reconstruct bytes that were never exported.

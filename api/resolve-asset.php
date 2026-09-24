@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.23 revision=4 policy=package-priority
+// @loom-file release=0.15.37 revision=5 policy=package-priority
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 
@@ -76,6 +76,12 @@ if($scope!=='server'){
     }
 }
 $found=$overlayFound?:resolve_relative_ci($base,$requestedPath);
+$projectProxyUrl=null;
+if($found&&$scope!=='server'&&str_starts_with(strtolower(ltrim(str_replace('\\','/',$requestedPath),'/')),'assets/')){
+    // Project assets may physically live in the protected Instance Vault.
+    // Never return a direct /instance URL; use the canonical asset proxy.
+    $projectProxyUrl=loom_project_asset_url($project,$requestedPath);
+}
 $loomDefaultLogo=false;
 if(!$found&&$scope!=='server'&&strtolower(trim(str_replace('\\','/',$requestedPath),'/'))==='assets/logo.png'){
     $candidate=root_dir().'/assets/loom-logo.png';
@@ -87,8 +93,8 @@ json_out([
     'project'=>safe_slug($project),
     'scope'=>$scope,
     'requestedPath'=>$requestedPath,
-    'url'=>$overlayUrl?:($found ? versioned_rel_url($found) : null),
+    'url'=>$overlayUrl?:($projectProxyUrl?:($found ? versioned_rel_url($found) : null)),
     'asset_version'=>$assetVersion,
     'cache_busted'=>(bool)$found,
-    'resolution'=>$overlayFound?'persistent-instance-overlay':($loomDefaultLogo?'loom-default-project-logo':'explicit-relative-path')
+    'resolution'=>$overlayFound?'persistent-instance-overlay':($projectProxyUrl?'project-asset-proxy':($loomDefaultLogo?'loom-default-project-logo':'explicit-relative-path'))
 ]);

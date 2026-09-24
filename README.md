@@ -1,8 +1,8 @@
-## v0.15.36 - Unified Native Chrome + Admin Session Bridge
+## v0.15.37 - Portable Project Assets + HTML Framer Migration
 
-LOOM native surfaces now share the same reusable `LoomShell` header/footer and Administrator tooling path. Protected Admin destinations use a short-lived signed navigation credential issued only after canonical Admin status succeeds, so Backup & Restore, Activity Explorer, Referrals, Pegboard, and Action Registry agree with the main Admin console instead of independently losing Admin context. The main Admin page now uses the standard Admin drawer while automatically omitting links to tabs already present on that page. LOOM Home also exposes a direct **Import Project** action beside **New Project**.
+Imported Instance Project assets now use one canonical LOOM asset proxy instead of direct `/instance/...` URLs, so project logos and other project-owned assets remain public through LOOM while the Instance Vault itself stays web-denied. This specifically repairs migrated project logos that previously returned HTTP 403 after import.
 
-Project starter shells are synchronized to one canonical structure and consume the same LOOM user-control/Admin-tool helpers, preventing the baseline template and instance runtime shell from drifting apart. Green Beans remains an external/importable Instance Project and is not bundled with the engine.
+HTML Framer packages are now classified as **project structure**. A normal **Project** export carries the frame registry, extracted package files, and preserved source ZIPs; **Project + Data** adds project-owned runtime/data state without duplicating those frame packages. Imports restore the Framer package into the destination Instance Project. Green Beans remains external/importable and is not bundled with the engine.
 
 ## v0.15.35 - Empty-Install Admin Stability
 
@@ -20,7 +20,7 @@ The Module Presentation contract now recognizes `layout.widthScope = "page"` for
 
 LOOM no longer ships Green Beans as a release-managed project or starter template. Fresh installations now contain the LOOM engine, generic baseline template, and Instance Project runtime only; concrete products are imported or created as independent Instance Projects.
 
-Green Beans can be migrated by exporting the project from the old installation, installing this clean release, then importing the project bundle. A project-only export is sufficient when historical project-owned data is not needed. Project import/export and full-backup tooling remain intact.
+Green Beans can be migrated by exporting the project from the old installation, installing this clean release, then importing the project bundle. In LOOM 0.15.37 and newer, a project-only export also includes HTML Framer packages. Older project-only exports may omit Framer bytes; use an older Project + Data or Full LOOM backup when those packages must be recovered. Project import/export and full-backup tooling remain intact.
 
 Developer surfaces no longer assume `green-beans` when no project is selected: Pegboard, Action Registry, and Admin Users require an explicit project context instead of silently binding to a bundled product.
 
@@ -140,7 +140,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.36 revision=52 policy=package-priority -->
+<!-- @loom-file release=0.15.37 revision=52 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 
@@ -529,3 +529,6 @@ Green Beans now includes a project-owned `project.meal-creator` module that comp
 ## 0.12.08 Foundation Ten
 
 LOOM now has explicit soft guest profiles, generation-based identity claims, additive schema migration ledger, capability contracts, design tokens, health/audit/replay foundations and disciplined registry caching. See the new standards in `/docs`.
+
+### 0.15.37 portability boundary
+Project-owned visual assets are served through the LOOM asset proxy so Instance Vault paths never leak into public URLs. HTML Framer packages are part of Project structure and travel with ordinary Project export/import bundles.

@@ -4,7 +4,7 @@
   "action": {
     "id": "loom.html-framer",
     "name": "HTML Framer",
-    "description": "LOOM core bridge for turning uploaded static HTML ZIP packages into isolated project modules with compatibility Action Reader telemetry.",
+    "description": "LOOM core bridge for turning uploaded static HTML ZIP packages into isolated, portable project modules with compatibility Action Reader telemetry.",
     "kind": "system",
     "behavior": "stateful",
     "autostart": false,
@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],

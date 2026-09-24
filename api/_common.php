@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.36 revision=36 policy=package-priority
+// @loom-file release=0.15.37 revision=37 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -352,7 +352,7 @@ function versioned_rel_url(string $absolute): string {
   return append_cache_version(rel_url($absolute),file_cache_version($absolute));
 }
 function read_json_file(string $file): ?array { $x=json_decode((string)@file_get_contents($file),true); return is_array($x)?$x:null; }
-function loom_release_version(string $fallback='0.12.07'): string { $m=read_json_file(root_dir().'/.loom-deployment.json'); $v=trim((string)($m['loom_release']??'')); return $v!==''?$v:$fallback; }
+function loom_release_version(string $fallback='0.15.37'): string { $m=read_json_file(root_dir().'/.loom-deployment.json'); $v=trim((string)($m['loom_release']??'')); return $v!==''?$v:$fallback; }
 function server_epoch_ms(): int { return (int)round(microtime(true)*1000); }
 function server_timestamp(): string {
   $dt=DateTimeImmutable::createFromFormat('U.u',sprintf('%.6F',microtime(true)),new DateTimeZone('UTC'));
@@ -584,7 +584,7 @@ function loom_native_admin_page_guard(string $pageTitle='Admin',string $rootPref
   if(loom_request_is_admin())return;
   http_response_code(403);header('Content-Type: text/html; charset=utf-8');header('Cache-Control: no-store, no-cache, must-revalidate');
   $prefix=rtrim($rootPrefix,'/').'/';$title=htmlspecialchars($pageTitle,ENT_QUOTES,'UTF-8');$api=htmlspecialchars($prefix.'api',ENT_QUOTES,'UTF-8');$home=htmlspecialchars($prefix.'home/',ENT_QUOTES,'UTF-8');$engine=htmlspecialchars($prefix.'engine/',ENT_QUOTES,'UTF-8');
-  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.36"></script><script src="'.$engine.'identity.js?v=0.15.36"></script><script src="'.$engine.'identity-entry.js?v=0.15.36"></script><script src="'.$engine.'loom-brand.js?v=0.15.36"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.36"></script><script src="'.$engine.'loom-toast.js?v=0.15.36"></script><script src="'.$engine.'share-referrals.js?v=0.15.36"></script><script src="'.$engine.'loom-shell.js?v=0.15.36"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
+  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.37"></script><script src="'.$engine.'identity.js?v=0.15.37"></script><script src="'.$engine.'identity-entry.js?v=0.15.37"></script><script src="'.$engine.'loom-brand.js?v=0.15.37"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.37"></script><script src="'.$engine.'loom-toast.js?v=0.15.37"></script><script src="'.$engine.'share-referrals.js?v=0.15.37"></script><script src="'.$engine.'loom-shell.js?v=0.15.37"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
   exit;
 }
 function loom_admin_settings_file(string $project): string {
@@ -901,16 +901,26 @@ function loom_project_overlay_asset(string $project,string $relative): ?string {
   if(!$parent||!$realBase||!str_starts_with($parent,$realBase))return null;
   return $candidate;
 }
+function loom_project_asset_file(string $project,string $relative): ?string {
+  $slug=safe_slug($project);$relative=ltrim(str_replace('\\','/',$relative),'/');
+  if($slug===''||$relative===''||str_contains($relative,'..'))return null;
+  // Persistent overlay wins. This is where Admin logo/showcase uploads live.
+  $overlay=loom_project_overlay_asset($slug,$relative);
+  if($overlay&&is_file($overlay))return realpath($overlay)?:$overlay;
+  // Imported Instance Projects live beneath /instance, which is deliberately
+  // web-denied. Resolve the runtime file on disk and let project-asset.php
+  // proxy it instead of ever exposing /instance as a public URL.
+  $dir=project_dir($slug);if(!$dir)return null;$realDir=realpath($dir);if(!$realDir)return null;
+  $candidate=realpath($realDir.'/'.ltrim($relative,'/'));
+  $prefix=rtrim($realDir,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+  return ($candidate&&is_file($candidate)&&str_starts_with($candidate,$prefix))?$candidate:null;
+}
 function loom_project_asset_url(string $project,string $relative): ?string {
-  $overlay=loom_project_overlay_asset($project,$relative);
-  if($overlay&&is_file($overlay)){
-    $v=file_cache_version($overlay);
-    return web_base_path().'/api/project-asset.php?project='.rawurlencode(safe_slug($project)).'&path='.rawurlencode($relative).'&v='.rawurlencode($v);
-  }
-  $dir=project_dir($project);if(!$dir)return null;
-  $candidate=realpath($dir.'/'.ltrim(str_replace('\\','/',$relative),'/'));
-  $prefix=rtrim((string)realpath($dir),DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
-  return ($candidate&&is_file($candidate)&&str_starts_with($candidate,$prefix))?versioned_rel_url($candidate):null;
+  $slug=safe_slug($project);$relative=ltrim(str_replace('\\','/',$relative),'/');$file=loom_project_asset_file($slug,$relative);
+  if(!$file)return null;$v=file_cache_version($file);
+  // Always proxy project-owned assets. Release projects and Instance Projects
+  // now share one URL contract, so migration never changes how callers load a logo.
+  return web_base_path().'/api/project-asset.php?project='.rawurlencode($slug).'&path='.rawurlencode($relative).'&v='.rawurlencode($v);
 }
 function loom_default_project_logo_url(): ?string {
   $file=root_dir().'/assets/loom-logo.png';return is_file($file)?versioned_rel_url($file):null;

@@ -1,8 +1,8 @@
-## v0.15.36 architecture note — one native shell, one Admin authorization path
+## v0.15.37 architecture note — project structure must remain portable
 
-LOOM-native pages should not rebuild global navigation chrome or Administrator navigation independently. `engine/loom-shell.js` is the reusable constructor for native header/footer controls and Admin tools; native PHP pages mount that shell rather than maintaining their own competing versions. Protected Admin pages use the same canonical Admin status path as the console and receive a short-lived signed server navigation credential, allowing ordinary URL navigation without leaking or repeating client identifiers in links.
+A project is more than its release/runtime folder. Project-owned structural systems stored in the Instance Vault—most importantly HTML Framer packages—must travel with ordinary Project export/import operations. Framer `frames.json`, extracted package files, and source ZIPs are therefore structural project payloads, while transient build/capture directories remain excluded.
 
-The project starter/runtime shells remain project-branded, but consume the same shared LOOM control/Admin helpers and are kept structurally synchronized. Product projects remain Instance-owned and separate from release packages.
+The Instance Vault stays intentionally web-denied. Any project-owned asset that must be shown publicly is resolved on disk and served through a controlled LOOM proxy. Callers must never infer a public URL directly from an Instance Vault filesystem path. This keeps imported and release-managed projects on the same asset URL contract.
 
 ## v0.15.35 architecture note — zero projects is a healthy state
 
@@ -101,7 +101,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.36 revision=48 policy=package-priority -->
+<!-- @loom-file release=0.15.37 revision=48 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults
@@ -522,3 +522,6 @@ Brand data is now separated from presentation location. Project Identity owns ca
 LOOM now distinguishes feedback behavior from feedback presentation. The engine owns the toast/tooltip/requirement mechanism; global settings own platform defaults; project `core.ui.toast-theme` only provides project presentation. Native modules receive the service through runtime context instead of implementing private notification systems.
 
 Project creation drafts intentionally remain browser-local until creation succeeds. This preserves the Clean Instance Protocol: pre-project transient UI state does not manufacture an Instance Project or write mutable data outside a valid project ownership boundary.
+
+### 0.15.37 portability boundary
+Project-owned visual assets are served through the LOOM asset proxy so Instance Vault paths never leak into public URLs. HTML Framer packages are part of Project structure and travel with ordinary Project export/import bundles.

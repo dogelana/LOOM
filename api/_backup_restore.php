@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.31 revision=2 policy=package-priority
+// @loom-file release=0.15.37 revision=3 policy=package-priority
 declare(strict_types=1);
 
 const LOOM_BACKUP_FORMAT='loom-portable-bundle/v1';
@@ -67,18 +67,35 @@ function loom_backup_remove_tree(string $path): void { if(!is_dir($path)){if(is_
 function loom_backup_copy_zip_prefix(ZipArchive $zip,string $prefix,string $dest): int {
   $prefix=rtrim($prefix,'/').'/';$count=0;for($i=0;$i<$zip->numFiles;$i++){$name=(string)$zip->getNameIndex($i);if(!str_starts_with($name,$prefix)||str_ends_with($name,'/'))continue;$rel=substr($name,strlen($prefix));$rel=loom_backup_normalize_rel($rel);$target=$dest.'/'.str_replace('/',DIRECTORY_SEPARATOR,$rel);ensure_dir(dirname($target));$in=$zip->getStream($name);if(!$in)throw new RuntimeException('Could not read '.$name);$out=@fopen($target,'wb');if(!$out){fclose($in);throw new RuntimeException('Could not write '.$target);}stream_copy_to_stream($in,$out);fclose($in);fclose($out);$count++;}return $count;
 }
+function loom_backup_zip_has_prefix(ZipArchive $zip,string $prefix): bool {
+  $prefix=rtrim($prefix,'/').'/';for($i=0;$i<$zip->numFiles;$i++){$name=(string)$zip->getNameIndex($i);if(str_starts_with($name,$prefix)&&!str_ends_with($name,'/'))return true;}return false;
+}
+function loom_backup_html_framer_filter(string $rel): bool {
+  $rel=str_replace('\\','/',$rel);$parts=explode('/',$rel);foreach($parts as $part){if($part==='.tmp'||str_starts_with($part,'.capture-')||str_contains($part,'.bak.'))return false;}return true;
+}
+function loom_backup_html_framer_count(string $root): int {
+  $j=read_json_file(rtrim($root,'/').'/frames.json');return is_array($j['frames']??null)?count($j['frames']):0;
+}
 function loom_backup_project_record(string $slug): array {
   $slug=safe_slug($slug);$dir=project_dir($slug);if(!$dir)throw new RuntimeException('Project not found: '.$slug);$data=loom_project_effective_data($slug);
-  return ['slug'=>$slug,'name'=>(string)($data['name']??humanize_project_slug($slug)),'source'=>loom_project_source($slug)?:'unknown','runtimePath'=>'payload/projects/'.$slug.'/project','overlayPath'=>'payload/projects/'.$slug.'/overlay','overridePath'=>'payload/projects/'.$slug.'/project-overrides.json','settingsPath'=>'payload/projects/'.$slug.'/admin-settings.json'];
+  return ['slug'=>$slug,'name'=>(string)($data['name']??humanize_project_slug($slug)),'source'=>loom_project_source($slug)?:'unknown','runtimePath'=>'payload/projects/'.$slug.'/project','overlayPath'=>'payload/projects/'.$slug.'/overlay','overridePath'=>'payload/projects/'.$slug.'/project-overrides.json','settingsPath'=>'payload/projects/'.$slug.'/admin-settings.json','htmlFramerPath'=>'payload/projects/'.$slug.'/html-framer'];
 }
 function loom_backup_add_project(ZipArchive $zip,string $slug,bool $withData,array &$files,array &$record): void {
   $slug=safe_slug($slug);$record=loom_backup_project_record($slug);$dir=project_dir($slug);loom_backup_add_tree($zip,$dir,'payload/projects/'.$slug.'/project',$files);
   $storage=loom_instance_project_storage_path($slug);$overlay=$storage.'/overlay';if(is_dir($overlay))loom_backup_add_tree($zip,$overlay,'payload/projects/'.$slug.'/overlay',$files);
   $override=$storage.'/project-overrides.json';if(is_file($override))loom_backup_add_file($zip,$override,'payload/projects/'.$slug.'/project-overrides.json',$files);
   $settings=loom_admin_settings_file($slug);if(is_file($settings))loom_backup_add_file($zip,$settings,'payload/projects/'.$slug.'/admin-settings.json',$files);
+  // HTML Framer packages are executable project structure, not disposable app data.
+  // A plain Project export must therefore carry frames.json, extracted package files,
+  // and source.zip so the module survives migration without requiring Project + Data.
+  $htmlFramer=$storage.'/html-framer';$frameCount=0;
+  if(is_dir($htmlFramer)){$frameCount=loom_backup_html_framer_count($htmlFramer);loom_backup_add_tree($zip,$htmlFramer,'payload/projects/'.$slug.'/html-framer',$files,'loom_backup_html_framer_filter');}
+  $record['htmlFramerIncluded']=is_dir($htmlFramer);$record['htmlFramerFrameCount']=$frameCount;
   if($withData){
     if(is_dir($storage)){
-      $filter=function(string $rel): bool { $first=explode('/',$rel,2)[0]??'';return !in_array($first,['project','overlay','project-overrides.json'],true); };
+      // html-framer is exported above as project structure; exclude it here to avoid
+      // duplicate payloads and keep Project vs Project + Data semantics clear.
+      $filter=function(string $rel): bool { $first=explode('/',$rel,2)[0]??'';return !in_array($first,['project','overlay','project-overrides.json','html-framer'],true); };
       loom_backup_add_tree($zip,$storage,'payload/projects/'.$slug.'/instance-data',$files,$filter);
     }
     if(function_exists('loom_project_state_file')){$stateFile=loom_project_state_file($slug);if(is_file($stateFile))loom_backup_add_file($zip,$stateFile,'payload/projects/'.$slug.'/project-state.json',$files);}
@@ -129,7 +146,7 @@ function loom_backup_create(string $type,string $clientId,array $opts=[]): array
   $id=loom_backup_now_id($type);$dir=loom_backup_root().'/'.$id;ensure_dir($dir);$zipPath=$dir.'/'.$id.'.zip';$zip=new ZipArchive();if($zip->open($zipPath,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true)throw new RuntimeException('Could not create backup ZIP.');$files=[];$manifest=loom_backup_manifest_base($type,$clientId);
   try{
     $slugs=$allProjects?loom_all_project_slugs():[$project];foreach($slugs as $slug){$rec=[];loom_backup_add_project($zip,$slug,$withData,$files,$rec);$manifest['projects'][]=$rec;}
-    $manifest['dataClasses']['included'][]='project-structure';$manifest['dataClasses']['included'][]='project-branding-settings-assets';if($withData)$manifest['dataClasses']['included'][]='project-instance-data';
+    $manifest['dataClasses']['included'][]='project-structure';$manifest['dataClasses']['included'][]='project-branding-settings-assets';$manifest['dataClasses']['included'][]='project-html-framer-packages';if($withData)$manifest['dataClasses']['included'][]='project-instance-data';
     $manifest['dataClasses']['excluded']=array_values(array_filter(['database-credentials','auth-sessions','server-secrets',!$full?'global-identities-and-settings':null]));
     if($full){
       loom_backup_add_tree($zip,loom_instance_root(),'payload/global-instance',$files,'loom_backup_instance_filter');$manifest['dataClasses']['included'][]='global-instance-state';
@@ -155,7 +172,7 @@ function loom_backup_verify_zip(string $path,array $manifest): array {
 }
 function loom_backup_store_upload(array $file): array { if(($file['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK)throw new RuntimeException('Bundle upload failed.');$size=(int)($file['size']??0);if($size<1||$size>LOOM_BACKUP_MAX_UPLOAD)throw new RuntimeException('Bundle size is invalid or too large.');$id=loom_backup_now_id('import');$dir=loom_backup_root().'/'.$id;ensure_dir($dir);$path=$dir.'/incoming.zip';if(!@move_uploaded_file((string)$file['tmp_name'],$path)&&!@copy((string)$file['tmp_name'],$path))throw new RuntimeException('Could not stage uploaded bundle.');$manifest=loom_backup_read_manifest_from_zip($path);$verify=loom_backup_verify_zip($path,$manifest);if(!$verify['ok']){loom_backup_remove_tree($dir);throw new RuntimeException('Bundle checksum verification failed: '.implode(', ',array_slice($verify['bad'],0,5)));}$meta=['importId'=>$id,'path'=>$path,'manifest'=>$manifest,'verify'=>$verify,'createdAt'=>server_timestamp()];@file_put_contents($dir.'/import-meta.json',json_encode(['importId'=>$id,'manifest'=>$manifest,'verify'=>$verify,'createdAt'=>$meta['createdAt']],JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);return $meta; }
 function loom_backup_load_import(string $id): array { $id=loom_backup_safe_id($id);$dir=loom_backup_root().'/'.$id;$meta=read_json_file($dir.'/import-meta.json');$path=$dir.'/incoming.zip';if(!is_array($meta)||!is_file($path))throw new RuntimeException('Staged import not found.');return ['importId'=>$id,'path'=>$path,'manifest'=>$meta['manifest']??[],'verify'=>$meta['verify']??[],'createdAt'=>$meta['createdAt']??null]; }
-function loom_backup_preview(string $clientId,array $staged): array { $m=$staged['manifest'];$type=(string)($m['exportType']??'');if($type==='full')loom_backup_require_owner($clientId);else loom_backup_require_global($clientId);$projects=[];foreach(($m['projects']??[]) as $p){$slug=safe_slug((string)($p['slug']??''));$projects[]=['slug'=>$slug,'name'=>$p['name']??humanize_project_slug($slug),'exists'=>project_dir($slug)!==null,'currentSource'=>loom_project_source($slug),'willImportAs'=>'instance'];}
+function loom_backup_preview(string $clientId,array $staged): array { $m=$staged['manifest'];$type=(string)($m['exportType']??'');if($type==='full')loom_backup_require_owner($clientId);else loom_backup_require_global($clientId);$projects=[];foreach(($m['projects']??[]) as $p){$slug=safe_slug((string)($p['slug']??''));$projects[]=['slug'=>$slug,'name'=>$p['name']??humanize_project_slug($slug),'exists'=>project_dir($slug)!==null,'currentSource'=>loom_project_source($slug),'willImportAs'=>'instance','htmlFramerIncluded'=>(bool)($p['htmlFramerIncluded']??false),'htmlFramerFrameCount'=>(int)($p['htmlFramerFrameCount']??0)];}
   return ['importId'=>$staged['importId'],'exportType'=>$type,'sourceLoomVersion'=>$m['sourceLoomVersion']??null,'createdAt'=>$m['createdAt']??null,'projects'=>$projects,'database'=>$m['database']??[],'dataClasses'=>$m['dataClasses']??[],'verification'=>$staged['verify'],'requiresSystemOwner'=>$type==='full','strategies'=>['create-new','replace','merge','skip']]; }
 function loom_backup_snapshot_path(string $label): string { $id=loom_backup_now_id('rollback-'.$label);$d=loom_backup_rollback_root().'/'.$id;ensure_dir($d);return $d; }
 function loom_backup_restore_project_from_zip(ZipArchive $z,array $p,string $target,string $strategy): array {
@@ -164,9 +181,19 @@ function loom_backup_restore_project_from_zip(ZipArchive $z,array $p,string $tar
   ensure_dir($storage);loom_backup_copy_zip_prefix($z,'payload/projects/'.$source.'/project',$runtime);loom_backup_copy_zip_prefix($z,'payload/projects/'.$source.'/overlay',$storage.'/overlay');
   $projectDefault=$runtime.'/project.default.json';if(is_file($projectDefault)&&$target!==$source){$pd=read_json_file($projectDefault);if(is_array($pd)){$pd['slug']=$target;@file_put_contents($projectDefault,json_encode($pd,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n",LOCK_EX);}}
   foreach(['project-overrides.json','admin-settings.json'] as $f){$name='payload/projects/'.$source.'/'.$f;$data=$z->getFromName($name);if(is_string($data)){if($f==='project-overrides.json')$dest=$storage.'/project-overrides.json';else $dest=loom_admin_settings_file($target);ensure_dir(dirname($dest));if($f==='admin-settings.json'&&$target!==$source){$sj=json_decode($data,true);if(is_array($sj)){$sj['project']=$target;$data=json_encode($sj,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n";}}@file_put_contents($dest,$data,LOCK_EX);}}
-  $dataPrefix='payload/projects/'.$source.'/instance-data';if($strategy==='replace')loom_backup_remove_tree($storage.'/data');loom_backup_copy_zip_prefix($z,$dataPrefix,$storage);
+  $htmlPrefix=(string)($p['htmlFramerPath']??('payload/projects/'.$source.'/html-framer'));
+  $declaresHtmlFramer=array_key_exists('htmlFramerIncluded',$p);$hasHtmlFramer=loom_backup_zip_has_prefix($z,$htmlPrefix);
+  $declaredFrameCount=(int)($p['htmlFramerFrameCount']??0);
+  if($declaresHtmlFramer&&($p['htmlFramerIncluded']??false)&&$declaredFrameCount>0&&!$hasHtmlFramer)throw new RuntimeException('Portable bundle declares HTML Framer packages but their payload is missing.');
+  $dataPrefix='payload/projects/'.$source.'/instance-data';$legacyDataHasHtmlFramer=loom_backup_zip_has_prefix($z,$dataPrefix.'/html-framer');
+  // New-format bundles explicitly own Framer structure, including an intentional
+  // empty state. Old bundles did not declare this field, so preserve destination
+  // Framer files unless an older Project + Data payload actually contains them.
+  if($strategy==='replace'&&($declaresHtmlFramer||$legacyDataHasHtmlFramer))loom_backup_remove_tree($storage.'/html-framer');
+  if($hasHtmlFramer)loom_backup_copy_zip_prefix($z,$htmlPrefix,$storage.'/html-framer');
+  if($strategy==='replace')loom_backup_remove_tree($storage.'/data');loom_backup_copy_zip_prefix($z,$dataPrefix,$storage);
   $projectState=$z->getFromName('payload/projects/'.$source.'/project-state.json');if(is_string($projectState)){ $statePath=loom_project_state_file($target);ensure_dir(dirname($statePath));@file_put_contents($statePath,$projectState,LOCK_EX); }
-  return ['source'=>$source,'target'=>$target,'status'=>'imported','strategy'=>$strategy,'rollback'=>$rollback];
+  return ['source'=>$source,'target'=>$target,'status'=>'imported','strategy'=>$strategy,'rollback'=>$rollback,'htmlFramerRestored'=>($hasHtmlFramer||$legacyDataHasHtmlFramer)];
 }
 function loom_backup_db_apply(array $payload,string $strategy): array {
   if(!loom_db_ready()){ $id=loom_backup_now_id('db-pending');$path=loom_backup_pending_db_root().'/'.$id.'.json';@file_put_contents($path,json_encode($payload,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);return ['status'=>'staged','pendingId'=>$id,'message'=>'Database payload staged until a LOOM database is configured.']; }
