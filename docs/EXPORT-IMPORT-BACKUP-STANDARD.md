@@ -82,3 +82,16 @@ Recommended sequence:
 5. Only then remove the historical release copy from a future LOOM source package/Git branch.
 
 Because `project_dir()` prefers an Instance Project over a release project with the same slug, this migration can be verified before the old release copy is physically retired.
+
+## Scope metadata and legacy normalization (0.15.31+)
+
+The project selector in Backup & Restore is input only for **Project** and **Project + Data** exports. It must never leak into global export metadata.
+
+- `project` / `project-data` → one explicit project scope.
+- `projects` → all projects, structure/configuration only.
+- `projects-data` → all projects plus project-owned data.
+- `full` → the entire LOOM installation state.
+
+Generated-backup listings show a human scope label rather than pretending every artifact belongs to the currently selected project. v0.15.31 also normalizes already-generated v0.15.30 metadata whose global export accidentally retained the project selector. The ZIP payload itself was still global; the incorrect field was generated-backup metadata.
+
+Download authorization is derived from `exportType`, not from that display metadata. A stale project field can never downgrade an all-project/full backup into project-scoped authorization.

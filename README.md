@@ -1,3 +1,11 @@
+## v0.15.31 - Admin + Backup Scope + Deployment Convergence Hardening
+
+LOOM Admin can no longer be taken down by the project-list response-contract mismatch that appeared in 0.15.30. Project discovery returns an explicit success contract, skips a single broken project without losing every other project, and no longer assumes Green Beans is the default Admin project.
+
+Backup artifacts now have an explicit scope independent from whichever project happens to be selected in the UI. Full LOOM State is always **Entire LOOM installation**; all-project exports are always global project collections. Existing 0.15.30 generated metadata is repaired lazily when Backup & Restore lists it, and download authorization is based on export type rather than stale scope metadata.
+
+The deployment guard now actively watches the transaction state and does not reopen/reload a browser until the Bridge gate is really released. With Bridge Suite 8.5, the gate remains active through a fresh post-manifest verification pass, making “update complete” one deterministic boundary instead of several loosely related signals.
+
 ## v0.15.30 - Export, Import & Restore
 
 LOOM now has a first-class portable bundle system for project migration, backups, and complete installation recovery. Admin can export one project without server-specific data, one project with its project-owned data, all projects with or without project data, or a System Owner-only full LOOM state backup.
@@ -100,7 +108,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.30 revision=46 policy=package-priority -->
+<!-- @loom-file release=0.15.31 revision=47 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.30 revision=32 policy=package-priority
+// @loom-file release=0.15.31 revision=33 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -37,7 +37,9 @@ function loom_enforce_deployment_gate(): void {
     'error'=>'deployment-in-progress',
     'message'=>'LOOM is updating. Requests are paused until the transactional deployment completes.',
     'deploying'=>true,
+    'phase'=>(string)($gate['phase']??'applying'),
     'targetRelease'=>$target,
+    'transactionId'=>(string)($gate['transaction_id']??''),
     'retryAfter'=>$retry,
     'serverTimestamp'=>gmdate('c')
   ],JSON_UNESCAPED_SLASHES);

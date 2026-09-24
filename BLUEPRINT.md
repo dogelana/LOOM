@@ -1,3 +1,11 @@
+## v0.15.31 architecture note — one deployment-complete boundary
+
+Project discovery APIs use an explicit success contract and must fail soft around an individual project so one damaged project cannot make global Admin unreachable. No product/project slug may be hard-coded as the generic Admin fallback.
+
+Portable backup metadata separates **scope** from UI selection. Only `project` / `project-data` exports carry a single project scope. `projects`, `projects-data`, and `full` are global scopes even if a project selector is visible elsewhere in Admin. Authorization follows export type, never a stale project label.
+
+Deployment completion is now a transaction state, not merely a changed version string. The public gate may report `applying` or `verifying`; browsers proactively observe it and remain paused until the gate disappears after post-commit verification. Only then may they perform the one clean convergence reload.
+
 ## v0.15.30 architecture note — state portability is not release payload
 
 LOOM now distinguishes three artifact classes explicitly: **release packages** install replaceable LOOM code, **project bundles** move a project between installations, and **full-state backups** recover installation-owned persistent state. Only the latter two may intentionally contain Instance-derived data; ordinary LOOM release ZIPs still contain zero real `/instance/**` state.
@@ -65,7 +73,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.30 revision=42 policy=package-priority -->
+<!-- @loom-file release=0.15.31 revision=43 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

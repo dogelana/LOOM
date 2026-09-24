@@ -1,6 +1,6 @@
-// @loom-file release=0.15.30 revision=36 policy=package-priority
+// @loom-file release=0.15.31 revision=37 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.30';
+  const CLIENT_RELEASE='0.15.31';
   const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
   const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
   const configuredRelease=String(window.LoomConfig?.engineVersion||'').trim();
@@ -89,6 +89,7 @@
     const el=document.createElement('div');el.id='loom-release-refresh-fallback';el.className='loom-release-refresh-fallback';el.textContent=`LOOM v${version||'new'} is available. Automatic refresh was paused to avoid a reload loop; refresh this page manually.`;document.body?.appendChild(el);
   }
   function reloadIntoRelease(payload,cfg){
+    if(window.LoomDeploymentGuard?.active)return;
     if(window.__loomReleaseReloading)return;
     window.__loomReleaseReloading=true;
     const fp=releaseFingerprint(payload),version=String(payload?.canonicalVersion||'new');
@@ -132,6 +133,7 @@
       reloadIntoRelease(again,cfg);
     };
     const check=async()=>{
+      if(window.LoomDeploymentGuard?.active)return;
       const payload=await fetchReleaseWatch();
       if(!releaseIsHealthy(payload))return;
       const fp=releaseFingerprint(payload),server=String(payload.canonicalVersion||'');

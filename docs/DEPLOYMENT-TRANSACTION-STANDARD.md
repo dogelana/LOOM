@@ -1,7 +1,7 @@
-<!-- @loom-file release=0.15.22 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.31 revision=3 policy=package-priority -->
 # LOOM Deployment Transaction Standard
 
-LOOM release: **0.15.22**
+LOOM release: **0.15.31**
 
 `/.loom-deployment.json` is the single canonical platform release authority. A deployment is not complete until the server copy of that manifest is committed.
 
@@ -34,5 +34,9 @@ While an unexpired gate exists:
 4. LOOM-owned PHP pages may render a minimal auto-refreshing maintenance surface.
 5. The deployment transport should stage individual remote files beside their destination and server-rename them into place so clients never read a file while its body is still uploading.
 
-The gate is removed only after the new canonical deployment manifest has been committed and verified. If Deployer disappears, the lease expiry returns LOOM to service automatically; the stale marker alone is never sufficient to keep LOOM offline.
+Bridge Suite 8.5 / Deployer 5.4 extends that boundary: the gate is **not** removed immediately when the canonical manifest is committed. After manifest-last commit, the marker enters a `verifying` phase and remains active for one fresh post-commit inventory pass. The gate is removed only when that pass confirms no release-contract path remains unresolved.
+
+The browser deployment guard proactively polls `api/deployment-status.php` even before another application API request occurs. Once it has observed a deployment transaction, it remains in maintenance mode until the status probe reports ready, then performs one clean reload into the canonical release.
+
+If Deployer disappears, the refreshed lease expires automatically and returns LOOM to service; the stale marker alone is never sufficient to keep LOOM offline.
 

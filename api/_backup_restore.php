@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.30 revision=1 policy=package-priority
+// @loom-file release=0.15.31 revision=2 policy=package-priority
 declare(strict_types=1);
 
 const LOOM_BACKUP_FORMAT='loom-portable-bundle/v1';
@@ -10,6 +10,16 @@ function loom_backup_pending_db_root(): string { $d=loom_data_dir().'/admin/pend
 function loom_backup_rollback_root(): string { $d=loom_data_dir().'/admin/restore-rollbacks'; ensure_dir($d); @file_put_contents($d.'/.htaccess',"Require all denied\nOptions -Indexes\n",LOCK_EX); return $d; }
 function loom_backup_safe_id(string $v): string { return preg_replace('/[^a-zA-Z0-9_.-]/','',$v)?:''; }
 function loom_backup_now_id(string $prefix='loom'): string { return $prefix.'-'.gmdate('Ymd-His').'-'.substr(bin2hex(random_bytes(5)),0,10); }
+
+function loom_backup_is_project_scoped_type(string $type): bool { return in_array($type,['project','project-data'],true); }
+function loom_backup_scope_label(string $type,?string $project=null): string {
+  if($type==='full')return 'Entire LOOM installation';
+  if($type==='projects')return 'All projects · structure only';
+  if($type==='projects-data')return 'All projects + project data';
+  $slug=safe_slug((string)$project);if($slug==='')return 'Project';
+  try{$data=loom_project_effective_data($slug);$name=trim((string)($data['name']??''));if($name!=='')return $name;}catch(Throwable $e){}
+  return humanize_project_slug($slug);
+}
 
 function loom_backup_retention_days(): int {
   $days=14;
@@ -114,7 +124,7 @@ function loom_backup_manifest_base(string $type,string $clientId): array {
   return ['format'=>LOOM_BACKUP_FORMAT,'bundleVersion'=>1,'sourceLoomVersion'=>loom_release_version(),'exportType'=>$type,'createdAt'=>server_timestamp(),'createdBy'=>['clientId'=>safe_token($clientId),'userId'=>loom_access_effective_user_id($clientId)?:null],'projects'=>[],'dataClasses'=>['included'=>[],'excluded'=>[]],'database'=>['included'=>false,'portable'=>true,'credentialsIncluded'=>false],'security'=>['rawPasswordsIncluded'=>false,'databaseCredentialsIncluded'=>false,'authSessionsIncluded'=>false,'serverSecretsIncluded'=>false],'compatibility'=>['minimumLoomVersion'=>'0.15.30','importsAsInstanceProject'=>true],'files'=>[]];
 }
 function loom_backup_create(string $type,string $clientId,array $opts=[]): array {
-  loom_backup_cleanup_old();loom_backup_require_zip();$clientId=safe_token($clientId);$project=safe_slug((string)($opts['project']??''));$allProjects=false;$withData=false;$full=false;
+  loom_backup_cleanup_old();loom_backup_require_zip();$clientId=safe_token($clientId);$requestedProject=safe_slug((string)($opts['project']??''));$project=loom_backup_is_project_scoped_type($type)?$requestedProject:'';$allProjects=false;$withData=false;$full=false;
   switch($type){case 'project':loom_backup_require_project($clientId,$project);break;case 'project-data':loom_backup_require_project($clientId,$project);$withData=true;break;case 'projects':loom_backup_require_global($clientId);$allProjects=true;break;case 'projects-data':loom_backup_require_global($clientId);$allProjects=true;$withData=true;break;case 'full':loom_backup_require_owner($clientId);$allProjects=true;$withData=true;$full=true;break;default:throw new RuntimeException('Unknown export type.');}
   $id=loom_backup_now_id($type);$dir=loom_backup_root().'/'.$id;ensure_dir($dir);$zipPath=$dir.'/'.$id.'.zip';$zip=new ZipArchive();if($zip->open($zipPath,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true)throw new RuntimeException('Could not create backup ZIP.');$files=[];$manifest=loom_backup_manifest_base($type,$clientId);
   try{
@@ -129,11 +139,11 @@ function loom_backup_create(string $type,string $clientId,array $opts=[]): array
       $db=loom_backup_db_export(true);if($db){$json=json_encode($db,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);loom_backup_add_bytes($zip,$json?:'{}','payload/database/loom-data.json',$files);$manifest['database']['included']=true;$manifest['database']['tableCount']=count($db['tables']??[]);$manifest['dataClasses']['included'][]='database-application-data';}
     }
     $manifest['files']=$files;$mjson=json_encode($manifest,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);loom_backup_add_bytes($zip,$mjson?:'{}','loom-export.json',$files);$zip->close();
-    $meta=['backupId'=>$id,'type'=>$type,'project'=>$project?:null,'createdAt'=>$manifest['createdAt'],'size'=>(int)filesize($zipPath),'sha256'=>loom_backup_sha256($zipPath),'file'=>basename($zipPath),'manifest'=>$manifest];@file_put_contents($dir.'/meta.json',json_encode($meta,JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);
-    loom_audit_record('backup.export.created',['clientId'=>$clientId,'project'=>$project?:null,'details'=>['backupId'=>$id,'type'=>$type,'projectCount'=>count($manifest['projects']),'databaseIncluded'=>$manifest['database']['included']]],'LOOM portable export created.');return $meta;
+    $meta=['backupId'=>$id,'type'=>$type,'project'=>loom_backup_is_project_scoped_type($type)?($project?:null):null,'scopeLabel'=>loom_backup_scope_label($type,$project),'createdAt'=>$manifest['createdAt'],'size'=>(int)filesize($zipPath),'sha256'=>loom_backup_sha256($zipPath),'file'=>basename($zipPath),'manifest'=>$manifest];@file_put_contents($dir.'/meta.json',json_encode($meta,JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);
+    loom_audit_record('backup.export.created',['clientId'=>$clientId,'project'=>loom_backup_is_project_scoped_type($type)?($project?:null):null,'details'=>['backupId'=>$id,'type'=>$type,'scopeLabel'=>$meta['scopeLabel'],'projectCount'=>count($manifest['projects']),'databaseIncluded'=>$manifest['database']['included']]],'LOOM portable export created.');return $meta;
   }catch(Throwable $e){$zip->close();loom_backup_remove_tree($dir);throw $e;}
 }
-function loom_backup_list(string $clientId): array { loom_backup_cleanup_old();loom_backup_require_global($clientId);$out=[];$owner=loom_access_is_system_owner($clientId);foreach(glob(loom_backup_root().'/*/meta.json')?:[] as $f){$m=read_json_file($f);if(is_array($m)){if(($m['type']??'')==='full'&&!$owner)continue;$m['downloadUrl']=web_base_path().'/api/backup.php?action=download&id='.rawurlencode((string)$m['backupId']).'&clientId='.rawurlencode($clientId);unset($m['manifest']);$out[]=$m;}}usort($out,fn($a,$b)=>strcmp((string)($b['createdAt']??''),(string)($a['createdAt']??'')));return $out; }
+function loom_backup_list(string $clientId): array { loom_backup_cleanup_old();loom_backup_require_global($clientId);$out=[];$owner=loom_access_is_system_owner($clientId);foreach(glob(loom_backup_root().'/*/meta.json')?:[] as $f){$m=read_json_file($f);if(!is_array($m))continue;$type=(string)($m['type']??'');if($type==='full'&&!$owner)continue;$changed=false;if(!loom_backup_is_project_scoped_type($type)&&array_key_exists('project',$m)&&$m['project']!==null){$m['project']=null;$changed=true;}$scope=loom_backup_scope_label($type,loom_backup_is_project_scoped_type($type)?(string)($m['project']??''):null);if((string)($m['scopeLabel']??'')!==$scope){$m['scopeLabel']=$scope;$changed=true;}if($changed)@file_put_contents($f,json_encode($m,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);$m['downloadUrl']=web_base_path().'/api/backup.php?action=download&id='.rawurlencode((string)$m['backupId']).'&clientId='.rawurlencode($clientId);unset($m['manifest']);$out[]=$m;}usort($out,fn($a,$b)=>strcmp((string)($b['createdAt']??''),(string)($a['createdAt']??'')));return $out; }
 function loom_backup_meta(string $id): ?array { $id=loom_backup_safe_id($id);if($id==='')return null;$m=read_json_file(loom_backup_root().'/'.$id.'/meta.json');return is_array($m)?$m:null; }
 function loom_backup_delete(string $clientId,string $id): void { loom_backup_require_global($clientId);$id=loom_backup_safe_id($id);$meta=loom_backup_meta($id);if(is_array($meta)&&($meta['type']??'')==='full')loom_backup_require_owner($clientId);$dir=loom_backup_root().'/'.$id;if(!is_dir($dir))throw new RuntimeException('Backup not found.');loom_backup_remove_tree($dir);loom_audit_record('backup.export.deleted',['clientId'=>$clientId,'details'=>['backupId'=>$id]],'Generated backup deleted.'); }
 function loom_backup_read_manifest_from_zip(string $path): array { loom_backup_require_zip();$z=new ZipArchive();if($z->open($path)!==true)throw new RuntimeException('Could not open LOOM bundle.');$raw=$z->getFromName('loom-export.json');$z->close();$m=is_string($raw)?json_decode($raw,true):null;if(!is_array($m)||($m['format']??'')!==LOOM_BACKUP_FORMAT)throw new RuntimeException('This is not a supported LOOM portable bundle.');return $m; }

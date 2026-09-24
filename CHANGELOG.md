@@ -1,3 +1,15 @@
+## v0.15.31 - Admin Recovery + Backup Scope + Deployment Convergence
+
+- Fixed the Admin console project-list regression introduced by the hardened loader: `api/projects.php` now explicitly returns `ok: true`, matching Admin's response contract. Backup & Restore had appeared healthy because its loader did not require that field.
+- Project discovery is now fail-soft per project. One malformed project can be reported as a warning without taking down the entire Admin project list. Global Admin tools remain usable even if project discovery temporarily fails.
+- Removed the historical hard-coded `green-beans` Admin startup fallback. Admin now selects the requested project only when it exists, otherwise the first accessible project.
+- Fixed generated backup metadata so **Full LOOM State**, **All Projects**, and **All Projects + Data** are installation/global scopes and never inherit the currently selected project. Existing v0.15.30 generated backup metadata is normalized automatically when the backup list is opened.
+- Hardened backup-download authorization to use the export **type**, not a stale project field. Global/all-project/full bundles therefore cannot accidentally be treated as a single-project backup.
+- Backup & Restore now labels generated artifacts by clear scope such as **Entire LOOM installation**, **All projects**, or the actual project name.
+- Upgraded the browser deployment guard to a proactive transaction watcher. It polls the dependency-free deployment status even before ordinary API traffic, distinguishes applying vs final verification, and performs one clean reload only after the deployment gate is truly released.
+- Deployment status now reports canonical release, gate phase, transaction ID, and lease information without exposing private state.
+- Designed to pair with Bridge Suite 8.5 / Deployer 5.4, which keeps production gated through a fresh post-manifest verification pass instead of reopening immediately at manifest commit.
+
 ## v0.15.30 - Portable Project Bundles + Full-State Backup / Restore
 
 - Added a LOOM-native **Export, Import & Restore** core system with an Admin Backup & Restore workspace and canonical Action Registry entries.
@@ -456,7 +468,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.30 revision=47 policy=package-priority -->
+<!-- @loom-file release=0.15.31 revision=48 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

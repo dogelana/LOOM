@@ -1,12 +1,12 @@
 <?php
-// @loom-file release=0.15.30 revision=1 policy=package-priority
+// @loom-file release=0.15.31 revision=2 policy=package-priority
 declare(strict_types=1);
 require_once __DIR__.'/_common.php';
 require_once __DIR__.'/_backup_restore.php';
 $method=$_SERVER['REQUEST_METHOD']??'GET';$action=(string)($_GET['action']??'');
 try{
   if($method==='GET'&&$action==='download'){
-    $clientId=safe_token((string)($_GET['clientId']??''));$id=loom_backup_safe_id((string)($_GET['id']??''));$meta=loom_backup_meta($id);if(!$meta)throw new RuntimeException('Backup not found.');if(($meta['type']??'')==='full')loom_backup_require_owner($clientId);else{$proj=safe_slug((string)($meta['project']??''));if($proj!=='')loom_backup_require_project($clientId,$proj);else loom_backup_require_global($clientId);}$path=loom_backup_root().'/'.$id.'/'.(string)$meta['file'];if(!is_file($path))throw new RuntimeException('Backup file is missing.');header_remove('Content-Type');header('Content-Type: application/zip');header('Content-Disposition: attachment; filename="'.basename($path).'"');header('Content-Length: '.filesize($path));header('Cache-Control: private, no-store, max-age=0');readfile($path);exit;
+    $clientId=safe_token((string)($_GET['clientId']??''));$id=loom_backup_safe_id((string)($_GET['id']??''));$meta=loom_backup_meta($id);if(!$meta)throw new RuntimeException('Backup not found.');$type=(string)($meta['type']??'');if($type==='full')loom_backup_require_owner($clientId);elseif(loom_backup_is_project_scoped_type($type)){$proj=safe_slug((string)($meta['project']??''));if($proj==='')throw new RuntimeException('Project backup metadata is incomplete.');loom_backup_require_project($clientId,$proj);}else loom_backup_require_global($clientId);$path=loom_backup_root().'/'.$id.'/'.(string)$meta['file'];if(!is_file($path))throw new RuntimeException('Backup file is missing.');header_remove('Content-Type');header('Content-Type: application/zip');header('Content-Disposition: attachment; filename="'.basename($path).'"');header('Content-Length: '.filesize($path));header('Cache-Control: private, no-store, max-age=0');readfile($path);exit;
   }
   if($method==='POST'&&!empty($_FILES['bundle'])){
     $clientId=safe_token((string)($_POST['clientId']??''));loom_backup_require_global($clientId);$staged=loom_backup_store_upload($_FILES['bundle']);try{$preview=loom_backup_preview($clientId,$staged);}catch(Throwable $e){loom_backup_remove_tree(loom_backup_root().'/'.$staged['importId']);throw $e;}json_out(['ok'=>true,'preview'=>$preview]);
