@@ -1,3 +1,9 @@
+## v0.15.39 architecture note — framed apps may temporarily own the viewport
+
+HTML Framer remains a project module in normal flow, but a user may explicitly elevate one frame into a temporary full-page presentation state. The runtime portals only the framed surface to the document body, locks background LOOM scrolling, preserves the original module placeholder, and restores the exact DOM position on exit. This is presentation state only; it never rewrites project/module ordering or persisted layout.
+
+The full-screen contract respects the existing height modes instead of inventing a second scrolling model. Auto-fit keeps the iframe itself non-scrollable and allows the full-page takeover surface to flow naturally beyond one viewport when content is long. Fixed mode remains the explicit Admin opt-in for a bounded, internally scrollable iframe. Desktop/mobile profile selection remains active while full screen.
+
 ## v0.15.38 architecture note — framed content owns its natural height
 
 HTML Framer is content-height driven by default. The framed document reports its rendered height through the sandbox boundary; the LOOM runtime owns the outer iframe size and removes inner scrolling unless an Admin deliberately chooses Fixed height. Desktop and mobile presentation are separate responsive profiles. Admin settings layout follows the same single-source responsive rule: expanded configuration receives a full-width lane rather than stretching unrelated neighbor cards.
@@ -105,7 +111,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.38 revision=49 policy=package-priority -->
+<!-- @loom-file release=0.15.39 revision=50 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

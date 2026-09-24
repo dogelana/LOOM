@@ -1,3 +1,7 @@
+## v0.15.39 - HTML Framer Full-Screen Takeover
+
+HTML Framer modules can now become a true full-page experience on demand. Every frame may expose a polished **Full screen** control that lifts the frame above the project shell, hides LOOM chrome from view, fills the browser viewport on desktop or mobile, and returns the module to its exact original location when closed. Auto-fit frames preserve the no-inner-scrollbar contract; Fixed-height frames retain their intentionally scrollable viewport behavior. Admin can set the default globally for new frames and enable/disable the control per frame.
+
 ## v0.15.38 - HTML Framer Auto-Fit + Admin Settings UX
 
 HTML Framer now stretches to the delivered document height by default on both desktop and mobile, so framed packages do not need an inner scrollbar. Fixed-height scrolling remains available as an explicit Admin presentation choice. Desktop/tablet and mobile frame presentation settings are independent, and Admin settings cards expand into a clean full-width lane with overflow-safe responsive controls.
@@ -144,7 +148,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.38 revision=53 policy=package-priority -->
+<!-- @loom-file release=0.15.39 revision=54 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.38 revision=24 policy=package-priority
+// @loom-file release=0.15.39 revision=25 policy=package-priority
 (() => {
   'use strict';
 

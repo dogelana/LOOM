@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -39,7 +39,8 @@
     "defaultMobileHeightMode": "auto",
     "defaultMobileFrameHeight": 520,
     "defaultMobileFrameWidthPercent": 100,
-    "actionReaderEnabled": true
+    "actionReaderEnabled": true,
+    "defaultFullscreenEnabled": true
   },
   "presentation": {
     "role": "utility",
@@ -61,7 +62,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Frames stretch to their delivered content height by default with no iframe scrollbar. Desktop and mobile presentation defaults are independent; fixed-height scrolling is an explicit Admin opt-in.",
+    "description": "Drop static HTML ZIP packages into LOOM. Frames stretch to delivered content height by default with no iframe scrollbar. Desktop and mobile presentation defaults are independent; fixed-height scrolling is explicit Admin opt-in. Frames may also expose a full-screen/full-page takeover control.",
     "fields": [
       {
         "id": "enabled",
@@ -148,6 +149,12 @@
         "step": 1,
         "unit": "%",
         "help": "Independent width for phones and narrow screens."
+      },
+      {
+        "id": "defaultFullscreenEnabled",
+        "label": "Allow full-screen frame control by default",
+        "type": "checkbox",
+        "help": "New HTML frames receive a Full screen control that temporarily takes over the browser viewport and hides LOOM chrome. Admin can disable the control per frame."
       },
       {
         "id": "actionReaderEnabled",

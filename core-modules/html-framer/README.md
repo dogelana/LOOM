@@ -134,3 +134,14 @@ New frames default to **100% of the usable project page width**, centered. Admin
 HTML Framer uses LOOM's **page-width breakout lane** rather than the normal project content lane. Ordinary project modules remain inside the comfortable capped content column; HTML frames can expand against the whole usable page width without changing the rest of the project's layout.
 
 HTML Framer does not own a separate title/collapse bar. Each dynamic frame module inherits LOOM's canonical Module Presentation policy, so global, project, and per-module title-bar/collapse settings apply normally.
+
+
+## Full-screen frame takeover
+
+Each frame may expose a LOOM-owned **Full screen** button. It temporarily lifts the framed module above the project shell and uses the whole browser viewport, then restores the frame to the same module position on exit. This is a parent-shell presentation feature; it does not add sandbox permissions or let framed code access LOOM internals.
+
+- Auto-fit frames keep iframe scrolling disabled. Long content behaves like a full page and the takeover surface itself can flow vertically.
+- Fixed-height frames keep their explicit internal scrolling behavior and fill the viewport while full screen.
+- `Escape` exits full screen from either the parent page or the framed document.
+- Admin can disable the control per frame, and can set the default for newly imported frames.
+- The persisted `fullscreenEnabled` setting travels with Project export/import because it is stored in the frame registry.

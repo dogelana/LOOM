@@ -101,3 +101,14 @@ HTML Framer packages belong to the project, even though their working files live
 HTML Framer uses content-driven height by default. Every served framed HTML document receives a small LOOM layout bridge that reports its current rendered document height through `postMessage`. The parent runtime accepts layout messages only from its own iframe window and matching frame ID. In `auto` mode the iframe disables inner scrolling and grows with delivered content.
 
 Desktop/tablet and mobile (760px and below) store independent height mode, fixed-height value, and page-width percentage. `fixed` mode is the explicit opt-in for a bounded iframe viewport and browser scrolling. Legacy frame records that predate these fields default to `auto` while retaining their historical numeric height as the future fixed-height value.
+
+
+## Full-screen / full-page takeover contract (0.15.39)
+
+An HTML Framer module may expose a LOOM-owned **Full screen** control. This control does not grant the sandbox more privilege and does not convert the foreign package into a native LOOM page. It changes only the parent presentation boundary.
+
+When entered, LOOM portals the frame runtime surface above the normal project shell, fills the current browser viewport, locks background LOOM scrolling, and preserves a placeholder at the module's original DOM position. Exiting by the control, parent `Escape`, or an `Escape` key observed inside the sandbox restores the frame to that exact position and restores the document scroll state. Only one HTML frame may own this takeover state at a time.
+
+The height contract remains authoritative while full screen. In `auto` mode the iframe itself remains non-scrollable and expands to at least the viewport height; content taller than the viewport flows as a full-page surface. In `fixed` mode the iframe fills the viewport and its explicitly enabled internal scrolling remains available. Desktop/mobile profiles continue to switch normally during orientation and viewport changes.
+
+The project-level `defaultFullscreenEnabled` setting controls the default for newly imported frames. Each frame persists its own `fullscreenEnabled` value in `frames.json`, so the preference travels with normal Project export/import bundles. Legacy frames with no stored value default to enabled.

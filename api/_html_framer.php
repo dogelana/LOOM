@@ -239,6 +239,7 @@ function loom_html_framer_layout_bridge_script(array $frame): string {
     'function measure(){raf=0;const de=document.documentElement,b=document.body;let h=0;for(const el of [de,b])if(el)h=Math.max(h,el.scrollHeight||0,el.offsetHeight||0,Math.ceil(el.getBoundingClientRect().bottom||0));h=Math.max(1,Math.ceil(h));if(Math.abs(h-last)<2)return;last=h;parent.postMessage({__loomFramedLayout:"v1",frameId:ID,height:h},"*")}' .
     'function schedule(){if(!raf)raf=requestAnimationFrame(measure)}' .
     'function start(){schedule();try{ro=new ResizeObserver(schedule);if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}catch{}try{mo=new MutationObserver(schedule);mo.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule).catch(()=>{});[50,150,400,900,1800,3500].forEach(t=>setTimeout(schedule,t))}' .
+    'addEventListener("keydown",e=>{if(e.key==="Escape")parent.postMessage({__loomFramedFullscreen:"exit",frameId:ID},"*")},true);' .
     'addEventListener("load",schedule);addEventListener("resize",schedule,{passive:true});if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
     '})();</script>';
 }
@@ -490,6 +491,7 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
       'mobileHeightMode'=>$normalizeMode($existing['mobileHeightMode']??$presentationDefaults['mobileHeightMode']??'auto'),
       'mobileHeight'=>max(200,min(2400,(int)($existing['mobileHeight']??$presentationDefaults['mobileHeight']??$defaultHeight))),
       'mobileWidthPercent'=>max(50,min(100,(int)($existing['mobileWidthPercent']??$presentationDefaults['mobileWidthPercent']??$defaultWidthPercent))),
+      'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$existing)?(bool)$existing['fullscreenEnabled']:(bool)($presentationDefaults['fullscreenEnabled']??true),
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
@@ -610,7 +612,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.5.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.6.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,
         'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',
@@ -619,6 +621,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'mobileHeightMode'=>strtolower((string)($frame['mobileHeightMode']??'auto'))==='fixed'?'fixed':'auto',
         'mobileHeight'=>max(200,min(2400,(int)($frame['mobileHeight']??($frame['height']??520)))),
         'mobileWidthPercent'=>max(50,min(100,(int)($frame['mobileWidthPercent']??($frame['widthPercent']??100)))),
+        'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$frame)?(bool)$frame['fullscreenEnabled']:true,
         'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
         'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
           'declaredActionCount'=>count($readerActions),

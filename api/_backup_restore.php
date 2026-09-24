@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.38 revision=3 policy=package-priority
+// @loom-file release=0.15.39 revision=4 policy=package-priority
 declare(strict_types=1);
 
 const LOOM_BACKUP_FORMAT='loom-portable-bundle/v1';

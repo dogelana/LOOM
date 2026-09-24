@@ -1,3 +1,13 @@
+## v0.15.39 - HTML Framer Full-Screen Takeover
+
+- Added a first-class **Full screen** control to HTML Framer modules. A framed package can temporarily take over the entire browser viewport so project content can be used like a standalone page without LOOM header, footer, module chrome, or neighboring modules competing for space.
+- Full-screen mode portals the active frame out of the project module tree and above LOOM chrome, then restores the exact original module position on exit. No project layout mutation is persisted.
+- Added a polished floating **Full screen / Exit full screen** control with keyboard focus treatment, mobile-safe positioning, `aria-pressed` state, and `Escape` exit support. Escape inside the sandboxed frame is bridged back to the parent safely.
+- Auto-fit frames keep their no-inner-scrollbar contract while full screen: the iframe grows to at least the viewport and longer content scrolls as one full-page surface. Frames explicitly configured for Fixed height continue to use an internal scrolling viewport while full screen.
+- Full-screen presentation is responsive on desktop, tablet, and mobile, including `visualViewport` resize/orientation changes. Background LOOM scrolling is locked only while the takeover is active and restored losslessly afterward.
+- Added a project-level default **Allow full-screen frame control** setting and a per-frame **Allow full screen** switch in HTML Framer Manager. Existing frames default to allowed unless explicitly disabled.
+- Updated HTML Framer runtime module version to 1.6.0. Green Beans remains an Instance Project and is not bundled with LOOM.
+
 ## v0.15.38 - HTML Framer Auto-Fit + Admin Settings UX
 
 - HTML Framer now defaults to **Stretch to delivered content** height on desktop and mobile. The sandbox posts document-height changes back to LOOM through a dedicated layout bridge, and LOOM resizes the iframe instead of clipping content behind an inner scrollbar.
@@ -545,7 +555,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.38 revision=55 policy=package-priority -->
+<!-- @loom-file release=0.15.39 revision=56 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
