@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.domain-landing",
+    "name": "Domain Landing",
+    "description": "Lets the LOOM installation base URL open LOOM Home or one selected active project while preserving /home/ as the permanent Home recovery route.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/routing",
+    "tags": [
+      "loom",
+      "global",
+      "routing",
+      "domain",
+      "landing",
+      "project-at-root"
+    ]
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00040"
+  },
+  "config": {},
+  "admin_settings": {
+    "title": "Domain Landing",
+    "description": "Choose what the exact LOOM installation base URL opens. LOOM Home is always preserved at /home/. Routing state lives in the Instance Vault, not in release files.",
+    "fields": [],
+    "tools": [
+      {
+        "type": "domain-landing-manager",
+        "label": "Base URL Routing"
+      }
+    ]
+  }
+}

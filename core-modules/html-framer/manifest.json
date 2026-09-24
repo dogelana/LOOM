@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.html-framer",
+    "name": "HTML Framer",
+    "description": "LOOM core bridge for turning uploaded static HTML ZIP packages into isolated project modules with compatibility Action Reader telemetry.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "parent": "core.load",
+    "category": "loom/core/interop",
+    "tags": [
+      "loom",
+      "core",
+      "html",
+      "iframe",
+      "zip",
+      "interop",
+      "sandbox",
+      "legacy-ui"
+    ],
+    "steps": []
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.3.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [],
+    "order": "00030",
+    "order_locked": true
+  },
+  "config": {
+    "enabled": true,
+    "defaultFrameHeight": 520,
+    "actionReaderEnabled": true,
+    "defaultFrameWidthPercent": 100
+  },
+  "presentation": {
+    "role": "utility",
+    "collapsible": false,
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "stretch",
+      "position": "flow",
+      "order": 30
+    }
+  },
+  "pegboard": {
+    "preferredDepth": 1,
+    "accent": "blue"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "HTML Framer",
+    "description": "Drop static HTML ZIP packages into LOOM. Each published frame becomes its own sandboxed LOOM module. Action Reader v1 automatically catalogs and tracks observable framed UI actions without requiring the foreign package to know LOOM.",
+    "fields": [
+      {
+        "id": "enabled",
+        "label": "Enable HTML Framer modules",
+        "type": "checkbox",
+        "help": "When off, stored HTML frames remain preserved in the Instance Vault but are not added to the project runtime."
+      },
+      {
+        "id": "defaultFrameHeight",
+        "label": "Default new frame height",
+        "type": "range",
+        "min": 240,
+        "max": 1200,
+        "step": 10,
+        "unit": "px",
+        "help": "Used for newly imported frames. Each frame can be adjusted independently afterward."
+      },
+      {
+        "id": "defaultFrameWidthPercent",
+        "label": "Default new frame width",
+        "type": "range",
+        "min": 50,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "New HTML frames default to 100% of the usable project page width, independent of the narrower normal content lane. Each frame can be adjusted independently afterward."
+      },
+      {
+        "id": "actionReaderEnabled",
+        "label": "Framed Action Reader",
+        "type": "checkbox",
+        "help": "Automatically instruments framed HTML controls and turns observable clicks, navigation, form submits, and field changes into LOOM user actions. Does not capture typed field values."
+      }
+    ],
+    "tools": [
+      {
+        "type": "html-framer-manager",
+        "label": "HTML Frames"
+      }
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "loom.html-framer",
+        "description": "Sandboxed static HTML frame-module hosting"
+      }
+    ],
+    "requires": [],
+    "permissions": [
+      "html-framer.manage"
+    ]
+  }
+}

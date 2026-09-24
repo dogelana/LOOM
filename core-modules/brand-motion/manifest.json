@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "loom.brand.motion",
+    "name": "LOOM Animated Mark",
+    "description": "Global LOOM cube logo motion used by LOOM-owned surfaces and project loaders.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/branding"
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00010"
+  },
+  "config": {
+    "animationPath": "hero-orbit",
+    "animationSpeedPercent": 100,
+    "animationEnabled": "on"
+  },
+  "admin_settings": {
+    "title": "Animated LOOM Mark",
+    "description": "Controls the procedural LOOM cube animation everywhere the animated LOOM mark appears.",
+    "fields": [
+      {
+        "id": "animationPath",
+        "label": "Animation path",
+        "type": "select",
+        "options": [
+          {
+            "value": "hero-orbit",
+            "label": "Hero Orbit"
+          },
+          {
+            "value": "comet-sweep",
+            "label": "Comet Sweep"
+          },
+          {
+            "value": "tidal-arc",
+            "label": "Tidal Arc"
+          },
+          {
+            "value": "prism-roll",
+            "label": "Prism Roll"
+          },
+          {
+            "value": "halo-drift",
+            "label": "Halo Drift"
+          },
+          {
+            "value": "zenith-dive",
+            "label": "Zenith Dive"
+          },
+          {
+            "value": "gyro-bloom",
+            "label": "Gyro Bloom"
+          },
+          {
+            "value": "meteor-bank",
+            "label": "Meteor Bank"
+          },
+          {
+            "value": "ribbon-spiral",
+            "label": "Ribbon Spiral"
+          },
+          {
+            "value": "pulse-carousel",
+            "label": "Pulse Carousel"
+          }
+        ]
+      },
+      {
+        "id": "animationSpeedPercent",
+        "label": "Animation speed",
+        "type": "range",
+        "min": 25,
+        "max": 200,
+        "step": 5,
+        "unit": "%"
+      },
+      {
+        "id": "animationEnabled",
+        "label": "Animation",
+        "type": "select",
+        "options": [
+          {
+            "value": "on",
+            "label": "Animated"
+          },
+          {
+            "value": "off",
+            "label": "Static hero pose"
+          }
+        ]
+      }
+    ]
+  }
+}

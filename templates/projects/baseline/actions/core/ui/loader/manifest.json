@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.4",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.loader",
+    "name": "Project Loader",
+    "description": "Reusable project-first LOOM loader with animated project branding, rotating tips, module progress, and canonical runtime LOOM version attribution.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "parent": "core.load",
+    "category": "core/ui/bootstrap",
+    "tags": [
+      "core",
+      "ui",
+      "loader",
+      "bootstrap",
+      "branding",
+      "progress",
+      "reusable"
+    ],
+    "steps": [
+      {
+        "id": "read-branding",
+        "name": "Read project branding modules"
+      },
+      {
+        "id": "mount-overlay",
+        "name": "Mount loading overlay"
+      },
+      {
+        "id": "track-modules",
+        "name": "Track module readiness"
+      },
+      {
+        "id": "dismiss-overlay",
+        "name": "Dismiss loading overlay"
+      }
+    ]
+  },
+  "user_actions": [],
+  "module": {
+    "entry": "action.js",
+    "version": "1.3.1",
+    "dependencies": [],
+    "styles": [],
+    "order": "00000",
+    "bootstrap": {
+      "role": "loader",
+      "priority": 0,
+      "countSelf": false
+    }
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "position": "fixed",
+      "layer": 100000
+    }
+  },
+  "config": {
+    "minimumVisibleMs": 320,
+    "dismissDelayMs": 80,
+    "logoActionId": "core.ui.load-logo",
+    "logoTextActionId": "core.ui.load-logo-text",
+    "logoFallback": "\u2726",
+    "background": "rgba(246,250,246,.96)",
+    "blurPx": 18
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Project Loader",
+    "description": "Project-specific Loader settings are system-owned. Global Loader behavior is configured under Admin \u2192 LOOM Settings.",
+    "fields": []
+  }
+}

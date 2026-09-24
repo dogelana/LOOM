@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "loom.home.update-log",
+    "name": "LOOM Update Log",
+    "description": "Global LOOM release history shown on LOOM Home.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/updates"
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00030"
+  },
+  "config": {
+    "maxReleases": 12,
+    "expandedReleases": 1,
+    "visible": "on"
+  },
+  "admin_settings": {
+    "title": "LOOM Update Log",
+    "description": "Controls platform release history on LOOM Home. Project release history belongs to each project instead.",
+    "fields": [
+      {
+        "id": "visible",
+        "label": "Show on LOOM Home",
+        "type": "select",
+        "options": [
+          {
+            "value": "on",
+            "label": "Visible"
+          },
+          {
+            "value": "off",
+            "label": "Hidden"
+          }
+        ]
+      },
+      {
+        "id": "maxReleases",
+        "label": "Releases shown",
+        "type": "range",
+        "min": 3,
+        "max": 40,
+        "step": 1
+      },
+      {
+        "id": "expandedReleases",
+        "label": "Expanded by default",
+        "type": "range",
+        "min": 0,
+        "max": 5,
+        "step": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+# @loom-file release=0.12.08 revision=2 policy=package-priority
+DirectoryIndex index.php
+Options -Indexes
+<Files "index.html">
+  Require all denied
+</Files>

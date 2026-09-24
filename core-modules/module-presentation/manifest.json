@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.module-presentation",
+    "name": "Module Chrome & Collapse",
+    "description": "Global defaults for LOOM module title bars and collapse behavior. Projects and individual modules can override them.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/presentation",
+    "tags": [
+      "loom",
+      "global",
+      "modules",
+      "collapse",
+      "title-bar"
+    ]
+  },
+  "module": {
+    "version": "1.2.0",
+    "scope": "global",
+    "order": "00016"
+  },
+  "config": {
+    "collapseEnabled": false,
+    "titleBarsEnabled": false,
+    "initialState": "expanded"
+  },
+  "admin_settings": {
+    "title": "Module Chrome & Collapse",
+    "description": "Global defaults. Each project can inherit or override these, and each project module can override the project policy.",
+    "fields": [
+      {
+        "id": "collapseEnabled",
+        "label": "Allow module collapse by default",
+        "type": "checkbox",
+        "help": "Off by default. Projects inherit this unless they explicitly enable collapse."
+      },
+      {
+        "id": "titleBarsEnabled",
+        "label": "Show module title bars by default",
+        "type": "checkbox",
+        "help": "Hidden by default. Projects inherit this unless they explicitly show module title bars."
+      },
+      {
+        "id": "initialState",
+        "label": "Initial module state",
+        "type": "select",
+        "options": [
+          {
+            "value": "expanded",
+            "label": "Expanded (Default when collapse is enabled)"
+          },
+          {
+            "value": "collapsed",
+            "label": "Collapsed"
+          }
+        ],
+        "help": "Only applies before a visitor has a saved collapse state."
+      }
+    ]
+  }
+}

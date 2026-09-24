@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.4",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.loader",
+    "name": "Project Loader",
+    "description": "Release-managed project loader that inherits canonical Project Identity wording, colors, and font independently of Header Wordmark visibility.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "parent": "core.load",
+    "category": "core/ui/bootstrap",
+    "tags": [
+      "core",
+      "ui",
+      "loader",
+      "bootstrap",
+      "branding",
+      "progress",
+      "reusable"
+    ],
+    "steps": [
+      {
+        "id": "read-branding",
+        "name": "Read project branding modules"
+      },
+      {
+        "id": "mount-overlay",
+        "name": "Mount loading overlay"
+      },
+      {
+        "id": "track-modules",
+        "name": "Track module readiness"
+      },
+      {
+        "id": "dismiss-overlay",
+        "name": "Dismiss loading overlay"
+      }
+    ]
+  },
+  "user_actions": [],
+  "module": {
+    "entry": "action.js",
+    "version": "1.4.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00000",
+    "bootstrap": {
+      "role": "loader",
+      "priority": 0,
+      "countSelf": false
+    },
+    "scope": "project"
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "position": "fixed",
+      "layer": 100000
+    }
+  },
+  "config": {
+    "minimumVisibleMs": 320,
+    "dismissDelayMs": 80,
+    "logoActionId": "core.ui.load-logo",
+    "logoFallback": "✦",
+    "background": "rgba(246,250,246,.96)",
+    "blurPx": 18,
+    "brandLine1": "PROJECT",
+    "brandLine2": "",
+    "brandColor1": "#111111",
+    "brandColor2": "#168346",
+    "brandFontFamily": "League Spartan",
+    "brandFontWeight": 900,
+    "brandFontCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "admin_settings": {
+    "title": "Project Loader",
+    "description": "Project Loader branding inherits Project Identity. Global loader behavior remains under Admin → LOOM Settings.",
+    "fields": []
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.5",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.branding",
+    "name": "Project Branding",
+    "description": "Apply reusable project branding to browser metadata and visible app chrome: project name, optional tagline, and favicon.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/branding",
+    "tags": [
+      "core",
+      "ui",
+      "branding",
+      "title",
+      "tagline",
+      "favicon",
+      "reusable"
+    ],
+    "steps": [
+      {
+        "id": "read-project",
+        "name": "Read project identity"
+      },
+      {
+        "id": "set-title",
+        "name": "Apply project title and tagline"
+      },
+      {
+        "id": "resolve-favicon",
+        "name": "Resolve favicon source"
+      },
+      {
+        "id": "set-favicon",
+        "name": "Apply favicon"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.1.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00003"
+  },
+  "config": {
+    "tagline": "",
+    "titleSeparator": " \u00b7 ",
+    "faviconMode": "logo",
+    "customFaviconPath": "assets/favicon.ico",
+    "logoActionId": "core.ui.load-logo"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Project Branding",
+    "description": "Browser title, optional tagline, and project favicon.",
+    "fields": [
+      {
+        "id": "tagline",
+        "label": "Tagline",
+        "type": "text",
+        "maxLength": 120
+      }
+    ],
+    "tools": [
+      {
+        "id": "favicon",
+        "label": "Favicon",
+        "type": "favicon",
+        "customPath": "assets/favicon.ico",
+        "logoActionId": "core.ui.load-logo"
+      }
+    ]
+  }
+}
