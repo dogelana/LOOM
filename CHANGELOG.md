@@ -1,3 +1,11 @@
+## v0.15.45 - Canonical release recovery
+
+- Added a clean forward recovery package for servers stuck in a partial/mixed 0.15.41→0.15.44 state.
+- Re-issued current runtime/cache-busting files as 0.15.45 with monotonic package revisions greater than both 0.15.44 and the observed older server canonical revisions, preventing legacy revision ordering from treating stale server bytes as newer.
+- Preserved the clean Instance Protocol: zero `instance/**` files ship in the release archive, while existing Instance Projects remain untouched.
+- Green Beans remains unbundled; `projects/green-beans` and `templates/projects/green-beans` stay explicit retired release directories, while `instance/projects/green-beans` remains valid persistent project state.
+- No feature rollback: HTML Framer 80% default width, optional interaction locking, fullscreen/auto-fullscreen, viewport-app handling, project portability, and unified native/Admin chrome remain present.
+
 ## v0.15.44 - Clean release boundary hotfix
 
 - Removed all accidentally packaged `instance/**` bootstrap/runtime entries from the distributable release.
@@ -602,7 +610,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.41 revision=58 policy=package-priority -->
+<!-- @loom-file release=0.15.45 revision=64 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.44 revision=13 policy=package-priority
+// @loom-file release=0.15.45 revision=14 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
 // Frames auto-fit delivered document height by default. Fixed-height scrolling is explicit Admin opt-in.
 // Optional full-page takeover portals the frame above LOOM chrome and restores it losslessly on exit.

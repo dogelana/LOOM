@@ -1,3 +1,9 @@
+## v0.15.45 architecture note — canonical release authority recovery
+
+LOOM 0.15.45 is a release-convergence recovery package. A LOOM release tree remains package-owned and replaceable, while `instance/**` remains installation-owned and absent from the archive. This release is paired with Bridge Suite 8.9 / Deployer 5.8, where a byte-verified newer release manifest outranks historical per-file revision counters. This prevents stale bytes from an older canonical server release from being pulled over a newer local package during exhaustive reconciliation.
+
+The release also continues the 0.15.44 clean boundary: **zero `instance/**` payloads are shipped**, Green Beans remains an Instance Project rather than a bundled release project, and explicit retired release paths remain encoded as package tombstones.
+
 ## v0.15.44 architecture note — persistent Instance state is never a release payload
 
 The clean Instance Protocol is now enforced at the artifact boundary: a LOOM release may describe `instance/` as the persistent server-owned root, but the distributable archive itself contains no `instance/**` entries. Project/runtime state survives independently of release replacement. This prevents Listener verification failures and keeps release manifests eligible for the fast transactional deployment path.
@@ -131,7 +137,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.39 revision=50 policy=package-priority -->
+<!-- @loom-file release=0.15.45 revision=59 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

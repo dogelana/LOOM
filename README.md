@@ -1,3 +1,14 @@
+## v0.15.45 - Canonical Release Recovery
+
+LOOM 0.15.45 repairs mixed-release convergence after a server remained canonically on 0.15.41 while some release-managed files had already advanced. The package itself is a clean release payload with no `instance/**` state and is designed to be installed with Bridge Suite 8.9 / Deployer 5.8.
+
+Key recovery guarantees:
+- all current runtime/cache-busting surfaces identify 0.15.45 consistently;
+- package file revisions are monotonic against both the prior 0.15.44 package and the currently observed older server canonical manifest;
+- the archive contains no bundled Green Beans project/template and no persistent Instance Vault payloads;
+- explicit retirement metadata remains intact so old release-owned Green Beans directories can be removed locally/remotely without touching `instance/projects/green-beans`;
+- HTML Framer 80% page-lane width, optional interaction lock, fullscreen/auto-fullscreen, viewport-app stability, export/import portability, and unified Admin chrome are preserved.
+
 ## v0.15.44 - Clean Release Boundary Hotfix
 
 LOOM 0.15.44 is a packaging-integrity hotfix for 0.15.42/0.15.43. The release archive now contains **zero `instance/**` payloads**, matching the clean Instance Protocol declared by `.loom-deployment.json`. Persistent installation state remains server-owned and is never shipped by a release. Runtime behavior from 0.15.43 is otherwise preserved, including the 80% HTML Framer page lane, optional frame interaction lock, viewport-safe sizing, fullscreen, auto-fullscreen selection, project portability, unified Admin chrome, and Green Beans separation.
@@ -170,7 +181,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.39 revision=54 policy=package-priority -->
+<!-- @loom-file release=0.15.45 revision=63 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 
