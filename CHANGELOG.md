@@ -1,3 +1,19 @@
+## v0.15.32 - HTML Framer Width + Canonical Chrome + Admin Request Hardening
+
+- HTML Framer frames now render at **95% page width by default**, centered within the normal project flow. Existing frames with no saved width inherit 95% automatically.
+- Added a project-level **Default new frame width** setting (50–100%) and a per-frame **Page width** slider in HTML Framer Manager.
+- Removed HTML Framer's accidental hard-coded presentation behavior. Dynamic `html.frame.*` descriptors now pass through the canonical Module Presentation policy, so title bars, collapse enablement, initial state, and per-module overrides behave exactly like native LOOM modules. If Module Chrome/title bars are disabled, an HTML frame no longer displays its own collapse/expand bar.
+- HTML Framer content uses full rounded corners when unframed and joins the canonical module frame cleanly only when LOOM chrome is actually present.
+- Split Access Manager's lightweight project-access status from the expensive account/guest subject catalog. The people catalog is loaded separately and cached briefly instead of being rebuilt after every access read/write.
+- Access Manager now renders the selected project, current grants, and authority summary as soon as the lightweight status response arrives; if the optional grant-chooser catalog is temporarily busy, existing access remains visible instead of blanking the whole tab.
+- Access subject labeling bulk-loads canonical Global Profiles once per request instead of issuing a profile lookup for every account/guest, removing an N+1 database/filesystem hotspot that could amplify shared-host 503s.
+- Added Admin request coalescing and a short local cooldown for returned `503 Service Unavailable` responses. LOOM no longer multiplies a busy-host event into a request/retry storm.
+- Unified Identity Manager, Database, Access Manager, Users, and normal Admin JSON calls behind the same guarded response handling.
+- Project Identity and project-logo saves now return only the updated canonical project profile instead of rescanning and serializing the entire module catalog after every branding save.
+- Admin-page LOOM Shell no longer performs a redundant Admin-tools status fetch/drawer mount.
+- Admin status cache keys now include the active permanent `userId` in addition to the browser `clientId`, preventing stale Admin chrome after Switch User on the same device. Cache freshness is reduced to 30 seconds.
+- Removed remaining API-level implicit `green-beans` project fallbacks from Admin and HTML Framer endpoints; callers must provide an explicit project.
+
 ## v0.15.31 - Admin Recovery + Backup Scope + Deployment Convergence
 
 - Fixed the Admin console project-list regression introduced by the hardened loader: `api/projects.php` now explicitly returns `ok: true`, matching Admin's response contract. Backup & Restore had appeared healthy because its loader did not require that field.
@@ -468,7 +484,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.31 revision=48 policy=package-priority -->
+<!-- @loom-file release=0.15.32 revision=49 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

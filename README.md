@@ -1,3 +1,9 @@
+## v0.15.32 - HTML Framer Layout + Admin Stability
+
+HTML Framer now defaults imported frames to **95% of project page width**, centered, with a per-frame width slider and a project-level default for newly imported frames. Dynamic HTML frame modules now pass through LOOM's canonical Module Presentation policy, so title bars and collapse/expand controls inherit the same global → project → per-module chrome rules as every other content module instead of forcing their own chrome.
+
+Admin request pressure is also reduced. Access Manager separates its lightweight project-access state from the heavier people catalog, renders existing grants before the optional chooser catalog finishes, and bulk-loads canonical usernames instead of performing one profile lookup per person. Duplicate in-flight Admin requests are coalesced, returned 503 responses enter a short local cooldown instead of spawning retry bursts, and Project Identity/logo saves no longer rebuild and resend the entire module settings payload. Admin shell privilege caching is keyed by both browser client and active permanent user so Switch User cannot leave stale Admin chrome behind.
+
 ## v0.15.31 - Admin + Backup Scope + Deployment Convergence Hardening
 
 LOOM Admin can no longer be taken down by the project-list response-contract mismatch that appeared in 0.15.30. Project discovery returns an explicit success contract, skips a single broken project without losing every other project, and no longer assumes Green Beans is the default Admin project.
@@ -108,7 +114,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.31 revision=47 policy=package-priority -->
+<!-- @loom-file release=0.15.32 revision=48 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

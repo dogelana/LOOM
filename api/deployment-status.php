@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.31 revision=2 policy=package-priority
+// @loom-file release=0.15.32 revision=3 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.20 revision=13 policy=package-priority
+// @loom-file release=0.15.32 revision=14 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -205,18 +205,18 @@ if($action==='module-presentation-override'){
   json_out(['ok'=>true,'message'=>'Module presentation override updated']+settings_payload($toggleProject));
 }
 
-$project=safe_slug((string)($body['project']??'green-beans'));
+$project=safe_slug((string)($body['project']??''));
 if(!$project||!project_dir($project))json_out(['ok'=>false,'error'=>'project-not-found'],404);
 
 
 if($action==='project-profile-save'){
   $incoming=$body['profile']??[];if(!is_array($incoming))json_out(['ok'=>false,'error'=>'invalid-project-profile'],400);
   try{$profile=loom_write_project_profile($project,$incoming);}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
-  json_out(['ok'=>true,'message'=>'Project profile saved','profile'=>$profile]+settings_payload($project));
+  json_out(['ok'=>true,'message'=>'Project profile saved','profile'=>$profile,'project_profile'=>$profile]);
 }
 if($action==='project-logo-upload'){
   try{$profile=loom_save_project_logo($project,(string)($body['pngBase64']??''));}catch(RuntimeException $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
-  json_out(['ok'=>true,'message'=>'Project logo saved in persistent instance overlay','profile'=>$profile]+settings_payload($project));
+  json_out(['ok'=>true,'message'=>'Project logo saved in persistent instance overlay','profile'=>$profile,'project_profile'=>$profile]);
 }
 
 

@@ -30,6 +30,13 @@ Every published frame is emitted by `api/modules.php` as a dynamic LOOM module w
 
 It participates in normal ordering, presentation, collapsing, module availability, and Pegboard boundaries.
 
+
+## Layout and LOOM chrome (0.15.32)
+
+HTML Framer content defaults to 95% of the available project page width and is horizontally centered. Admin may change the project default for newly imported frames from 50–100%, and every published frame has its own width override. Legacy frames without a stored width inherit 95%.
+
+An HTML package never owns LOOM's surrounding title bar or collapse control. Dynamic `html.frame.<frame-id>` descriptors pass through the canonical Module Presentation policy. Global, project, and per-module title-bar/collapse settings therefore apply exactly as they do to native content modules. When title bars are hidden, collapse is also disabled so there is no separate HTML-Framer-only expand/collapse strip.
+
 ## Trust boundary
 
 Frame code is not native LOOM code.

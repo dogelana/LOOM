@@ -1,4 +1,4 @@
-// @loom-file release=0.15.30 revision=20 policy=package-priority
+// @loom-file release=0.15.32 revision=21 policy=package-priority
 (() => {
   'use strict';
 
@@ -141,7 +141,7 @@
     if(withLabel){const label=document.createElement('span');label.className='loom-shell-admin-label';label.textContent='ADMIN-ONLY TOOLS';host.appendChild(label)}
     for(const item of links){const a=document.createElement('a');a.href=item.href;a.textContent=item.label;if(target)a.target=target;if(target==='_blank')a.rel='noopener';host.appendChild(a)}return links;
   }
-  function adminStatusCacheKey(identity,project=''){return `loom:admin-status:${identity?.clientId||'anon'}:${String(project||'global')}`}
+  function adminStatusCacheKey(identity,project=''){return `loom:admin-status:${identity?.clientId||'anon'}:${identity?.userId||'guest'}:${String(project||'global')}`}
   async function fetchAdminStatus(apiBase,identity,project=''){
     const fallback={isAdmin:false,projectRole:'member',capabilities:[]};
     if(!identity?.clientId)return fallback;
@@ -157,7 +157,7 @@
   async function adminStatus(apiBase,identity,project=''){
     if(!identity?.clientId)return {isAdmin:false,projectRole:'member',capabilities:[]};
     let cached=null;try{cached=JSON.parse(sessionStorage.getItem(adminStatusCacheKey(identity,project))||'null')}catch{}
-    if(cached?.value&&Date.now()-Number(cached.storedAt||0)<120000){fetchAdminStatus(apiBase,identity,project).catch(()=>{});return cached.value}
+    if(cached?.value&&Date.now()-Number(cached.storedAt||0)<30000){fetchAdminStatus(apiBase,identity,project).catch(()=>{});return cached.value}
     const fresh=await fetchAdminStatus(apiBase,identity,project);
     if((fresh?.isAdmin||fresh?.projectRole!=='member')||!cached?.value)return fresh;
     return cached.value;

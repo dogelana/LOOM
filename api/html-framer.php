@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.18 revision=5 policy=package-priority
+// @loom-file release=0.15.32 revision=6 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
@@ -10,7 +10,7 @@ $rawBody=(string)file_get_contents('php://input');
 $jsonBody=json_decode($rawBody,true);if(!is_array($jsonBody))$jsonBody=[];
 $action=(string)($_REQUEST['action']??$jsonBody['action']??'list');
 $clientId=safe_token((string)($_REQUEST['clientId']??$jsonBody['clientId']??''));
-$project=safe_slug((string)($_REQUEST['project']??$jsonBody['project']??'green-beans'));
+$project=safe_slug((string)($_REQUEST['project']??$jsonBody['project']??''));
 if(!$project||!project_dir($project))json_out(['ok'=>false,'error'=>'project-not-found'],404);
 if($method==='GET'||$action==='list')loom_require_project_capability($clientId,$project,'project.view');
 else loom_require_project_capability($clientId,$project,'html-framer.manage');
@@ -23,8 +23,8 @@ if($method==='GET'||$action==='list')json_out(html_framer_payload($project));
 if($action==='capture-url'){
   $url=trim((string)($jsonBody['url']??''));if($url==='')json_out(['ok'=>false,'error'=>'capture-url-required'],400);
   try{
-    $settings=loom_read_admin_settings($project);$framerCfg=$settings['modules']['loom.html-framer']??[];$defaultHeight=max(240,min(1200,(int)($framerCfg['defaultFrameHeight']??520)));
-    $result=loom_html_framer_capture_url($project,$url,$defaultHeight);
+    $settings=loom_read_admin_settings($project);$framerCfg=$settings['modules']['loom.html-framer']??[];$defaultHeight=max(240,min(1200,(int)($framerCfg['defaultFrameHeight']??520)));$defaultWidth=max(50,min(100,(int)($framerCfg['defaultFrameWidthPercent']??95)));
+    $result=loom_html_framer_capture_url($project,$url,$defaultHeight,$defaultWidth);
     json_out(html_framer_payload($project)+['capture'=>$result,'message'=>'Static URL snapshot imported. This copy does not stay synchronized with the production website.']);
   }catch(Throwable $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
 }
@@ -43,9 +43,9 @@ if($action==='analyze'||$action==='upload'){
     }
     $settings=loom_read_admin_settings($project);
     $framerCfg=$settings['modules']['loom.html-framer']??[];
-    $defaultHeight=max(240,min(1200,(int)($framerCfg['defaultFrameHeight']??520)));
+    $defaultHeight=max(240,min(1200,(int)($framerCfg['defaultFrameHeight']??520)));$defaultWidth=max(50,min(100,(int)($framerCfg['defaultFrameWidthPercent']??95)));
     $replaceId=isset($_POST['replaceId'])&&$_POST['replaceId']!==''?(string)$_POST['replaceId']:null;
-    $result=loom_html_framer_import($project,$tmp,$name,$entry,$defaultHeight,$replaceId);
+    $result=loom_html_framer_import($project,$tmp,$name,$entry,$defaultHeight,$defaultWidth,$replaceId);
     if($result['needsEntrypoint']??false)json_out(['ok'=>true]+$result);
     json_out(html_framer_payload($project)+['import'=>$result]);
   }catch(Throwable $e){json_out(['ok'=>false,'error'=>$e->getMessage()],400);}
@@ -63,6 +63,7 @@ try{
     if(array_key_exists('enabled',$raw))$frame['enabled']=(bool)$raw['enabled'];
     if(array_key_exists('actionReaderEnabled',$raw))$frame['actionReaderEnabled']=(bool)$raw['actionReaderEnabled'];
     if(array_key_exists('height',$raw))$frame['height']=max(200,min(1600,(int)$raw['height']));
+    if(array_key_exists('widthPercent',$raw))$frame['widthPercent']=max(50,min(100,(int)$raw['widthPercent']));
     $frame['revision']=max(1,(int)($frame['revision']??1)+1);$frame['updatedAt']=server_timestamp();
     $registry['frames'][$frameId]=$frame;loom_html_framer_write_registry($project,$registry);
   }elseif($action==='move'){

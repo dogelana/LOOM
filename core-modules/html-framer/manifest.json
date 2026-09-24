@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -34,7 +34,8 @@
   "config": {
     "enabled": true,
     "defaultFrameHeight": 520,
-    "actionReaderEnabled": true
+    "actionReaderEnabled": true,
+    "defaultFrameWidthPercent": 95
   },
   "presentation": {
     "role": "utility",
@@ -73,6 +74,16 @@
         "step": 10,
         "unit": "px",
         "help": "Used for newly imported frames. Each frame can be adjusted independently afterward."
+      },
+      {
+        "id": "defaultFrameWidthPercent",
+        "label": "Default new frame width",
+        "type": "range",
+        "min": 50,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "New HTML frames default to 95% of the project page width and are centered. Each frame can be adjusted independently afterward."
       },
       {
         "id": "actionReaderEnabled",

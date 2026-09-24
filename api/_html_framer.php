@@ -447,7 +447,7 @@ function loom_html_framer_remove_tree(string $dir): void {
   foreach($it as $f){$f->isDir()?@rmdir($f->getPathname()):@unlink($f->getPathname());}
   @rmdir($dir);
 }
-function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,?string $replaceId=null): array {
+function loom_html_framer_import(string $project,string $zipPath,string $zipName,?string $entrypoint,int $defaultHeight=520,int $defaultWidthPercent=95,?string $replaceId=null): array {
   $analysis=loom_html_framer_analyze_zip($zipPath,$entrypoint);
   if($analysis['needsEntrypoint'])return ['needsEntrypoint'=>true,'analysis'=>$analysis];
   if($analysis['fatal'])throw new RuntimeException(implode(' ',$analysis['fatal']));
@@ -470,7 +470,7 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
     $order=(int)($existing['order']??(60000+count($registry['frames'])*10));
     $frame=[
       'id'=>$frameId,'title'=>$title,'enabled'=>array_key_exists('enabled',$existing)?(bool)$existing['enabled']:true,
-      'entrypoint'=>$analysis['entrypoint'],'height'=>max(200,min(1600,(int)($existing['height']??$defaultHeight))),
+      'entrypoint'=>$analysis['entrypoint'],'height'=>max(200,min(1600,(int)($existing['height']??$defaultHeight))),'widthPercent'=>max(50,min(100,(int)($existing['widthPercent']??$defaultWidthPercent))),
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
@@ -594,7 +594,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
       'user_actions'=>$readerActions,
       'module'=>['entry'=>'frame-action.js','version'=>'1.1.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
-        'frameId'=>$id,'src'=>$src,'height'=>max(200,min(1600,(int)($frame['height']??520))),
+        'frameId'=>$id,'src'=>$src,'height'=>max(200,min(1600,(int)($frame['height']??520))),'widthPercent'=>max(50,min(100,(int)($frame['widthPercent']??95))),
         'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
         'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
           'declaredActionCount'=>count($readerActions),
@@ -605,10 +605,10 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
       ],
       'admin_overrides'=>new stdClass(),'admin_settings'=>['fields'=>[]],
       'extensions'=>new stdClass(),'capabilities'=>['provides'=>[],'requires'=>[],'permissions'=>[]],
-      'presentation'=>[
+      'presentation'=>loom_apply_project_module_presentation($project,$actionId,[
         'role'=>'content','collapsible'=>true,'mount'=>['region'=>'root'],
-        'layout'=>['width'=>'full','align'=>'stretch','position'=>'flow','order'=>$order,'className'=>'loom-html-framer-runtime-module']
-      ],
+        'layout'=>['align'=>'center','position'=>'flow','order'=>$order,'className'=>'loom-html-framer-runtime-module']
+      ]),
       'pegboard'=>['preferredDepth'=>2,'accent'=>'blue'],
       'order_effective'=>$order,'order_display'=>str_pad((string)$order,5,'0',STR_PAD_LEFT),'order_locked'=>false,
       'bootstrap'=>new stdClass(),'entry_url'=>rel_url($entry),'styles'=>[],'manifest_url'=>rel_url($managerFile),
@@ -676,7 +676,7 @@ function loom_html_framer_snapshot_asset_name(string $url,string $contentType=''
   }
   return '_snapshot/'.substr(hash('sha256',$url),0,24).'.'.$ext;
 }
-function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520): array {
+function loom_html_framer_capture_url(string $project,string $url,int $defaultHeight=520,int $defaultWidthPercent=95): array {
   if(!loom_html_framer_zip_supported())throw new RuntimeException('URL capture requires ZipArchive because snapshots enter LOOM through the same validated package pipeline as ZIP imports.');
   $main=loom_html_framer_fetch_remote($url,8*1024*1024,3);$final=$main['url'];
   if(!preg_match('~text/html|application/xhtml\+xml~i',$main['contentType'])&&!preg_match('~<html\b|<!doctype\s+html~i',$main['body']))throw new RuntimeException('Capture URL did not return an HTML document.');
@@ -696,5 +696,5 @@ function loom_html_framer_capture_url(string $project,string $url,int $defaultHe
   @file_put_contents($files.'/index.html',$html,LOCK_EX);
   $zipPath=$tmpBase.'/snapshot.zip';$zip=new ZipArchive();if($zip->open($zipPath,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true){loom_html_framer_remove_tree($tmpBase);throw new RuntimeException('Could not create snapshot package.');}
   $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($files,FilesystemIterator::SKIP_DOTS));foreach($it as $f)if($f->isFile())$zip->addFile($f->getPathname(),str_replace('\\','/',substr($f->getPathname(),strlen($files)+1)));$zip->close();
-  try{$result=loom_html_framer_import($project,$zipPath,'URL Snapshot · '.parse_url($final,PHP_URL_HOST), 'index.html',$defaultHeight,null);if(!empty($result['frame']['id'])){$id=$result['frame']['id'];$reg=loom_html_framer_registry($project);if(isset($reg['frames'][$id])){$reg['frames'][$id]['sourceUrl']=$final;$reg['frames'][$id]['captureMode']='url-snapshot';$reg['frames'][$id]['capturedAt']=server_timestamp();$reg['frames'][$id]['snapshotAssetCount']=count($saved);loom_html_framer_write_registry($project,$reg);$result['frame']=$reg['frames'][$id];}}$result['sourceUrl']=$final;$result['captureMode']='url-snapshot';return $result;}finally{loom_html_framer_remove_tree($tmpBase);}
+  try{$result=loom_html_framer_import($project,$zipPath,'URL Snapshot · '.parse_url($final,PHP_URL_HOST), 'index.html',$defaultHeight,$defaultWidthPercent,null);if(!empty($result['frame']['id'])){$id=$result['frame']['id'];$reg=loom_html_framer_registry($project);if(isset($reg['frames'][$id])){$reg['frames'][$id]['sourceUrl']=$final;$reg['frames'][$id]['captureMode']='url-snapshot';$reg['frames'][$id]['capturedAt']=server_timestamp();$reg['frames'][$id]['snapshotAssetCount']=count($saved);loom_html_framer_write_registry($project,$reg);$result['frame']=$reg['frames'][$id];}}$result['sourceUrl']=$final;$result['captureMode']='url-snapshot';return $result;}finally{loom_html_framer_remove_tree($tmpBase);}
 }

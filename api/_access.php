@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.30 revision=4 policy=package-priority
+// @loom-file release=0.15.32 revision=5 policy=package-priority
 // LOOM delegated administration: immutable System Owner, delegated LOOM Admins,
 // and project-scoped Admin/Manager grants for permanent accounts or guest profiles.
 declare(strict_types=1);
@@ -127,22 +127,34 @@ function loom_access_revoke_loom_admin(string $userId,string $actorClientId): vo
   else{$t=loom_temp_account_store();if(isset($t['users'][$uid])){$t['users'][$uid]['privilege']='User';$t['users'][$uid]['updatedAt']=server_timestamp();loom_write_temp_account_store($t);}}
   loom_audit_record('access.loom-admin.revoked',['clientId'=>$actorClientId,'userId'=>$uid],'LOOM Admin access revoked by System Owner.');
 }
+function loom_access_global_profile_map(): array {
+  static $map=null;if(is_array($map))return $map;$map=[];
+  if(function_exists('loom_global_profile_list_all'))foreach(loom_global_profile_list_all() as $profile){
+    if(!is_array($profile))continue;$type=(string)($profile['ownerType']??'');$id=safe_token((string)($profile['ownerId']??''));
+    if($id!==''&&in_array($type,['user','client'],true))$map[$type.'|'.$id]=$profile;
+  }
+  return $map;
+}
+function loom_access_profile_from_map(string $type,string $id,array $map): ?array {
+  $id=safe_token($id);$row=$map[$type.'|'.$id]??null;return is_array($row)?$row:null;
+}
 function loom_access_user_catalog(): array {
   $rows=[];$raw=[];
   if(loom_db_ready())try{$q=loom_db_pdo(true)->query("SELECT user_id,username,email,privilege,created_at,updated_at FROM loom_users ORDER BY COALESCE(username,email,user_id)");foreach($q->fetchAll() as $u)$raw[(string)$u['user_id']]=$u;}catch(Throwable $e){}
   if(!$raw)foreach((loom_temp_account_store()['users']??[]) as $uid=>$u){$u['user_id']=$u['user_id']??$u['userId']??$uid;$raw[(string)$uid]=$u;}
-  foreach($raw as $uid=>$u){$gp=loom_global_profile_get('user',$uid);$name=loom_clean_username((string)($gp['username']??$u['username']??''));$email=(string)($u['email']??'');$rows[]=['type'=>'user','id'=>$uid,'label'=>$name!==''?$name:($email!==''?$email:$uid),'secondary'=>$email,'privilege'=>(string)($u['privilege']??'User')];}
+  $profiles=loom_access_global_profile_map();
+  foreach($raw as $uid=>$u){$gp=loom_access_profile_from_map('user',(string)$uid,$profiles);$name=loom_clean_username((string)($gp['username']??$u['username']??''));$email=(string)($u['email']??'');$rows[]=['type'=>'user','id'=>$uid,'label'=>$name!==''?$name:($email!==''?$email:$uid),'secondary'=>$email,'privilege'=>(string)($u['privilege']??'User')];}
   usort($rows,fn($a,$b)=>strcasecmp((string)$a['label'],(string)$b['label']));return $rows;
 }
 function loom_access_guest_catalog(): array {
-  if(!function_exists('loom_guest_profiles_store'))return [];$s=loom_guest_profiles_store();$out=[];
-  foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$pub=loom_guest_profile_public($p);$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_global_profile_get('client',$cid):[];$username=loom_clean_username((string)($gp['username']??''));$fallback=(string)($pub['displayName']??'Guest');$out[]=['type'=>'guest','id'=>(string)$pid,'label'=>$username!==''?$username:$fallback,'secondary'=>$cid,'currentClientId'=>$cid?:null,'generationStatus'=>$pub['generationStatus']??'active'];}
+  if(!function_exists('loom_guest_profiles_store'))return [];$s=loom_guest_profiles_store();$out=[];$profiles=loom_access_global_profile_map();
+  foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$pub=loom_guest_profile_public($p);$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_access_profile_from_map('client',$cid,$profiles):null;$username=loom_clean_username((string)($gp['username']??''));$fallback=(string)($pub['displayName']??'Guest');$out[]=['type'=>'guest','id'=>(string)$pid,'label'=>$username!==''?$username:$fallback,'secondary'=>$cid,'currentClientId'=>$cid?:null,'generationStatus'=>$pub['generationStatus']??'active'];}
   usort($out,fn($a,$b)=>strcasecmp((string)$a['label'],(string)$b['label']));return $out;
 }
-function loom_access_public_state(string $clientId,string $project=''): array {
-  $project=safe_slug($project);$s=loom_access_store();$uid=loom_access_effective_user_id($clientId);$ownerUid=loom_access_system_owner_user_id();
+function loom_access_public_state(string $clientId,string $project='',bool $includeSubjects=false): array {
+  $project=safe_slug($project);$s=loom_access_store();$uid=loom_access_effective_user_id($clientId);$ownerUid=loom_access_system_owner_user_id();$profiles=loom_access_global_profile_map();
   $loomAdmins=[];foreach(($s['loomAdmins']??[]) as $id=>$row)if(is_array($row)&&($row['enabled']??true)){$u=loom_account_user_by_id((string)$id);$loomAdmins[]=['userId'=>$id,'label'=>(string)($u['username']??$u['email']??$id),'email'=>$u['email']??null,'grantedAt'=>$row['grantedAt']??null];}
-  $grants=$project!==''&&is_array($s['projectGrants'][$project]??null)?$s['projectGrants'][$project]:[];$projectRows=[];foreach($grants as $key=>$row){if(!is_array($row))continue;[$type,$id]=array_pad(explode(':',(string)$key,2),2,'');$label=$id;if($type==='user'){$u=loom_account_user_by_id($id);$gp=loom_global_profile_get('user',$id);$label=(string)($gp['username']??$u['username']??$u['email']??$id);}elseif($type==='guest'){$g=loom_guest_profile_get($id);$pub=is_array($g)?loom_guest_profile_public($g):[];$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_global_profile_get('client',$cid):[];$label=(string)($gp['username']??$pub['displayName']??$id);} $projectRows[]=['subjectKey'=>$key,'type'=>$type,'id'=>$id,'label'=>$label,'role'=>$row['role']??'project-manager','capabilities'=>$row['capabilities']??[],'grantedAt'=>$row['grantedAt']??null];}
+  $grants=$project!==''&&is_array($s['projectGrants'][$project]??null)?$s['projectGrants'][$project]:[];$projectRows=[];foreach($grants as $key=>$row){if(!is_array($row))continue;[$type,$id]=array_pad(explode(':',(string)$key,2),2,'');$label=$id;if($type==='user'){$u=loom_account_user_by_id($id);$gp=loom_access_profile_from_map('user',$id,$profiles);$label=(string)($gp['username']??$u['username']??$u['email']??$id);}elseif($type==='guest'){$g=loom_guest_profile_get($id);$pub=is_array($g)?loom_guest_profile_public($g):[];$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_access_profile_from_map('client',$cid,$profiles):null;$label=(string)($gp['username']??$pub['displayName']??$id);} $projectRows[]=['subjectKey'=>$key,'type'=>$type,'id'=>$id,'label'=>$label,'role'=>$row['role']??'project-manager','capabilities'=>$row['capabilities']??[],'grantedAt'=>$row['grantedAt']??null];}
   $isOwner=loom_access_is_system_owner($clientId);$isLoomAdmin=loom_access_client_is_loom_admin($clientId);$globalView=$isOwner||$isLoomAdmin;
-  return ['systemOwner'=>$globalView?['userId'=>$ownerUid?:null,'clientId'=>loom_access_system_owner_client_id()?:null,'isCurrent'=>$isOwner]:['isCurrent'=>false],'current'=>['userId'=>$uid?:null,'role'=>$project!==''?loom_access_project_role($clientId,$project):($isOwner?'system-owner':($isLoomAdmin?'loom-admin':'member')),'capabilities'=>loom_access_effective_capabilities($clientId,$project)],'loomAdmins'=>$globalView?$loomAdmins:[],'project'=>$project?:null,'projectGrants'=>$projectRows,'subjects'=>array_merge(loom_access_user_catalog(),loom_access_guest_catalog()),'canManageLoomAdmins'=>$isOwner,'canViewLoomAdmins'=>$globalView,'canManageProject'=>$project!==''&&($isOwner||$isLoomAdmin)];
+  $out=['systemOwner'=>$globalView?['userId'=>$ownerUid?:null,'clientId'=>loom_access_system_owner_client_id()?:null,'isCurrent'=>$isOwner]:['isCurrent'=>false],'current'=>['userId'=>$uid?:null,'role'=>$project!==''?loom_access_project_role($clientId,$project):($isOwner?'system-owner':($isLoomAdmin?'loom-admin':'member')),'capabilities'=>loom_access_effective_capabilities($clientId,$project)],'loomAdmins'=>$globalView?$loomAdmins:[],'project'=>$project?:null,'projectGrants'=>$projectRows,'canManageLoomAdmins'=>$isOwner,'canViewLoomAdmins'=>$globalView,'canManageProject'=>$project!==''&&($isOwner||$isLoomAdmin)];if($includeSubjects)$out['subjects']=array_merge(loom_access_user_catalog(),loom_access_guest_catalog());return $out;
 }

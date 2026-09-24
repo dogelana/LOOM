@@ -126,3 +126,9 @@ These limits are deliberately conservative for a lightweight static-frame featur
 LOOM 0.15.10 automatically catalogs observable interactive controls in framed HTML and injects a sandbox-local bridge that reports clicks/navigation, submits and field changes to the parent LOOM runtime. Those interactions become declared dynamic-frame user actions and therefore participate in Action Registry, Pegboard/session history and Activity Explorer.
 
 Named JavaScript functions/listener registrations are surfaced as analysis hints only; LOOM does not wrap arbitrary foreign functions because doing so could alter application behavior.
+
+## Frame layout and LOOM chrome
+
+New frames default to **95% page width**, centered. Admin can change the project default for future imports and can set each frame independently from 50–100% width. Existing frames without an explicit width inherit 95%.
+
+HTML Framer does not own a separate title/collapse bar. Each dynamic frame module inherits LOOM's canonical Module Presentation policy, so global, project, and per-module title-bar/collapse settings apply normally.

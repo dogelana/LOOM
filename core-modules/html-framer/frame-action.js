@@ -1,4 +1,4 @@
-// @loom-file release=0.15.10 revision=2 policy=package-priority
+// @loom-file release=0.15.32 revision=3 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
 // Action Reader messages originate inside the sandbox and are translated into declared LOOM user actions.
 export function createModule(ctx){
@@ -54,8 +54,10 @@ export function createModule(ctx){
     root=document.createElement('section');
     root.className='loom-html-framer-module';
     root.dataset.htmlFrameId=String(ctx.config.frameId||'');
-    root.style.cssText='width:100%;min-width:0;overflow:hidden;background:var(--loom-page-surface,#fff);border:1px solid var(--loom-page-border,#dbe7de);box-shadow:var(--loom-shadow-1,0 8px 28px rgba(19,58,30,.07));';
-    root.style.borderRadius='0 0 var(--loom-page-radius,28px) var(--loom-page-radius,28px)';
+    const widthPercent=clamp(ctx.config.widthPercent,50,100,95);
+    root.style.cssText=`width:${widthPercent}%;max-width:100%;min-width:0;margin-inline:auto;overflow:hidden;background:var(--loom-page-surface,#fff);border:1px solid var(--loom-page-border,#dbe7de);box-shadow:var(--loom-shadow-1,0 8px 28px rgba(19,58,30,.07));`;
+    root.dataset.frameWidthPercent=String(widthPercent);
+    root.style.borderRadius='var(--loom-page-radius,28px)';
 
     const stage=document.createElement('div');
     stage.style.cssText='position:relative;width:100%;min-width:0;background:#fff;overflow:hidden;';
@@ -81,6 +83,23 @@ export function createModule(ctx){
       if(root)return;
       ctx.step('mount-frame','active',{frameId:ctx.config.frameId});
       ctx.mount(build());
+      queueMicrotask(()=>{
+        if(!root)return;
+        const widthPercent=clamp(ctx.config.widthPercent,50,100,95);
+        const shell=root.closest('.loom-module-frame');
+        if(shell){
+          // LOOM chrome owns the outer module shell when it is enabled. Keep the
+          // title/collapse bar exactly the same width as the framed page instead
+          // of leaving a full-width chrome bar around a 95% frame body.
+          shell.style.width=`${widthPercent}%`;
+          shell.style.maxWidth='100%';
+          shell.style.marginInline='auto';
+          shell.style.alignSelf='center';
+          root.style.width='100%';
+          root.style.marginInline='0';
+          root.style.borderRadius='0 0 var(--loom-page-radius,28px) var(--loom-page-radius,28px)';
+        }
+      });
       if(ctx.config.actionReaderEnabled){
         onMessage=event=>{handleMessage(event).catch(()=>{})};
         addEventListener('message',onMessage);

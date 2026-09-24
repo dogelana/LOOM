@@ -1,3 +1,11 @@
+## v0.15.32 architecture note — dynamic modules obey the same chrome contract
+
+Dynamic modules are not allowed to bypass LOOM presentation policy. HTML Framer descriptors are first-class project modules and therefore resolve title-bar visibility, collapse permission, initial state, and per-module overrides through the same global → project → module inheritance path used by native modules. A foreign/static package owns only its framed content; LOOM owns the surrounding chrome.
+
+HTML Framer width is content presentation, not shell chrome. The manager defines a project-level default for new frames and each frame may save an explicit width percentage. Missing legacy width values inherit the current canonical default of 95%.
+
+Admin must remain fail-soft under host pressure. Expensive identity/access catalogs are separated from lightweight authorization state, duplicate in-flight requests are coalesced, generic 503 responses cause local backoff rather than retries, and narrow project-profile mutations return narrow responses. Privilege/UI caches are identity-specific to both client and active permanent user.
+
 ## v0.15.31 architecture note — one deployment-complete boundary
 
 Project discovery APIs use an explicit success contract and must fail soft around an individual project so one damaged project cannot make global Admin unreachable. No product/project slug may be hard-coded as the generic Admin fallback.
@@ -73,7 +81,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.31 revision=43 policy=package-priority -->
+<!-- @loom-file release=0.15.32 revision=44 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults
