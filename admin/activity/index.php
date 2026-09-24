@@ -1,10 +1,10 @@
 <?php
-// @loom-file release=0.15.35 revision=23 policy=package-priority
+// @loom-file release=0.15.36 revision=24 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 $loomPageMeta=loom_generic_social_meta(loom_absolute_web_url(rtrim(web_base_path(),'/').'/admin/activity/'),'LOOM Activity Explorer','LOOM administrative activity explorer.');$loomPageMeta['robots']='noindex,nofollow';$loomPageSocial=loom_social_meta_html($loomPageMeta,false);
-if(!loom_request_is_admin()){http_response_code(403);?><!doctype html><html><head><?php echo $loomPageSocial; ?><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:system-ui;padding:30px"><h1>Administrator access required</h1><a href="../">Return to Admin</a></body></html><?php exit;}
+loom_native_admin_page_guard('Activity Explorer','../../');
 ?><!doctype html>
 <html lang="en">
 <head><?php echo $loomPageSocial; ?>
@@ -53,10 +53,10 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.35"></script><script src="../../engine/loom-brand.js?v=0.15.35"></script>
-<script src="../../engine/identity.js?v=0.15.30"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.30"></script>
-<script src="../../engine/loom-toast.js?v=0.15.30"></script><script src="../../engine/share-referrals.js?v=0.15.30"></script><script src="../../engine/loom-shell.js?v=0.15.30"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.36"></script><script src="../../engine/loom-brand.js?v=0.15.36"></script>
+<script src="../../engine/identity.js?v=0.15.36"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.36"></script>
+<script src="../../engine/loom-toast.js?v=0.15.36"></script><script src="../../engine/share-referrals.js?v=0.15.36"></script><script src="../../engine/loom-shell.js?v=0.15.36"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];

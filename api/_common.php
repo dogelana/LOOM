@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.33 revision=35 policy=package-priority
+// @loom-file release=0.15.36 revision=36 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -468,6 +468,46 @@ function loom_admin_cookie_valid(): bool {
   $token=loom_admin_cookie_token(); if($token==='')return false;
   return password_verify($token,(string)$state['tokenHash']);
 }
+
+// Short-lived, signed navigation credential for LOOM-native Admin pages.
+// This bridges LOOM's browser client identity authorization into normal page
+// requests without putting clientId values into every protected URL.
+function loom_admin_nav_cookie_name(): string { return 'loom_admin_nav'; }
+function loom_admin_nav_secret_file(): string { return loom_admin_dir().'/navigation-signing.key'; }
+function loom_admin_nav_b64e(string $raw): string { return rtrim(strtr(base64_encode($raw),'+/','-_'),'='); }
+function loom_admin_nav_b64d(string $raw): string|false {
+  $pad=strlen($raw)%4;if($pad)$raw.=str_repeat('=',4-$pad);
+  return base64_decode(strtr($raw,'-_','+/'),true);
+}
+function loom_admin_nav_secret(): string {
+  $file=loom_admin_nav_secret_file();$secret=is_file($file)?trim((string)@file_get_contents($file)):'';
+  if(strlen($secret)>=48)return $secret;
+  ensure_dir(dirname($file));$secret=bin2hex(random_bytes(32));
+  if(@file_put_contents($file,$secret,LOCK_EX)===false)throw new RuntimeException('Could not initialize Admin navigation signing key.');
+  @chmod($file,0600);return $secret;
+}
+function loom_issue_admin_navigation_cookie(string $clientId,int $ttl=900): bool {
+  $clientId=safe_token($clientId);if($clientId===''||!str_starts_with($clientId,'client_'))return false;
+  if(!loom_client_is_admin($clientId))return false;
+  $payload=json_encode(['v'=>1,'cid'=>$clientId,'iat'=>time(),'exp'=>time()+max(120,min(3600,$ttl))],JSON_UNESCAPED_SLASHES);
+  if(!is_string($payload))return false;
+  $body=loom_admin_nav_b64e($payload);$sig=loom_admin_nav_b64e(hash_hmac('sha256',$body,loom_admin_nav_secret(),true));
+  $secure=(!empty($_SERVER['HTTPS'])&&strtolower((string)$_SERVER['HTTPS'])!=='off');
+  setcookie(loom_admin_nav_cookie_name(),$body.'.'.$sig,[
+    'expires'=>time()+max(120,min(3600,$ttl)),'path'=>'/','secure'=>$secure,'httponly'=>true,'samesite'=>'Strict'
+  ]);
+  $_COOKIE[loom_admin_nav_cookie_name()]=$body.'.'.$sig;return true;
+}
+function loom_admin_navigation_cookie_client(): string {
+  $raw=(string)($_COOKIE[loom_admin_nav_cookie_name()]??'');if($raw===''||substr_count($raw,'.')!==1)return '';
+  [$body,$sig]=explode('.',$raw,2);$expected=loom_admin_nav_b64e(hash_hmac('sha256',$body,loom_admin_nav_secret(),true));
+  if(!hash_equals($expected,$sig))return '';
+  $decoded=loom_admin_nav_b64d($body);if($decoded===false)return '';$payload=json_decode($decoded,true);if(!is_array($payload))return '';
+  if((int)($payload['exp']??0)<time())return '';$clientId=safe_token((string)($payload['cid']??''));if($clientId==='')return '';
+  // Re-check current authorization on every page request so revocation wins over cookie TTL.
+  return loom_client_is_admin($clientId)?$clientId:'';
+}
+function loom_admin_navigation_cookie_valid(): bool { return loom_admin_navigation_cookie_client()!==''; }
 function loom_client_is_admin(string $clientId): bool {
   $clientId=safe_token($clientId);
   $auth=function_exists('loom_auth_user')?loom_auth_user():null;
@@ -538,6 +578,14 @@ function loom_bootstrap_or_privilege(string $clientId,bool $allowBootstrap=false
 }
 function loom_require_admin(string $clientId): void {
   if(!loom_client_is_admin(safe_token($clientId))) json_out(['ok'=>false,'error'=>'admin-access-required','privilege'=>'User'],403);
+}
+
+function loom_native_admin_page_guard(string $pageTitle='Admin',string $rootPrefix='../'): void {
+  if(loom_request_is_admin())return;
+  http_response_code(403);header('Content-Type: text/html; charset=utf-8');header('Cache-Control: no-store, no-cache, must-revalidate');
+  $prefix=rtrim($rootPrefix,'/').'/';$title=htmlspecialchars($pageTitle,ENT_QUOTES,'UTF-8');$api=htmlspecialchars($prefix.'api',ENT_QUOTES,'UTF-8');$home=htmlspecialchars($prefix.'home/',ENT_QUOTES,'UTF-8');$engine=htmlspecialchars($prefix.'engine/',ENT_QUOTES,'UTF-8');
+  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.36"></script><script src="'.$engine.'identity.js?v=0.15.36"></script><script src="'.$engine.'identity-entry.js?v=0.15.36"></script><script src="'.$engine.'loom-brand.js?v=0.15.36"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.36"></script><script src="'.$engine.'loom-toast.js?v=0.15.36"></script><script src="'.$engine.'share-referrals.js?v=0.15.36"></script><script src="'.$engine.'loom-shell.js?v=0.15.36"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
+  exit;
 }
 function loom_admin_settings_file(string $project): string {
   ensure_dir(loom_admin_settings_dir());

@@ -1,3 +1,9 @@
+## v0.15.36 - Unified Native Chrome + Admin Session Bridge
+
+LOOM native surfaces now share the same reusable `LoomShell` header/footer and Administrator tooling path. Protected Admin destinations use a short-lived signed navigation credential issued only after canonical Admin status succeeds, so Backup & Restore, Activity Explorer, Referrals, Pegboard, and Action Registry agree with the main Admin console instead of independently losing Admin context. The main Admin page now uses the standard Admin drawer while automatically omitting links to tabs already present on that page. LOOM Home also exposes a direct **Import Project** action beside **New Project**.
+
+Project starter shells are synchronized to one canonical structure and consume the same LOOM user-control/Admin-tool helpers, preventing the baseline template and instance runtime shell from drifting apart. Green Beans remains an external/importable Instance Project and is not bundled with the engine.
+
 ## v0.15.35 - Empty-Install Admin Stability
 
 LOOM Admin now treats **zero projects as a valid installation state**. Removing bundled product projects in 0.15.33 exposed an old assumption that a successful project discovery must also return at least one project; that caused Project Settings, Users, and Access to disappear on a clean install.
@@ -134,7 +140,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.35 revision=51 policy=package-priority -->
+<!-- @loom-file release=0.15.36 revision=52 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

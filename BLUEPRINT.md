@@ -1,3 +1,9 @@
+## v0.15.36 architecture note — one native shell, one Admin authorization path
+
+LOOM-native pages should not rebuild global navigation chrome or Administrator navigation independently. `engine/loom-shell.js` is the reusable constructor for native header/footer controls and Admin tools; native PHP pages mount that shell rather than maintaining their own competing versions. Protected Admin pages use the same canonical Admin status path as the console and receive a short-lived signed server navigation credential, allowing ordinary URL navigation without leaking or repeating client identifiers in links.
+
+The project starter/runtime shells remain project-branded, but consume the same shared LOOM control/Admin helpers and are kept structurally synchronized. Product projects remain Instance-owned and separate from release packages.
+
 ## v0.15.35 architecture note — zero projects is a healthy state
 
 LOOM core and LOOM Admin must never infer platform capability from the number of installed projects. Project discovery can succeed with an empty catalog. Global Admin surfaces remain available; project-scoped surfaces stay navigable and render an explicit empty state until an Instance Project is created or imported.
@@ -95,7 +101,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.35 revision=47 policy=package-priority -->
+<!-- @loom-file release=0.15.36 revision=48 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

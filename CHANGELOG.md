@@ -1,3 +1,15 @@
+## v0.15.36 - Unified Native Chrome & Admin Authorization
+
+- Fixed protected LOOM-native pages incorrectly returning **Administrator access required** while the same browser was already recognized as Admin by the main Admin console.
+- Added a short-lived signed Admin navigation credential, issued only after canonical Admin status succeeds and revalidated against current Admin authority on protected page requests.
+- Added a shared native Admin page gate that can recover the current LOOM browser identity and establish the protected navigation session without duplicating authorization code in each page.
+- Restored the Admin drawer on the main Admin console. Same-path Admin tab destinations are automatically omitted there, leaving only non-redundant destinations such as Activity, Referrals, Backup & Restore, Pegboard, and Action Registry.
+- Centralized Admin link filtering/current-page suppression in `LoomShell` so native pages do not each maintain their own sidebar menu.
+- Added **Import Project** beside **New Project** on LOOM Home, deep-linking directly to the Backup & Restore import panel.
+- Reworked public LOOM-native pages to use the shared `LoomShell` header/footer instead of a separately coded public header/footer implementation.
+- Synchronized the Instance Project runtime shell and baseline project template so new projects and imported Instance Projects start from the same LOOM-native structural contract.
+- Green Beans remains unbundled and importable as a normal Instance Project.
+
 ## v0.15.35 - Projectless Admin Recovery
 
 - Fixed the fresh-install Admin navigation regression exposed after release projects were removed: System Owners / LOOM Admins now keep the full Admin tab set even when the installation currently has zero projects.
@@ -513,7 +525,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.35 revision=52 policy=package-priority -->
+<!-- @loom-file release=0.15.36 revision=53 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

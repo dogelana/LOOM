@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.18 revision=4 policy=package-priority
+// @loom-file release=0.15.36 revision=5 policy=package-priority
 declare(strict_types=1);
 
 function loom_accounts_dir(): string { return loom_data_dir().'/accounts'; }
@@ -272,6 +272,9 @@ function loom_request_is_admin(): bool {
 
   // Compatibility for already-linked promoted accounts.
   if($uid!=='' && $authId!=='' && hash_equals($uid,$authId))return true;
+
+  // Browser navigation bridge issued only after canonical Admin status succeeds.
+  if(function_exists('loom_admin_navigation_cookie_valid')&&loom_admin_navigation_cookie_valid())return true;
 
   // Bootstrap-browser recovery path.
   if(loom_admin_cookie_valid()){

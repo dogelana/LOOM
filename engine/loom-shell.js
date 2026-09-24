@@ -1,4 +1,4 @@
-// @loom-file release=0.15.33 revision=22 policy=package-priority
+// @loom-file release=0.15.36 revision=23 policy=package-priority
 (() => {
   'use strict';
 
@@ -136,9 +136,15 @@
       @media(max-width:760px){.loom-shell-admin-zone{width:100%;justify-content:center}.loom-shell-admin-zone .loom-shell-admin-label{width:100%;text-align:center}.loom-admin-drawer{--loom-admin-tab-visible:40px}.loom-admin-drawer-panel{width:min(300px,calc(100vw - 48px));max-height:66vh}}
     `;document.head.appendChild(style);
   }
-  function renderAdminLinks(host,{apiBase='api',project='',target='_self',withLabel=false,status=null}={}){
-    if(!host)return null;ensureAdminStyle();host.replaceChildren();const links=adminLinksForStatus({apiBase,project,status});
-    if(withLabel){const label=document.createElement('span');label.className='loom-shell-admin-label';label.textContent='ADMIN-ONLY TOOLS';host.appendChild(label)}
+  function renderAdminLinks(host,{apiBase='api',project='',target='_self',withLabel=false,status=null,excludeCurrent=true,excludeLabels=[]}={}){
+    if(!host)return null;ensureAdminStyle();host.replaceChildren();let links=adminLinksForStatus({apiBase,project,status});
+    const excluded=(Array.isArray(excludeLabels)?excludeLabels:[]).map(x=>String(x||'').toLowerCase()).filter(Boolean);
+    if(excluded.length)links=links.filter(item=>!excluded.some(label=>String(item.label||'').toLowerCase().includes(label)));
+    if(excludeCurrent){
+      let current='';try{current=new URL(location.href).pathname.replace(/\/+$/,'/') }catch{}
+      links=links.filter(item=>{try{return new URL(item.href,location.href).pathname.replace(/\/+$/,'/')!==current}catch{return true}});
+    }
+    if(withLabel&&links.length){const label=document.createElement('span');label.className='loom-shell-admin-label';label.textContent='ADMIN-ONLY TOOLS';host.appendChild(label)}
     for(const item of links){const a=document.createElement('a');a.href=item.href;a.textContent=item.label;if(target)a.target=target;if(target==='_blank')a.rel='noopener';host.appendChild(a)}return links;
   }
   function adminStatusCacheKey(identity,project=''){return `loom:admin-status:${identity?.clientId||'anon'}:${identity?.userId||'guest'}:${String(project||'global')}`}
@@ -163,14 +169,14 @@
     return cached.value;
   }
   function removeExistingAdminChrome(){document.querySelectorAll('[data-loom-admin-drawer="1"]').forEach(x=>x.remove())}
-  function mountAdminTools({apiBase='api',project='',target='_self',settings=null,host=null,status=null}={}){
+  function mountAdminTools({apiBase='api',project='',target='_self',settings=null,host=null,status=null,excludeCurrent=true,excludeLabels=[]}={}){
     ensureAdminStyle();removeExistingAdminChrome();const cfg=navConfig(settings||{});
     if(cfg.adminToolsPresentation==='top-bar'){
-      if(!host)return null;host.hidden=false;host.classList.add('loom-shell-admin-zone');renderAdminLinks(host,{apiBase,project,target,withLabel:true,status});return host;
+      if(!host)return null;host.hidden=false;host.classList.add('loom-shell-admin-zone');const links=renderAdminLinks(host,{apiBase,project,target,withLabel:true,status,excludeCurrent,excludeLabels});if(!links?.length)host.hidden=true;return host;
     }
     if(host){host.hidden=true;host.replaceChildren()}
     const wrap=document.createElement('aside');wrap.className='loom-admin-drawer';wrap.dataset.loomAdminDrawer='1';wrap.dataset.side=cfg.adminDrawerSide;wrap.dataset.open='false';
-    const panel=document.createElement('div');panel.className='loom-admin-drawer-panel';renderAdminLinks(panel,{apiBase,project,target,withLabel:true,status});
+    const panel=document.createElement('div');panel.className='loom-admin-drawer-panel';const links=renderAdminLinks(panel,{apiBase,project,target,withLabel:true,status,excludeCurrent,excludeLabels});if(!links?.length)return null;
     const tab=document.createElement('button');tab.type='button';tab.className='loom-admin-drawer-tab';tab.textContent='ADMIN TOOLS';tab.setAttribute('aria-expanded','false');
     const setOpen=v=>{wrap.dataset.open=v?'true':'false';tab.setAttribute('aria-expanded',v?'true':'false')};tab.onclick=()=>setOpen(wrap.dataset.open!=='true');
     wrap.addEventListener('mouseenter',()=>setOpen(true));wrap.addEventListener('mouseleave',()=>setOpen(false));wrap.append(panel,tab);document.body.appendChild(wrap);return wrap;
@@ -188,7 +194,7 @@
       await LoomBrand.mountShellHeader(header,{apiBase,settings,pageTitle:opts.pageTitle||'LOOM',links:shellLinks});
       const nav=header.querySelector('.loom-shell-chrome-links');
       if(nav){const controls=await mountUserControls(nav,{apiBase,settings,identity,homeHref,share:opts.share!==false,shareProject:opts.shareProject||'',shareUrl:opts.shareUrl||location.href,shareTitle:opts.shareTitle||document.title,profile:opts.profile!==false,projectsProvider:opts.projectsProvider||null,reloadAfterSwitch:true,prepend:true});profile=controls.profile}
-      if(opts.adminTools!==false){const status=await adminStatus(apiBase,identity,opts.project||'');const canAdmin=!!status?.isAdmin||['system-owner','loom-admin','project-admin','project-manager'].includes(status?.projectRole);if(canAdmin)mountAdminTools({apiBase,project:opts.project||'',target:opts.adminTarget||'_self',settings,host:opts.adminHost||header.querySelector('[data-loom-admin-links]'),status})}
+      if(opts.adminTools!==false){const status=await adminStatus(apiBase,identity,opts.project||'');const canAdmin=!!status?.isAdmin||['system-owner','loom-admin','project-admin','project-manager'].includes(status?.projectRole);if(canAdmin)mountAdminTools({apiBase,project:opts.project||'',target:opts.adminTarget||'_self',settings,host:opts.adminHost||header.querySelector('[data-loom-admin-links]'),status,excludeCurrent:opts.adminExcludeCurrent!==false,excludeLabels:opts.adminExcludeLabels||[]})}
     }
     if(footer){
       await LoomBrand.mountShellFooter(footer,{apiBase,settings,navigation:cfg,homeHref});
@@ -197,5 +203,5 @@
     return {settings,identity,profile,navigation:cfg};
   }
 
-  window.LoomShell=Object.freeze({mount,mountUserControls,createControlButton,ensureControlStyle,adminStatus,canonicalAdminLinks,projectAdminQuickLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
+  window.LoomShell=Object.freeze({mount,mountUserControls,createControlButton,ensureControlStyle,adminStatus,refreshAdminStatus:fetchAdminStatus,canonicalAdminLinks,projectAdminQuickLinks,adminLinksForStatus,renderAdminLinks,mountAdminTools,navConfig,buttonParts});
 })();
