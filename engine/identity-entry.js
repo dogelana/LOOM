@@ -1,4 +1,4 @@
-// @loom-file release=0.15.28 revision=7 policy=package-priority
+// @loom-file release=0.15.29 revision=8 policy=package-priority
 (() => {
   'use strict';
   const scriptUrl=document.currentScript?.src||new URL('engine/identity-entry.js',document.baseURI).href;

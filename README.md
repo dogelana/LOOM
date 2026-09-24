@@ -1,3 +1,11 @@
+## v0.15.29 - Identity/Admin Access Clarity
+
+LOOM Admin now treats usernames as the primary human-facing identity everywhere while keeping Guest/User/Client IDs as secondary support metadata. Identity Manager no longer performs expensive legacy discovery during its normal list request, avoiding host timeout/HTML error pages that previously surfaced as JSON parsing failures.
+
+Delegated project administration is intentionally simpler: all new project-scoped administrative grants are **Project Admin** grants. The Access tab makes the selected project unmistakable, reloads grants whenever that project changes, and labels every grant with its project. Legacy Project Manager grants are preserved safely until an Admin revokes them; LOOM does not silently increase their permissions.
+
+Global user controls remain one system: Home, Share, Switch User, and Profile now also appear together beneath Powered by LOOM according to footer display-mode settings.
+
 ## v0.15.28 - Unified User Controls + Identity Continuity
 
 LOOM now renders Home, Share, Switch User, and Profile controls through one shared core control system. Project headers gain the missing Switch User control, explicit identity changes reload the current destination cleanly, guest chooser names stay synchronized with canonical LOOM usernames, and inherited ambient defaults now provide 192 energy particles with special particles appearing about twice as often.
@@ -82,7 +90,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.28 revision=44 policy=package-priority -->
+<!-- @loom-file release=0.15.29 revision=45 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

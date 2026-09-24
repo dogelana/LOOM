@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.20 revision=2 policy=package-priority
+// @loom-file release=0.15.29 revision=3 policy=package-priority
 // LOOM delegated administration: immutable System Owner, delegated LOOM Admins,
 // and project-scoped Admin/Manager grants for permanent accounts or guest profiles.
 declare(strict_types=1);
@@ -63,7 +63,7 @@ function loom_access_subject_keys_for_client(string $clientId): array {
 }
 function loom_access_role_capabilities(string $role): array {
   return match($role){
-    'project-admin'=>['project.view','project.settings','project.modules','project.content','project.users','project.access','html-framer.manage'],
+    'project-admin'=>['project.view','project.settings','project.modules','project.content','project.users','html-framer.manage'],
     'project-manager'=>['project.view','project.settings','project.modules','project.content','html-framer.manage'],
     default=>[]
   };
@@ -94,10 +94,9 @@ function loom_access_subject_key(string $type,string $id): string {
 }
 function loom_access_grant_project(string $project,string $type,string $id,string $role,string $actorClientId,array $capabilities=[]): array {
   $project=safe_slug($project);if($project===''||!project_dir($project))throw new RuntimeException('Project not found.');
-  if(!in_array($role,['project-admin','project-manager'],true))throw new RuntimeException('Invalid project role.');
+  if($role!=='project-admin')throw new RuntimeException('Project Manager grants are retired. Grant Project Admin access instead. Existing legacy Manager grants remain unchanged until revoked.');
   $actorRole=loom_access_project_role($actorClientId,$project);
-  if(!in_array($actorRole,['system-owner','loom-admin','project-admin'],true))throw new RuntimeException('Project access management is not allowed.');
-  if($actorRole==='project-admin'&&$role!=='project-manager')throw new RuntimeException('Project Admins may delegate Project Manager access; LOOM Admin or System Owner is required to delegate another Project Admin.');
+  if(!in_array($actorRole,['system-owner','loom-admin'],true))throw new RuntimeException('Only the System Owner or a LOOM Admin can grant Project Admin access.');
   $key=loom_access_subject_key($type,$id);$s=loom_access_store();if(!isset($s['projectGrants'][$project])||!is_array($s['projectGrants'][$project]))$s['projectGrants'][$project]=[];
   $caps=[];foreach($capabilities as $cap)if(is_string($cap)&&in_array($cap,loom_access_role_capabilities($role),true))$caps[]=$cap;
   $s['projectGrants'][$project][$key]=['role'=>$role,'capabilities'=>array_values(array_unique($caps)),'enabled'=>true,'grantedAt'=>server_timestamp(),'grantedBy'=>loom_access_effective_user_id($actorClientId)?:safe_token($actorClientId)];loom_access_write($s);
@@ -105,9 +104,8 @@ function loom_access_grant_project(string $project,string $type,string $id,strin
   return $s['projectGrants'][$project][$key];
 }
 function loom_access_revoke_project(string $project,string $type,string $id,string $actorClientId): void {
-  $project=safe_slug($project);$role=loom_access_project_role($actorClientId,$project);if(!in_array($role,['system-owner','loom-admin','project-admin'],true))throw new RuntimeException('Project access management is not allowed.');
+  $project=safe_slug($project);$role=loom_access_project_role($actorClientId,$project);if(!in_array($role,['system-owner','loom-admin'],true))throw new RuntimeException('Only the System Owner or a LOOM Admin can revoke Project Admin access.');
   $key=loom_access_subject_key($type,$id);$s=loom_access_store();$existing=$s['projectGrants'][$project][$key]??null;
-  if($role==='project-admin'&&is_array($existing)&&($existing['role']??'')!=='project-manager')throw new RuntimeException('Project Admins may revoke Project Manager grants only.');
   unset($s['projectGrants'][$project][$key]);if(empty($s['projectGrants'][$project]))unset($s['projectGrants'][$project]);loom_access_write($s);
   loom_audit_record('access.project.revoked',['clientId'=>$actorClientId,'project'=>$project,'details'=>['subjectKey'=>$key]],'Project access revoked.');
 }
@@ -130,20 +128,21 @@ function loom_access_revoke_loom_admin(string $userId,string $actorClientId): vo
   loom_audit_record('access.loom-admin.revoked',['clientId'=>$actorClientId,'userId'=>$uid],'LOOM Admin access revoked by System Owner.');
 }
 function loom_access_user_catalog(): array {
-  $rows=[];
-  if(loom_db_ready())try{$q=loom_db_pdo(true)->query("SELECT user_id,username,email,privilege,created_at,updated_at FROM loom_users ORDER BY COALESCE(username,email,user_id)");foreach($q->fetchAll() as $u)$rows[]=['type'=>'user','id'=>(string)$u['user_id'],'label'=>(string)($u['username']?:$u['email']?:$u['user_id']),'secondary'=>(string)($u['email']??''),'privilege'=>(string)($u['privilege']??'User')];}catch(Throwable $e){}
-  if(!$rows){foreach((loom_temp_account_store()['users']??[]) as $uid=>$u)$rows[]=['type'=>'user','id'=>(string)$uid,'label'=>(string)($u['username']??$u['email']??$uid),'secondary'=>(string)($u['email']??''),'privilege'=>(string)($u['privilege']??'User')];}
-  return $rows;
+  $rows=[];$raw=[];
+  if(loom_db_ready())try{$q=loom_db_pdo(true)->query("SELECT user_id,username,email,privilege,created_at,updated_at FROM loom_users ORDER BY COALESCE(username,email,user_id)");foreach($q->fetchAll() as $u)$raw[(string)$u['user_id']]=$u;}catch(Throwable $e){}
+  if(!$raw)foreach((loom_temp_account_store()['users']??[]) as $uid=>$u){$u['user_id']=$u['user_id']??$u['userId']??$uid;$raw[(string)$uid]=$u;}
+  foreach($raw as $uid=>$u){$gp=loom_global_profile_get('user',$uid);$name=loom_clean_username((string)($gp['username']??$u['username']??''));$email=(string)($u['email']??'');$rows[]=['type'=>'user','id'=>$uid,'label'=>$name!==''?$name:($email!==''?$email:$uid),'secondary'=>$email,'privilege'=>(string)($u['privilege']??'User')];}
+  usort($rows,fn($a,$b)=>strcasecmp((string)$a['label'],(string)$b['label']));return $rows;
 }
 function loom_access_guest_catalog(): array {
   if(!function_exists('loom_guest_profiles_store'))return [];$s=loom_guest_profiles_store();$out=[];
-  foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$pub=loom_guest_profile_public($p);$out[]=['type'=>'guest','id'=>(string)$pid,'label'=>(string)($pub['displayName']??'Guest'),'secondary'=>(string)($pub['currentClientId']??''),'currentClientId'=>$pub['currentClientId']??null,'generationStatus'=>$pub['generationStatus']??'active'];}
+  foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$pub=loom_guest_profile_public($p);$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_global_profile_get('client',$cid):[];$username=loom_clean_username((string)($gp['username']??''));$fallback=(string)($pub['displayName']??'Guest');$out[]=['type'=>'guest','id'=>(string)$pid,'label'=>$username!==''?$username:$fallback,'secondary'=>$cid,'currentClientId'=>$cid?:null,'generationStatus'=>$pub['generationStatus']??'active'];}
   usort($out,fn($a,$b)=>strcasecmp((string)$a['label'],(string)$b['label']));return $out;
 }
 function loom_access_public_state(string $clientId,string $project=''): array {
   $project=safe_slug($project);$s=loom_access_store();$uid=loom_access_effective_user_id($clientId);$ownerUid=loom_access_system_owner_user_id();
   $loomAdmins=[];foreach(($s['loomAdmins']??[]) as $id=>$row)if(is_array($row)&&($row['enabled']??true)){$u=loom_account_user_by_id((string)$id);$loomAdmins[]=['userId'=>$id,'label'=>(string)($u['username']??$u['email']??$id),'email'=>$u['email']??null,'grantedAt'=>$row['grantedAt']??null];}
-  $grants=$project!==''&&is_array($s['projectGrants'][$project]??null)?$s['projectGrants'][$project]:[];$projectRows=[];foreach($grants as $key=>$row){if(!is_array($row))continue;[$type,$id]=array_pad(explode(':',(string)$key,2),2,'');$label=$id;if($type==='user'){$u=loom_account_user_by_id($id);$label=(string)($u['username']??$u['email']??$id);}elseif($type==='guest'){$g=loom_guest_profile_get($id);$label=(string)($g['displayName']??$id);} $projectRows[]=['subjectKey'=>$key,'type'=>$type,'id'=>$id,'label'=>$label,'role'=>$row['role']??'project-manager','capabilities'=>$row['capabilities']??[],'grantedAt'=>$row['grantedAt']??null];}
+  $grants=$project!==''&&is_array($s['projectGrants'][$project]??null)?$s['projectGrants'][$project]:[];$projectRows=[];foreach($grants as $key=>$row){if(!is_array($row))continue;[$type,$id]=array_pad(explode(':',(string)$key,2),2,'');$label=$id;if($type==='user'){$u=loom_account_user_by_id($id);$gp=loom_global_profile_get('user',$id);$label=(string)($gp['username']??$u['username']??$u['email']??$id);}elseif($type==='guest'){$g=loom_guest_profile_get($id);$pub=is_array($g)?loom_guest_profile_public($g):[];$cid=safe_token((string)($pub['currentClientId']??''));$gp=$cid!==''?loom_global_profile_get('client',$cid):[];$label=(string)($gp['username']??$pub['displayName']??$id);} $projectRows[]=['subjectKey'=>$key,'type'=>$type,'id'=>$id,'label'=>$label,'role'=>$row['role']??'project-manager','capabilities'=>$row['capabilities']??[],'grantedAt'=>$row['grantedAt']??null];}
   $isOwner=loom_access_is_system_owner($clientId);$isLoomAdmin=loom_access_client_is_loom_admin($clientId);$globalView=$isOwner||$isLoomAdmin;
-  return ['systemOwner'=>$globalView?['userId'=>$ownerUid?:null,'clientId'=>loom_access_system_owner_client_id()?:null,'isCurrent'=>$isOwner]:['isCurrent'=>false],'current'=>['userId'=>$uid?:null,'role'=>$project!==''?loom_access_project_role($clientId,$project):($isOwner?'system-owner':($isLoomAdmin?'loom-admin':'member')),'capabilities'=>loom_access_effective_capabilities($clientId,$project)],'loomAdmins'=>$globalView?$loomAdmins:[],'project'=>$project?:null,'projectGrants'=>$projectRows,'subjects'=>array_merge(loom_access_user_catalog(),loom_access_guest_catalog()),'canManageLoomAdmins'=>$isOwner,'canViewLoomAdmins'=>$globalView,'canManageProject'=>$project!==''&&loom_access_has_capability($clientId,'project.access',$project)];
+  return ['systemOwner'=>$globalView?['userId'=>$ownerUid?:null,'clientId'=>loom_access_system_owner_client_id()?:null,'isCurrent'=>$isOwner]:['isCurrent'=>false],'current'=>['userId'=>$uid?:null,'role'=>$project!==''?loom_access_project_role($clientId,$project):($isOwner?'system-owner':($isLoomAdmin?'loom-admin':'member')),'capabilities'=>loom_access_effective_capabilities($clientId,$project)],'loomAdmins'=>$globalView?$loomAdmins:[],'project'=>$project?:null,'projectGrants'=>$projectRows,'subjects'=>array_merge(loom_access_user_catalog(),loom_access_guest_catalog()),'canManageLoomAdmins'=>$isOwner,'canViewLoomAdmins'=>$globalView,'canManageProject'=>$project!==''&&($isOwner||$isLoomAdmin)];
 }

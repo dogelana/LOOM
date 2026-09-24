@@ -1,4 +1,4 @@
-// @loom-file release=0.15.27 revision=6 policy=package-priority
+// @loom-file release=0.15.29 revision=7 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};
@@ -145,12 +145,14 @@ export async function createModule(ctx){
       const render=(emoji,label,m)=>{const e=document.createElement('span');e.className='loom-footer-global-emoji';e.setAttribute('aria-hidden','true');e.textContent=emoji;const t=document.createElement('span');t.textContent=label;if(m==='emoji'){t.className='loom-footer-sr'}else if(m==='text'){e.hidden=true}return[e,t]};
       const home={emoji:String(nc.homeEmoji||'🏠'),label:String(nc.homeLabel||'LOOM Home'),m:mode(nc.homeFooterMode,'emoji')};
       const share={emoji:String(nc.shareEmoji||'🔗'),label:String(nc.shareLabel||'Share'),m:mode(nc.shareFooterMode,'emoji')};
+      const switchUser={emoji:String(nc.switchEmoji||'🔄'),label:String(nc.switchLabel||'Switch User'),m:mode(nc.switchFooterMode,'emoji')};
       const profile={emoji:String(nc.profileEmoji||'👤'),label:String(nc.profileLabel||'LOOM Profile'),m:mode(nc.profileFooterMode,'emoji')};
       const apiUrl=new URL(String(ctx.apiBase||'api').replace(/\/?$/,'/'),document.baseURI||location.href),homeHref=new URL('../home/',apiUrl).href;
       const a=document.createElement('a');a.href=homeHref;a.className='loom-footer-global-button';a.title=home.label;a.append(...render(home.emoji,home.label,home.m));
       const sh=document.createElement('button');sh.type='button';sh.className='loom-footer-global-button';sh.title=share.label;sh.append(...render(share.emoji,share.label,share.m));if(window.LoomShare)window.LoomShare.bindButton(sh,{identity:ctx.identity,project:ctx.project,apiBase:ctx.apiBase,targetUrl:location.href,title:ctx.config.projectName||document.title});
+      const sw=document.createElement('button');sw.type='button';sw.className='loom-footer-global-button';sw.title=switchUser.label;sw.append(...render(switchUser.emoji,switchUser.label,switchUser.m));sw.addEventListener('click',()=>window.LoomIdentityEntry?.show?.({reloadAfterSelect:true}));
       const b=document.createElement('button');b.type='button';b.className='loom-footer-global-button';b.title=profile.label;b.append(...render(profile.emoji,profile.label,profile.m));b.addEventListener('click',()=>document.querySelector('[data-profile-dock-button]')?.click());
-      nav.append(a,sh,b);loomRow.appendChild(nav);
+      nav.append(a,sh,sw,b);loomRow.appendChild(nav);
     }catch{}
 
     root.append(brandRow,toolsRow,loomRow);

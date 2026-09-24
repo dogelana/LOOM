@@ -1,6 +1,6 @@
-// @loom-file release=0.15.28 revision=34 policy=package-priority
+// @loom-file release=0.15.29 revision=35 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.28';
+  const CLIENT_RELEASE='0.15.29';
   const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
   const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
   const configuredRelease=String(window.LoomConfig?.engineVersion||'').trim();
@@ -176,9 +176,9 @@
     const mode=(v,f)=>['both','emoji','text'].includes(v)?v:f;
     const item=(emoji,label,m,attr,href='')=>{const inner=m==='emoji'?`<span aria-hidden="true" class="loom-global-nav-emoji">${String(emoji||'').replace(/[<>]/g,'')}</span><span class="loom-global-nav-sr">${String(label||'').replace(/[<>]/g,'')}</span>`:m==='text'?`<span>${String(label||'').replace(/[<>]/g,'')}</span>`:`<span aria-hidden="true" class="loom-global-nav-emoji">${String(emoji||'').replace(/[<>]/g,'')}</span><span>${String(label||'').replace(/[<>]/g,'')}</span>`;return href?`<a href="${href}" title="${String(label||'').replace(/[<>"]/g,'')}">${inner}</a>`:`<button type="button" ${attr} title="${String(label||'').replace(/[<>"]/g,'')}">${inner}</button>`};
     const home=nav.home||{emoji:nav.homeEmoji||'🏠',label:nav.homeLabel||'LOOM Home',footerMode:nav.homeFooterMode||'emoji'},profile=nav.profile||{emoji:nav.profileEmoji||'👤',label:nav.profileLabel||'LOOM Profile',footerMode:nav.profileFooterMode||'emoji'};
-    const sc=settings?.settings?.['loom.navigation.chrome']||{},share={emoji:String(sc.shareEmoji||'🔗'),label:String(sc.shareLabel||'Share'),footerMode:mode(sc.shareFooterMode,'emoji')};
+    const sc=settings?.settings?.['loom.navigation.chrome']||{},share={emoji:String(sc.shareEmoji||'🔗'),label:String(sc.shareLabel||'Share'),footerMode:mode(sc.shareFooterMode,'emoji')},switchUser=nav.switchUser||{emoji:String(sc.switchEmoji||'🔄'),label:String(sc.switchLabel||'Switch User'),footerMode:mode(sc.switchFooterMode,'emoji')};
     host.className='loom-shell-chrome-footer';
-    host.innerHTML=`<div class="loom-shell-footer-pill"><div class="loom-shell-footer-signature"><div class="loom-shell-footer-cube"></div><div class="loom-shell-footer-copy"><strong>Powered by LOOM</strong><span>LOOM v${shownVersion} · © 2026 LOOM</span></div></div><div class="loom-shell-footer-nav">${item(home.emoji,home.label,mode(home.footerMode,'emoji'),'',opts.homeHref||'#')}${item(share.emoji,share.label,share.footerMode,'data-loom-footer-share="1"')}${item(profile.emoji,profile.label,mode(profile.footerMode,'emoji'),'data-loom-footer-profile="1"')}</div></div>`;
+    host.innerHTML=`<div class="loom-shell-footer-pill"><div class="loom-shell-footer-signature"><div class="loom-shell-footer-cube"></div><div class="loom-shell-footer-copy"><strong>Powered by LOOM</strong><span>LOOM v${shownVersion} · © 2026 LOOM</span></div></div><div class="loom-shell-footer-nav">${item(home.emoji,home.label,mode(home.footerMode,'emoji'),'',opts.homeHref||'#')}${item(share.emoji,share.label,share.footerMode,'data-loom-footer-share="1"')}${item(switchUser.emoji,switchUser.label,mode(switchUser.footerMode,'emoji'),'data-loom-footer-switch="1"')}${item(profile.emoji,profile.label,mode(profile.footerMode,'emoji'),'data-loom-footer-profile="1"')}</div></div>`;
     return mountCube(host.querySelector('.loom-shell-footer-cube'),{size:22,path:bc.path,speed:bc.speed,animate:bc.animate});
   }
 

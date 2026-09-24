@@ -1,3 +1,11 @@
+## v0.15.29 architecture note — human identity first + explicit project authority
+
+Administrative identity surfaces render canonical usernames first and opaque IDs second. Internal IDs remain stable keys and searchable support evidence, but they are not the primary UI label. Identity list reads must stay non-destructive and bounded; legacy discovery/migration work may not sit on the critical Admin render path.
+
+Project delegation is scoped by explicit project key on every read/write. New delegation exposes one project-level administrative role (`project-admin`); historical `project-manager` grants remain compatibility state until deliberately revoked and are never silently promoted. Project selectors must invalidate/reload project-scoped views immediately, and navigation to a selected project resolves from current selector state at action time rather than stale asynchronous href state.
+
+Permanent global user controls share one Navigation Chrome definition across header and footer. Footer-specific display modes are presentation overrides only; Home, Share, Switch User, and Profile retain the same semantic actions everywhere.
+
 ## 0.15.28 architecture note — one user-control system
 
 Permanent user-facing shell controls are a shared LOOM primitive. Surfaces may bind a global profile implementation or a project-scoped profile slot, but Home, Share, Switch User, and Profile controls use one factory and alignment contract. Explicit identity switching is a context boundary and refreshes the current destination after selection so modules cannot retain stale user state. Guest chooser display names resolve from canonical Global Profile identity rather than stale historical labels. Ambient project defaults remain release-inherited unless an Admin saves an explicit override.
@@ -49,7 +57,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.28 revision=40 policy=package-priority -->
+<!-- @loom-file release=0.15.29 revision=41 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

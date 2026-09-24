@@ -1,3 +1,12 @@
+## v0.15.29 - Admin Identity + Project Access UX Hardening
+
+- Fixed Identity Manager startup failures caused by running legacy Guest Identity discovery/backfill synchronously on every list request. The normal list path is lightweight again, and Admin now handles non-JSON upstream/server error responses gracefully instead of throwing `Unexpected token '<'`.
+- Identity Manager and Users now lead with the current human username; guest IDs, client IDs, emails, and other internal identifiers remain visible as secondary support metadata and remain searchable.
+- Simplified new delegated project access to one clear role: **Project Admin**. New Project Manager grants are retired. Existing legacy Manager grants remain preserved without automatic privilege escalation and are labeled as legacy until revoked.
+- Access Manager now shows an explicit **Managing project** context and every project grant names its owning project. Changing the project selector immediately reloads project-scoped access instead of leaving stale grants from the previous project on screen.
+- Fixed **Open selected project** so it resolves from the selector at click time rather than relying on an asynchronously updated stale link. Project selection is also reflected in the Admin URL for consistent context.
+- Added **Switch User** to the Powered by LOOM footer navigation, using the same global Navigation Chrome definition as the header. It defaults to emoji-only in the footer and is globally configurable. Switching users continues to reload the current destination after selection.
+
 ## v0.15.28 - Unified User Controls + Identity Refresh + Denser Energy Field
 
 - Replaced separately hand-built Home/Share/Switch/Profile header controls with one shared LOOM user-control factory. LOOM Home and project shells now use the same sizing, spacing, vertical centering, and horizontal alignment rules.
@@ -435,7 +444,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.28 revision=45 policy=package-priority -->
+<!-- @loom-file release=0.15.29 revision=46 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

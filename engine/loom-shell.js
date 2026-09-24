@@ -1,4 +1,4 @@
-// @loom-file release=0.15.28 revision=18 policy=package-priority
+// @loom-file release=0.15.29 revision=19 policy=package-priority
 (() => {
   'use strict';
 
@@ -54,7 +54,7 @@
       adminDrawerSide:x.adminDrawerSide==='left'?'left':'right',
       home:{emoji:String(x.homeEmoji||'🏠'),label:String(x.homeLabel||'LOOM Home'),headerMode:mode(x.homeHeaderMode),footerMode:mode(x.homeFooterMode,'emoji')},
       profile:{emoji:String(x.profileEmoji||'👤'),label:String(x.profileLabel||'LOOM Profile'),headerMode:mode(x.profileHeaderMode),footerMode:mode(x.profileFooterMode,'emoji')},
-      switchUser:{emoji:String(x.switchEmoji||'🔄'),label:String(x.switchLabel||'Switch User'),headerMode:mode(x.switchHeaderMode)}
+      switchUser:{emoji:String(x.switchEmoji||'🔄'),label:String(x.switchLabel||'Switch User'),headerMode:mode(x.switchHeaderMode),footerMode:mode(x.switchFooterMode,'emoji')}
     };
   }
   function buttonParts(def,mode='both'){
@@ -191,7 +191,7 @@
     }
     if(footer){
       await LoomBrand.mountShellFooter(footer,{apiBase,settings,navigation:cfg,homeHref});
-      const fs=footer.querySelector('[data-loom-footer-share]');if(fs&&window.LoomShare&&identity)window.LoomShare.bindButton(fs,{identity,project:opts.shareProject||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});const fp=footer.querySelector('[data-loom-footer-profile]');if(fp&&profile)profile.bindButton(fp);
+      const fs=footer.querySelector('[data-loom-footer-share]');if(fs&&window.LoomShare&&identity)window.LoomShare.bindButton(fs,{identity,project:opts.shareProject||'',apiBase,targetUrl:opts.shareUrl||location.href,title:opts.shareTitle||document.title});const fz=footer.querySelector('[data-loom-footer-switch]');if(fz&&window.LoomIdentityEntry)fz.addEventListener('click',()=>window.LoomIdentityEntry.show?.({reloadAfterSelect:true}));const fp=footer.querySelector('[data-loom-footer-profile]');if(fp&&profile)profile.bindButton(fp);
     }
     return {settings,identity,profile,navigation:cfg};
   }

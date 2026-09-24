@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.28 revision=3 policy=package-priority
+// @loom-file release=0.15.29 revision=4 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 

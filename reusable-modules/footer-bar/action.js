@@ -1,4 +1,4 @@
-// @loom-file release=0.15.18 revision=9 policy=package-priority
+// @loom-file release=0.15.29 revision=10 policy=package-priority
 export async function createModule(ctx){
   let root=null,loomCubeCleanup=null;
   const desc=id=>ctx.getModuleDescriptor(id)||{};
@@ -50,10 +50,20 @@ export async function createModule(ctx){
 
   async function build(){
     const logoD=desc('core.ui.load-logo');
-    const textD=desc('core.ui.load-logo-text');
     const logoCfg=logoD.config||{};
-    const textCfg=textD.config||{};
-    ensureFont(textCfg.fontGoogleCss);
+    const wordmarkMode=enumVal(ctx.config.wordmarkMode,['project','custom','hidden'],'project');
+    const colorMode=enumVal(ctx.config.wordmarkColorMode,['project','custom'],'project');
+    const fontMode=enumVal(ctx.config.wordmarkFontMode,['project','custom'],'project');
+    const canonicalLine1=clean(ctx.config.projectWordmarkLine1||ctx.config.projectName||'Project');
+    const canonicalLine2=clean(ctx.config.projectWordmarkLine2||'');
+    const line1=wordmarkMode==='custom'?clean(ctx.config.footerLine1||canonicalLine1):canonicalLine1;
+    const line2=wordmarkMode==='custom'?clean(ctx.config.footerLine2||''):canonicalLine2;
+    const color1=colorMode==='custom'?String(ctx.config.footerColor1||'#111111'):String(ctx.config.projectWordmarkPrimary||'#111111');
+    const color2=colorMode==='custom'?String(ctx.config.footerColor2||'#168346'):String(ctx.config.projectWordmarkAccent||'#168346');
+    const fontFamily=fontMode==='custom'?clean(ctx.config.footerFontFamily||'League Spartan'):clean(ctx.config.projectWordmarkFontFamily||'League Spartan');
+    const fontWeight=fontMode==='custom'?bounded(ctx.config.footerFontWeight,100,950,900):bounded(ctx.config.projectWordmarkFontWeight,100,950,900);
+    const fontCss=fontMode==='custom'?(fontFamily==='League Spartan'?'https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap':''):String(ctx.config.projectWordmarkFontCss||'');
+    ensureFont(fontCss);
 
     const logoUrl=await ctx.resolveAssetPath(logoCfg.assetPath||'assets/logo.png','project');
 
@@ -75,29 +85,28 @@ export async function createModule(ctx){
       const img=document.createElement('img');
       img.className='loom-footer-project-logo';
       img.src=logoUrl;
-      img.alt=logoCfg.alt||`${ctx.project} logo`;
+      img.alt=logoCfg.alt||`${ctx.config.projectName||'Project'} logo`;
       img.style.width=img.style.height=px(ctx.config.projectLogoSize,24,140,64);
       project.appendChild(img);
     }
-    const wm=document.createElement('div');
-    wm.className='loom-footer-wordmark';
-    wm.style.fontFamily=`"${clean(textCfg.fontFamily||'League Spartan').replace(/["<>]/g,'')}",system-ui`;
-    wm.style.fontWeight=String(textCfg.fontWeight||900);
-    wm.style.fontSize=px(ctx.config.projectTextSize,9,44,17);
-    const l1=document.createElement('span');
-    l1.textContent=clean(textCfg.line1||ctx.project);
-    l1.style.color=textCfg.greenColor||'#279E38';
-    const l2=document.createElement('span');
-    l2.textContent=clean(textCfg.line2||'');
-    l2.style.color=textCfg.beanColor||'#A9DF4F';
-    wm.append(l1);
-    if(l2.textContent)wm.append(l2);
-    project.appendChild(wm);
+    if(wordmarkMode!=='hidden'){
+      const wm=document.createElement('div');
+      wm.className='loom-footer-wordmark';
+      wm.style.fontFamily=`"${fontFamily.replace(/["<>]/g,'')}",system-ui`;
+      wm.style.fontWeight=String(fontWeight);
+      wm.style.fontSize=px(ctx.config.projectTextSize,9,44,17);
+      const l1=document.createElement('span');l1.textContent=line1;l1.style.color=color1;
+      const l2=document.createElement('span');l2.textContent=line2;l2.style.color=color2;
+      if(l1.textContent)wm.append(l1);if(l2.textContent)wm.append(l2);
+      if(wm.childElementCount)project.appendChild(wm);
+    }
     brandRow.appendChild(project);
+    if(!project.childElementCount)brandRow.hidden=true;
 
     const toolsRow=document.createElement('div');
     toolsRow.className='loom-footer-row loom-footer-tools-row';
-    toolsRow.hidden=true;toolsRow.dataset.loomToolsRow='1';
+    toolsRow.hidden=true; // Orb Dock unhides this only when at least one tool is actually present.
+    toolsRow.dataset.loomToolsRow='1';
     styleRow(toolsRow,'toolsRow',{align:'center',width:'fit-content',px:16,py:13,radius:22,background:'#F4F9F5'});
     const orbs=document.createElement('div');
     orbs.className='loom-footer-orb-slot';
@@ -119,6 +128,9 @@ export async function createModule(ctx){
     const copy=document.createElement('div');
     copy.className='loom-footer-loom-copy';
     copy.style.fontSize=px(ctx.config.loomTextSize,10,30,16);
+    copy.style.color=String(ctx.config.loomTextColor||'#455A4B');
+    copy.style.setProperty('--loom-footer-strong',String(ctx.config.loomStrongColor||'#173C24'));
+    copy.style.setProperty('--loom-footer-meta',String(ctx.config.loomMetaColor||'#728078'));
     copy.innerHTML=`<strong>Powered by LOOM</strong><span>LOOM v${window.LoomConfig?.engineVersion||'unknown'} · © 2026 LOOM</span>`;
     sig.appendChild(copy);
     loomRow.appendChild(sig);
@@ -132,11 +144,15 @@ export async function createModule(ctx){
       const mode=(v,f)=>['both','emoji','text'].includes(v)?v:f;
       const render=(emoji,label,m)=>{const e=document.createElement('span');e.className='loom-footer-global-emoji';e.setAttribute('aria-hidden','true');e.textContent=emoji;const t=document.createElement('span');t.textContent=label;if(m==='emoji'){t.className='loom-footer-sr'}else if(m==='text'){e.hidden=true}return[e,t]};
       const home={emoji:String(nc.homeEmoji||'🏠'),label:String(nc.homeLabel||'LOOM Home'),m:mode(nc.homeFooterMode,'emoji')};
+      const share={emoji:String(nc.shareEmoji||'🔗'),label:String(nc.shareLabel||'Share'),m:mode(nc.shareFooterMode,'emoji')};
+      const switchUser={emoji:String(nc.switchEmoji||'🔄'),label:String(nc.switchLabel||'Switch User'),m:mode(nc.switchFooterMode,'emoji')};
       const profile={emoji:String(nc.profileEmoji||'👤'),label:String(nc.profileLabel||'LOOM Profile'),m:mode(nc.profileFooterMode,'emoji')};
       const apiUrl=new URL(String(ctx.apiBase||'api').replace(/\/?$/,'/'),document.baseURI||location.href),homeHref=new URL('../home/',apiUrl).href;
       const a=document.createElement('a');a.href=homeHref;a.className='loom-footer-global-button';a.title=home.label;a.append(...render(home.emoji,home.label,home.m));
+      const sh=document.createElement('button');sh.type='button';sh.className='loom-footer-global-button';sh.title=share.label;sh.append(...render(share.emoji,share.label,share.m));if(window.LoomShare)window.LoomShare.bindButton(sh,{identity:ctx.identity,project:ctx.project,apiBase:ctx.apiBase,targetUrl:location.href,title:ctx.config.projectName||document.title});
+      const sw=document.createElement('button');sw.type='button';sw.className='loom-footer-global-button';sw.title=switchUser.label;sw.append(...render(switchUser.emoji,switchUser.label,switchUser.m));sw.addEventListener('click',()=>window.LoomIdentityEntry?.show?.({reloadAfterSelect:true}));
       const b=document.createElement('button');b.type='button';b.className='loom-footer-global-button';b.title=profile.label;b.append(...render(profile.emoji,profile.label,profile.m));b.addEventListener('click',()=>document.querySelector('[data-profile-dock-button]')?.click());
-      nav.append(a,b);loomRow.appendChild(nav);
+      nav.append(a,sh,sw,b);loomRow.appendChild(nav);
     }catch{}
 
     root.append(brandRow,toolsRow,loomRow);
@@ -157,7 +173,7 @@ export async function createModule(ctx){
       structure:['project-branding','more-tools','loom-attribution'],
       orbSlot:orbs.dataset.loomSlot,
       toolsWidth:toolsRow.dataset.rowWidth,
-      loomMark:'animated'
+      loomMark:'animated',wordmarkMode,colorMode,fontMode,canonicalProjectName:ctx.config.projectName||ctx.project
     });
   }
 
