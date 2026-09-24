@@ -18,6 +18,8 @@ function loom_html_framer_registry(string $project): array {
   if(!is_array($x))$x=[];
   if(!isset($x['schema']))$x['schema']='loom-html-framer/v1';
   if(!is_array($x['frames']??null))$x['frames']=[];
+  $auto=(string)($x['autoFullscreenFrameId']??'');
+  $x['autoFullscreenFrameId']=preg_match('/^hf_[a-f0-9]{14}$/',$auto)?$auto:'';
   return $x;
 }
 function loom_html_framer_write_registry(string $project,array $data): void {
@@ -238,20 +240,21 @@ function loom_html_framer_layout_bridge_script(array $frame): string {
   $mobileAuto=strtolower((string)($frame['mobileHeightMode']??($frame['heightMode']??'auto')))!=='fixed';
   $cfg=json_encode(['desktopAuto'=>$desktopAuto,'mobileAuto'=>$mobileAuto,'breakpoint'=>760],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
   if($cfg===false)$cfg='{"desktopAuto":true,"mobileAuto":true,"breakpoint":760}';
-  return '<script data-loom-framed-layout="2">(function(){' .
-    'const ID='.$id.',C='.$cfg.';let last=0,raf=0,ro=null,mo=null,mq=null,started=false;const forced=new Map();' .
+  return '<script data-loom-framed-layout="3">(function(){' .
+    'const ID='.$id.',C='.$cfg.';let last=0,raf=0,timer=0,ro=null,mo=null,mq=null,started=false,lastVW=innerWidth,lastVH=innerHeight,suppressUntil=0;const forced=new Map();' .
     'function isAuto(){return (mq&&mq.matches)?C.mobileAuto:C.desktopAuto}' .
     'function remember(el,p){let rec=forced.get(el);if(!rec){rec={};forced.set(el,rec)}if(!(p in rec))rec[p]=[el.style.getPropertyValue(p),el.style.getPropertyPriority(p)]}' .
     'function force(el,p,v){if(!el)return;remember(el,p);if(el.style.getPropertyValue(p)===String(v)&&el.style.getPropertyPriority(p)==="important")return;el.style.setProperty(p,v,"important")}' .
     'function restore(){for(const [el,rec] of forced){if(!el||!el.style)continue;for(const [p,val] of Object.entries(rec)){if(val[0])el.style.setProperty(p,val[0],val[1]||"");else el.style.removeProperty(p)}}forced.clear()}' .
     'function relax(){if(!isAuto()){restore();return}const de=document.documentElement,b=document.body;if(de){force(de,"height","auto");force(de,"min-height","0");force(de,"max-height","none");force(de,"overflow-y","visible")}if(b){force(b,"height","auto");force(b,"min-height","0");force(b,"max-height","none");force(b,"overflow-y","visible")}if(!b)return;let n=0;for(const el of b.querySelectorAll("*")){if(++n>5000)break;if(el.matches("textarea,select,[data-loom-preserve-scroll]"))continue;let cs;try{cs=getComputedStyle(el)}catch{continue}if(cs.position==="fixed"||cs.position==="sticky")continue;const oy=cs.overflowY;if(!/(auto|scroll|hidden|clip)/.test(oy))continue;if((el.scrollHeight||0)>(el.clientHeight||0)+2){force(el,"height",Math.max(el.scrollHeight||0,Math.ceil(el.getBoundingClientRect().height||0))+"px");force(el,"min-height","0");force(el,"max-height","none");force(el,"overflow-y","visible")}}}' .
     'function height(){const de=document.documentElement,b=document.body;let h=0;for(const el of [de,b])if(el)h=Math.max(h,el.scrollHeight||0,el.offsetHeight||0,Math.ceil(el.getBoundingClientRect().height||0));if(b){for(const el of b.children){let cs;try{cs=getComputedStyle(el)}catch{continue}if(cs.position==="fixed")continue;const r=el.getBoundingClientRect();h=Math.max(h,Math.ceil(r.bottom+(window.scrollY||0)))}}return Math.max(1,Math.ceil(h))}' .
-    'function measure(){raf=0;relax();const h=height();if(Math.abs(h-last)<2)return;last=h;parent.postMessage({__loomFramedLayout:"v2",frameId:ID,height:h,auto:isAuto()},"*")}' .
-    'function schedule(){if(!raf)raf=requestAnimationFrame(measure)}' .
-    'function watchExpanded(){if(!ro||!document.body)return;let n=0;for(const el of document.body.querySelectorAll("*")){if(++n>2000)break;try{if((el.scrollHeight||0)>(el.clientHeight||0)+2)ro.observe(el)}catch{}}}' .
-    'function start(){if(started)return;started=true;mq=matchMedia("(max-width:"+C.breakpoint+"px)");try{mq.addEventListener("change",()=>{restore();last=0;schedule()})}catch{mq.addListener&&mq.addListener(()=>{restore();last=0;schedule()})}try{ro=new ResizeObserver(()=>{schedule()});if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body);watchExpanded()}catch{}try{mo=new MutationObserver(()=>{schedule();watchExpanded()});mo.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(schedule).catch(()=>{});[0,40,120,300,700,1400,2800,5000].forEach(t=>setTimeout(schedule,t))}' .
-    'addEventListener("message",e=>{const m=e.data;if(!m||typeof m!=="object"||m.__loomFramedLayoutRequest!=="measure"||String(m.frameId||"")!==String(ID))return;last=0;schedule()});' .
-    'addEventListener("load",schedule);addEventListener("resize",()=>{last=0;schedule()},{passive:true});addEventListener("transitionend",schedule,true);addEventListener("animationend",schedule,true);addEventListener("input",schedule,true);addEventListener("change",schedule,true);' .
+    'function measure(){raf=0;relax();const h=height();if(Math.abs(h-last)<4)return;last=h;parent.postMessage({__loomFramedLayout:"v3",frameId:ID,height:h,viewportWidth:innerWidth,viewportHeight:innerHeight,auto:isAuto()},"*")}' .
+    'function schedule(delay=24){clearTimeout(timer);timer=setTimeout(()=>{timer=0;if(!raf)raf=requestAnimationFrame(measure)},delay)}' .
+    'function viewportResize(){const w=innerWidth,h=innerHeight,dw=Math.abs(w-lastVW),dh=Math.abs(h-lastVH);lastVW=w;lastVH=h;if(dw>1){suppressUntil=0;last=0;schedule(48);return}if(dh>1){suppressUntil=performance.now()+220;return}if(performance.now()>=suppressUntil)schedule(48)}' .
+    'function watchExpanded(){if(!ro||!document.body)return;let n=0;for(const el of document.body.querySelectorAll("*")){if(++n>1200)break;try{if((el.scrollHeight||0)>(el.clientHeight||0)+2)ro.observe(el)}catch{}}}' .
+    'function start(){if(started)return;started=true;mq=matchMedia("(max-width:"+C.breakpoint+"px)");try{mq.addEventListener("change",()=>{restore();last=0;schedule(40)})}catch{mq.addListener&&mq.addListener(()=>{restore();last=0;schedule(40)})}try{ro=new ResizeObserver(()=>{const w=innerWidth,h=innerHeight;if(Math.abs(w-lastVW)<=1&&Math.abs(h-lastVH)>1){lastVH=h;suppressUntil=performance.now()+220;return}lastVW=w;lastVH=h;if(performance.now()<suppressUntil)return;schedule(36)});if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body);watchExpanded()}catch{}try{mo=new MutationObserver(()=>{schedule(36);watchExpanded()});mo.observe(document.documentElement||document,{subtree:true,childList:true,characterData:true})}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>schedule(20)).catch(()=>{});[0,70,220,650,1600].forEach(t=>setTimeout(()=>schedule(0),t))}' .
+    'addEventListener("message",e=>{const m=e.data;if(!m||typeof m!=="object"||m.__loomFramedLayoutRequest!=="measure"||String(m.frameId||"")!==String(ID))return;suppressUntil=0;last=0;schedule(20)});' .
+    'addEventListener("load",()=>schedule(20));addEventListener("resize",viewportResize,{passive:true});addEventListener("transitionend",()=>schedule(32),true);addEventListener("animationend",()=>schedule(32),true);addEventListener("input",()=>schedule(32),true);addEventListener("change",()=>schedule(32),true);' .
     'addEventListener("keydown",e=>{if(e.key==="Escape")parent.postMessage({__loomFramedFullscreen:"exit",frameId:ID},"*")},true);' .
     'if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
     '})();</script>';
@@ -606,6 +609,7 @@ function loom_html_framer_mime(string $path): string {
 }
 function loom_html_framer_runtime_descriptors(string $project,string $clientId=''): array {
   $managerFile=root_dir().'/core-modules/html-framer/manifest.json';$manager=read_json_file($managerFile)?:[];
+  $registry=loom_html_framer_registry($project);$autoFullscreenFrameId=(string)($registry['autoFullscreenFrameId']??'');
   $cfg=loom_module_config_with_admin_overrides($project,$manager);
   if(($cfg['enabled']??true)===false)return [];
   $entry=root_dir().'/core-modules/html-framer/frame-action.js';
@@ -625,7 +629,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.7.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.8.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,
         'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',
@@ -635,6 +639,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'mobileHeight'=>max(200,min(2400,(int)($frame['mobileHeight']??($frame['height']??520)))),
         'mobileWidthPercent'=>max(50,min(100,(int)($frame['mobileWidthPercent']??($frame['widthPercent']??100)))),
         'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$frame)?(bool)$frame['fullscreenEnabled']:true,
+        'autoFullscreenOnLoad'=>$autoFullscreenFrameId!==''&&hash_equals($autoFullscreenFrameId,$id),
         'entrypoint'=>(string)$frame['entrypoint'],'tracking'=>$readerEnabled?'action-reader-v1':'boundary-only',
         'actionReaderEnabled'=>$readerEnabled,'actionReaderSummary'=>[
           'declaredActionCount'=>count($readerActions),

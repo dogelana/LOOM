@@ -1,3 +1,7 @@
+## v0.15.41 - Stable HTML Framer Layout + Optional Launch Takeover
+
+HTML Framer auto-fit now suppresses parent/child height feedback loops and confirms shrinking measurements before moving the surrounding project layout. Projects can optionally choose exactly one installed HTML frame to automatically open in full-screen takeover mode on project load; the setting is off by default and remains project-portable.
+
 ## v0.15.40 - True HTML Framer Auto-Fit + Admin Accordion Stability
 
 HTML Framer auto mode now expands the delivered app instead of accepting nested vertical scroll containers, with a real viewport bootstrap and continuous layout re-measure handshake on desktop and mobile. Fixed-height mode is still the intentional scrolling mode. Admin settings return to collapsed-first deterministic accordions that remember state and sort recent panels only on render, never while the Admin is interacting inside a card.

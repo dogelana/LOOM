@@ -119,3 +119,10 @@ The project-level `defaultFullscreenEnabled` setting controls the default for ne
 The default HTML Framer presentation is **auto** on desktop and mobile. LOOM boots auto frames at a real viewport height so `100vh` foreign layouts cannot lock themselves into an artificially short iframe, then uses layout bridge v2 to continuously measure delivered content. In auto mode the bridge also expands vertically constrained nested scroll/clipping containers when their content exceeds their client height. This makes the outer LOOM page, not the iframe, own normal page scrolling.
 
 A framed package may mark a deliberate internal vertical scroller with `data-loom-preserve-scroll`. Admin fixed-height mode is the explicit alternative: the iframe becomes bounded and scrolling is allowed.
+
+
+## Stable auto-height rule (0.15.41)
+
+Auto height must never create a parent/child resize feedback loop. The framed bridge ignores iframe-height-only resize events caused by the parent, MutationObserver does not watch the bridge's own style-attribute writes, and parent height application uses hysteresis: meaningful growth may apply immediately, while shrinkage is confirmed before changing the project layout. Module DOM order remains untouched by height measurement.
+
+A project may designate zero or one installed HTML frame for automatic full-screen takeover at project load. The persisted selector is `autoFullscreenFrameId` in the project-owned HTML Framer registry. The default is empty/off. Runtime activation is conditional on the selected frame being present, enabled, and full-screen-enabled.

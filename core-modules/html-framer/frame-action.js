@@ -1,4 +1,4 @@
-// @loom-file release=0.15.40 revision=8 policy=package-priority
+// @loom-file release=0.15.41 revision=9 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
 // Frames auto-fit delivered document height by default. Fixed-height scrolling is explicit Admin opt-in.
 // Optional full-page takeover portals the frame above LOOM chrome and restores it losslessly on exit.
@@ -6,12 +6,16 @@ export function createModule(ctx){
   let root=null,surface=null,stage=null,frame=null,fullscreenDock=null,fullscreenButton=null;
   let onMessage=null,mobileMedia=null,onMobileChange=null,onKeyDown=null,onViewportChange=null,onFrameLoad=null;
   let fullscreen=false,placeholder=null,scrollX=0,scrollY=0,documentStyleSnapshot=null;
+  let autoFullscreenTimer=null;
   const autoHeight={desktop:null,mobile:null};
+  const shrinkCandidate={desktop:null,mobile:null};
+  const shrinkTimer={desktop:null,mobile:null};
   const clamp=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback};
   const clean=v=>String(v??'').slice(0,220);
   const mode=v=>String(v||'auto').toLowerCase()==='fixed'?'fixed':'auto';
   const isMobile=()=>!!mobileMedia?.matches;
   const fullscreenAllowed=()=>ctx.config.fullscreenEnabled!==false;
+  const autoFullscreenOnLoad=()=>ctx.config.autoFullscreenOnLoad===true;
   const viewportHeight=()=>Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||document.documentElement.clientHeight||720));
   function profile(){
     const mobile=isMobile();
@@ -62,13 +66,32 @@ export function createModule(ctx){
     setTimeout(()=>requestMeasure(reason),90);
     setTimeout(()=>requestMeasure(reason),320);
   }
+  function commitAutoHeight(key,h){
+    if(!frame)return;
+    autoHeight[key]=h;shrinkCandidate[key]=null;
+    if(shrinkTimer[key]){clearTimeout(shrinkTimer[key]);shrinkTimer[key]=null}
+    const target=fullscreen?Math.max(h,viewportHeight()):h;
+    const current=Math.round(parseFloat(frame.style.height)||0);
+    if(Math.abs(current-target)<6)return;
+    frame.style.height=`${target}px`;
+  }
   function applyAutoHeight(raw){
     if(!frame)return;
     const p=profile();if(p.heightMode!=='auto')return;
-    const h=clamp(Math.ceil(Number(raw)||0),120,250000,240);
-    if(Math.abs((autoHeight[p.key]||0)-h)>=2)autoHeight[p.key]=h;
-    const target=fullscreen?Math.max(h,viewportHeight()):h;
-    frame.style.height=`${target}px`;
+    const h=clamp(Math.ceil(Number(raw)||0),120,250000,Math.max(360,viewportHeight()));
+    const current=autoHeight[p.key];
+    if(current==null){commitAutoHeight(p.key,h);return}
+    const delta=h-current;
+    // Small ResizeObserver/font rounding changes are not allowed to move the project page.
+    if(Math.abs(delta)<8)return;
+    // Growth is safe to apply immediately. Shrinkage is confirmed on a second measurement so
+    // parent iframe resizing cannot create a height feedback loop that makes neighboring modules jump.
+    if(delta>0){commitAutoHeight(p.key,h);return}
+    const prior=shrinkCandidate[p.key];
+    if(prior!=null&&Math.abs(prior-h)<8){commitAutoHeight(p.key,h);return}
+    shrinkCandidate[p.key]=h;
+    if(shrinkTimer[p.key])clearTimeout(shrinkTimer[p.key]);
+    shrinkTimer[p.key]=setTimeout(()=>{shrinkTimer[p.key]=null;requestMeasure('confirm-shrink')},140);
   }
   function restoreDocumentScrollLock(){
     if(!documentStyleSnapshot)return;
@@ -138,7 +161,7 @@ export function createModule(ctx){
       if(fullscreen)setFullscreen(false,'frame-escape');
       return;
     }
-    if(msg.__loomFramedLayout==='v1'||msg.__loomFramedLayout==='v2'){
+    if(msg.__loomFramedLayout==='v1'||msg.__loomFramedLayout==='v2'||msg.__loomFramedLayout==='v3'){
       applyAutoHeight(msg.height);
       return;
     }
@@ -151,10 +174,10 @@ export function createModule(ctx){
     try{await ctx.userAction(actionId,detail)}catch{await ctx.log('html-framer.interaction',{...detail,observedActionId:actionId})}
   }
   function build(){
-    root=document.createElement('section');root.className='loom-html-framer-module';root.dataset.htmlFrameId=String(ctx.config.frameId||'');
+    root=document.createElement('section');root.className='loom-html-framer-module';root.dataset.htmlFrameId=String(ctx.config.frameId||'');root.style.overflowAnchor='none';
     surface=document.createElement('div');surface.className='loom-html-framer-surface';
     stage=document.createElement('div');
-    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${Math.max(360,viewportHeight())}px;border:0;background:#fff;overflow:hidden;`;
+    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${Math.max(360,viewportHeight())}px;border:0;background:#fff;overflow:hidden;overflow-anchor:none;`;
     stage.appendChild(frame);surface.appendChild(stage);const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();return root;
   }
   function fitToPageLane(){
@@ -189,6 +212,8 @@ export function createModule(ctx){
     if(onViewportChange){removeEventListener('resize',onViewportChange);try{window.visualViewport?.removeEventListener('resize',onViewportChange)}catch{}}onViewportChange=null;
     if(mobileMedia&&onMobileChange){try{mobileMedia.removeEventListener('change',onMobileChange)}catch{mobileMedia.removeListener?.(onMobileChange)}}
     mobileMedia=null;onMobileChange=null;placeholder?.remove();placeholder=null;restoreDocumentScrollLock();
+    if(autoFullscreenTimer){clearTimeout(autoFullscreenTimer);autoFullscreenTimer=null}
+    for(const key of ['desktop','mobile'])if(shrinkTimer[key]){clearTimeout(shrinkTimer[key]);shrinkTimer[key]=null}
     root?.remove();root=null;surface=null;stage=null;frame=null;fullscreenDock=null;fullscreenButton=null;
   }
   return{
@@ -200,9 +225,14 @@ export function createModule(ctx){
       onFrameLoad=()=>scheduleMeasure('iframe-load');frame.addEventListener('load',onFrameLoad);
       onKeyDown=event=>{if(fullscreen&&event.key==='Escape'){event.preventDefault();setFullscreen(false,'escape')}};addEventListener('keydown',onKeyDown,true);
       onViewportChange=()=>{applyResponsiveLayout();scheduleMeasure('viewport-change')};addEventListener('resize',onViewportChange,{passive:true});try{window.visualViewport?.addEventListener('resize',onViewportChange,{passive:true})}catch{}
+      if(autoFullscreenOnLoad()&&fullscreenAllowed()){
+        // Project-level launch takeover: exactly one selected frame can request this.
+        // Delay one task so the module frame has a stable DOM anchor before it is portaled to body.
+        autoFullscreenTimer=setTimeout(()=>{autoFullscreenTimer=null;if(root&&!fullscreen)setFullscreen(true,'project-auto')},0);
+      }
       queueMicrotask(()=>{applyResponsiveLayout();scheduleMeasure('activate')});
       ctx.step('mount-frame','completed',{frameId:ctx.config.frameId});
-      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,fullscreenEnabled:fullscreenAllowed(),actionReaderSummary:ctx.config.actionReaderSummary||null});
+      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,fullscreenEnabled:fullscreenAllowed(),autoFullscreenOnLoad:autoFullscreenOnLoad(),actionReaderSummary:ctx.config.actionReaderSummary||null});
       return()=>cleanup();
     },async deactivate(){cleanup()},async unmount(){cleanup()}
   };

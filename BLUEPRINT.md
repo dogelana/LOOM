@@ -1,3 +1,7 @@
+## v0.15.41 architecture note — frame sizing is not module ordering
+
+HTML Framer owns only its own measured height; it must never reorder project modules or create a parent/child resize feedback loop. Layout bridge v3 treats iframe-height-only resize events as parent effects, while the parent runtime applies stable/hysteretic height changes. Automatic full-screen launch is a project-owned registry preference selecting zero or one installed frame and is separate from module order/presentation.
+
 ## v0.15.40 architecture note — the outer page owns height in auto Framer mode
 
 HTML Framer auto mode treats vertical iframe scrolling as an integration failure rather than a normal presentation choice. The framed bridge expands accidental nested vertical scrollers/clippers and reports intrinsic delivered height; the parent iframe grows to that report. Fixed-height mode is the explicit exception. Admin configuration uses a deterministic collapsed-first accordion state model; recent-use ranking is persisted without moving panels underneath an active interaction.

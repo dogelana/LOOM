@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.40 revision=46 policy=package-priority
+// @loom-file release=0.15.41 revision=46 policy=package-priority
 require __DIR__.'/../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -29,11 +29,11 @@ loom_native_admin_page_guard('Pegboard','../');
 </div>
 <div id="loomShellFooter"></div>
 
-<script src="../engine/config.js?v=0.15.40"></script>
-<script src="../engine/loom-brand.js?v=0.15.40"></script>
-<script src="../engine/identity.js?v=0.15.40"></script>
-<script src="../engine/loom-global-profile.js?v=0.15.40"></script>
-<script src="../engine/loom-toast.js?v=0.15.40"></script><script src="../engine/share-referrals.js?v=0.15.40"></script><script src="../engine/loom-shell.js?v=0.15.40"></script>
+<script src="../engine/config.js?v=0.15.41"></script>
+<script src="../engine/loom-brand.js?v=0.15.41"></script>
+<script src="../engine/identity.js?v=0.15.41"></script>
+<script src="../engine/loom-global-profile.js?v=0.15.41"></script>
+<script src="../engine/loom-toast.js?v=0.15.41"></script><script src="../engine/share-referrals.js?v=0.15.41"></script><script src="../engine/loom-shell.js?v=0.15.41"></script>
 <script src="../engine/event-bus.js?v=0.15.21"></script>
 <script src="../engine/registry-client.js?v=0.15.21"></script>
 <script src="pegboard.js?v=0.15.21"></script>

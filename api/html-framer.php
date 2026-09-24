@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.40 revision=10 policy=package-priority
+// @loom-file release=0.15.41 revision=11 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
@@ -16,8 +16,10 @@ if($method==='GET'||$action==='list')loom_require_project_capability($clientId,$
 else loom_require_project_capability($clientId,$project,'html-framer.manage');
 
 function html_framer_payload(string $project): array {
-  return ['ok'=>true,'project'=>$project,'frames'=>loom_html_framer_public_frames($project),'zipAvailable'=>loom_html_framer_zip_supported()];
+  $registry=loom_html_framer_registry($project);
+  return ['ok'=>true,'project'=>$project,'frames'=>loom_html_framer_public_frames($project),'autoFullscreenFrameId'=>(string)($registry['autoFullscreenFrameId']??''),'zipAvailable'=>loom_html_framer_zip_supported()];
 }
+
 function html_framer_presentation_defaults(string $project): array {
   $settings=loom_read_admin_settings($project);$cfg=$settings['modules']['loom.html-framer']??[];
   $mode=static fn($v)=>strtolower((string)$v)==='fixed'?'fixed':'auto';
@@ -63,6 +65,15 @@ if($action==='analyze'||$action==='upload'){
 }
 
 $raw=$jsonBody;
+if($action==='set-auto-fullscreen'){
+  $selected=(string)($raw['frameId']??'');$registry=loom_html_framer_registry($project);
+  if($selected!==''){
+    if(!preg_match('/^hf_[a-f0-9]{14}$/',$selected))json_out(['ok'=>false,'error'=>'invalid-frame-id'],400);
+    if(!isset($registry['frames'][$selected]))json_out(['ok'=>false,'error'=>'frame-not-found'],404);
+  }
+  $registry['autoFullscreenFrameId']=$selected;loom_html_framer_write_registry($project,$registry);
+  json_out(html_framer_payload($project));
+}
 $frameId=(string)($raw['frameId']??'');
 if(!preg_match('/^hf_[a-f0-9]{14}$/',$frameId))json_out(['ok'=>false,'error'=>'invalid-frame-id'],400);
 $registry=loom_html_framer_registry($project);$frame=$registry['frames'][$frameId]??null;
@@ -96,7 +107,7 @@ try{
       }
     }
   }elseif($action==='delete'){
-    unset($registry['frames'][$frameId]);loom_html_framer_write_registry($project,$registry);
+    unset($registry['frames'][$frameId]);if((string)($registry['autoFullscreenFrameId']??'')===$frameId)$registry['autoFullscreenFrameId']='';loom_html_framer_write_registry($project,$registry);
     loom_html_framer_remove_tree(loom_html_framer_frame_dir($project,$frameId));
   }else json_out(['ok'=>false,'error'=>'unsupported-action'],400);
   json_out(html_framer_payload($project));

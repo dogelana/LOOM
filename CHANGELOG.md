@@ -1,3 +1,13 @@
+## v0.15.41 - Stable HTML Framer Layout + Optional Auto Full Screen
+
+- Replaced HTML Framer layout bridge v2 with v3 to stop iframe-height feedback loops that could make project UI appear to bounce between neighboring modules. Parent-driven height-only iframe resizes no longer trigger a fresh intrinsic measurement cycle.
+- Removed style-attribute MutationObserver feedback from the Framer bridge; DOM/content changes, ResizeObserver, fonts, transitions, animations, forms, and explicit parent remeasure requests still update height.
+- Added parent-side height hysteresis: tiny deltas are ignored, growth applies immediately, and shrinkage is confirmed before it can move surrounding project content. Module DOM/order is never changed by auto-fit.
+- Added `overflow-anchor:none` to the HTML Framer module/iframe integration boundary to reduce browser scroll-anchoring jumps while dynamic content settles.
+- Added an optional per-project **Project launch full screen** selector in Admin → HTML Framer. It is off by default and allows exactly one installed frame to automatically enter LOOM full-screen takeover when the project loads.
+- The selected auto-fullscreen frame is stored in project-owned `frames.json`, so it travels with Project export/import. Missing, disabled, deleted, or full-screen-disabled selections fail safely back to the normal project page.
+- HTML Framer runtime version is now 1.8.0. Manual full screen / Exit full screen behavior remains intact.
+
 ## v0.15.40 - HTML Framer True Auto-Fit + Deterministic Admin Accordions
 
 - Reworked HTML Framer auto-height around a layout bridge v2. Auto frames now bootstrap at a real viewport height instead of 240px, preventing `100vh` applications from being permanently trapped in a tiny viewport.
@@ -565,7 +575,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.40 revision=57 policy=package-priority -->
+<!-- @loom-file release=0.15.41 revision=58 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
