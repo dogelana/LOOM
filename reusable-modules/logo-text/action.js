@@ -1,4 +1,4 @@
-// @loom-file release=0.12.09 revision=4 policy=package-priority
+// @loom-file release=0.15.49 revision=5 policy=package-priority
 export async function createModule(ctx) {
   let root = null;
   let style = null;
@@ -10,13 +10,13 @@ export async function createModule(ctx) {
   let lastContainerWidth = -1;
   let lastLayoutKey = '';
 
-  const line1 = String(ctx.config.line1 || 'GREEN').toUpperCase();
-  const line2 = String(ctx.config.line2 || 'BEANS').toUpperCase();
+  const line1 = String(ctx.config.line1 ?? 'PROJECT').toUpperCase();
+  const line2 = String(ctx.config.line2 ?? '').toUpperCase();
   const fontFamily = String(ctx.config.fontFamily || 'League Spartan');
   const fontWeight = Number(ctx.config.fontWeight || 900);
   const preferredFontSize = Math.max(20, Math.min(144, Number(ctx.config.fontSize || 54)));
-  const greenColor = String(ctx.config.greenColor || '#279E38');
-  const beanColor = String(ctx.config.beanColor || '#A9DF4F');
+  const primaryColor = String(ctx.config.primaryColor || '#111111');
+  const accentColor = String(ctx.config.accentColor || '#168346');
   const fontCssUrl = String(ctx.config.fontGoogleCss || 'https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap');
 
   function ensureFontLink() {
@@ -49,14 +49,14 @@ export async function createModule(ctx) {
     style = document.createElement('style');
     style.dataset.loomModule = ctx.action.id;
     style.textContent = `
-      .gb-logo-wordmark{
+      .loom-logo-wordmark{
         flex:0 0 auto;width:max-content;min-width:0;height:auto;
         display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
         gap:0;margin:0;padding:.09em 0 .07em;box-sizing:border-box;overflow:visible;
         visibility:hidden;
       }
-      .gb-logo-wordmark[data-fit-ready="1"]{visibility:visible}
-      .gb-logo-wordmark-line{
+      .loom-logo-wordmark[data-fit-ready="1"]{visibility:visible}
+      .loom-logo-wordmark-line{
         display:block;flex:0 0 auto;width:max-content;max-width:none;text-align:left;
         font-family:"${fontFamily}",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
         font-size:${preferredFontSize}px;font-weight:${fontWeight};line-height:.88;
@@ -64,8 +64,8 @@ export async function createModule(ctx) {
         -webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;
         transform-origin:left center;text-shadow:0 .055em .15em rgba(8,55,18,.07);
       }
-      .gb-logo-wordmark-line.is-green{color:${greenColor}}
-      .gb-logo-wordmark-line.is-beans{color:${beanColor}}
+      .loom-logo-wordmark-line.is-primary{color:${primaryColor}}
+      .loom-logo-wordmark-line.is-accent{color:${accentColor}}
     `;
     document.head.appendChild(style);
   }
@@ -98,7 +98,7 @@ export async function createModule(ctx) {
   }
 
   function stableContainerWidth() {
-    const header=root?.closest?.('.gb-header-bar');
+    const header=root?.closest?.('.loom-header-bar');
     const container=header?.parentElement;
     const viewport=window.visualViewport?.width||window.innerWidth||document.documentElement.clientWidth||320;
     const containerWidth=container?.getBoundingClientRect?.().width||viewport;
@@ -106,10 +106,10 @@ export async function createModule(ctx) {
   }
 
   function availableBrandWidth() {
-    const header=root?.closest?.('.gb-header-bar');
-    const brand=root?.closest?.('.gb-header-brand');
-    const media=header?.querySelector?.('.gb-header-brand-media');
-    const utility=header?.querySelector?.('.gb-header-utility');
+    const header=root?.closest?.('.loom-header-bar');
+    const brand=root?.closest?.('.loom-header-brand');
+    const media=header?.querySelector?.('.loom-header-brand-media');
+    const utility=header?.querySelector?.('.loom-header-utility');
     const stableWidth=stableContainerWidth();
     if(!header||!brand)return Math.min(760,stableWidth);
 
@@ -127,7 +127,7 @@ export async function createModule(ctx) {
 
   function applyAuthoritativeSize() {
     if(!root)return;
-    const nodes=[...root.querySelectorAll('.gb-logo-wordmark-line')];
+    const nodes=[...root.querySelectorAll('.loom-logo-wordmark-line')];
     if(nodes.length!==2)return;
 
     const maxNaturalWidth=Math.max(...naturalWidths,1);
@@ -166,7 +166,7 @@ export async function createModule(ctx) {
   }
 
   function bindStableResizeSignals(){
-    const header=root?.closest?.('.gb-header-bar');
+    const header=root?.closest?.('.loom-header-bar');
     const container=header?.parentElement;
 
     if(container&&window.ResizeObserver){
@@ -207,12 +207,12 @@ export async function createModule(ctx) {
       injectStyle();
       ctx.step('create-element','active');
       root=document.createElement('div');
-      root.className='gb-logo-wordmark';
-      root.setAttribute('aria-label',`${line1} ${line2}`);
-      const a=document.createElement('div');a.className='gb-logo-wordmark-line is-green';
-      const b=document.createElement('div');b.className='gb-logo-wordmark-line is-beans';
+      root.className='loom-logo-wordmark';
+      root.setAttribute('aria-label',`${line1} ${line2}`.trim());
+      const a=document.createElement('div');a.className='loom-logo-wordmark-line is-primary';
+      const b=document.createElement('div');b.className='loom-logo-wordmark-line is-accent';if(!line2)b.hidden=true;
       root.append(a,b);
-      ctx.step('create-element','completed',{lines:[line1,line2],fontFamily,fontSize:preferredFontSize,greenColor,beanColor});
+      ctx.step('create-element','completed',{lines:[line1,line2],fontFamily,fontSize:preferredFontSize,primaryColor,accentColor});
 
       ctx.step('mount-text','active');
       const host=ctx.mount(root,ctx.config.mountSelector||'#feature-stage');
@@ -230,7 +230,7 @@ export async function createModule(ctx) {
 
       await ctx.log('logo-text.mounted',{
         lines:[line1,line2],requestedFontSize:preferredFontSize,fontFamily,fontWeight,
-        greenColor,beanColor,fitMode:'stable-container-emergency-shrink-only',
+        primaryColor,accentColor,fitMode:'stable-container-emergency-shrink-only',
         feedbackLoopProtection:true,presentation:ctx.presentation
       });
       return()=>removeUi('cleanup');

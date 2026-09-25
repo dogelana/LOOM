@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=3 policy=package-priority -->
 # LOOM Account & Project Identity Standard — v0.11.20
 
 LOOM separates account authentication from public project identity.
@@ -7,7 +7,7 @@ A permanent **LOOM account** owns: User ID, email, password hash, privilege, lin
 
 A **project identity** owns: project-scoped username, project-scoped profile picture mode/file metadata, creation/update timestamps, and its stable Project Identity ID.
 
-The same User ID may therefore be `MichaelYebba` in Green Beans and a completely different username/avatar in another project. Project usernames are unique only inside that project.
+The same User ID may therefore use one username/avatar in one project and a completely different username/avatar in another project. Project usernames are unique only inside that project.
 
 Email/password remain account-level so one sign-in recovers all project identities. The legacy `loom_users.username` column remains for compatibility/internal account handles and is not the public project username from v0.11.20 onward.
 

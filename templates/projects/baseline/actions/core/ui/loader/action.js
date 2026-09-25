@@ -1,4 +1,4 @@
-// @loom-file release=0.15.00 revision=5 policy=package-priority
+// @loom-file release=0.15.49 revision=6 policy=package-priority
 export async function createModule(ctx) {
   let root=null,style=null,progressText=null,progressBar=null,statusText=null,tipText=null,cubeCleanup=null,tipTimer=null;
   let mountedAt=0,removed=false,finishPromise=null,globalSettings=null;
@@ -18,7 +18,7 @@ export async function createModule(ctx) {
       assetPath:logo?.config?.assetPath||'assets/logo.png',assetScope:logo?.config?.assetScope||'project',alt:logo?.config?.alt||'Project logo',
       line1:String(text?.config?.line1||ctx.project).toUpperCase(),line2:String(text?.config?.line2||'').toUpperCase(),
       fontFamily:String(text?.config?.fontFamily||'system-ui'),fontWeight:Number(text?.config?.fontWeight||900),fontCss:String(text?.config?.fontGoogleCss||''),
-      color1:String(text?.config?.greenColor||'#39A935'),color2:String(text?.config?.beanColor||'#A6D94E')
+      color1:String(text?.config?.primaryColor||'#111111'),color2:String(text?.config?.accentColor||'#168346')
     }
   }
   function ensureFont(b){if(!b.fontCss||document.getElementById('loom-loader-brand-font'))return;const l=document.createElement('link');l.id='loom-loader-brand-font';l.rel='stylesheet';l.href=b.fontCss;document.head.appendChild(l)}

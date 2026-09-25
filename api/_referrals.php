@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.48 revision=4 policy=package-priority
+// @loom-file release=0.15.49 revision=5 policy=package-priority
 declare(strict_types=1);
 
 /** LOOM Sharing + Referrals durable Instance Vault store. */

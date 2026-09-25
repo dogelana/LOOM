@@ -1,3 +1,13 @@
+## v0.15.49 - Strict Guest Ambiguity + Generic Branding Cleanup
+
+- Removed the last product-specific starter branding assumptions from LOOM core, reusable modules, baseline template, and active standards. One-word projects now remain one-word projects; the header wordmark no longer invents a second line.
+- Replaced old product-derived wordmark colors/classes with generic `primaryColor` / `accentColor` and LOOM-owned class names. Historical deployment tombstones remain only so stale release-owned files can still be retired safely.
+- Added a strict anonymous guest ambiguity policy. Guest mode remains available only while the environment has no supported overlap with another guest identity.
+- The first overlap through browser installation, coarse device characteristics, device/display profile, or exact observed network connection durably marks all affected guest contexts as **Permanent account required**.
+- Removed cross-browser anonymous auto-resume from the entry path when ambiguity exists. Overlap is treated as uncertainty and can only remove anonymous access; it never authenticates a person or grants account authority.
+- Added a blocking permanent-account identity gate with in-place sign-in and account creation. Existing guest data is attached/claimed through the normal authenticated guest-promotion pipeline, and multiple old guest histories can be consolidated by signing the same permanent account into each context.
+- Existing guest/account/project data remains installation-owned and is not destructively merged during upgrade. Historical guest contexts become locked as overlap is detected from current or retained continuity/network observations.
+
 ## v0.15.48 - System Email + Forgot Password
 
 - Added a new global **Admin → Email** suite with SMTP / PHP mail transports, sender identity, reusable setup guidance, per-notification toggles, editable subjects, masked delivery history, live SMTP connection/authentication diagnostics, and test delivery.
@@ -641,7 +651,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.48 revision=67 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=68 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

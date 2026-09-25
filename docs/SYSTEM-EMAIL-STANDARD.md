@@ -51,4 +51,4 @@ Email recovery restores a permanent account credential only. It does not merge u
 
 SMTP credentials, reset-token hashes, rate-limit metadata, and delivery logs are Instance state. Delivery logs contain masked recipient addresses and transport results rather than message bodies or passwords. Email delivery failure never rolls back successful account creation, referral attribution, or password replacement.
 
-<!-- @loom-file release=0.15.48 revision=1 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=2 policy=package-priority -->

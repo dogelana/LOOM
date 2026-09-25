@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=3 policy=package-priority -->
 # LOOM Page Styling Standard
 
 Version: 0.12.02
@@ -15,7 +15,7 @@ Version: 0.12.02
 
 ## Default visual contract
 
-The default values intentionally match the current LOOM/Green Beans project shell: soft pale-green radial background, dark green-black text, LOOM green accent, white translucent chrome, fluid content width, 18px page gutter, and 24px module spacing. Installing the release should therefore preserve the existing appearance until an administrator changes project values.
+The default values intentionally match the generic LOOM baseline shell: a soft neutral-tinted background, readable dark text, LOOM accent, white translucent chrome, fluid content width, 18px page gutter, and 24px module spacing. Installing the release should therefore preserve the existing appearance until an administrator changes project values.
 
 ## Styling tokens
 

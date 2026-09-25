@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.48 revision=1 policy=package-priority
+// @loom-file release=0.15.49 revision=2 policy=package-priority
 declare(strict_types=1);
 require_once __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);$body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);$clientId=safe_token((string)($body['clientId']??''));loom_require_admin($clientId);$action=(string)($body['action']??'status');

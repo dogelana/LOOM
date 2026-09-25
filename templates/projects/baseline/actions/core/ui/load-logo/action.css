@@ -1,5 +1,5 @@
-/* @loom-file release=0.15.23 revision=4 policy=package-priority */
-.gb-logo-module{
+/* @loom-file release=0.15.49 revision=5 policy=package-priority */
+.loom-logo-module{
   display:grid;
   place-items:center;
   width:100%;
@@ -14,7 +14,7 @@
   overflow:visible;
   animation:gbLogoIn .28s ease both;
 }
-.gb-logo-shine-stage{
+.loom-logo-shine-stage{
   --shine-x:50%;
   --shine-y:38%;
   position:relative;
@@ -26,11 +26,11 @@
   min-height:0;
   isolation:isolate;
 }
-.gb-logo-shine-stage img,
-.gb-logo-shine{
+.loom-logo-shine-stage img,
+.loom-logo-shine{
   grid-area:1 / 1;
 }
-.gb-logo-shine-stage img{
+.loom-logo-shine-stage img{
   display:block;
   width:auto;
   height:auto;
@@ -41,7 +41,7 @@
   position:relative;
   z-index:1;
 }
-.gb-logo-shine{
+.loom-logo-shine{
   position:relative;
   z-index:2;
   display:block;
@@ -68,10 +68,10 @@
   mask-position:center;
   mask-size:contain;
 }
-.gb-logo-shine-stage.is-shining .gb-logo-shine{opacity:.92}
+.loom-logo-shine-stage.is-shining .loom-logo-shine{opacity:.92}
 @media (prefers-reduced-motion:reduce){
-  .gb-logo-module{animation:none}
-  .gb-logo-shine{transition:none}
+  .loom-logo-module{animation:none}
+  .loom-logo-shine{transition:none}
 }
 @keyframes gbLogoIn{from{opacity:0;transform:translateY(3px) scale(.985)}to{opacity:1;transform:none}}
 

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.48 revision=6 policy=package-priority
+// @loom-file release=0.15.49 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);$body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);$action=(string)($body['action']??'list');$project=safe_slug((string)($body['project']??''));if($project===''||!project_dir($project))json_out(['ok'=>false,'error'=>'invalid-project'],400);$requestClientId=safe_token((string)($body['clientId']??''));if($requestClientId!=='')loom_capture_request_ip($requestClientId,$project);$globalOnly=in_array($action,['update-global-username','update-email','set-password'],true);if($globalOnly)loom_require_admin($requestClientId);else loom_require_project_capability($requestClientId,$project,'project.users');
 function au_confirm(array $body): void { if((string)($body['confirmPhrase']??'')!=='CONFIRM')json_out(['ok'=>false,'error'=>'confirmation-required','message'=>'Type CONFIRM to authorize this administrator change.'],409); }

@@ -1,4 +1,4 @@
-// @loom-file release=0.12.08 revision=3 policy=package-priority
+// @loom-file release=0.15.49 revision=4 policy=package-priority
 export async function createModule(ctx) {
   let root = null;
   let mounted = false;
@@ -52,29 +52,29 @@ export async function createModule(ctx) {
     async activate() {
       ctx.step('create-region', 'active');
       root = document.createElement('section');
-      root.className = 'gb-header-bar';
+      root.className = 'loom-header-bar';
       root.setAttribute('aria-label', ctx.config.ariaLabel || 'Application header');
       ctx.step('create-region', 'completed', { region: ctx.presentation?.region || 'header-bar' });
 
       ctx.step('create-slots', 'active');
       const brand = document.createElement('div');
-      brand.className = 'gb-header-slot gb-header-brand';
+      brand.className = 'loom-header-slot loom-header-brand';
       brand.dataset.loomSlot = ctx.config.brandSlot || 'brand';
       brand.setAttribute('aria-label', 'Brand');
 
       const media = document.createElement('div');
-      media.className = 'gb-header-brand-media';
+      media.className = 'loom-header-brand-media';
       media.dataset.loomSlot = ctx.config.brandMediaSlot || 'brand-media';
       media.setAttribute('aria-label', 'Brand media');
 
       const text = document.createElement('div');
-      text.className = 'gb-header-brand-text';
+      text.className = 'loom-header-brand-text';
       text.dataset.loomSlot = ctx.config.brandTextSlot || 'brand-text';
       text.setAttribute('aria-label', 'Brand text');
       brand.append(media, text);
 
       const utility = document.createElement('div');
-      utility.className = 'gb-header-slot gb-header-utility';
+      utility.className = 'loom-header-slot loom-header-utility';
       utility.dataset.loomSlot = ctx.config.utilitySlot || 'utility';
       utility.setAttribute('aria-label', 'Header utilities');
       root.append(brand, utility);

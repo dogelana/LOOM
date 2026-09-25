@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=4 policy=package-priority -->
 # LOOM Plugin Authoring Manual
 
 **Applies from LOOM v0.11.20 forward.** This file is part of the LOOM distribution and should remain in every future release.
@@ -6,9 +6,9 @@
 LOOM has two plugin scopes. They use the same action/module contract, lifecycle, manifest vocabulary, telemetry rules, presentation rules, and extension system. The only difference is **who owns the capability**.
 
 - **LOOM core/global plugin** — reusable platform capability that should work in any project. Examples: Header Bar, User Profile, Loader, Background Orbs, Update Log.
-- **Project plugin** — capability owned by one project. It may render project-specific UI or provide an extension that customizes a core LOOM plugin. Examples: Green Beans Avatar Provider, Green Beans Background Orb Provider.
+- **Project plugin** — capability owned by one project. It may render project-specific UI or provide an extension that customizes a core LOOM plugin. Examples: a project Avatar Provider or project Background Orb Provider.
 
-The core rule is: **LOOM owns mechanisms; projects own project-specific content and optional providers.** Do not hard-code Green Beans, Dogelana, or any other project into the LOOM engine.
+The core rule is: **LOOM owns mechanisms; projects own project-specific content and optional providers.** Do not hard-code any concrete product project into the LOOM engine.
 
 ---
 
@@ -99,8 +99,8 @@ Must be globally unambiguous inside the project runtime. Use namespaced IDs:
 ```text
 core.ui.background-orbs
 core.user.profile
-project.green-beans.avatar-provider
-project.green-beans.shopping-list
+project.example.avatar-provider
+project.example.shopping-list
 ```
 
 Never reuse an ID for a different semantic capability.
@@ -313,14 +313,14 @@ Keep security-sensitive authority on the server. A manifest Admin field is confi
 
 This is the most important modularity rule.
 
-Suppose LOOM owns a generic avatar system. The project should **not fork User Profile** just to provide a bean avatar creator. Instead, User Profile exposes/consumes an extension contract, and Green Beans provides it.
+Suppose LOOM owns a generic avatar system. A project should **not fork User Profile** just to provide a custom avatar creator. Instead, User Profile exposes/consumes an extension contract, and the project provides it.
 
 Project provider:
 
 ```js
 export async function createModule(ctx) {
   const provider = {
-    label: 'Green Beans',
+    label: 'Example Project',
     async getDefaultAvatarUrl() { /* ... */ },
     async openCreator({ host, onApply, onCancel }) { /* ... */ }
   };

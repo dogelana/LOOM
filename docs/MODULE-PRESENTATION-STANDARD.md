@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.34 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=4 policy=package-priority -->
 # LOOM Module Presentation Standard (v0.9.2)
 
 LOOM separates **what a module renders** from **where that module belongs**.
@@ -44,7 +44,7 @@ Content modules target a region and optional slot. `ctx.mount(node, fallbackSele
 `maxWidth`, `minHeight`, `margin`, `padding`: CSS-compatible strings  
 `className`: optional class(es) LOOM adds to the module root
 
-## Green Beans example
+## Generic project example
 
 `core.ui.header-bar` owns region `header-bar` and slots `brand` and `utility`.
 
@@ -52,7 +52,7 @@ Content modules target a region and optional slot. `ctx.mount(node, fallbackSele
 
 
 ## Bounded media slots
-Layout regions should expose bounded media slots when arbitrary images are injected. Child media modules must size against the slot, not against intrinsic source dimensions. Green Beans Header Bar uses `brand-media` and `brand-text` sibling slots as the reference pattern.
+Layout regions should expose bounded media slots when arbitrary images are injected. Child media modules must size against the slot, not against intrinsic source dimensions. The baseline Header Bar uses `brand-media` and `brand-text` sibling slots as the reference pattern.
 
 
 ## Optical offsets

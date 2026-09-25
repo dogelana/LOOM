@@ -1,5 +1,5 @@
-/* @loom-file release=0.15.16 revision=3 policy=package-priority */
-.gb-header-bar{
+/* @loom-file release=0.15.49 revision=4 policy=package-priority */
+.loom-header-bar{
   width:100%;
   min-width:0;
   min-height:124px;
@@ -17,15 +17,15 @@
   overflow:visible;
   box-sizing:border-box;
 }
-.gb-header-bar[data-width-mode="fit-content"]{
+.loom-header-bar[data-width-mode="fit-content"]{
   width:max-content!important;
   inline-size:max-content!important;
   max-width:100%;
   flex:0 0 auto!important;
   justify-content:flex-start;
 }
-.gb-header-slot{min-width:0;display:flex;align-items:center}
-.gb-header-brand{
+.loom-header-slot{min-width:0;display:flex;align-items:center}
+.loom-header-brand{
   flex:1 1 auto;
   min-width:0;
   justify-content:flex-start;
@@ -33,12 +33,12 @@
   gap:14px;
   overflow:visible;
 }
-.gb-header-bar[data-width-mode="fit-content"] .gb-header-brand{
+.loom-header-bar[data-width-mode="fit-content"] .loom-header-brand{
   flex:0 0 auto;
   width:max-content;
   min-width:0;
 }
-.gb-header-brand-media{
+.loom-header-brand-media{
   flex:0 0 92px;
   width:92px;
   height:98px;
@@ -47,7 +47,7 @@
   place-items:center;
   overflow:visible;
 }
-.gb-header-brand-text{
+.loom-header-brand-text{
   flex:0 0 auto;
   width:auto;
   height:auto;
@@ -59,13 +59,13 @@
   justify-content:flex-start;
   overflow:visible;
 }
-.gb-header-brand-text:empty{display:none}
-.gb-header-utility{flex:0 0 auto;justify-content:flex-end;gap:10px;margin-left:auto;min-height:44px}
-.gb-header-utility:empty{display:none}
-.gb-header-bar[data-width-mode="fit-content"] .gb-header-utility{margin-left:0}
+.loom-header-brand-text:empty{display:none}
+.loom-header-utility{flex:0 0 auto;justify-content:flex-end;gap:10px;margin-left:auto;min-height:44px}
+.loom-header-utility:empty{display:none}
+.loom-header-bar[data-width-mode="fit-content"] .loom-header-utility{margin-left:0}
 @media(max-width:620px){
-  .gb-header-bar{min-height:96px;padding:9px 12px;border-radius:22px;gap:10px}
-  .gb-header-brand{gap:8px}
-  .gb-header-brand-media{flex-basis:68px;width:68px;height:74px;min-width:68px}
-  .gb-header-brand-text{flex:0 0 auto;width:auto;height:auto;min-width:0;max-width:none;max-height:none;overflow:visible}
+  .loom-header-bar{min-height:96px;padding:9px 12px;border-radius:22px;gap:10px}
+  .loom-header-brand{gap:8px}
+  .loom-header-brand-media{flex-basis:68px;width:68px;height:74px;min-width:68px}
+  .loom-header-brand-text{flex:0 0 auto;width:auto;height:auto;min-width:0;max-width:none;max-height:none;overflow:visible}
 }

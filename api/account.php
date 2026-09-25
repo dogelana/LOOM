@@ -1,9 +1,11 @@
 <?php
-// @loom-file release=0.15.48 revision=6 policy=package-priority
+// @loom-file release=0.15.49 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 $method=$_SERVER['REQUEST_METHOD']??'POST';if($method!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);$body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);$action=(string)($body['action']??'status');$clientId=safe_token((string)($body['clientId']??''));if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['ok'=>false,'error'=>'Invalid client identity'],400);$project=safe_slug((string)($body['project']??''));if($project!==''&&!project_dir($project))json_out(['ok'=>false,'error'=>'Invalid project'],400);loom_capture_request_ip($clientId,$project);
 if($action==='status'){$priv=loom_bootstrap_or_privilege($clientId,false);$g=loom_guest_ensure_for_client($clientId);json_out(['ok'=>true,'account'=>loom_account_public_status($clientId,$project),'guest'=>loom_guest_public($g),'privilege'=>$priv,'storageMode'=>loom_db_ready()?'database':'durable-local']);}
 if($action==='register'){
+  $requestedUsername=loom_clean_username((string)($body['username']??''));
+  if($requestedUsername!=='')loom_global_profile_set_username($clientId,$requestedUsername);
   $global=loom_global_profile_ensure($clientId);
   $identity=$project!==''?loom_project_identity_ensure($project,$clientId,true):null;
   $username=loom_clean_username((string)($identity['effectiveUsername']??$global['username']??''));

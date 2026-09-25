@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=3 policy=package-priority -->
 # LOOM Domain Landing / Project-at-Root Standard
 
 Status: **implemented and active in LOOM 0.15.08**.
@@ -52,11 +52,11 @@ The front controller reuses the project's real project shell. It injects a canon
 
 ```js
 window.LOOM_MOUNT_CONTEXT = {
-  project: "green-beans",
+  project: "example-project",
   loomBase: "/",
   publicBase: "/",
   homeUrl: "/home/",
-  canonicalProjectUrl: "/projects/green-beans/app/?project=green-beans",
+  canonicalProjectUrl: "/projects/example-project/app/?project=example-project",
   rootMounted: true,
   source: "release"
 };

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.48 revision=1 policy=package-priority
+// @loom-file release=0.15.49 revision=2 policy=package-priority
 declare(strict_types=1);
 
 /** LOOM global system email + password recovery. Persistent state lives only in /instance. */

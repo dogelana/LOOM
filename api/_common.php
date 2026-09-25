@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.48 revision=46 policy=package-priority
+// @loom-file release=0.15.49 revision=47 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -115,12 +115,10 @@ function loom_brand_hex(mixed $value,string $fallback): string {
   $v=strtoupper(trim((string)$value));return preg_match('/^#[0-9A-F]{6}$/',$v)?$v:$fallback;
 }
 function loom_project_brand_colors(string $project): array {
-  $data=loom_project_effective_data($project);$legacy=is_array($data['brand_defaults']??null)?$data['brand_defaults']:[];
+  $data=loom_project_effective_data($project);
   $primary=loom_brand_hex($data['brand_primary_color']??null,'');
-  if($primary==='')$primary=loom_brand_hex($legacy['dark_bean']??null,'');
   if($primary==='')$primary=loom_brand_hex($data['social_color']??null,'#111111');
-  $accent=loom_brand_hex($data['brand_accent_color']??null,'');
-  if($accent==='')$accent=loom_brand_hex($legacy['light_bean']??null,'#168346');
+  $accent=loom_brand_hex($data['brand_accent_color']??null,'#168346');
   return ['primary'=>$primary?:'#111111','accent'=>$accent?:'#168346'];
 }
 function loom_mix_hex(string $from,string $to,float $towardTo): string {
@@ -130,10 +128,9 @@ function loom_mix_hex(string $from,string $to,float $towardTo): string {
   return sprintf('#%02X%02X%02X',$r[0],$r[1],$r[2]);
 }
 function loom_project_brand_theme(string $project): array {
-  $data=loom_project_effective_data($project);$legacy=is_array($data['brand_defaults']??null)?$data['brand_defaults']:[];$colors=loom_project_brand_colors($project);
+  $data=loom_project_effective_data($project);$colors=loom_project_brand_colors($project);
   $explicitPrimary=loom_brand_hex($data['brand_primary_color']??null,'');$explicitAccent=loom_brand_hex($data['brand_accent_color']??null,'');
-  $legacyPrimary=loom_brand_hex($legacy['dark_bean']??null,'');$legacyAccent=loom_brand_hex($legacy['light_bean']??null,'');
-  $provided=($explicitPrimary!==''||$explicitAccent!==''||$legacyPrimary!==''||$legacyAccent!=='');
+  $provided=($explicitPrimary!==''||$explicitAccent!=='');
   $primary=$colors['primary'];$accent=$colors['accent'];
   return [
     'provided'=>$provided,'primary'=>$primary,'accent'=>$accent,
@@ -221,13 +218,13 @@ function loom_project_core_manifest_for_project(string $project,array $manifest)
     $cfg=is_array($manifest['config']??null)?$manifest['config']:[];$admin=loom_module_admin_overrides($project,$id);
     // Backwards compatibility: pre-0.15.14 explicit Logo Text values mean this location was customized.
     $wordingSource=(string)($admin['wordingSource']??((array_key_exists('line1',$admin)||array_key_exists('line2',$admin))?'custom':'project'));
-    $colorSource=(string)($admin['colorSource']??((array_key_exists('greenColor',$admin)||array_key_exists('beanColor',$admin))?'custom':'project'));
+    $colorSource=(string)($admin['colorSource']??((array_key_exists('primaryColor',$admin)||array_key_exists('accentColor',$admin))?'custom':'project'));
     $fontSource=(string)($admin['fontSource']??(array_key_exists('fontFamily',$admin)?'custom':'project'));
     $cfg['wordingSource']=in_array($wordingSource,['project','custom'],true)?$wordingSource:'project';
     $cfg['colorSource']=in_array($colorSource,['project','custom'],true)?$colorSource:'project';
     $cfg['fontSource']=in_array($fontSource,['project','custom'],true)?$fontSource:'project';
     if($cfg['wordingSource']==='project'){$cfg['line1']=$brand['line1'];$cfg['line2']=$brand['line2'];}
-    if($cfg['colorSource']==='project'){$cfg['greenColor']=$brand['primary'];$cfg['beanColor']=$brand['accent'];}
+    if($cfg['colorSource']==='project'){$cfg['primaryColor']=$brand['primary'];$cfg['accentColor']=$brand['accent'];}
     if($cfg['fontSource']==='project'){$cfg['fontFamily']=$brand['font_family'];$cfg['fontWeight']=$brand['font_weight'];$cfg['fontGoogleCss']=$brand['font_css'];}
     $cfg['projectWordmark']=$brand;
     $manifest['config']=$cfg;
@@ -352,7 +349,7 @@ function versioned_rel_url(string $absolute): string {
   return append_cache_version(rel_url($absolute),file_cache_version($absolute));
 }
 function read_json_file(string $file): ?array { $x=json_decode((string)@file_get_contents($file),true); return is_array($x)?$x:null; }
-function loom_release_version(string $fallback='0.15.48'): string { $m=read_json_file(root_dir().'/.loom-deployment.json'); $v=trim((string)($m['loom_release']??'')); return $v!==''?$v:$fallback; }
+function loom_release_version(string $fallback='0.15.49'): string { $m=read_json_file(root_dir().'/.loom-deployment.json'); $v=trim((string)($m['loom_release']??'')); return $v!==''?$v:$fallback; }
 function server_epoch_ms(): int { return (int)round(microtime(true)*1000); }
 function server_timestamp(): string {
   $dt=DateTimeImmutable::createFromFormat('U.u',sprintf('%.6F',microtime(true)),new DateTimeZone('UTC'));
@@ -584,7 +581,7 @@ function loom_native_admin_page_guard(string $pageTitle='Admin',string $rootPref
   if(loom_request_is_admin())return;
   http_response_code(403);header('Content-Type: text/html; charset=utf-8');header('Cache-Control: no-store, no-cache, must-revalidate');
   $prefix=rtrim($rootPrefix,'/').'/';$title=htmlspecialchars($pageTitle,ENT_QUOTES,'UTF-8');$api=htmlspecialchars($prefix.'api',ENT_QUOTES,'UTF-8');$home=htmlspecialchars($prefix.'home/',ENT_QUOTES,'UTF-8');$engine=htmlspecialchars($prefix.'engine/',ENT_QUOTES,'UTF-8');
-  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.48"></script><script src="'.$engine.'identity.js?v=0.15.48"></script><script src="'.$engine.'identity-entry.js?v=0.15.48"></script><script src="'.$engine.'loom-brand.js?v=0.15.48"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.48"></script><script src="'.$engine.'loom-toast.js?v=0.15.48"></script><script src="'.$engine.'share-referrals.js?v=0.15.48"></script><script src="'.$engine.'loom-shell.js?v=0.15.48"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
+  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.49"></script><script src="'.$engine.'identity.js?v=0.15.49"></script><script src="'.$engine.'identity-entry.js?v=0.15.49"></script><script src="'.$engine.'loom-brand.js?v=0.15.49"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.49"></script><script src="'.$engine.'loom-toast.js?v=0.15.49"></script><script src="'.$engine.'share-referrals.js?v=0.15.49"></script><script src="'.$engine.'loom-shell.js?v=0.15.49"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
   exit;
 }
 function loom_admin_settings_file(string $project): string {

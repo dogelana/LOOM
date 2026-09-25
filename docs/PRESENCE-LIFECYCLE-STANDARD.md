@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=3 policy=package-priority -->
 # LOOM Presence + Lifecycle Standard — v0.8.1
 
 ## Core rule
@@ -80,4 +80,4 @@ For a stale session:
 - show heartbeat freshness separately from session-end reason;
 - immediately return to live when a heartbeat resumes.
 
-This standard applies to all LOOM projects, not only Green Beans.
+This standard applies to every LOOM project.

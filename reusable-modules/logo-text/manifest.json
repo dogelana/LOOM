@@ -35,7 +35,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "2.2.1",
+    "version": "2.5.0",
     "dependencies": [
       "core.ui.header-bar"
     ],
@@ -59,13 +59,13 @@
   },
   "config": {
     "mountSelector": "#feature-stage",
-    "line1": "GREEN",
-    "line2": "BEANS",
+    "line1": "PROJECT",
+    "line2": "",
     "fontFamily": "League Spartan",
     "fontWeight": 900,
     "fontGoogleCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap",
-    "greenColor": "#279E38",
-    "beanColor": "#A9DF4F",
+    "primaryColor": "#111111",
+    "accentColor": "#168346",
     "opticalOffsetY": "10px",
     "fontSize": 54
   },
@@ -127,13 +127,13 @@
         ]
       },
       {
-        "id": "greenColor",
-        "label": "Top line color",
+        "id": "primaryColor",
+        "label": "Custom header top-line color",
         "type": "color"
       },
       {
-        "id": "beanColor",
-        "label": "Bottom line color",
+        "id": "accentColor",
+        "label": "Custom header bottom-line color",
         "type": "color"
       }
     ]

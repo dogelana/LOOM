@@ -1,4 +1,4 @@
-// @loom-file release=0.15.23 revision=1 policy=package-priority
+// @loom-file release=0.15.49 revision=2 policy=package-priority
 export async function createModule(ctx) {
   let logoWrap = null;
   let host = null;
@@ -59,12 +59,12 @@ export async function createModule(ctx) {
 
       ctx.step('create-element', 'active');
       logoWrap = document.createElement('div');
-      logoWrap.className = 'gb-logo-module';
+      logoWrap.className = 'loom-logo-module';
       logoWrap.dataset.assetPath = assetPath;
 
       if (url) {
         stage = document.createElement('div');
-        stage.className = 'gb-logo-shine-stage';
+        stage.className = 'loom-logo-shine-stage';
         const img = document.createElement('img');
         img.src = url;
         img.alt = ctx.config.alt || 'Project logo';
@@ -76,12 +76,12 @@ export async function createModule(ctx) {
           img.dataset.loomFallbackTried='1';usingLoomDefault=true;img.src=loomDefaultUrl();img.alt='LOOM default project logo';logoWrap.title='Using the LOOM default project logo.';
         });
         shine = document.createElement('span');
-        shine.className = 'gb-logo-shine';
+        shine.className = 'loom-logo-shine';
         shine.setAttribute('aria-hidden','true');
         stage.append(img, shine);
         logoWrap.appendChild(stage);
       } else {
-        stage = document.createElement('div');stage.className='gb-logo-shine-stage';const img=document.createElement('img');img.src=loomDefaultUrl();img.alt='LOOM default project logo';stage.appendChild(img);logoWrap.appendChild(stage);usingLoomDefault=true;logoWrap.title='Using the LOOM default project logo.';
+        stage = document.createElement('div');stage.className='loom-logo-shine-stage';const img=document.createElement('img');img.src=loomDefaultUrl();img.alt='LOOM default project logo';stage.appendChild(img);logoWrap.appendChild(stage);usingLoomDefault=true;logoWrap.title='Using the LOOM default project logo.';
       }
       ctx.step('create-element', 'completed', { assetPath });
 

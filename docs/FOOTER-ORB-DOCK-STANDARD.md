@@ -1,7 +1,7 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=3 policy=package-priority -->
 # LOOM Footer + Orb Dock Standard
 
-`core.ui.footer-bar` owns the footer region and exposes the `orbs` slot. `core.ui.orb-dock` mounts into that slot and can capture content modules into responsive quick-access orbs. Project Update Log is the default required orb in Green Beans. Orb appearance is configured through project Admin settings; capture/emoji mapping is stored as an Orb Dock admin override.
+`core.ui.footer-bar` owns the footer region and exposes the `orbs` slot. `core.ui.orb-dock` mounts into that slot and can capture content modules into responsive quick-access orbs. Project Update Log can be configured as a required project orb. Orb appearance is configured through project Admin settings; capture/emoji mapping is stored as an Orb Dock admin override.
 
 ## v0.11.23 three-row footer composition
 

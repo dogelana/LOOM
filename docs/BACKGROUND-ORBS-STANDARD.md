@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.23 revision=4 policy=package-priority -->
+<!-- @loom-file release=0.15.49 revision=5 policy=package-priority -->
 # LOOM Background Energy Field Standard — v0.12.04
 
 `core.ui.background-orbs` remains the stable module/action ID for compatibility, but its LOOM-native default visual is now an electric circuitry-inspired **energy field**, not glass bubbles.
@@ -32,7 +32,7 @@ The optional special-particle teammate contract may additionally provide:
 
 If a project does not provide a special override, LOOM falls back to its animated cube special particle. The project never owns the animation engine itself.
 
-Green Beans is the reference extension: bundled pea-pod art supplies normal project particles and `🥕` supplies the occasional special particle.
+A project extension may supply custom artwork for both regular particles and the occasional special particle.
 
 ## Admin precedence
 1. Explicit Admin settings
