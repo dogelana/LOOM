@@ -1,8 +1,13 @@
-# LOOM 0.15.54
+
+## Canonical Users directory (0.15.55)
+
+Admin → Users is one global people directory. Choose **Global LOOM** or a project scope; the same permanent accounts and Guest Identities are shown in either view, with project participation resolved from canonical identity plus proven linked-client history. Clicking a person opens one inspector for identity, avatar, network/geolocation context, continuity/referrals, project activity, access roles, and global/project moderation. Global LOOM bans and per-project bans are independent and do not delete data. Raw orphan browser clients are cleanup evidence, not first-class people.
+
+# LOOM 0.15.55
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
 
-## 0.15.54 — orphan identity sweep + canonical Project Users
+## 0.15.55 — orphan identity sweep + canonical Project Users
 
 LOOM now treats pre-Guest-era raw browser/client records as explicit **legacy orphan clients** instead of pretending they are current Guest Identities. The Project Users list labels them clearly, and the System Owner cleanup suite reports how many exist.
 
@@ -97,4 +102,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.54 revision=72 policy=package-priority -->
+<!-- @loom-file release=0.15.55 revision=73 policy=package-priority -->

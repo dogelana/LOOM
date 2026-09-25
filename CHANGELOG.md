@@ -1,4 +1,17 @@
-# LOOM v0.15.54 — Orphan Identity Sweep + Canonical Project Users
+# LOOM v0.15.55 — Canonical Global User Directory + Unified Moderation
+
+## v0.15.55 — Canonical Global User Directory + Unified Moderation
+
+- Replaced the split Global Users / Project Users experience with one canonical **Users** directory. It opens in **Global LOOM** mode and can be focused on any project without changing identity models. Every scope shows an explicit user count.
+- Permanent accounts and unattached Guest Identities are the only first-class people rows. Browser client IDs remain lineage/evidence underneath a person instead of appearing as competing users. Legacy orphan clients remain available to Identity Cleanup rather than masquerading as Guests.
+- Fixed permanent users disappearing from project views when their historical participation lived under a proven linked browser client. Admin directory loading safely reconciles linked client project identities, module state and moderation into the permanent account; no fuzzy identity inference is used.
+- Attached Guest Histories also count as explicit proven lineage for their permanent account, so project activity recorded before sign-in/claim follows the account into project-scoped directory views instead of disappearing behind the old browser client.
+- Any canonical permanent or Guest row now opens the same full inspector with avatar, account/Guest status, System Owner / LOOM Admin state, linked clients and Guest Histories, network/geolocation context, continuity/referral summary, project participation, activity and per-project identity.
+- Added separate canonical moderation scopes: **Ban from LOOM globally** and **Ban from a chosen project**. Both permanent accounts and Guest Identities can be moderated; the System Owner remains protected. Global bans are enforced across project discovery and project APIs while preserving account/data.
+- Project inspector can grant/revoke Project Admin, and permanent-account inspectors can grant/revoke LOOM Admin where authorization permits.
+- Identity Cleanup now removes canonical global/project moderation records together with the deleted person, including SQL `loom_identity_moderation` rows.
+- Avatar rendering in Users now uses the protected global avatar endpoint with the LOOM default avatar as a reliable fallback.
+
 
 - Fixed the remaining identity-cleanup gap where raw legacy `client` / client-profile rows could survive after **All Guest Identities** was wiped, then reappear in Project Users as `Visitor XXXXX` or an old username.
 - Project Users now distinguishes canonical Guest Identities from **Legacy orphan client** records instead of labeling every unauthenticated raw client as a Guest Identity.
@@ -696,7 +709,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.54 revision=73 policy=package-priority -->
+<!-- @loom-file release=0.15.55 revision=74 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

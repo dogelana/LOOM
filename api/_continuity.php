@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.54 revision=4 policy=package-priority
+// @loom-file release=0.15.55 revision=5 policy=package-priority
 // LOOM v0.15.49 — privacy-bounded Continuity Clusters + strict guest ambiguity gate.
 declare(strict_types=1);
 

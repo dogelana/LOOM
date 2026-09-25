@@ -1,7 +1,7 @@
 <?php
-// @loom-file release=0.15.31 revision=19 policy=package-priority
+// @loom-file release=0.15.55 revision=20 policy=package-priority
 require __DIR__.'/_common.php';
-$requestClientId=safe_token((string)($_GET['clientId']??''));if($requestClientId!=='')loom_capture_request_ip($requestClientId,'');
+$requestClientId=safe_token((string)($_GET['clientId']??''));if($requestClientId!==''){loom_capture_request_ip($requestClientId,'');if(!loom_request_is_admin())loom_enforce_global_access($requestClientId);}
 $onlyProject=safe_slug((string)($_GET['project']??''));
 $projects=[];$projectWarnings=[];$release=loom_release_version();
 

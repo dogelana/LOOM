@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.54 revision=4 policy=package-priority -->
+<!-- @loom-file release=0.15.55 revision=5 policy=package-priority -->
 # LOOM Identity Permanence & Recovery Standard
 
 Version: 0.12.00

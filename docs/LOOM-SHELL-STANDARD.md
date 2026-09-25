@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.54 revision=5 policy=package-priority -->
+<!-- @loom-file release=0.15.55 revision=6 policy=package-priority -->
 # LOOM-Owned Shell Standard
 
 Version: 0.11.25

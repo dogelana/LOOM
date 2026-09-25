@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.54 revision=4 policy=package-priority
+// @loom-file release=0.15.55 revision=5 policy=package-priority
 require __DIR__.'/_common.php';
 $method=$_SERVER['REQUEST_METHOD']??'GET';
 function loom_global_profile_api_public(array $p,string $clientId): array { $visible=function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'';$p['displayName']=$visible!==''?$visible:(!preg_match('/^(?:GuestHandle-|acct_)/i',(string)($p['username']??''))?(string)($p['username']??''):'LOOM User');$p['internalHandle']=$p['username']??null;return $p; }

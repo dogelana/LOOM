@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.54 revision=5 policy=package-priority
+// @loom-file release=0.15.55 revision=6 policy=package-priority
 declare(strict_types=1);
 
 function loom_network_file(): string { return loom_data_dir().'/users/network.json'; }
@@ -10,12 +10,12 @@ function loom_network_store(): array {
   return array_replace(['schemaVersion'=>'1.0','identities'=>[]],$d);
 }
 function loom_write_network_store(array $store): void {
-  ensure_dir(dirname(loom_network_file()));$store['schemaVersion']='1.0';$store['updatedAt']=server_timestamp();
+  ensure_dir(dirname(loom_network_file()));$store['schemaVersion']='1.1';$store['updatedAt']=server_timestamp();
   @file_put_contents(loom_network_file(),json_encode($store,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);
 }
 function loom_moderation_store(): array {
   $d=read_json_file(loom_moderation_file())?:[];
-  return array_replace(['schemaVersion'=>'1.0','projectStates'=>[],'audit'=>[]],$d);
+  return array_replace(['schemaVersion'=>'1.1','projectStates'=>[],'identityStates'=>[],'audit'=>[]],$d);
 }
 function loom_write_moderation_store(array $store): void {
   ensure_dir(dirname(loom_moderation_file()));$store['schemaVersion']='1.0';$store['updatedAt']=server_timestamp();
@@ -72,6 +72,7 @@ function loom_moderation_db(): ?PDO {
   try{
     $pdo->exec("CREATE TABLE IF NOT EXISTS loom_identity_ips (owner_type ENUM('client','user') NOT NULL,owner_id VARCHAR(96) NOT NULL,ip_address VARCHAR(45) NOT NULL,network_key VARCHAR(96) NULL,first_seen DATETIME(3) NOT NULL,last_seen DATETIME(3) NOT NULL,seen_count BIGINT UNSIGNED NOT NULL DEFAULT 1,last_project_slug VARCHAR(96) NULL,source VARCHAR(64) NULL,PRIMARY KEY(owner_type,owner_id,ip_address),INDEX idx_identity_ip_last_seen(last_seen),INDEX idx_identity_ip_address(ip_address),INDEX idx_identity_network_key(network_key)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     $pdo->exec("CREATE TABLE IF NOT EXISTS loom_project_user_state (project_slug VARCHAR(96) NOT NULL,subject_type ENUM('client','user') NOT NULL,subject_id VARCHAR(96) NOT NULL,banned TINYINT(1) NOT NULL DEFAULT 0,include_data TINYINT(1) NOT NULL DEFAULT 0,banned_at DATETIME(3) NULL,banned_by_user_id VARCHAR(96) NULL,updated_at DATETIME(3) NOT NULL,PRIMARY KEY(project_slug,subject_type,subject_id),INDEX idx_project_banned(project_slug,banned),INDEX idx_subject_state(subject_type,subject_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS loom_identity_moderation (scope_type ENUM('global','project') NOT NULL,project_slug VARCHAR(96) NOT NULL DEFAULT '',subject_type ENUM('user','guest') NOT NULL,subject_id VARCHAR(96) NOT NULL,banned TINYINT(1) NOT NULL DEFAULT 0,include_data TINYINT(1) NOT NULL DEFAULT 0,banned_at DATETIME(3) NULL,banned_by_user_id VARCHAR(96) NULL,updated_at DATETIME(3) NOT NULL,PRIMARY KEY(scope_type,project_slug,subject_type,subject_id),INDEX idx_identity_moderation_subject(subject_type,subject_id),INDEX idx_identity_moderation_project(project_slug,banned)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     $pdo->exec("CREATE TABLE IF NOT EXISTS loom_admin_audit (audit_id VARCHAR(96) PRIMARY KEY,admin_user_id VARCHAR(96) NULL,admin_client_id VARCHAR(96) NULL,action_type VARCHAR(96) NOT NULL,target_type VARCHAR(32) NULL,target_id VARCHAR(96) NULL,project_slug VARCHAR(96) NULL,created_at DATETIME(3) NOT NULL,payload JSON NULL,INDEX idx_admin_audit_time(created_at),INDEX idx_admin_audit_target(target_type,target_id,created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     try{$cols=$pdo->query("SHOW COLUMNS FROM loom_identity_ips LIKE 'network_key'")->fetchAll();if(!$cols)$pdo->exec("ALTER TABLE loom_identity_ips ADD COLUMN network_key VARCHAR(96) NULL AFTER ip_address, ADD INDEX idx_identity_network_key(network_key)");}catch(Throwable $ignored){}
     $ready=true;
@@ -129,6 +130,37 @@ function loom_subject_for_request(string $clientId=''): array {
   $auth=loom_auth_user();$uid=(string)($auth['user_id']??$auth['userId']??'');if($uid!=='')return ['type'=>'user','id'=>$uid];
   return loom_subject_for_record($clientId,'');
 }
+function loom_identity_subject_for_record(string $clientId='',string $userId=''): array {
+  $userId=safe_token($userId);$clientId=safe_token($clientId);
+  if($userId!=='')return ['type'=>'user','id'=>$userId];
+  if($clientId!==''){$u=loom_account_user_for_client($clientId);$uid=safe_token((string)($u['user_id']??$u['userId']??''));if($uid!=='')return ['type'=>'user','id'=>$uid];}
+  if($clientId!==''&&function_exists('loom_guest_for_client')){$g=loom_guest_for_client($clientId);if(is_array($g)){$g=loom_guest_root($g);$gid=safe_token((string)($g['guestId']??''));if($gid!=='')return ['type'=>'guest','id'=>$gid];}}
+  return ['type'=>'client','id'=>$clientId];
+}
+function loom_identity_subject_for_request(string $clientId=''): array {
+  $auth=loom_auth_user();$uid=safe_token((string)($auth['user_id']??$auth['userId']??''));if($uid!=='')return ['type'=>'user','id'=>$uid];
+  return loom_identity_subject_for_record($clientId,'');
+}
+function loom_identity_moderation_key(string $scope,string $project,string $type,string $id): string { return $scope.':'.($project?:'_').':'.$type.':'.$id; }
+function loom_identity_moderation_state(string $scope,string $project,string $type,string $id): array {
+  $scope=$scope==='project'?'project':'global';$project=$scope==='project'?safe_slug($project):'';$type=in_array($type,['user','guest'],true)?$type:'';$id=safe_token($id);
+  $default=['scope'=>$scope,'project'=>$project?:null,'subjectType'=>$type,'subjectId'=>$id,'banned'=>false,'includeData'=>false,'bannedAt'=>null,'bannedByUserId'=>null,'updatedAt'=>null];
+  if($type===''||$id===''||($scope==='project'&&$project===''))return $default;
+  $store=loom_moderation_store();$key=loom_identity_moderation_key($scope,$project,$type,$id);$local=$store['identityStates'][$key]??null;if(is_array($local))$default=array_replace($default,$local);
+  if($pdo=loom_moderation_db())try{$st=$pdo->prepare("SELECT * FROM loom_identity_moderation WHERE scope_type=? AND project_slug=? AND subject_type=? AND subject_id=?");$st->execute([$scope,$project,$type,$id]);$r=$st->fetch();if($r)$default=array_replace($default,['banned'=>(bool)$r['banned'],'includeData'=>(bool)$r['include_data'],'bannedAt'=>$r['banned_at'],'bannedByUserId'=>$r['banned_by_user_id'],'updatedAt'=>$r['updated_at']]);}catch(Throwable $e){}
+  return $default;
+}
+function loom_set_identity_moderation_state(string $scope,string $project,string $type,string $id,bool $banned,bool $includeData,string $adminUserId=''): array {
+  $scope=$scope==='project'?'project':'global';$project=$scope==='project'?safe_slug($project):'';$type=in_array($type,['user','guest'],true)?$type:'';$id=safe_token($id);
+  if($type===''||$id===''||($scope==='project'&&($project===''||!project_dir($project))))throw new RuntimeException('Invalid canonical moderation target.');
+  $now=server_timestamp();$old=loom_identity_moderation_state($scope,$project,$type,$id);$row=['scope'=>$scope,'project'=>$project?:null,'subjectType'=>$type,'subjectId'=>$id,'banned'=>$banned,'includeData'=>$includeData,'bannedAt'=>$banned?($old['bannedAt']?:$now):null,'bannedByUserId'=>$banned?($adminUserId?:null):null,'updatedAt'=>$now];
+  $store=loom_moderation_store();$store['identityStates'][loom_identity_moderation_key($scope,$project,$type,$id)]=$row;loom_write_moderation_store($store);
+  if($pdo=loom_moderation_db())try{$st=$pdo->prepare("INSERT INTO loom_identity_moderation(scope_type,project_slug,subject_type,subject_id,banned,include_data,banned_at,banned_by_user_id,updated_at) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(3)) ON DUPLICATE KEY UPDATE banned=VALUES(banned),include_data=VALUES(include_data),banned_at=VALUES(banned_at),banned_by_user_id=VALUES(banned_by_user_id),updated_at=UTC_TIMESTAMP(3)");$st->execute([$scope,$project,$type,$id,$banned?1:0,$includeData?1:0,$banned?loom_db_dt($row['bannedAt']):null,$banned?($adminUserId?:null):null]);}catch(Throwable $e){}
+  return $row;
+}
+function loom_identity_global_ban_state(string $type,string $id): array { return loom_identity_moderation_state('global','',$type,$id); }
+function loom_identity_project_ban_state(string $project,string $type,string $id): array { return loom_identity_moderation_state('project',$project,$type,$id); }
+
 function loom_project_subject_state(string $project,string $type,string $id): array {
   $project=safe_slug($project);$type=in_array($type,['client','user'],true)?$type:'client';$id=safe_token($id);
   $default=['project'=>$project,'subjectType'=>$type,'subjectId'=>$id,'banned'=>false,'includeData'=>false,'bannedAt'=>null,'bannedByUserId'=>null,'updatedAt'=>null];
@@ -149,15 +181,28 @@ function loom_set_project_subject_state(string $project,string $type,string $id,
   }catch(Throwable $e){}
   return $row;
 }
+function loom_global_access_status(string $clientId=''): array {
+  $subject=loom_identity_subject_for_request($clientId);$state=['banned'=>false];
+  if(in_array($subject['type'],['user','guest'],true))$state=loom_identity_global_ban_state($subject['type'],$subject['id']);
+  return ['allowed'=>!(bool)($state['banned']??false),'banned'=>(bool)($state['banned']??false),'subject'=>$subject,'state'=>$state];
+}
+function loom_enforce_global_access(string $clientId=''): void {
+  $s=loom_global_access_status($clientId);if(!$s['allowed'])json_out(['ok'=>false,'error'=>'loom-access-banned','message'=>'This identity is banned from LOOM. The account and data remain preserved.','banned'=>true,'bannedAt'=>$s['state']['bannedAt']??null],403);
+}
 function loom_project_access_status(string $project,string $clientId=''): array {
-  $subject=loom_subject_for_request($clientId);$state=loom_project_subject_state($project,$subject['type'],$subject['id']);
-  return ['allowed'=>!$state['banned'],'banned'=>(bool)$state['banned'],'subject'=>$subject,'state'=>$state];
+  $canonical=loom_identity_subject_for_request($clientId);$legacy=loom_subject_for_request($clientId);$global=['banned'=>false];$projectState=['banned'=>false];
+  if(in_array($canonical['type'],['user','guest'],true)){$global=loom_identity_global_ban_state($canonical['type'],$canonical['id']);$projectState=loom_identity_project_ban_state($project,$canonical['type'],$canonical['id']);}
+  $legacyState=loom_project_subject_state($project,$legacy['type'],$legacy['id']);$banned=(bool)($global['banned']??false)||(bool)($projectState['banned']??false)||(bool)($legacyState['banned']??false);
+  $state=($global['banned']??false)?$global:(($projectState['banned']??false)?$projectState:$legacyState);
+  return ['allowed'=>!$banned,'banned'=>$banned,'subject'=>$canonical,'state'=>$state,'globalState'=>$global,'projectState'=>$projectState,'legacyState'=>$legacyState];
 }
 function loom_enforce_project_access(string $project,string $clientId=''): void {
   $s=loom_project_access_status($project,$clientId);if(!$s['allowed'])json_out(['ok'=>false,'error'=>'project-access-banned','message'=>'This profile is banned from this project. The account remains preserved.','project'=>$project,'banned'=>true,'bannedAt'=>$s['state']['bannedAt']],403);
 }
 function loom_project_record_visible(string $project,string $clientId='',string $userId=''): bool {
-  $subject=loom_subject_for_record($clientId,$userId);if($subject['id']==='')return true;$s=loom_project_subject_state($project,$subject['type'],$subject['id']);return !$s['banned']||$s['includeData'];
+  $canonical=loom_identity_subject_for_record($clientId,$userId);if($canonical['id']==='')return true;
+  if(in_array($canonical['type'],['user','guest'],true)){$g=loom_identity_global_ban_state($canonical['type'],$canonical['id']);if($g['banned']&&!$g['includeData'])return false;$p=loom_identity_project_ban_state($project,$canonical['type'],$canonical['id']);if($p['banned']&&!$p['includeData'])return false;}
+  $legacy=loom_subject_for_record($clientId,$userId);$s=loom_project_subject_state($project,$legacy['type'],$legacy['id']);return !$s['banned']||$s['includeData'];
 }
 function loom_promote_client_moderation_to_user(string $clientId,string $userId): void {
   $clientId=safe_token($clientId);$userId=safe_token($userId);if($clientId===''||$userId==='')return;$store=loom_moderation_store();
@@ -170,8 +215,9 @@ function loom_admin_audit(string $action,string $targetType='',string $targetId=
   if($pdo=loom_moderation_db())try{$st=$pdo->prepare("INSERT INTO loom_admin_audit(audit_id,admin_user_id,admin_client_id,action_type,target_type,target_id,project_slug,created_at,payload) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(3),?)");$st->execute([$row['id'],$row['adminUserId'],$row['adminClientId'],$action,$row['targetType'],$row['targetId'],$row['project'],json_encode($payload,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)]);}catch(Throwable $e){}
 }
 function loom_migrate_network_and_moderation_to_db(): array {
-  $pdo=loom_moderation_db();if(!$pdo)return ['ips'=>0,'projectStates'=>0,'audit'=>0];$counts=['ips'=>0,'projectStates'=>0,'audit'=>0];
+  $pdo=loom_moderation_db();if(!$pdo)return ['ips'=>0,'projectStates'=>0,'identityStates'=>0,'audit'=>0];$counts=['ips'=>0,'projectStates'=>0,'identityStates'=>0,'audit'=>0];
   $n=loom_network_store();foreach(($n['identities']??[]) as $row){$type=(string)($row['ownerType']??'');$id=(string)($row['ownerId']??'');foreach(($row['addresses']??[]) as $ip=>$r){try{$st=$pdo->prepare("INSERT INTO loom_identity_ips(owner_type,owner_id,ip_address,network_key,first_seen,last_seen,seen_count,last_project_slug,source) VALUES(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE first_seen=LEAST(first_seen,VALUES(first_seen)),last_seen=GREATEST(last_seen,VALUES(last_seen)),seen_count=GREATEST(seen_count,VALUES(seen_count)),last_project_slug=VALUES(last_project_slug),source=VALUES(source)");$st->execute([$type,$id,$ip,$r['networkKey']??loom_ip_network_key($ip),loom_db_dt($r['firstSeen']??server_timestamp()),loom_db_dt($r['lastSeen']??server_timestamp()),max(1,(int)($r['seenCount']??1)),$r['lastProject']??null,$r['source']??null]);$counts['ips']++;}catch(Throwable $e){}}}
   $m=loom_moderation_store();foreach(($m['projectStates']??[]) as $project=>$states)foreach($states as $r){try{$st=$pdo->prepare("INSERT INTO loom_project_user_state(project_slug,subject_type,subject_id,banned,include_data,banned_at,banned_by_user_id,updated_at) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE banned=VALUES(banned),include_data=VALUES(include_data),banned_at=VALUES(banned_at),banned_by_user_id=VALUES(banned_by_user_id),updated_at=VALUES(updated_at)");$st->execute([$project,$r['subjectType'],$r['subjectId'],!empty($r['banned'])?1:0,!empty($r['includeData'])?1:0,loom_db_dt($r['bannedAt']??null),$r['bannedByUserId']??null,loom_db_dt($r['updatedAt']??server_timestamp())]);$counts['projectStates']++;}catch(Throwable $e){}}
+  foreach(($m['identityStates']??[]) as $r){try{$scope=(string)($r['scope']??'global');$project=(string)($r['project']??'');$st=$pdo->prepare("INSERT INTO loom_identity_moderation(scope_type,project_slug,subject_type,subject_id,banned,include_data,banned_at,banned_by_user_id,updated_at) VALUES(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE banned=VALUES(banned),include_data=VALUES(include_data),banned_at=VALUES(banned_at),banned_by_user_id=VALUES(banned_by_user_id),updated_at=VALUES(updated_at)");$st->execute([$scope,$project,$r['subjectType'],$r['subjectId'],!empty($r['banned'])?1:0,!empty($r['includeData'])?1:0,loom_db_dt($r['bannedAt']??null),$r['bannedByUserId']??null,loom_db_dt($r['updatedAt']??server_timestamp())]);$counts['identityStates']++;}catch(Throwable $e){}}
   return $counts;
 }
