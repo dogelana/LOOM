@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.53 revision=15 policy=package-priority
+// @loom-file release=0.15.54 revision=16 policy=package-priority
 declare(strict_types=1);
 
 function loom_accounts_dir(): string { return loom_data_dir().'/accounts'; }

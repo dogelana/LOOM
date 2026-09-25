@@ -1,6 +1,14 @@
-# LOOM 0.15.53
+# LOOM 0.15.54
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
+
+## 0.15.54 — orphan identity sweep + canonical Project Users
+
+LOOM now treats pre-Guest-era raw browser/client records as explicit **legacy orphan clients** instead of pretending they are current Guest Identities. The Project Users list labels them clearly, and the System Owner cleanup suite reports how many exist.
+
+Bulk **All Guest Identities** cleanup now also sweeps orphan unauthenticated client records that have no canonical Guest wrapper and no permanent-account owner. A dedicated **Legacy orphan client records only** target is available when you want to clean just those remnants. Cleanup removes the raw durable profile file plus selected project identity/state, network/continuity, referral/activity/media data and matching SQL rows while protecting clients still linked to surviving permanent accounts and protecting the System Owner outside the explicit factory wipe.
+
+This closes the old gap where deleting every Guest Identity could leave `Visitor XXXXX` / old client-profile cards behind in project moderation because those rows came from a separate legacy client-profile store.
 
 ## 0.15.53 — unified Users, strict household-network ambiguity + readable network context
 
@@ -89,4 +97,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.53 revision=71 policy=package-priority -->
+<!-- @loom-file release=0.15.54 revision=72 policy=package-priority -->

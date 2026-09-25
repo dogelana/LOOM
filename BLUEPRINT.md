@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.53
+# LOOM Blueprint — 0.15.54
 
 ## 1. Purpose
 
@@ -25,6 +25,8 @@ The baseline project branding contract is generic:
 - presentation class names: LOOM-owned names only.
 
 ## 4. Accounts, guests, and continuity
+
+Canonical people are permanent users or durable Guest Identities. A raw browser/client record is implementation provenance, not automatically a person. Legacy pre-Guest client records without either a permanent-account link or Guest wrapper are classified as **orphan clients** and must never be presented as canonical Guest Identities. Bulk Guest cleanup includes these orphan remnants so an identity wipe cannot leave phantom Project Users behind.
 
 A permanent LOOM account is the durable authentication owner. Project-visible username/avatar may remain project-scoped while authentication ownership stays global.
 
@@ -120,4 +122,4 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.53 revision=67 policy=package-priority -->
+<!-- @loom-file release=0.15.54 revision=68 policy=package-priority -->

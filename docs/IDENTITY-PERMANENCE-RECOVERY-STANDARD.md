@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.53 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.54 revision=4 policy=package-priority -->
 # LOOM Identity Permanence & Recovery Standard
 
 Version: 0.12.00
@@ -10,6 +10,10 @@ LOOM treats user-created data as durable regardless of authentication state.
 A person does not need an email/password account for their work to deserve persistence. A browser/install begins with a server-backed **Guest Identity**. Creating or signing into a permanent account changes ownership, accessibility, and authentication; it does not decide whether the underlying history continues to exist.
 
 There is no age-based Guest Identity purge in this release. Guest data is retained until an explicit administrative/legal/privacy deletion mechanism is intentionally invoked. Authentication-session expiry does not delete application data.
+
+## Legacy orphan clients
+
+A raw client/profile row that predates Guest Identity permanence is not itself a canonical Guest. If it has no permanent-account owner and no Guest wrapper, Admin labels it **Legacy orphan client**. Bulk Guest cleanup sweeps these remnants by default, while clients owned by surviving permanent accounts remain protected.
 
 ## Identity layers
 

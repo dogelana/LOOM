@@ -1,4 +1,11 @@
-## v0.15.52 - Showcase Plate Position + Global UX Polish
+# LOOM v0.15.54 — Orphan Identity Sweep + Canonical Project Users
+
+- Fixed the remaining identity-cleanup gap where raw legacy `client` / client-profile rows could survive after **All Guest Identities** was wiped, then reappear in Project Users as `Visitor XXXXX` or an old username.
+- Project Users now distinguishes canonical Guest Identities from **Legacy orphan client** records instead of labeling every unauthenticated raw client as a Guest Identity.
+- Added orphan-client discovery across durable client profiles, global/project identities, network/continuity stores, Guest-profile generations, temporary account mappings and SQL identity tables.
+- **All Guest Identities**, **All users + guests**, and the factory identity wipe now include orphan unauthenticated client records automatically. A dedicated **Legacy orphan client records only** cleanup target is also available.
+- Cleanup preview now reports orphan-client counts before deletion. Raw local client-profile files are removed when safe; SQL cleanup removes orphan `loom_client_profiles` / `loom_clients` rows while preserving clients that still belong to surviving permanent accounts.
+- System Owner client protection remains in force for ordinary orphan/Guest cleanup; only the explicit factory identity wipe may remove the owner identity.
 
 # LOOM v0.15.53 — Unified Users + Network Ambiguity + Readable Network Context
 
@@ -10,6 +17,8 @@
 - Added IPv6 privacy-address awareness by normalizing public IPv6 observations to a `/64` network key for household overlap while retaining exact IPv4 matching.
 - No Instance state is shipped or reset by this release; old Guest identities remain preserved and must be claimed through real permanent authentication rather than inferred merges.
 
+
+# LOOM v0.15.52 — Showcase Plate Position + Global UX Polish
 
 - Moved the generated Showcase `POWERED BY LOOM` floating plate to a 10% bottom inset by default instead of 1.5%, preserving the floating-overlay treatment while producing a better-balanced badge composition.
 - Refined the shared LOOM visual foundation with stronger focus visibility, consistent disabled states, touch-target behavior, mobile spacing, and card/control rhythm.
@@ -687,7 +696,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.53 revision=72 policy=package-priority -->
+<!-- @loom-file release=0.15.54 revision=73 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

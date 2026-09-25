@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.53 revision=8 policy=package-priority */
+/* @loom-file release=0.15.54 revision=9 policy=package-priority */
 .loom-showcase{width:100%;max-width:100%;min-width:0;color:var(--loom-page-text,var(--ink,#132019));box-sizing:border-box}
 .loom-showcase-card{display:grid;grid-template-columns:minmax(280px,.88fr) minmax(0,1.12fr);width:100%;max-width:100%;min-width:0;min-height:320px;overflow:hidden;border:1px solid var(--loom-page-border,#dce9df);border-radius:var(--loom-page-radius,28px);background:var(--loom-page-surface,#fff);box-shadow:0 18px 55px rgba(20,48,29,.08);box-sizing:border-box}
 .loom-showcase-visual{min-width:0;min-height:320px;display:grid;place-items:center;padding:clamp(18px,3vw,34px);background:transparent;overflow:visible}

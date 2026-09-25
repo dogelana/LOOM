@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.53 revision=6 policy=package-priority
+// @loom-file release=0.15.54 revision=7 policy=package-priority
 declare(strict_types=1);
 
 // LOOM Global Profile Standard v0.11.20

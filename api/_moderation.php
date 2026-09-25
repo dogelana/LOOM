@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.53 revision=4 policy=package-priority
+// @loom-file release=0.15.54 revision=5 policy=package-priority
 declare(strict_types=1);
 
 function loom_network_file(): string { return loom_data_dir().'/users/network.json'; }

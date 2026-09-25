@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.53 revision=1 policy=package-priority
+// @loom-file release=0.15.54 revision=2 policy=package-priority
 // Admin-facing approximate IP geolocation enrichment. Geolocation is presentation
 // metadata only and is never used to authenticate, merge, or select an identity.
 declare(strict_types=1);
@@ -38,7 +38,7 @@ function loom_geo_lookup_remote(string $ip): ?array {
   $cache=loom_geo_cache();$key=hash('sha256',$ip);$row=$cache['items'][$key]??null;$ttl=max(1,(int)$settings['cacheDays'])*86400;
   if(is_array($row)&&!empty($row['fetchedEpoch'])&&(time()-(int)$row['fetchedEpoch'])<$ttl&&is_array($row['geo']??null))return $row['geo'];
   $url='https://ipwho.is/'.rawurlencode($ip);
-  $ctx=stream_context_create(['http'=>['timeout'=>2.5,'ignore_errors'=>true,'header'=>"User-Agent: LOOM-IP-Geolocation/0.15.53\r\nAccept: application/json\r\n"]]);
+  $ctx=stream_context_create(['http'=>['timeout'=>2.5,'ignore_errors'=>true,'header'=>"User-Agent: LOOM-IP-Geolocation/0.15.54\r\nAccept: application/json\r\n"]]);
   $raw=@file_get_contents($url,false,$ctx);if(!is_string($raw)||$raw==='')return null;$j=json_decode($raw,true);if(!is_array($j)||isset($j['success'])&&$j['success']===false)return null;
   $geo=loom_geo_normalize($j,'ipwho.is');$cache['items'][$key]=['ip'=>$ip,'fetchedAt'=>server_timestamp(),'fetchedEpoch'=>time(),'geo'=>$geo];if(count($cache['items'])>2000)$cache['items']=array_slice($cache['items'],-1500,null,true);loom_geo_write_cache($cache);return $geo;
 }
