@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.49
+# LOOM Blueprint — 0.15.50
 
 ## 1. Purpose
 

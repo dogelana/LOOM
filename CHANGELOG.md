@@ -1,3 +1,11 @@
+## v0.15.50 - Friendly Project Routes + Instance Asset Proxy + Showcase Badge Polish
+
+- Added first-class short project URLs such as `/green-beans/`; legacy `/projects/.../app/` links continue to work.
+- New project slugs auto-iterate when a requested slug is already used or collides with a real LOOM route/file. `home` becomes `home-2`; duplicate `dogelana` becomes `dogelana-2`, then `dogelana-3`, etc. Duplicate display names also iterate (`Dogelana 2`, `Dogelana 3`) so cards stay unambiguous.
+- Fixed Instance Project module-owned assets resolving to blocked `/instance/...` URLs. Module SVG/CSS/font/image assets now flow through the protected `api/project-file` gateway with project access context.
+- Refined the procedural Showcase fallback: the Powered by LOOM plaque now floats cleanly over the lower badge edge instead of being trapped inside the circle.
+- Existing project data, Instance Vault state, legacy project links, and domain-landing behavior remain backward compatible.
+
 ## v0.15.49 - Strict Guest Ambiguity + Generic Branding Cleanup
 
 - Removed the last product-specific starter branding assumptions from LOOM core, reusable modules, baseline template, and active standards. One-word projects now remain one-word projects; the header wordmark no longer invents a second line.

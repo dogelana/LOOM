@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.46 revision=11 policy=package-priority
+// @loom-file release=0.15.50 revision=12 policy=package-priority
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 
@@ -7,6 +7,7 @@ $project = (string)($_GET['project'] ?? '');
 $scope   = (string)($_GET['scope'] ?? 'project');
 $path    = (string)($_GET['path'] ?? '');
 $name    = (string)($_GET['name'] ?? ''); // legacy compatibility only
+$clientId = safe_token((string)($_GET['clientId'] ?? '')); // preserve access context for Instance Project module assets
 
 /**
  * Resolve an explicit relative path beneath $base without ever searching
@@ -76,11 +77,18 @@ if($scope!=='server'){
     }
 }
 $found=$overlayFound?:resolve_relative_ci($base,$requestedPath);
-$projectProxyUrl=null;
-if($found&&$scope!=='server'&&str_starts_with(strtolower(ltrim(str_replace('\\','/',$requestedPath),'/')),'assets/')){
-    // Project assets may physically live in the protected Instance Vault.
-    // Never return a direct /instance URL; use the canonical asset proxy.
-    $projectProxyUrl=loom_project_asset_url($project,$requestedPath);
+$projectProxyUrl=null;$projectFileProxyUrl=null;
+if($found&&$scope!=='server'){
+    $normalized=ltrim(str_replace('\\','/',$requestedPath),'/');
+    if(str_starts_with(strtolower($normalized),'assets/')){
+        $projectProxyUrl=loom_project_asset_url($project,$normalized);
+    }elseif(loom_project_is_instance_owned($project)){
+        // Instance Project module assets live under the protected vault too.
+        // Expose them only through project-file.php, never a direct /instance/ URL.
+        $segments=array_map('rawurlencode',array_values(array_filter(explode('/',$normalized),fn($x)=>$x!=='')));
+        $projectFileProxyUrl=web_base_path().'/api/project-file/'.rawurlencode(safe_slug($project)).'/'.implode('/',$segments).'?v='.rawurlencode(file_cache_version($found));
+        if($clientId!=='')$projectFileProxyUrl.='&clientId='.rawurlencode($clientId);
+    }
 }
 $loomDefaultLogo=false;
 if(!$found&&$scope!=='server'&&strtolower(trim(str_replace('\\','/',$requestedPath),'/'))==='assets/logo.png'){
@@ -93,8 +101,8 @@ json_out([
     'project'=>safe_slug($project),
     'scope'=>$scope,
     'requestedPath'=>$requestedPath,
-    'url'=>$overlayUrl?:($projectProxyUrl?:($found ? versioned_rel_url($found) : null)),
+    'url'=>$overlayUrl?:($projectProxyUrl?:($projectFileProxyUrl?:($found ? versioned_rel_url($found) : null))),
     'asset_version'=>$assetVersion,
     'cache_busted'=>(bool)$found,
-    'resolution'=>$overlayFound?'persistent-instance-overlay':($projectProxyUrl?'project-asset-proxy':($loomDefaultLogo?'loom-default-project-logo':'explicit-relative-path'))
+    'resolution'=>$overlayFound?'persistent-instance-overlay':($projectProxyUrl?'project-asset-proxy':($projectFileProxyUrl?'instance-project-file-proxy':($loomDefaultLogo?'loom-default-project-logo':'explicit-relative-path')))
 ]);

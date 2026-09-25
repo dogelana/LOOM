@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.49 revision=47 policy=package-priority
+// @loom-file release=0.15.50 revision=48 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -305,13 +305,10 @@ function loom_all_project_slugs(): array {
   $out=array_keys($slugs);sort($out,SORT_NATURAL|SORT_FLAG_CASE);return $out;
 }
 function loom_project_app_url(string $project): string {
-  $slug=safe_slug($project);$dir=project_dir($slug);if(!$dir)return '#';$base=web_base_path();
-  if(loom_project_is_instance_owned($slug)){
-    $shell=root_dir().'/projects/_instance/app/index.html';$v=is_file($shell)?file_cache_version($shell):loom_release_version();
-    return $base.'/projects/_instance/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
-  }
-  $app=$dir.'/app/index.html';$v=is_file($app)?file_cache_version($app):file_cache_version($dir.'/project.default.json');
-  return $base.'/projects/'.$slug.'/app/?project='.rawurlencode($slug).'&v='.rawurlencode($v);
+  $slug=safe_slug($project);if($slug===''||!project_dir($slug))return '#';$base=rtrim(web_base_path(),'/');
+  // Public project URLs are deliberately route-first. The shared/release shell
+  // remains an implementation detail injected by project.php.
+  return ($base===''?'':$base).'/'.rawurlencode($slug).'/';
 }
 function json_out(array $payload, int $status=200): never { http_response_code($status); echo json_encode($payload, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT); exit; }
 function web_base_path(): string {
@@ -1039,6 +1036,23 @@ function project_exists_anywhere(string $slug, ?string $ignoreArchive=null): boo
   $a=archive_project_dir($slug); if(is_dir($a) && $slug!==safe_slug((string)$ignoreArchive))return true;
   return false;
 }
+function loom_project_slug_conflicts_with_public_route(string $slug): bool {
+  $slug=safe_slug($slug);if($slug===''||str_starts_with($slug,'_'))return true;
+  $root=rtrim(root_dir(),DIRECTORY_SEPARATOR);
+  // Real LOOM routes/files always own their public path. This automatically
+  // covers /home, /admin, /api, /registry, /pegboard and future root tools.
+  foreach([$root.'/'.$slug,$root.'/'.$slug.'.php',$root.'/'.$slug.'.html'] as $candidate){if(file_exists($candidate))return true;}
+  return in_array($slug,['projects','project','instance','assets','engine','templates','docs','database'],true);
+}
+function loom_project_unique_public_slug(string $requested): string {
+  $base=trim(safe_slug($requested),'-_');if($base==='')$base='project';
+  if(!project_exists_anywhere($base)&&!loom_project_slug_conflicts_with_public_route($base))return $base;
+  for($n=2;$n<10000;$n++){
+    $candidate=$base.'-'.$n;
+    if(!project_exists_anywhere($candidate)&&!loom_project_slug_conflicts_with_public_route($candidate))return $candidate;
+  }
+  return $base.'-'.substr(hash('sha256',microtime(true).random_bytes(8)),0,8);
+}
 function project_base_slug(string $slug): string {
   $slug=safe_slug($slug); $base=preg_replace('/-old-\d+$/','',$slug); return $base!==''?$base:$slug;
 }
@@ -1144,9 +1158,8 @@ function loom_absolute_web_url(?string $url): ?string {
 }
 function loom_project_absolute_public_url(string $project): string {
   $slug=safe_slug($project);if($slug==='')return loom_absolute_web_url(rtrim(web_base_path(),'/').'/')?:'/';
-  // Canonicals are intentionally stable and omit cache-busting query strings.
-  // The friendly project gateway works for both release and Instance Projects.
-  $relative=loom_project_is_domain_landing($slug)?(rtrim(web_base_path(),'/').'/'):(rtrim(web_base_path(),'/').'/projects/'.rawurlencode($slug).'/app/');
+  // Canonicals use the short public route; shell location never leaks into links.
+  $relative=loom_project_is_domain_landing($slug)?(rtrim(web_base_path(),'/').'/'):(rtrim(web_base_path(),'/').'/'.rawurlencode($slug).'/');
   return loom_absolute_web_url($relative)?:$relative;
 }
 function loom_project_social_meta(string $project,?string $canonicalUrl=null): array {

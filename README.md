@@ -1,6 +1,10 @@
-# LOOM 0.15.49
+# LOOM 0.15.50
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
+
+## 0.15.50 — friendly project routes, Instance asset proxy and Showcase polish
+
+Projects now use short public routes such as `/green-beans/`, new project slugs auto-iterate around duplicates/reserved LOOM paths, Instance Project module assets are proxied safely out of the protected vault, and generated Showcase badges use a floating Powered by LOOM plaque.
 
 ## 0.15.49 — strict guest ambiguity + generic starter branding
 

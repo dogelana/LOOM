@@ -1,4 +1,4 @@
-// @loom-file release=0.15.34 revision=13 policy=package-priority
+// @loom-file release=0.15.50 revision=14 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -475,7 +475,7 @@
             requestScope='project';
           }
 
-          const url=`${runtime.apiBase}/resolve-asset.php?project=${encodeURIComponent(runtime.project)}&scope=${encodeURIComponent(requestScope)}&path=${encodeURIComponent(requestedPath)}&_=${Date.now()}`;
+          const url=`${runtime.apiBase}/resolve-asset.php?project=${encodeURIComponent(runtime.project)}&scope=${encodeURIComponent(requestScope)}&path=${encodeURIComponent(requestedPath)}&clientId=${encodeURIComponent(runtime.identity?.clientId||'')}&_=${Date.now()}`;
           try{
             const response=await fetch(url,{cache:'no-store'});
             if(response.ok){
