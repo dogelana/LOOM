@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.51
+# LOOM Blueprint — 0.15.52
 
 ## 1. Purpose
 
@@ -111,4 +111,8 @@ A LOOM release advances the server canonical version only after release-managed 
 5. Guest/account merges retain provenance and must be reversible/auditable rather than destructive guesses.
 6. A one-word project remains one word unless the project explicitly configures otherwise.
 
-<!-- @loom-file release=0.15.51 revision=65 policy=package-priority -->
+## 12. Native UI presentation defaults
+
+Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
+
+<!-- @loom-file release=0.15.52 revision=66 policy=package-priority -->

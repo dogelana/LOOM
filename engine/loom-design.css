@@ -1,4 +1,4 @@
-/* @loom-file release=0.12.14 revision=2 policy=package-priority */
+/* @loom-file release=0.15.52 revision=3 policy=package-priority */
 /* LOOM v0.12.14 visual foundation — polished defaults, same semantics */
 :root{
   color-scheme:light;
@@ -53,9 +53,12 @@
   --loom-shadow-2:0 24px 76px rgba(0,0,0,.34);
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--loom-font);text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+body{font-family:var(--loom-font);text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;line-height:1.5}
+:where(button,input,select,textarea){font:inherit}
+:where(button,a,input,select,textarea){-webkit-tap-highlight-color:transparent}
+:where(button,input,select,textarea):disabled{opacity:.52;cursor:not-allowed;filter:saturate(.72)}
 ::selection{background:color-mix(in srgb,var(--loom-accent) 22%,transparent)}
-:where(button,a,input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--loom-focus) 28%,transparent);outline-offset:2px}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--loom-focus) 34%,transparent);outline-offset:3px}
 .loom-ui-button{
   min-height:var(--loom-touch-min);
   border:1px solid color-mix(in srgb,var(--loom-accent) 30%,var(--loom-line));
@@ -66,10 +69,11 @@ body{font-family:var(--loom-font);text-rendering:optimizeLegibility;-webkit-font
   box-shadow:0 7px 18px color-mix(in srgb,var(--loom-accent) 18%,transparent),inset 0 1px rgba(255,255,255,.18);
   font:900 11px/1 var(--loom-font);
   cursor:pointer;
-  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease,border-color .16s ease;
 }
 .loom-ui-button:hover{transform:translateY(-1px);box-shadow:0 11px 24px color-mix(in srgb,var(--loom-accent) 22%,transparent);filter:saturate(1.06)}
-.loom-ui-button:active{transform:translateY(0)}
+.loom-ui-button:active{transform:translateY(0);box-shadow:0 4px 12px color-mix(in srgb,var(--loom-accent) 14%,transparent)}
+.loom-ui-button:disabled{transform:none;box-shadow:none}
 .loom-ui-button.secondary{background:linear-gradient(180deg,var(--loom-surface),var(--loom-surface-soft));color:var(--loom-ink);border-color:var(--loom-line);box-shadow:var(--loom-shadow-1)}
 .loom-ui-input{
   min-height:var(--loom-control-h);
@@ -110,4 +114,14 @@ body{font-family:var(--loom-font);text-rendering:optimizeLegibility;-webkit-font
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+/* v0.15.52 global UX rhythm */
+.loom-ui-card>:first-child{margin-top:0}
+.loom-ui-card>:last-child{margin-bottom:0}
+.loom-ui-cluster>:where(button,a,.loom-ui-button){flex:0 0 auto}
+@media(max-width:720px){
+  .loom-ui-cluster{gap:var(--loom-space-2)}
+  .loom-ui-button{min-height:42px;padding-inline:13px}
+  .loom-ui-card{border-radius:var(--loom-radius-md)}
 }

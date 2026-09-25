@@ -1,6 +1,10 @@
-# LOOM 0.15.51
+# LOOM 0.15.52
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
+
+## 0.15.52 — Showcase balance + global UX polish
+
+Generated Showcase badges now place the floating **Powered by LOOM** plate at a 10% bottom inset by default. Shared LOOM chrome, controls, focus states, mobile navigation, Admin inputs, buttons, and interaction feedback also receive a restrained consistency pass. This is presentation-only: routes, identity, permissions, module behavior, project data, and deployment semantics are unchanged.
 
 ## 0.15.51 — release coherence, clean Guest names and identity cleanup
 
@@ -75,4 +79,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.51 revision=69 policy=package-priority -->
+<!-- @loom-file release=0.15.52 revision=70 policy=package-priority -->

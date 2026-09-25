@@ -1,3 +1,11 @@
+## v0.15.52 - Showcase Plate Position + Global UX Polish
+
+- Moved the generated Showcase `POWERED BY LOOM` floating plate to a 10% bottom inset by default instead of 1.5%, preserving the floating-overlay treatment while producing a better-balanced badge composition.
+- Refined the shared LOOM visual foundation with stronger focus visibility, consistent disabled states, touch-target behavior, mobile spacing, and card/control rhythm.
+- Polished native LOOM header/footer chrome with slightly larger controls, clearer hover/focus feedback, and a horizontally scrollable mobile action row instead of cramped wrapping.
+- Polished shared Home/Profile/Admin controls and the Admin drawer with more consistent hit areas and interaction feedback.
+- Improved Admin form focus states and button/navigation feedback without changing any settings, workflows, permissions, or module behavior.
+
 ## v0.15.51 - Runtime Release Coherence + Clean Guest Names + Identity Cleanup
 
 - Fixed the false post-deployment update banner/reload-loop warning by making the client runtime release, cache-busting URLs, version endpoint, and canonical release fallback agree on 0.15.51. LOOM no longer thinks a fully deployed page is still running the previous release.
@@ -668,7 +676,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.51 revision=70 policy=package-priority -->
+<!-- @loom-file release=0.15.52 revision=71 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

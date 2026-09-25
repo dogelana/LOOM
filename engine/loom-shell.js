@@ -1,4 +1,4 @@
-// @loom-file release=0.15.46 revision=30 policy=package-priority
+// @loom-file release=0.15.52 revision=31 policy=package-priority
 (() => {
   'use strict';
 
@@ -70,11 +70,11 @@
     const style=document.createElement('style');style.id='loom-shell-user-controls-style';style.textContent=`
       .loom-global-controls{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;vertical-align:middle}
       .loom-global-control-slot{display:inline-flex;align-items:center;justify-content:center;min-width:0}
-      .loom-global-control{box-sizing:border-box;min-height:36px;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px;padding:8px 11px!important;border:1px solid #d5e4d8!important;border-radius:11px!important;background:linear-gradient(180deg,#fff,#f6faf7)!important;color:#244d31!important;text-decoration:none!important;font:900 10px/1 Inter,system-ui!important;white-space:nowrap;cursor:pointer;box-shadow:0 4px 15px rgba(22,74,38,.045);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+      .loom-global-control{box-sizing:border-box;min-height:40px;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px;padding:8px 11px!important;border:1px solid #d5e4d8!important;border-radius:11px!important;background:linear-gradient(180deg,#fff,#f6faf7)!important;color:#244d31!important;text-decoration:none!important;font:900 10px/1 Inter,system-ui!important;white-space:nowrap;cursor:pointer;box-shadow:0 4px 15px rgba(22,74,38,.045);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease}.loom-global-control:focus-visible{outline:3px solid rgba(50,174,96,.20);outline-offset:2px;border-color:#8fc7a0!important}
       .loom-global-control:hover{transform:translateY(-1px);border-color:#bcd7c3!important;box-shadow:0 8px 20px rgba(22,74,38,.08)}
       .loom-global-control .loom-global-nav-emoji,.loom-global-control .pic,.loom-global-control .loom-share-emoji,.loom-global-control .loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
       .loom-global-control[disabled]{opacity:.55;cursor:not-allowed;transform:none}
-      @media(max-width:680px){.loom-global-controls{gap:6px}.loom-global-control{min-height:36px;padding:7px 9px!important;font-size:9px!important}}
+      @media(max-width:680px){.loom-global-controls{gap:6px}.loom-global-control{min-height:38px;padding:8px 9px!important;font-size:9px!important}}
     `;document.head.appendChild(style);
   }
   function createControlButton(def={},opts={}){
@@ -130,7 +130,7 @@
       .loom-admin-drawer[data-side="right"] .loom-admin-drawer-panel{border-radius:18px 0 0 18px}.loom-admin-drawer[data-side="left"] .loom-admin-drawer-panel{border-radius:0 18px 18px 0}
       .loom-admin-drawer-tab{position:relative;z-index:3;align-self:center;flex:0 0 var(--loom-admin-tab-visible);width:var(--loom-admin-tab-visible);border:1px solid rgba(198,218,203,.95);background:#173f27;color:#fff;font:950 10px/1 system-ui;padding:12px 8px;cursor:pointer;writing-mode:vertical-rl;letter-spacing:.08em;min-height:108px;box-shadow:0 8px 24px rgba(18,48,27,.18);opacity:1!important;visibility:visible!important}
       .loom-admin-drawer[data-side="right"] .loom-admin-drawer-tab{border-radius:12px 0 0 12px;margin-right:-1px}.loom-admin-drawer[data-side="left"] .loom-admin-drawer-tab{border-radius:0 12px 12px 0;transform:rotate(180deg);margin-left:-1px}
-      .loom-admin-drawer-panel .loom-shell-admin-label{font:950 9px/1.2 system-ui;letter-spacing:.12em;color:#718077;padding:4px 5px 6px}.loom-admin-drawer-panel a{display:block;text-decoration:none;color:#234b30;background:#fff;border:1px solid #d9e7dc;border-radius:10px;padding:9px 10px;font:850 10px/1.2 system-ui}
+      .loom-admin-drawer-panel .loom-shell-admin-label{font:950 9px/1.2 system-ui;letter-spacing:.12em;color:#718077;padding:4px 5px 6px}.loom-admin-drawer-panel a{display:block;text-decoration:none;color:#234b30;background:#fff;border:1px solid #d9e7dc;border-radius:10px;padding:10px 11px;font:850 10px/1.2 system-ui;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease}.loom-admin-drawer-panel a:hover{transform:translateX(-1px);border-color:#b9d5c0;box-shadow:0 5px 15px rgba(22,68,35,.07)}.loom-admin-drawer-panel a:focus-visible{outline:3px solid rgba(50,174,96,.18);outline-offset:1px}
       /* Hide only the panel. Keep the ADMIN TOOLS gripper fully visible and in front. */
       .loom-admin-drawer:not([data-open="true"])[data-side="right"]{transform:translate(calc(100% - var(--loom-admin-tab-visible)),-50%)}.loom-admin-drawer:not([data-open="true"])[data-side="left"]{transform:translate(calc(-100% + var(--loom-admin-tab-visible)),-50%)}
       @media(max-width:760px){.loom-shell-admin-zone{width:100%;justify-content:center}.loom-shell-admin-zone .loom-shell-admin-label{width:100%;text-align:center}.loom-admin-drawer{--loom-admin-tab-visible:40px}.loom-admin-drawer-panel{width:min(300px,calc(100vw - 48px));max-height:66vh}}
