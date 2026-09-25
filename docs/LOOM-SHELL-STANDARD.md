@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.16 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.53 revision=4 policy=package-priority -->
 # LOOM-Owned Shell Standard
 
 Version: 0.11.25
@@ -71,6 +71,6 @@ Pegboard now uses a physically bounded shared-shell layout and no longer referen
 
 ## Canonical Admin navigation (0.15.16+)
 
-`LoomShell` owns the Admin destination map. When the active identity is an Admin, shell pages render one shared Admin-only group containing LOOM Settings, Project Settings, Users, Identity Manager, Database, Activity, Pegboard, and Action Registry. Project shells call `LoomShell.renderAdminLinks(...)` so custom project chrome uses the same source of truth rather than copying links manually.
+`LoomShell` owns the Admin destination map. When the active identity is an Admin, shell pages render one shared Admin-only group containing LOOM Settings, Project Settings, Users, Database, Activity, Pegboard, and Action Registry. Project shells call `LoomShell.renderAdminLinks(...)` so custom project chrome uses the same source of truth rather than copying links manually. Since 0.15.53, global permanent accounts, Guest Identities, recovery/provenance and identity cleanup live together under **Users**; there is no separate top-level Identity Manager destination.
 
 The shared shell normalizes the public Home link as **🏠 LOOM Home**. Bootstrap-only Admin Setup is intentionally not part of the everyday Admin tool group.

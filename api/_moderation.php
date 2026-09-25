@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.12.11 revision=3 policy=package-priority
+// @loom-file release=0.15.53 revision=4 policy=package-priority
 declare(strict_types=1);
 
 function loom_network_file(): string { return loom_data_dir().'/users/network.json'; }
@@ -33,6 +33,26 @@ function loom_valid_ip(?string $value): ?string {
   }
   return strtolower($value);
 }
+
+function loom_ip_network_key(?string $value): string {
+  $ip=loom_valid_ip($value);if(!$ip)return '';
+  if(filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_IPV4))return 'ipv4:'.$ip;
+  if(!function_exists('inet_pton')||!function_exists('inet_ntop'))return 'ipv6:'.$ip;
+  $packed=@inet_pton($ip);if($packed===false||strlen($packed)!==16)return 'ipv6:'.$ip;
+  $prefix=substr($packed,0,8).str_repeat("\0",8);$display=@inet_ntop($prefix);
+  return 'ipv6-64:'.strtolower(is_string($display)&&$display!==''?$display:$ip);
+}
+function loom_ip_network_label(?string $value): string {
+  $ip=loom_valid_ip($value);if(!$ip)return '';
+  if(filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_IPV4))return 'Shared public IPv4 · '.$ip;
+  $key=loom_ip_network_key($ip);$prefix=str_starts_with($key,'ipv6-64:')?substr($key,10):$ip;return 'IPv6 /64 network · '.$prefix.'/64';
+}
+function loom_request_geo_hint(): array {
+  $first=function(array $keys): string {foreach($keys as $k){$v=trim((string)($_SERVER[$k]??''));if($v!=='')return $v;}return '';};
+  $countryCode=strtoupper($first(['HTTP_CF_IPCOUNTRY','GEOIP_COUNTRY_CODE','HTTP_X_COUNTRY_CODE']));if(!preg_match('/^[A-Z]{2}$/',$countryCode))$countryCode='';
+  $country=$first(['GEOIP_COUNTRY_NAME','HTTP_X_COUNTRY_NAME']);$region=$first(['HTTP_CF_REGION','GEOIP_REGION_NAME','HTTP_X_REGION']);$city=$first(['HTTP_CF_CITY','GEOIP_CITY','HTTP_X_CITY']);
+  return ['countryCode'=>$countryCode?:null,'country'=>$country?:null,'region'=>$region?:null,'city'=>$city?:null];
+}
 function loom_ip_version(?string $value): ?string { $ip=loom_valid_ip($value);if(!$ip)return null;return filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_IPV4)?'IPv4':'IPv6'; }
 function loom_ip_display(?string $value): string { return loom_valid_ip($value)?:''; }
 function loom_ip_is_public(string $ip): bool { return (bool)filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE); }
@@ -50,9 +70,10 @@ function loom_request_ip_observation(): array {
 function loom_moderation_db(): ?PDO {
   $pdo=loom_db_pdo(true);if(!$pdo)return null;static $ready=false;if($ready)return $pdo;
   try{
-    $pdo->exec("CREATE TABLE IF NOT EXISTS loom_identity_ips (owner_type ENUM('client','user') NOT NULL,owner_id VARCHAR(96) NOT NULL,ip_address VARCHAR(45) NOT NULL,first_seen DATETIME(3) NOT NULL,last_seen DATETIME(3) NOT NULL,seen_count BIGINT UNSIGNED NOT NULL DEFAULT 1,last_project_slug VARCHAR(96) NULL,source VARCHAR(64) NULL,PRIMARY KEY(owner_type,owner_id,ip_address),INDEX idx_identity_ip_last_seen(last_seen),INDEX idx_identity_ip_address(ip_address)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS loom_identity_ips (owner_type ENUM('client','user') NOT NULL,owner_id VARCHAR(96) NOT NULL,ip_address VARCHAR(45) NOT NULL,network_key VARCHAR(96) NULL,first_seen DATETIME(3) NOT NULL,last_seen DATETIME(3) NOT NULL,seen_count BIGINT UNSIGNED NOT NULL DEFAULT 1,last_project_slug VARCHAR(96) NULL,source VARCHAR(64) NULL,PRIMARY KEY(owner_type,owner_id,ip_address),INDEX idx_identity_ip_last_seen(last_seen),INDEX idx_identity_ip_address(ip_address),INDEX idx_identity_network_key(network_key)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     $pdo->exec("CREATE TABLE IF NOT EXISTS loom_project_user_state (project_slug VARCHAR(96) NOT NULL,subject_type ENUM('client','user') NOT NULL,subject_id VARCHAR(96) NOT NULL,banned TINYINT(1) NOT NULL DEFAULT 0,include_data TINYINT(1) NOT NULL DEFAULT 0,banned_at DATETIME(3) NULL,banned_by_user_id VARCHAR(96) NULL,updated_at DATETIME(3) NOT NULL,PRIMARY KEY(project_slug,subject_type,subject_id),INDEX idx_project_banned(project_slug,banned),INDEX idx_subject_state(subject_type,subject_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     $pdo->exec("CREATE TABLE IF NOT EXISTS loom_admin_audit (audit_id VARCHAR(96) PRIMARY KEY,admin_user_id VARCHAR(96) NULL,admin_client_id VARCHAR(96) NULL,action_type VARCHAR(96) NOT NULL,target_type VARCHAR(32) NULL,target_id VARCHAR(96) NULL,project_slug VARCHAR(96) NULL,created_at DATETIME(3) NOT NULL,payload JSON NULL,INDEX idx_admin_audit_time(created_at),INDEX idx_admin_audit_target(target_type,target_id,created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    try{$cols=$pdo->query("SHOW COLUMNS FROM loom_identity_ips LIKE 'network_key'")->fetchAll();if(!$cols)$pdo->exec("ALTER TABLE loom_identity_ips ADD COLUMN network_key VARCHAR(96) NULL AFTER ip_address, ADD INDEX idx_identity_network_key(network_key)");}catch(Throwable $ignored){}
     $ready=true;
   }catch(Throwable $e){return null;}
   return $pdo;
@@ -61,13 +82,13 @@ function loom_record_identity_ip(string $ownerType,string $ownerId,string $ip,st
   if(!in_array($ownerType,['client','user'],true)||$ownerId===''||!loom_valid_ip($ip))return;
   $key=$ownerType.':'.$ownerId;$now=server_timestamp();$store=loom_network_store();$row=$store['identities'][$key]??['ownerType'=>$ownerType,'ownerId'=>$ownerId,'addresses'=>[]];
   $prior=$row['addresses'][$ip]??null;$row['addresses'][$ip]=[
-    'ip'=>$ip,'source'=>$source,'firstSeen'=>$prior['firstSeen']??$now,'lastSeen'=>$now,
+    'ip'=>$ip,'source'=>$source,'networkKey'=>loom_ip_network_key($ip),'geoHint'=>array_filter(array_replace((array)($prior['geoHint']??[]),loom_request_geo_hint()),fn($v)=>$v!==null&&$v!==''),'firstSeen'=>$prior['firstSeen']??$now,'lastSeen'=>$now,
     'seenCount'=>(int)($prior['seenCount']??0)+1,'lastProject'=>$project?:($prior['lastProject']??null)
   ];
   $row['lastIp']=$ip;$row['lastSeen']=$now;$store['identities'][$key]=$row;loom_write_network_store($store);
   if($pdo=loom_moderation_db())try{
-    $st=$pdo->prepare("INSERT INTO loom_identity_ips(owner_type,owner_id,ip_address,first_seen,last_seen,seen_count,last_project_slug,source) VALUES(?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3),1,?,?) ON DUPLICATE KEY UPDATE last_seen=UTC_TIMESTAMP(3),seen_count=seen_count+1,last_project_slug=VALUES(last_project_slug),source=VALUES(source)");
-    $st->execute([$ownerType,$ownerId,$ip,$project?:null,$source]);
+    $st=$pdo->prepare("INSERT INTO loom_identity_ips(owner_type,owner_id,ip_address,network_key,first_seen,last_seen,seen_count,last_project_slug,source) VALUES(?,?,?,?,UTC_TIMESTAMP(3),UTC_TIMESTAMP(3),1,?,?) ON DUPLICATE KEY UPDATE network_key=VALUES(network_key),last_seen=UTC_TIMESTAMP(3),seen_count=seen_count+1,last_project_slug=VALUES(last_project_slug),source=VALUES(source)");
+    $st->execute([$ownerType,$ownerId,$ip,loom_ip_network_key($ip),$project?:null,$source]);
   }catch(Throwable $e){}
 }
 function loom_capture_request_ip(string $clientId,string $project=''): array {
@@ -80,10 +101,10 @@ function loom_capture_request_ip(string $clientId,string $project=''): array {
 function loom_identity_ip_history(string $ownerType,string $ownerId): array {
   if(!in_array($ownerType,['client','user'],true)||$ownerId==='')return [];$rows=[];
   $store=loom_network_store();$local=$store['identities'][$ownerType.':'.$ownerId]['addresses']??[];
-  foreach($local as $ip=>$r)$rows[$ip]=['ip'=>$ip,'displayIp'=>loom_ip_display($ip),'ipVersion'=>loom_ip_version($ip),'source'=>$r['source']??null,'firstSeen'=>$r['firstSeen']??null,'lastSeen'=>$r['lastSeen']??null,'seenCount'=>(int)($r['seenCount']??0),'lastProject'=>$r['lastProject']??null];
+  foreach($local as $ip=>$r)$rows[$ip]=['ip'=>$ip,'displayIp'=>loom_ip_display($ip),'ipVersion'=>loom_ip_version($ip),'source'=>$r['source']??null,'networkKey'=>$r['networkKey']??loom_ip_network_key($ip),'networkLabel'=>loom_ip_network_label($ip),'geoHint'=>is_array($r['geoHint']??null)?$r['geoHint']:[],'firstSeen'=>$r['firstSeen']??null,'lastSeen'=>$r['lastSeen']??null,'seenCount'=>(int)($r['seenCount']??0),'lastProject'=>$r['lastProject']??null];
   if($pdo=loom_moderation_db())try{
-    $st=$pdo->prepare("SELECT ip_address,first_seen,last_seen,seen_count,last_project_slug,source FROM loom_identity_ips WHERE owner_type=? AND owner_id=? ORDER BY last_seen DESC");$st->execute([$ownerType,$ownerId]);
-    foreach($st->fetchAll() as $r){$ip=(string)$r['ip_address'];$cur=$rows[$ip]??[];$rows[$ip]=['ip'=>$ip,'displayIp'=>loom_ip_display($ip),'ipVersion'=>loom_ip_version($ip),'source'=>$r['source']??($cur['source']??null),'firstSeen'=>$r['first_seen']??($cur['firstSeen']??null),'lastSeen'=>$r['last_seen']??($cur['lastSeen']??null),'seenCount'=>max((int)($r['seen_count']??0),(int)($cur['seenCount']??0)),'lastProject'=>$r['last_project_slug']??($cur['lastProject']??null)];}
+    $st=$pdo->prepare("SELECT ip_address,network_key,first_seen,last_seen,seen_count,last_project_slug,source FROM loom_identity_ips WHERE owner_type=? AND owner_id=? ORDER BY last_seen DESC");$st->execute([$ownerType,$ownerId]);
+    foreach($st->fetchAll() as $r){$ip=(string)$r['ip_address'];$cur=$rows[$ip]??[];$rows[$ip]=['ip'=>$ip,'displayIp'=>loom_ip_display($ip),'ipVersion'=>loom_ip_version($ip),'source'=>$r['source']??($cur['source']??null),'networkKey'=>$r['network_key']??($cur['networkKey']??loom_ip_network_key($ip)),'networkLabel'=>loom_ip_network_label($ip),'geoHint'=>$cur['geoHint']??[],'firstSeen'=>$r['first_seen']??($cur['firstSeen']??null),'lastSeen'=>$r['last_seen']??($cur['lastSeen']??null),'seenCount'=>max((int)($r['seen_count']??0),(int)($cur['seenCount']??0)),'lastProject'=>$r['last_project_slug']??($cur['lastProject']??null)];}
   }catch(Throwable $e){}
   $out=array_values($rows);usort($out,fn($a,$b)=>strcmp((string)($b['lastSeen']??''),(string)($a['lastSeen']??'')));return $out;
 }
@@ -150,7 +171,7 @@ function loom_admin_audit(string $action,string $targetType='',string $targetId=
 }
 function loom_migrate_network_and_moderation_to_db(): array {
   $pdo=loom_moderation_db();if(!$pdo)return ['ips'=>0,'projectStates'=>0,'audit'=>0];$counts=['ips'=>0,'projectStates'=>0,'audit'=>0];
-  $n=loom_network_store();foreach(($n['identities']??[]) as $row){$type=(string)($row['ownerType']??'');$id=(string)($row['ownerId']??'');foreach(($row['addresses']??[]) as $ip=>$r){try{$st=$pdo->prepare("INSERT INTO loom_identity_ips(owner_type,owner_id,ip_address,first_seen,last_seen,seen_count,last_project_slug,source) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE first_seen=LEAST(first_seen,VALUES(first_seen)),last_seen=GREATEST(last_seen,VALUES(last_seen)),seen_count=GREATEST(seen_count,VALUES(seen_count)),last_project_slug=VALUES(last_project_slug),source=VALUES(source)");$st->execute([$type,$id,$ip,loom_db_dt($r['firstSeen']??server_timestamp()),loom_db_dt($r['lastSeen']??server_timestamp()),max(1,(int)($r['seenCount']??1)),$r['lastProject']??null,$r['source']??null]);$counts['ips']++;}catch(Throwable $e){}}}
+  $n=loom_network_store();foreach(($n['identities']??[]) as $row){$type=(string)($row['ownerType']??'');$id=(string)($row['ownerId']??'');foreach(($row['addresses']??[]) as $ip=>$r){try{$st=$pdo->prepare("INSERT INTO loom_identity_ips(owner_type,owner_id,ip_address,network_key,first_seen,last_seen,seen_count,last_project_slug,source) VALUES(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE first_seen=LEAST(first_seen,VALUES(first_seen)),last_seen=GREATEST(last_seen,VALUES(last_seen)),seen_count=GREATEST(seen_count,VALUES(seen_count)),last_project_slug=VALUES(last_project_slug),source=VALUES(source)");$st->execute([$type,$id,$ip,$r['networkKey']??loom_ip_network_key($ip),loom_db_dt($r['firstSeen']??server_timestamp()),loom_db_dt($r['lastSeen']??server_timestamp()),max(1,(int)($r['seenCount']??1)),$r['lastProject']??null,$r['source']??null]);$counts['ips']++;}catch(Throwable $e){}}}
   $m=loom_moderation_store();foreach(($m['projectStates']??[]) as $project=>$states)foreach($states as $r){try{$st=$pdo->prepare("INSERT INTO loom_project_user_state(project_slug,subject_type,subject_id,banned,include_data,banned_at,banned_by_user_id,updated_at) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE banned=VALUES(banned),include_data=VALUES(include_data),banned_at=VALUES(banned_at),banned_by_user_id=VALUES(banned_by_user_id),updated_at=VALUES(updated_at)");$st->execute([$project,$r['subjectType'],$r['subjectId'],!empty($r['banned'])?1:0,!empty($r['includeData'])?1:0,loom_db_dt($r['bannedAt']??null),$r['bannedByUserId']??null,loom_db_dt($r['updatedAt']??server_timestamp())]);$counts['projectStates']++;}catch(Throwable $e){}}
   return $counts;
 }

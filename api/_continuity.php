@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.49 revision=2 policy=package-priority
+// @loom-file release=0.15.53 revision=3 policy=package-priority
 // LOOM v0.15.49 — privacy-bounded Continuity Clusters + strict guest ambiguity gate.
 declare(strict_types=1);
 
@@ -152,26 +152,54 @@ function loom_continuity_mark_pending_lock_in_store(array &$s,string $clientId,s
 }
 function loom_continuity_observation_overlap_labels(array $sig,array $obs,?string $ip,string $installationId): array {
   $labels=[];
-  if($installationId!==''&&hash_equals($installationId,(string)($obs['installationId']??'')))$labels['browser installation']=true;
-  if(($sig['hardwareHash']??'')!==''&&($obs['hardwareHash']??'')!==''&&hash_equals((string)$sig['hardwareHash'],(string)$obs['hardwareHash']))$labels['device characteristics']=true;
+  if($installationId!==''&&hash_equals($installationId,(string)($obs['installationId']??'')))$labels['same browser installation']=true;
+  if(($sig['hardwareHash']??'')!==''&&($obs['hardwareHash']??'')!==''&&hash_equals((string)$sig['hardwareHash'],(string)$obs['hardwareHash']))$labels['matching device characteristics']=true;
   // A display match alone is common; require the coarse platform signature too.
-  if(($sig['displayHash']??'')!==''&&($sig['platformHash']??'')!==''&&($obs['displayHash']??'')!==''&&($obs['platformHash']??'')!==''&&hash_equals((string)$sig['displayHash'],(string)$obs['displayHash'])&&hash_equals((string)$sig['platformHash'],(string)$obs['platformHash']))$labels['device/display profile']=true;
-  $oldIp=loom_valid_ip((string)($obs['ip']??''));if($ip&&$oldIp&&hash_equals($ip,$oldIp))$labels['network connection']=true;
+  if(($sig['displayHash']??'')!==''&&($sig['platformHash']??'')!==''&&($obs['displayHash']??'')!==''&&($obs['platformHash']??'')!==''&&hash_equals((string)$sig['displayHash'],(string)$obs['displayHash'])&&hash_equals((string)$sig['platformHash'],(string)$obs['platformHash']))$labels['matching device/display profile']=true;
+  $oldIp=loom_valid_ip((string)($obs['ip']??''));
+  // Network overlap is intentionally based only on PUBLIC client addresses. A
+  // private/loopback REMOTE_ADDR may belong to the hosting reverse proxy itself
+  // and must never mass-lock unrelated visitors.
+  if($ip&&$oldIp&&loom_ip_is_public($ip)&&loom_ip_is_public($oldIp)){
+    if(hash_equals($ip,$oldIp))$labels['same network address']=true;
+    elseif(filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_IPV6)&&filter_var($oldIp,FILTER_VALIDATE_IP,FILTER_FLAG_IPV6)&&loom_ip_network_key($ip)!==''&&hash_equals(loom_ip_network_key($ip),loom_ip_network_key($oldIp)))$labels['same IPv6 household network']=true;
+  }
   return array_keys($labels);
 }
 function loom_continuity_network_clients_for_ip(string $ip): array {
-  $ip=(string)(loom_valid_ip($ip)?:'');if($ip==='')return [];$out=[];
+  $ip=(string)(loom_valid_ip($ip)?:'');if($ip===''||!loom_ip_is_public($ip))return [];$out=[];$networkKey=loom_ip_network_key($ip);
   if(function_exists('loom_network_store')){
-    $network=loom_network_store();foreach(($network['identities']??[]) as $row){if(!is_array($row)||($row['ownerType']??'')!=='client')continue;$cid=safe_token((string)($row['ownerId']??''));if($cid===''||!isset(($row['addresses']??[])[$ip]))continue;$out[$cid]=true;}
+    $network=loom_network_store();foreach(($network['identities']??[]) as $row){if(!is_array($row)||($row['ownerType']??'')!=='client')continue;$cid=safe_token((string)($row['ownerId']??''));if($cid==='')continue;foreach((array)($row['addresses']??[]) as $oldIp=>$meta){$old=loom_valid_ip((string)$oldIp);if(!$old)continue;$oldKey=(string)($meta['networkKey']??loom_ip_network_key($old));if(hash_equals($ip,$old)||($networkKey!==''&&$oldKey!==''&&hash_equals($networkKey,$oldKey))){$out[$cid]=true;break;}}}
   }
-  if(function_exists('loom_moderation_db')&&($pdo=loom_moderation_db()))try{$st=$pdo->prepare("SELECT owner_id FROM loom_identity_ips WHERE owner_type='client' AND ip_address=?");$st->execute([$ip]);foreach($st->fetchAll() as $r){$cid=safe_token((string)($r['owner_id']??''));if($cid!=='')$out[$cid]=true;}}catch(Throwable $e){}
+  if(function_exists('loom_moderation_db')&&($pdo=loom_moderation_db()))try{
+    if($networkKey!==''){$st=$pdo->prepare("SELECT owner_id FROM loom_identity_ips WHERE owner_type='client' AND (ip_address=? OR network_key=?)");$st->execute([$ip,$networkKey]);}
+    else{$st=$pdo->prepare("SELECT owner_id FROM loom_identity_ips WHERE owner_type='client' AND ip_address=?");$st->execute([$ip]);}
+    foreach($st->fetchAll() as $r){$cid=safe_token((string)($r['owner_id']??''));if($cid!=='')$out[$cid]=true;}
+  }catch(Throwable $e){}
   return array_keys($out);
 }
 function loom_continuity_profiles_guest_ids(string $installationId): array {
   $ids=[];foreach(loom_guest_profiles_for_installation($installationId) as $p){$cid=safe_token((string)($p['currentClientId']??''));$gid=$cid!==''?loom_continuity_root_guest_id_for_client($cid):'';if($gid!=='')$ids[$gid]=true;}return array_keys($ids);
 }
+
+function loom_continuity_backfill_historical_overlap_locks(): int {
+  // One conservative pass per request. This upgrades pre-strict guest histories:
+  // if TWO DISTINCT Guest roots already share a network/device/install signal,
+  // every still-anonymous Guest in that overlap becomes permanent-account-required.
+  // It never merges or authenticates anyone and never uses city/region/country.
+  static $done=false;if($done)return 0;$done=true;$groups=[];
+  $addGroup=function(string $label,string $key,string $cid)use(&$groups){$cid=safe_token($cid);if($key===''||$cid==='')return;$gk=$label.'|'.$key;if(!isset($groups[$gk]))$groups[$gk]=['label'=>$label,'clients'=>[]];$groups[$gk]['clients'][$cid]=true;};
+  if(function_exists('loom_network_store')){$network=loom_network_store();foreach(($network['identities']??[]) as $row){if(!is_array($row)||($row['ownerType']??'')!=='client')continue;$cid=safe_token((string)($row['ownerId']??''));foreach((array)($row['addresses']??[]) as $ip=>$meta){$valid=loom_valid_ip((string)$ip);if(!$valid||!loom_ip_is_public($valid))continue;$key=(string)($meta['networkKey']??loom_ip_network_key($valid));$label=filter_var($valid,FILTER_VALIDATE_IP,FILTER_FLAG_IPV6)?'same IPv6 household network':'same network address';$addGroup($label,$key,$cid);}}}
+  $cur=loom_continuity_read_store();foreach(($cur['clients']??[]) as $cid=>$obs){if(!is_array($obs))continue;$cid=safe_token((string)($obs['clientId']??$cid));$install=loom_guest_installation_id((string)($obs['installationId']??''));if($install!=='')$addGroup('same browser installation',$install,$cid);$hw=(string)($obs['hardwareHash']??'');if($hw!=='')$addGroup('matching device characteristics',$hw,$cid);$dh=(string)($obs['displayHash']??'');$ph=(string)($obs['platformHash']??'');if($dh!==''&&$ph!=='')$addGroup('matching device/display profile',$dh.'|'.$ph,$cid);}
+  $lockSets=[];
+  foreach($groups as $group){$guestIds=[];foreach(array_keys($group['clients']) as $cid){$gid=loom_continuity_root_guest_id_for_client($cid);if($gid!=='')$guestIds[$gid]=true;}if(count($guestIds)<2)continue;$ids=array_keys($guestIds);foreach($ids as $gid){$g=loom_guest_get($gid);if(!$g)continue;$g=loom_guest_root($g);if(!empty($g['attachedUserId']))continue;$lockSets[$gid]['labels'][$group['label']]=true;foreach($ids as $peer)if($peer!==$gid)$lockSets[$gid]['peers'][$peer]=true;}}
+  if(!$lockSets)return 0;
+  loom_continuity_mutate(function(array &$st)use($lockSets){foreach($lockSets as $gid=>$x)loom_continuity_mark_guest_lock_in_store($st,$gid,array_keys($x['labels']??[]),array_keys($x['peers']??[]),'historical-overlap-backfill');return null;});
+  return count($lockSets);
+}
 function loom_continuity_guest_mode_policy(string $installationId,string $clientId,array $signals,bool $mark=true,bool $creatingNewGuest=false): array {
-  $installationId=loom_guest_installation_id($installationId);$clientId=safe_token($clientId);$sig=loom_continuity_normalize_signals($signals);$ipObs=loom_request_ip_observation();$ip=loom_valid_ip((string)($ipObs['ip']??''));
+  $installationId=loom_guest_installation_id($installationId);$clientId=safe_token($clientId);$sig=loom_continuity_normalize_signals($signals);$ipObs=$clientId!==''?loom_capture_request_ip($clientId,''):loom_request_ip_observation();$ip=loom_valid_ip((string)($ipObs['ip']??''));
+  loom_continuity_backfill_historical_overlap_locks();
   $currentGuestId=$clientId!==''?loom_continuity_root_guest_id_for_client($clientId):'';$s=loom_continuity_read_store();$labels=[];$peerGuestIds=[];$peerClients=[];
   $add=function(string $label,string $peerGuestId='',string $peerClient='')use(&$labels,&$peerGuestIds,&$peerClients){$label=loom_continuity_text($label,64);if($label!=='')$labels[$label]=true;$peerGuestId=safe_token($peerGuestId);if($peerGuestId!=='')$peerGuestIds[$peerGuestId]=true;$peerClient=safe_token($peerClient);if($peerClient!=='')$peerClients[$peerClient]=true;};
 
@@ -186,20 +214,21 @@ function loom_continuity_guest_mode_policy(string $installationId,string $client
   if(count($installationGuests)>1){foreach($installationGuests as $gid)$add('browser installation',$gid);}
 
   // Compare current coarse device/network evidence with all prior continuity observations.
-  if($sig['usable'])foreach(($s['clients']??[]) as $obs){if(!is_array($obs))continue;$otherClient=safe_token((string)($obs['clientId']??''));if($otherClient===''||($clientId!==''&&hash_equals($otherClient,$clientId)))continue;$ol=loom_continuity_observation_overlap_labels($sig,$obs,$ip,$installationId);if(!$ol)continue;$otherGuest=loom_continuity_root_guest_id_for_client($otherClient);foreach($ol as $l)$add($l,$otherGuest,$otherClient);}
+  if($sig['usable'])foreach(($s['clients']??[]) as $obs){if(!is_array($obs))continue;$otherClient=safe_token((string)($obs['clientId']??''));if($otherClient===''||($clientId!==''&&hash_equals($otherClient,$clientId)))continue;$otherGuest=loom_continuity_root_guest_id_for_client($otherClient);if($currentGuestId!==''&&$otherGuest!==''&&hash_equals($currentGuestId,$otherGuest))continue;$ol=loom_continuity_observation_overlap_labels($sig,$obs,$ip,$installationId);if(!$ol)continue;foreach($ol as $l)$add($l,$otherGuest,$otherClient);}
 
   // Historical exact network overlap catches pre-0.15.47 guest identities too.
-  if($ip)foreach(loom_continuity_network_clients_for_ip($ip) as $otherClient){if($clientId!==''&&hash_equals($otherClient,$clientId))continue;$otherGuest=loom_continuity_root_guest_id_for_client($otherClient);$add('network connection',$otherGuest,$otherClient);}
+  if($ip&&loom_ip_is_public($ip))foreach(loom_continuity_network_clients_for_ip($ip) as $otherClient){if($clientId!==''&&hash_equals($otherClient,$clientId))continue;$otherGuest=loom_continuity_root_guest_id_for_client($otherClient);if($currentGuestId!==''&&$otherGuest!==''&&hash_equals($currentGuestId,$otherGuest))continue;$add(filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_IPV6)?'same IPv6 household network':'same network address',$otherGuest,$otherClient);}
 
-  // Do not count a lone self-reference as ambiguity. A different client/install is
-  // enough, even when it was previously auto-aliased into the same guest root.
+  // A second client that already belongs to the SAME canonical Guest is continuity,
+  // not ambiguity. Permanent enforcement begins when evidence connects distinct
+  // Guest roots, or when a brand-new client overlaps an existing Guest.
   $required=!empty($labels);
   if($required&&$mark){
     $labelList=array_keys($labels);$allGuests=$peerGuestIds;if($currentGuestId!=='')$allGuests[$currentGuestId]=true;foreach($installationGuests as $gid)$allGuests[$gid]=true;$guestIds=array_keys($allGuests);
     loom_continuity_mutate(function(array &$st)use($guestIds,$currentGuestId,$installationId,$clientId,$labelList){foreach($guestIds as $gid)loom_continuity_mark_guest_lock_in_store($st,$gid,$labelList,array_values(array_diff($guestIds,[$gid])),'strict-overlap');if($installationId!=='')loom_continuity_mark_installation_lock_in_store($st,$installationId,$labelList,'strict-overlap');if($clientId!==''&&$currentGuestId==='')loom_continuity_mark_pending_lock_in_store($st,$clientId,$installationId,$labelList,'strict-overlap');$st['ambiguityEvents'][]=['eventId'=>'amb_'.bin2hex(random_bytes(8)),'installationId'=>$installationId,'clientId'=>$clientId?:null,'guestIds'=>$guestIds,'labels'=>$labelList,'createdAt'=>server_timestamp()];if(count($st['ambiguityEvents'])>1000)$st['ambiguityEvents']=array_slice($st['ambiguityEvents'],-1000);return null;});
     loom_identity_audit('continuity.permanent-required',['installationId'=>$installationId,'clientId'=>$clientId?:null,'guestIds'=>$guestIds,'labels'=>$labelList]);
   }
-  $labelList=array_keys($labels);$message=$required?'LOOM detected another guest session that overlaps this environment. To prevent one person from being mistaken for another, guest mode is now disabled here. Sign in to an existing permanent account or create one to continue.':'This guest environment is currently unique enough for anonymous use.';
+  $labelList=array_keys($labels);$message=$required?'LOOM found another guest session sharing part of this browsing environment ('.implode(', ',$labelList).'). Because LOOM can no longer safely tell the guests apart, anonymous access is disabled for the affected sessions. Sign in to an existing permanent account or create one to continue.':'This guest environment is currently unique enough for anonymous use.';
   return ['mode'=>$required?'permanent-required':'guest-allowed','permanentRequired'=>$required,'labels'=>$labelList,'message'=>$message,'matchedGuestCount'=>count($peerGuestIds),'matchedClientCount'=>count($peerClients),'durable'=>$required];
 }
 function loom_continuity_assert_guest_allowed(string $installationId,string $clientId,array $signals,bool $creatingNewGuest=false): array {

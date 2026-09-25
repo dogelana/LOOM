@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.52
+# LOOM Blueprint — 0.15.53
 
 ## 1. Purpose
 
@@ -49,9 +49,12 @@ Supported ambiguity evidence may include:
 - the same browser installation containing another guest identity;
 - matching coarse device characteristics;
 - matching coarse device/display profile;
-- an exact observed network connection shared with another guest client.
+- an exact shared public IPv4 address;
+- a public IPv6 address within the same `/64` household network prefix as another guest client.
 
-These signals are intentionally used to **remove anonymous privilege**, never to grant privilege. The UI reports only human-readable categories and never exposes raw fingerprints or IP addresses.
+These signals are intentionally used to **remove anonymous privilege**, never to grant privilege. Current request network evidence is recorded before policy evaluation, and historical continuity/network observations may be backfilled so an already-ambiguous Guest root does not stay soft merely because the evidence predates the strict gate. The UI reports human-readable categories rather than raw fingerprints.
+
+Approximate IP geolocation (city/region/country, ISP, ASN and similar enrichment) is **display-only Admin context**. It must never be used as an overlap, merge or authentication signal: geographic labels and provider networks are too coarse to distinguish people safely.
 
 Once locked, the guest cannot resume anonymous application use. The identity entry surface must offer only:
 
@@ -92,6 +95,8 @@ HTML Framer distinguishes normal document content from viewport-style apps/games
 
 ## 9. Admin and developer surfaces
 
+**Users is the single global people/identity administration surface.** Permanent accounts and Guest Identities share one directory; permanent/guest is a status, not a separate top-level Admin product. Guest provenance/recovery, permanent-user inspection, project moderation, network context, and identity cleanup are sections of the same Users workspace. Legacy Identity Manager URLs may map into Users for backward compatibility.
+
 Admin authentication is global and server-enforced. Admin, Pegboard, Action Registry, activity, backups, referrals, email, database tooling, and related endpoints must reject unauthorized direct requests, not simply hide navigation.
 
 ## 10. Portability
@@ -115,4 +120,4 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.52 revision=66 policy=package-priority -->
+<!-- @loom-file release=0.15.53 revision=67 policy=package-priority -->

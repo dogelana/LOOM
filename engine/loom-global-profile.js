@@ -1,4 +1,4 @@
-// @loom-file release=0.15.49 revision=6 policy=package-priority
+// @loom-file release=0.15.53 revision=7 policy=package-priority
 (() => {
   'use strict';
 
@@ -143,8 +143,8 @@
         <div class="lgp-grid">
           <section class="lgp-card">
             <span class="lgp-badge">LOOM-wide identity</span>
-            <h3 style="margin-top:8px">${esc(p.username||'LOOM Profile')}</h3>
-            <p>This username and picture exist outside projects. Each project may inherit them or use its own override.</p>
+            <h3 style="margin-top:8px">${esc(p.displayName||p.username||'LOOM Profile')}</h3>
+            <p>This display name and picture exist outside projects. Each project may inherit them or use its own override.</p>
             <div class="lgp-avatar-row">
               <img class="lgp-avatar" src="${esc(avatar)}" alt="LOOM profile picture">
               <div>
@@ -158,15 +158,15 @@
               </div>
             </div>
             <form class="lgp-form" data-role="username-form" style="margin-top:13px">
-              <input data-role="username" maxlength="40" autocomplete="nickname" value="${esc(p.username||'')}" placeholder="LOOM username">
-              <button class="lgp-btn" type="submit">Save LOOM Username</button>
+              <input data-role="username" maxlength="40" autocomplete="nickname" value="${esc(p.displayName||p.username||'')}" placeholder="LOOM display name">
+              <button class="lgp-btn" type="submit">Save Display Name</button>
               <div class="lgp-message" data-role="username-message"></div>
             </form>
           </section>
 
           <section class="lgp-card">
             <span class="lgp-badge">${authenticated?'Signed in':registered?'Account linked':'LOOM account'}</span>
-            <h3 style="margin-top:8px">${esc(p.username||a.globalUsername||'LOOM user')}</h3>
+            <h3 style="margin-top:8px">${esc(p.displayName||a.globalUsername||p.username||'LOOM user')}</h3>
             ${registered?`
               <div class="lgp-meta">
                 <div class="lgp-kv"><b>Email</b><strong>${esc(a.email||'—')}</strong></div>
@@ -234,7 +234,7 @@
       const q=s=>this.overlay.querySelector(s),clientId=this.identity.clientId;
       q('[data-role="username-form"]')?.addEventListener('submit',async e=>{
         e.preventDefault();const m=q('[data-role="username-message"]');
-        try{await json(this.api('global-profile.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set-username',clientId,username:q('[data-role="username"]')?.value||''})});await this.refresh('LOOM username saved.')}catch(err){if(m)m.textContent=err.message}
+        try{await json(this.api('global-profile.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set-username',clientId,username:q('[data-role="username"]')?.value||''})});await this.refresh('LOOM display name saved.')}catch(err){if(m)m.textContent=err.message}
       });
       const file=q('[data-role="avatar-file"]');
       q('[data-act="avatar-upload"]')?.addEventListener('click',()=>file?.click());

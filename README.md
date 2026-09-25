@@ -1,8 +1,18 @@
-# LOOM 0.15.52
+# LOOM 0.15.53
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
 
-## 0.15.52 — Showcase balance + global UX polish
+## 0.15.53 — unified Users, strict household-network ambiguity + readable network context
+
+LOOM now treats **Users** as one global people/identity workspace. Permanent accounts and Guest Identities appear in the same directory; guest/permanent is a status rather than a reason to split administration across separate top-level tabs. Permanent deletion, Guest provenance, project moderation and recovery tools remain available as sections of the same Users surface. Legacy `?tab=identities` links continue to open Users.
+
+Guest naming is also cleanly separated from storage identity. A human-facing `displayName` no longer has to be globally unique, while LOOM can retain an invisible unique internal handle for indexing. New Guests therefore do not acquire presentation names such as `MichaelYebba 2` merely because another internal profile already used `MichaelYebba`. Existing legacy auto-suffixes are normalized for presentation when LOOM can identify them as old collision artifacts.
+
+Anonymous access is stricter around shared environments. LOOM records the current request network before evaluating Guest policy, treats an exact shared public IPv4 address as overlap, and treats public IPv6 addresses within the same `/64` household network as overlap even when individual devices use rotating privacy addresses. Existing continuity/network history is backfilled so older Guest roots that already share supported evidence can receive the same durable **Permanent account required** protection. Overlap removes anonymous privilege; it never authenticates, identifies or merges people.
+
+Admin → Users now includes optional **Network Context · Display Only** enrichment with readable city/region/country, ISP, ASN, network-family and network-prefix information. Approximate geolocation is cached and can be disabled/cleared. **City, region, country, ISP and geolocation are never identity-overlap triggers** because they are too broad; two unrelated people in the same city must not be forced together.
+
+## 0.15.53 — Showcase balance + global UX polish
 
 Generated Showcase badges now place the floating **Powered by LOOM** plate at a 10% bottom inset by default. Shared LOOM chrome, controls, focus states, mobile navigation, Admin inputs, buttons, and interaction feedback also receive a restrained consistency pass. This is presentation-only: routes, identity, permissions, module behavior, project data, and deployment semantics are unchanged.
 
@@ -10,7 +20,7 @@ Generated Showcase badges now place the floating **Powered by LOOM** plate at a 
 
 LOOM now keeps its client runtime/cache identity synchronized with the canonical deployed release, so a completed deployment no longer triggers a stale-version manual-refresh loop. Guest presentation names are also independent from globally unique internal handles, eliminating visible suffixes such as `Name 2` when the human-facing name is simply `Name`.
 
-System Owners receive an advanced **Identity Cleanup & Data Purge** panel in Admin → Identity. Every destructive operation starts with a preview and requires an exact confirmation phrase. You can delete one permanent user, one Guest Identity, all non-owner permanent users, all Guest Identities, all non-owner identities, or intentionally perform a separately protected full identity/owner wipe. Storage can be scoped to local Instance state, SQL persistence, or both, with independent switches for project data, activity, referrals, continuity, media, audit history, and attached Guest Histories.
+System Owners receive an advanced **Identity Cleanup & Data Purge** panel in Admin → Users. Every destructive operation starts with a preview and requires an exact confirmation phrase. You can delete one permanent user, one Guest Identity, all non-owner permanent users, all Guest Identities, all non-owner identities, or intentionally perform a separately protected full identity/owner wipe. Storage can be scoped to local Instance state, SQL persistence, or both, with independent switches for project data, activity, referrals, continuity, media, audit history, and attached Guest Histories.
 
 Permanent-account deletion is conservative by default: attached Guest Histories survive and are detached unless **Delete attached guests too** is explicitly selected. The System Owner is protected from ordinary account deletion and bulk cleanup.
 
@@ -79,4 +89,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.52 revision=70 policy=package-priority -->
+<!-- @loom-file release=0.15.53 revision=71 policy=package-priority -->

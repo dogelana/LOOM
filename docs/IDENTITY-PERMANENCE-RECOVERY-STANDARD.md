@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.53 revision=3 policy=package-priority -->
 # LOOM Identity Permanence & Recovery Standard
 
 Version: 0.12.00
@@ -20,7 +20,7 @@ LOOM separates four concepts:
 3. **Permanent User** — a password-backed LOOM account (`userId`).
 4. **Project Identity** — optional project-scoped username/avatar overrides attached to either a Guest/Client owner or a permanent User owner.
 
-IP addresses, approximate location, user-agent details, and similar observations are metadata only. They are never authentication proof and never cause automatic attachment.
+IP addresses, approximate location, user-agent details, and similar observations are never authentication proof and never cause automatic attachment. Under the strict guest policy, an exact shared public IPv4 address or the same public IPv6 `/64` may conservatively remove anonymous Guest privilege and require permanent authentication; this is a safety gate, not a claim that the people are the same. Approximate city/region/country, ISP and ASN enrichment is display-only and is never an overlap trigger.
 
 ## Guest permanence
 
@@ -30,7 +30,7 @@ A Guest Identity therefore remains inspectable after attachment. It is not conve
 
 ## Legacy-data backfill
 
-When the Identity Manager or SQL migration runs, LOOM scans known legacy client-owned records and creates Guest Identity wrappers for clients that predate v0.12.00. Existing data is not rewritten merely to perform this backfill; the Guest layer establishes durable provenance around it.
+When Admin → Users identity management or SQL migration runs, LOOM scans known legacy client-owned records and creates Guest Identity wrappers for clients that predate v0.12.00. Existing data is not rewritten merely to perform this backfill; the Guest layer establishes durable provenance around it.
 
 ## Multi-device attachment
 
@@ -87,7 +87,7 @@ Once a Guest Identity is attached to a permanent account, normal account sign-in
 
 If a person loses a device before making an account and did not retain a recovery code, an Administrator may investigate preserved Guest Identities.
 
-The Identity Manager can surface candidate evidence such as:
+Admin → Users can surface candidate evidence such as:
 
 - approximate activity dates;
 - project overlap;
@@ -101,9 +101,9 @@ Fuzzy evidence is for human review only. In particular, IP overlap is low-confid
 
 LOOM may rank or surface possible related Guest Identities, but it does not automatically attach them based on fuzzy evidence.
 
-## Administrator Identity Manager
+## Administrator Users / identity management
 
-LOOM Admin includes an Identity Manager for permanent ownership/recovery operations. Supported v0.12.00 operations include:
+LOOM Admin includes permanent ownership/recovery operations inside the unified **Users** workspace. Since v0.15.53, permanent accounts and Guest Identities are presented in one directory instead of separate top-level Users and Identity Manager tabs. Supported identity operations include:
 
 - inspect Guest Identity provenance/activity;
 - inspect permanent users;

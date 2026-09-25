@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.52 revision=36 policy=package-priority
+// @loom-file release=0.15.53 revision=37 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -53,10 +53,10 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.52"></script><script src="../../engine/loom-brand.js?v=0.15.52"></script>
-<script src="../../engine/identity.js?v=0.15.52"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.52"></script>
-<script src="../../engine/loom-toast.js?v=0.15.52"></script><script src="../../engine/share-referrals.js?v=0.15.52"></script><script src="../../engine/loom-shell.js?v=0.15.52"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.53"></script><script src="../../engine/loom-brand.js?v=0.15.53"></script>
+<script src="../../engine/identity.js?v=0.15.53"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.53"></script>
+<script src="../../engine/loom-toast.js?v=0.15.53"></script><script src="../../engine/share-referrals.js?v=0.15.53"></script><script src="../../engine/loom-shell.js?v=0.15.53"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];

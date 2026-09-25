@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.49 revision=14 policy=package-priority
+// @loom-file release=0.15.53 revision=15 policy=package-priority
 declare(strict_types=1);
 
 function loom_accounts_dir(): string { return loom_data_dir().'/accounts'; }
@@ -261,7 +261,7 @@ function loom_account_public_status(string $clientId,string $project=''): array 
   loom_reconcile_admin_identity($clientId);$auth=loom_auth_user();$linked=loom_account_user_for_client($clientId);$u=$auth?:$linked;$storedPrivilege=(string)($u['privilege']??'User');$effectiveAdmin=loom_client_is_admin($clientId);$source='user';
   if($effectiveAdmin){if($auth&&strcasecmp((string)($auth['privilege']??'User'),'Admin')===0)$source='permanent-admin-account';elseif(loom_admin_cookie_valid())$source='bootstrap-admin-recovery';else $source='linked-admin-state';}
   $global=null;try{$global=loom_global_profile_ensure($clientId);}catch(Throwable $e){} $identity=null;if($project!==''&&project_dir($project)){try{$identity=loom_project_identity_ensure($project,$clientId,true);}catch(Throwable $e){}}
-  return ['authenticated'=>(bool)$auth,'registered'=>(bool)$u,'userId'=>$u['user_id']??$u['userId']??null,'username'=>$identity['effectiveUsername']??$global['username']??null,'projectUsername'=>$identity['effectiveUsername']??null,'globalUsername'=>$global['username']??null,'accountHandle'=>$u['username']??null,'email'=>$u['email']??null,'privilege'=>$effectiveAdmin?'Admin':'User','accountPrivilege'=>$storedPrivilege,'effectivePrivilege'=>$effectiveAdmin?'Admin':'User','authorizationSource'=>$source,'privilegeMismatch'=>strcasecmp($storedPrivilege,$effectiveAdmin?'Admin':'User')!==0,'storageMode'=>loom_db_ready()?'database':'durable-local'];
+  $visible=function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'';return ['authenticated'=>(bool)$auth,'registered'=>(bool)$u,'userId'=>$u['user_id']??$u['userId']??null,'username'=>$identity['effectiveUsername']??($visible?:($global['username']??null)),'projectUsername'=>$identity['effectiveUsername']??null,'globalUsername'=>$visible?:($global['username']??null),'internalProfileHandle'=>$global['username']??null,'accountHandle'=>$u['username']??null,'email'=>$u['email']??null,'privilege'=>$effectiveAdmin?'Admin':'User','accountPrivilege'=>$storedPrivilege,'effectivePrivilege'=>$effectiveAdmin?'Admin':'User','authorizationSource'=>$source,'privilegeMismatch'=>strcasecmp($storedPrivilege,$effectiveAdmin?'Admin':'User')!==0,'storageMode'=>loom_db_ready()?'database':'durable-local'];
 }
 function loom_request_is_admin(): bool {
   $auth=loom_auth_user();

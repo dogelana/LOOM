@@ -1,5 +1,16 @@
 ## v0.15.52 - Showcase Plate Position + Global UX Polish
 
+# LOOM v0.15.53 — Unified Users + Network Ambiguity + Readable Network Context
+
+- Merged the former top-level **Users** and **Identity Manager** Admin destinations into one global **Users** workspace. Permanent accounts and Guest Identities share one directory; project moderation, provenance/recovery, network context and destructive identity cleanup remain available as sections of the same surface. Legacy `?tab=identities` links map to Users.
+- Separated visible human `displayName` from globally unique internal storage handles. New Guest profiles no longer create user-facing `Name 2`/`Name 3` collision suffixes; project/account/email presentation prefers the human display name while retaining invisible unique handles for storage. Legacy auto-suffixes can be normalized for presentation when safely recognizable.
+- Strengthened strict Guest ambiguity detection. Current request network evidence is captured before policy evaluation; exact shared public IPv4 addresses and shared public IPv6 `/64` household prefixes create durable **Permanent account required** locks when distinct Guest roots overlap. Matching browser installation/device evidence remains supported.
+- Added historical overlap backfill so pre-0.15.53 Guest roots with existing supported network/continuity collisions can become protected without destructively merging them. Multiple clients that already resolve to the same canonical Guest root do not manufacture a false ambiguity.
+- Added optional cached Admin network-location enrichment (city/region/country, ISP, ASN, timezone and readable network family/prefix) with setup/status controls and cache clearing. Geographic/provider enrichment is explicitly display-only: city, region, country, ISP and ASN are never used to authenticate, merge or trigger Guest ambiguity.
+- Added IPv6 privacy-address awareness by normalizing public IPv6 observations to a `/64` network key for household overlap while retaining exact IPv4 matching.
+- No Instance state is shipped or reset by this release; old Guest identities remain preserved and must be claimed through real permanent authentication rather than inferred merges.
+
+
 - Moved the generated Showcase `POWERED BY LOOM` floating plate to a 10% bottom inset by default instead of 1.5%, preserving the floating-overlay treatment while producing a better-balanced badge composition.
 - Refined the shared LOOM visual foundation with stronger focus visibility, consistent disabled states, touch-target behavior, mobile spacing, and card/control rhythm.
 - Polished native LOOM header/footer chrome with slightly larger controls, clearer hover/focus feedback, and a horizontally scrollable mobile action row instead of cramped wrapping.
@@ -676,7 +687,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.52 revision=71 policy=package-priority -->
+<!-- @loom-file release=0.15.53 revision=72 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
