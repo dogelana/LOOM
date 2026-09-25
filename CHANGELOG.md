@@ -1,3 +1,14 @@
+## v0.15.47 - Continuity Clusters + resilient referrals
+
+- Added an additive server-side Continuity Cluster layer above browser client IDs and Guest Identities. Existing guests, permanent accounts, referral records, and project identities remain intact.
+- Fresh browser contexts now submit a coarse continuity signature made from display/device class, platform capabilities, locale/timezone, and browser family. LOOM stores normalized hashes rather than a permanent hardware ID or raw user-agent fingerprint.
+- Automatic anonymous recovery is intentionally conservative: the candidate must be one recent unattached cluster, the coarse hardware/display signature must match, the current observed network must also match, the confidence threshold/margin must pass, and the same device signature must not have represented multiple guest clusters. Shared-device ambiguity always fails closed.
+- Messenger/WebView → Chrome can therefore resume the same unclaimed Guest Identity when the evidence is strong, while Chrome keeps its own browser client ID. Canonical guest ownership makes the existing global profile, avatar, project identity, and guest-owned project state resolve through the recovered Guest Identity without turning continuity into account authentication.
+- Added Continuity Cluster claiming on successful permanent account registration/sign-in. Verification claims only the already-established cluster; it does not absorb unrelated guests that merely share a network or device family.
+- Improved first-run identity behavior so a pristine browser can be evaluated for continuity before a new guest is created, while known browser clients keep their explicit lineage.
+- Referral links remain reusable for unlimited recipients. Self-opening a share link now increments `selfVisits`, records an audit event, grants zero referral credit, and leaves the link fully active for later recipients. Admin Referrals now surfaces self-open counts.
+- Updated the packaged Privacy baseline to explain continuity metadata, fail-closed shared-device behavior, and the authentication boundary.
+
 ## v0.15.46 - Frozen viewport Framer stability
 
 - Reworked HTML Framer viewport-app sizing using layout bridge v5. Once a frame is classified as a viewport app/game for the current desktop/mobile profile, LOOM stops content-height negotiation completely and freezes the outer iframe to one stable page-owned slot.
@@ -620,7 +631,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.46 revision=65 policy=package-priority -->
+<!-- @loom-file release=0.15.47 revision=66 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

@@ -1,3 +1,11 @@
+## v0.15.47 - Continuity Clusters + Referral Resilience
+
+LOOM 0.15.47 adds privacy-bounded **Continuity Clusters** so an unclaimed guest can feel continuous when the same phone opens LOOM in a different browser context such as Facebook Messenger's in-app browser and then Chrome. A fresh browser gets its own client ID, but LOOM may reconnect it to one recent unattached Guest Identity only when a coarse device/display signature, current network, recency, and ambiguity checks all agree. If the same device signature has represented more than one guest, automatic recovery is refused instead of guessing.
+
+Continuity is recognition, not authentication. It can restore the anonymous guest experience and its safe guest-owned state, but it never grants permanent-account, Admin, purchase, private-message, or other authenticated authority. Once the guest verifies a durable LOOM account, that account claims the established Continuity Cluster; all browser clients already inside that cluster follow the verified user through LOOM's existing Guest attachment path.
+
+Referral links remain indefinitely reusable. Opening your own referral link is now explicitly recorded as a **self open** and earns zero referral credit without consuming or disabling the link, so one shared URL can still attribute many independent people.
+
 ## v0.15.46 - Frozen Viewport HTML Framer Stability
 
 LOOM 0.15.46 fixes the remaining project-page jumping seen with true viewport games such as Lint Away. Viewport apps are now classified once and assigned a stable parent-owned iframe slot; after that, their internal canvas resizing, ResizeObservers, animation/HUD churn, body overflow rules, and mobile browser-chrome height changes cannot renegotiate the surrounding LOOM layout. Normal document-style HTML frames still auto-fit delivered content.
@@ -187,7 +195,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.46 revision=64 policy=package-priority -->
+<!-- @loom-file release=0.15.47 revision=65 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

@@ -1,3 +1,15 @@
+## v0.15.47 architecture note — recognition may restore continuity; only verification restores authority
+
+LOOM identity now has an explicit **Continuity Cluster** layer between disposable browser contexts and durable human accounts. A browser `clientId` remains a local technical identity. A Guest Identity may contain multiple browser clients when LOOM has high-confidence evidence that a fresh browser continues the same unclaimed human experience. A permanent `userId` remains the only durable authenticated authority.
+
+Continuity inference must fail closed. LOOM may use a hashed coarse device/display signature, locale/timezone, recency, and already-captured network metadata together, but no single signal is authoritative. Network/IP similarity alone is never enough. A fresh browser is automatically recovered only when exactly one recent unattached cluster matches, the present network also matches, the confidence margin is strong, and the same physical-device signature has not represented multiple guest clusters. Evidence of a shared device suppresses automatic selection entirely.
+
+The browser that resumes a cluster keeps a new client ID; LOOM maps that client into the existing Guest Identity rather than copying a secret browser token. This preserves anonymous username/profile picture, project identity and guest-owned state while retaining provenance for each browser context. Continuity never grants permanent-account sessions, Admin privilege, account recovery, purchases, private-message authority, or any other verified capability.
+
+When durable verification succeeds, the verified user claims the existing Continuity Cluster. The claim attaches only histories already inside that cluster; neighboring or ambiguous guests are not swept in simply because they share an IP, household, browser family, or device class. Original guest/client provenance and audit events remain preserved for reversibility and support review.
+
+Referral identity is orthogonal to browser identity. One referral URL is multi-use and may produce arbitrarily many visit/guest records. A referrer's own visit is explicitly classified as a self-visit, receives no credit, and never consumes the share URL.
+
 ## v0.15.46 architecture note — viewport applications own internal motion, not LOOM shell geometry
 
 A viewport-style framed application is circular by nature: its internal `height:100%` layout depends on the iframe height. Therefore the iframe height MUST NOT continue to depend on measurements produced by that same application. Layout bridge v5 treats viewport classification as terminal for the active desktop/mobile profile. LOOM selects one stable outer slot and then stops content-height negotiation until a meaningful outer page-width/profile transition occurs.
@@ -143,7 +155,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.46 revision=60 policy=package-priority -->
+<!-- @loom-file release=0.15.47 revision=61 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults
