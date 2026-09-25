@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.50
+# LOOM Blueprint — 0.15.51
 
 ## 1. Purpose
 
@@ -27,6 +27,16 @@ The baseline project branding contract is generic:
 ## 4. Accounts, guests, and continuity
 
 A permanent LOOM account is the durable authentication owner. Project-visible username/avatar may remain project-scoped while authentication ownership stays global.
+
+Guest identity has two distinct naming layers: a globally unique internal handle may be used for storage/indexing, while `displayName` is the human-facing presentation value. Internal collision suffixes must never be surfaced as presentation unless a human explicitly chose them. Legacy continuity aliases may therefore normalize presentation while preserving immutable internal IDs/handles.
+
+Identity continuity may recognize or associate anonymous contexts, but it is not authentication. Permanent authentication remains the only source of account authority.
+
+### Identity cleanup and permanent deletion
+
+Destructive identity administration is restricted to the immutable System Owner and follows preview → exact confirmation → transaction. Supported targets are one permanent account, one Guest Identity, all non-owner permanent accounts, all Guest Identities, all non-owner identities, and a separately protected factory-level owner wipe. Cleanup can be scoped to local Instance storage, SQL persistence, or both, with explicit data classes for project data, activity, referrals, continuity, media, and audit history.
+
+Deleting a permanent account must preserve and detach its associated Guest Histories unless the operator explicitly enables attached-guest deletion. The System Owner is excluded from ordinary single and bulk account deletion. A factory-level owner wipe requires a stronger confirmation phrase and, when SQL persistence is connected, both storage layers so authority cannot survive in a second backend.
 
 Guest identities are convenient anonymous payloads, not security principals. A browser/client ID can identify a known guest context, but device/network similarity never proves a human identity.
 
@@ -101,4 +111,4 @@ A LOOM release advances the server canonical version only after release-managed 
 5. Guest/account merges retain provenance and must be reversible/auditable rather than destructive guesses.
 6. A one-word project remains one word unless the project explicitly configures otherwise.
 
-<!-- @loom-file release=0.15.49 revision=63 policy=package-priority -->
+<!-- @loom-file release=0.15.51 revision=65 policy=package-priority -->

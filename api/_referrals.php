@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.49 revision=5 policy=package-priority
+// @loom-file release=0.15.51 revision=6 policy=package-priority
 declare(strict_types=1);
 
 /** LOOM Sharing + Referrals durable Instance Vault store. */
@@ -20,7 +20,8 @@ function loom_referral_actor(string $clientId,string $project=''): array {
   $clientId=safe_token($clientId);if($clientId==='')throw new RuntimeException('A LOOM identity is required to share.');
   $guest=loom_guest_ensure_for_client($clientId);$gid=(string)($guest['guestId']??'');$user=loom_account_user_for_client($clientId);$uid=(string)($user['user_id']??$user['userId']??$guest['attachedUserId']??'');
   $username='';
-  try{if($project!==''&&project_dir($project)){$pi=loom_project_identity_ensure($project,$clientId,true);$username=(string)($pi['effectiveUsername']??'');}}catch(Throwable $e){}
+  if($uid==='')try{$guestProfile=loom_guest_profile_for_client($clientId);if(is_array($guestProfile))$username=(string)(loom_guest_profile_public($guestProfile)['displayName']??'');}catch(Throwable $e){}
+  try{if($username===''&&$project!==''&&project_dir($project)){$pi=loom_project_identity_ensure($project,$clientId,true);$username=(string)($pi['effectiveUsername']??'');}}catch(Throwable $e){}
   if($username==='')try{$username=(string)(loom_global_profile_ensure($clientId)['username']??'');}catch(Throwable $e){}
   return ['clientId'=>$clientId,'guestId'=>$gid?:null,'userId'=>$uid?:null,'username'=>$username?:'LOOM User'];
 }

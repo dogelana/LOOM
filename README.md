@@ -1,10 +1,18 @@
-# LOOM 0.15.50
+# LOOM 0.15.51
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
 
+## 0.15.51 — release coherence, clean Guest names and identity cleanup
+
+LOOM now keeps its client runtime/cache identity synchronized with the canonical deployed release, so a completed deployment no longer triggers a stale-version manual-refresh loop. Guest presentation names are also independent from globally unique internal handles, eliminating visible suffixes such as `Name 2` when the human-facing name is simply `Name`.
+
+System Owners receive an advanced **Identity Cleanup & Data Purge** panel in Admin → Identity. Every destructive operation starts with a preview and requires an exact confirmation phrase. You can delete one permanent user, one Guest Identity, all non-owner permanent users, all Guest Identities, all non-owner identities, or intentionally perform a separately protected full identity/owner wipe. Storage can be scoped to local Instance state, SQL persistence, or both, with independent switches for project data, activity, referrals, continuity, media, audit history, and attached Guest Histories.
+
+Permanent-account deletion is conservative by default: attached Guest Histories survive and are detached unless **Delete attached guests too** is explicitly selected. The System Owner is protected from ordinary account deletion and bulk cleanup.
+
 ## 0.15.50 — friendly project routes, Instance asset proxy and Showcase polish
 
-Projects now use short public routes such as `/green-beans/`, new project slugs auto-iterate around duplicates/reserved LOOM paths, Instance Project module assets are proxied safely out of the protected vault, and generated Showcase badges use a floating Powered by LOOM plaque.
+Projects now use short public routes such as `/my-project/`, new project slugs auto-iterate around duplicates/reserved LOOM paths, Instance Project module assets are proxied safely out of the protected vault, and generated Showcase badges use a floating Powered by LOOM plaque.
 
 ## 0.15.49 — strict guest ambiguity + generic starter branding
 
@@ -67,4 +75,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.49 revision=67 policy=package-priority -->
+<!-- @loom-file release=0.15.51 revision=69 policy=package-priority -->

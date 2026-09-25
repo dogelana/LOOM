@@ -1,3 +1,12 @@
+## v0.15.51 - Runtime Release Coherence + Clean Guest Names + Identity Cleanup
+
+- Fixed the false post-deployment update banner/reload-loop warning by making the client runtime release, cache-busting URLs, version endpoint, and canonical release fallback agree on 0.15.51. LOOM no longer thinks a fully deployed page is still running the previous release.
+- Separated human-facing Guest display names from globally unique internal client handles. Legacy continuity aliases such as `Michael 2` are repaired for presentation when their source identity is `Michael`; uniqueness remains internal and does not leak into normal Identity/Admin labels.
+- Added a System Owner-only **Identity Cleanup & Data Purge** suite with dry-run preview, exact typed confirmation, single-identity deletion, bulk permanent-user cleanup, bulk Guest Identity cleanup, combined cleanup, and explicit factory-level owner wipe.
+- Cleanup storage can target durable local state, SQL persistence, or both. Data scopes independently cover project data, activity, referrals, continuity, media, and audit history.
+- Deleting a permanent account preserves and detaches its Guest Histories by default. The destructive **attached guests** option must be selected explicitly before those Guest Identities are removed as well.
+- The System Owner cannot be deleted through ordinary single/bulk account cleanup. Factory-level owner wipe requires a separate high-risk target and exact confirmation phrase; when SQL is connected it requires both storage layers so an owner record cannot survive in only one persistence backend.
+
 ## v0.15.50 - Friendly Project Routes + Instance Asset Proxy + Showcase Badge Polish
 
 - Added first-class short project URLs such as `/green-beans/`; legacy `/projects/.../app/` links continue to work.
@@ -659,7 +668,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.49 revision=68 policy=package-priority -->
+<!-- @loom-file release=0.15.51 revision=70 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

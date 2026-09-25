@@ -1,4 +1,4 @@
-# @loom-file release=0.15.50 revision=8 policy=package-priority
+# @loom-file release=0.15.51 revision=9 policy=package-priority
 DirectoryIndex index.php index.html
 Options -MultiViews
 <IfModule mod_rewrite.c>
@@ -23,7 +23,7 @@ Options -MultiViews
   RewriteRule ^projects/_instance/app/?$ project.php [QSA,L]
   RewriteRule ^projects/([a-zA-Z0-9_-]+)/app/?$ project.php?project=$1 [B,QSA,L]
 
-  # Friendly public project URLs: /green-beans/ -> project.php?project=green-beans.
+  # Friendly public project URLs: /my-project/ -> project.php?project=my-project.
   # Existing real LOOM files/directories (home, admin, api, registry, etc.) always win.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

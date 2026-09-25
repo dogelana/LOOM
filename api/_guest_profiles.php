@@ -1,11 +1,19 @@
 <?php
-// @loom-file release=0.15.47 revision=5 policy=package-priority
+// @loom-file release=0.15.51 revision=6 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 
 function loom_guest_profiles_file(): string { return loom_identity_dir().'/guest-profiles.json'; }
 function loom_guest_profiles_store(): array {
-  return array_replace(['schemaVersion'=>'2.0','profiles'=>[],'installationMap'=>[],'clientProfileMap'=>[]],read_json_file(loom_guest_profiles_file())?:[]);
+  $s=array_replace(['schemaVersion'=>'2.0','profiles'=>[],'installationMap'=>[],'clientProfileMap'=>[]],read_json_file(loom_guest_profiles_file())?:[]);
+  // v0.15.51 presentation repair: continuity aliases historically inherited the
+  // globally-unique storage username (for example "Michael 2") as their visible
+  // name. Keep uniqueness internally, but restore the human-facing name from the
+  // source profile when the stored alias is only a numeric collision suffix.
+  $changed=false;
+  foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$sourceId=safe_token((string)($p['continuitySourceProfileId']??''));if($sourceId===''||!is_array($s['profiles'][$sourceId]??null))continue;$sourceName=loom_clean_username((string)($s['profiles'][$sourceId]['displayName']??''));$name=loom_clean_username((string)($p['displayName']??''));if($sourceName!==''&&($name===''||preg_match('/^'.preg_quote($sourceName,'/').'\s+\d+$/iu',$name))){$p['displayName']=$sourceName;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}}
+  if($changed){$json=json_encode($s,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);if($json!==false)@file_put_contents(loom_guest_profiles_file(),$json."\n",LOCK_EX);}
+  return $s;
 }
 function loom_guest_profiles_db_mirror(array $s): void {
   if(!function_exists('loom_db_ready')||!loom_db_ready())return;
@@ -28,9 +36,13 @@ function loom_guest_profile_id(): string { return 'gprof_'.bin2hex(random_bytes(
 function loom_guest_installation_id(string $value): string { $v=safe_token($value);return str_starts_with($v,'install_')?$v:''; }
 function loom_guest_profile_avatar_mode(string $preset): string { return 'loom-default'; }
 function loom_guest_profile_effective_display_name(array $p): string {
+  // Human-facing guest names are presentation data and do not need global
+  // uniqueness. Prefer the explicit profile name; the globally unique client
+  // username remains an internal handle/fallback only.
+  $display=loom_clean_username((string)($p['displayName']??''));if($display!=='')return $display;
   $g=(string)($p['currentGeneration']??'1');$row=$p['generations'][$g]??[];$cid=safe_token((string)($row['clientId']??''));
   if($cid!=='')try{$ownerId=function_exists('loom_guest_canonical_client_id')?loom_guest_canonical_client_id($cid):$cid;$gp=loom_global_profile_ensure_for_owner('client',$ownerId);$u=loom_clean_username((string)($gp['username']??''));if($u!=='')return $u;}catch(Throwable $e){}
-  $fallback=loom_clean_username((string)($p['displayName']??''));return $fallback!==''?$fallback:'Guest';
+  return 'Guest';
 }
 function loom_guest_profile_public(array $p): array {
   $g=(string)($p['currentGeneration']??'1');$row=$p['generations'][$g]??[];
@@ -74,7 +86,7 @@ function loom_guest_profile_create_continuity_alias(string $installationId,strin
   if($installationId===''||$sourceProfileId===''||$clientId===''||$guestId==='')throw new RuntimeException('Invalid continuity profile context.');
   $s=loom_guest_profiles_store();foreach($s['installationMap'][$installationId]??[] as $existingPid){$existing=$s['profiles'][$existingPid]??null;if(!is_array($existing))continue;$row=$existing['generations'][(string)($existing['currentGeneration']??1)]??[];if(($row['clientId']??'')===$clientId)return loom_guest_profile_public($existing);}
   $source=$s['profiles'][$sourceProfileId]??null;if(!is_array($source))throw new RuntimeException('Continuity source profile is unavailable.');
-  $name=loom_guest_profile_effective_display_name($source);if($name==='')$name=loom_global_default_username('client',$clientId);if(!loom_guest_profile_name_available($s,$installationId,$name))$name=loom_guest_profile_seed_system_username($name,$clientId);
+  $name=loom_guest_profile_effective_display_name($source);if($name==='')$name=loom_global_default_username('client',$clientId); // aliases may intentionally share a visible name; only the internal system username must be unique.
   $pid=loom_guest_profile_id();$now=server_timestamp();$p=['guestProfileId'=>$pid,'displayName'=>$name,'avatarPreset'=>'loom-default','currentGeneration'=>1,'generations'=>['1'=>['generation'=>1,'clientId'=>$clientId,'guestId'=>$guestId,'status'=>'active','createdAt'=>$now,'claimedAt'=>null,'userId'=>null]],'lastClaimedUserId'=>null,'continuitySourceProfileId'=>$sourceProfileId,'continuityClusterId'=>$clusterId?:null,'continuityRestoredAt'=>$now,'createdAt'=>$now,'updatedAt'=>$now];
   $s['profiles'][$pid]=$p;$s['installationMap'][$installationId]=array_values(array_unique(array_merge($s['installationMap'][$installationId]??[],[$pid])));$s['clientProfileMap'][$clientId]=$pid;loom_guest_profiles_write($s);loom_identity_audit('guest-profile.continuity-alias-created',['guestProfileId'=>$pid,'sourceProfileId'=>$sourceProfileId,'installationId'=>$installationId,'clientId'=>$clientId,'guestId'=>$guestId,'clusterId'=>$clusterId?:null]);return loom_guest_profile_public($p);
 }

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.49 revision=5 policy=package-priority
+// @loom-file release=0.15.51 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'POST')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);$body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);$clientId=safe_token((string)($body['clientId']??''));loom_require_admin($clientId);$action=(string)($body['action']??'list');
 function identity_confirm(array $b): void { if((string)($b['confirmPhrase']??'')!=='CONFIRM')throw new RuntimeException('Type CONFIRM to perform this identity operation.'); }
@@ -9,11 +9,12 @@ function identity_guest_rows(): array {
   $out=[];
   foreach(loom_guest_all() as $g){
     $uid=safe_token((string)($g['attachedUserId']??''));
-    $profile=$uid!==''?loom_global_profile_get('user',$uid):loom_global_profile_get('client',(string)($g['primaryClientId']??''));
-    $username=loom_clean_username((string)($profile['username']??''));
+    $cid=(string)($g['primaryClientId']??'');$guestProfile=loom_guest_profile_for_client($cid);$guestPublic=is_array($guestProfile)?loom_guest_profile_public($guestProfile):[];
+    $profile=$uid!==''?loom_global_profile_get('user',$uid):loom_global_profile_get('client',$cid);
+    $username=loom_clean_username((string)($profile['username']??''));$visible=loom_clean_username((string)($guestPublic['displayName']??''));
     $email=null;
     if($uid!==''){$u=loom_account_user_by_id($uid);$email=is_array($u)?($u['email']??null):null;}
-    $g['username']=$username!==''?$username:null;$g['displayName']=$g['username']?:('Guest '.strtoupper(substr(preg_replace('/[^A-Za-z0-9]/','',(string)($g['guestId']??'')),-6)));$g['email']=$email;
+    $g['username']=$username!==''?$username:null;$g['displayName']=$visible!==''?$visible:($g['username']?:('Guest '.strtoupper(substr(preg_replace('/[^A-Za-z0-9]/','',(string)($g['guestId']??'')),-6))));$g['email']=$email;
     $out[]=$g;
   }
   usort($out,fn($a,$b)=>strcasecmp((string)($a['displayName']??''),(string)($b['displayName']??'')));
@@ -21,7 +22,7 @@ function identity_guest_rows(): array {
 }
 try{
   if($action==='list'){json_out(['ok'=>true,'guests'=>identity_guest_rows(),'users'=>identity_user_rows(),'backfilledGuests'=>0,'legacyDiscoveryDeferred'=>true]); }
-  if($action==='detail'){ $detail=loom_guest_detail((string)($body['guestId']??''));$g=$detail['guest']??[];$uid=safe_token((string)($g['attachedUserId']??''));$profile=$uid!==''?loom_global_profile_get('user',$uid):($detail['globalProfile']??[]);$detail['displayUsername']=loom_clean_username((string)($profile['username']??''));json_out(['ok'=>true,'detail'=>$detail,'users'=>identity_user_rows()]); }
+  if($action==='detail'){ $detail=loom_guest_detail((string)($body['guestId']??''));$g=$detail['guest']??[];$cid=safe_token((string)($g['primaryClientId']??''));$gp=$cid!==''?loom_guest_profile_for_client($cid):null;$pub=is_array($gp)?loom_guest_profile_public($gp):[];$uid=safe_token((string)($g['attachedUserId']??''));$profile=$uid!==''?loom_global_profile_get('user',$uid):($detail['globalProfile']??[]);$detail['displayUsername']=loom_clean_username((string)($pub['displayName']??''))?:loom_clean_username((string)($profile['username']??''));json_out(['ok'=>true,'detail'=>$detail,'users'=>identity_user_rows()]); }
   if($action==='issue-recovery'){identity_confirm($body);$gid=safe_token((string)($body['guestId']??''));identity_active_guest($gid);$r=loom_guest_issue_recovery_code($gid,'admin');loom_admin_audit('guest.recovery.issue','guest',$gid,'',['identityOperation'=>true]);json_out(['ok'=>true]+$r);}
   if($action==='attach'){identity_confirm($body);$gid=safe_token((string)($body['guestId']??''));$uid=safe_token((string)($body['userId']??''));$g=identity_active_guest($gid);if(!loom_account_user_by_id($uid))throw new RuntimeException('Permanent user not found.');$admin=loom_auth_user();$adminId=(string)($admin['user_id']??$admin['userId']??'');$a=loom_guest_attach_client_to_user((string)$g['primaryClientId'],$uid,'admin',$adminId,'admin-attach');loom_admin_audit('guest.attach','guest',$gid,'',['userId'=>$uid,'attachmentId'=>$a['attachmentId']??null]);json_out(['ok'=>true,'attachment'=>$a,'detail'=>loom_guest_detail($gid)]);}
   if($action==='convert'){identity_confirm($body);$gid=safe_token((string)($body['guestId']??''));$email=trim((string)($body['email']??''));$password=(string)($body['password']??'');$g=identity_active_guest($gid);if(($g['status']??'')==='attached')throw new RuntimeException('Guest identity is already attached.');$u=loom_create_account_record($email,$password,'User');$uid=(string)($u['user_id']??$u['userId']??'');$admin=loom_auth_user();$adminId=(string)($admin['user_id']??$admin['userId']??'');$a=loom_guest_attach_client_to_user((string)$g['primaryClientId'],$uid,'admin',$adminId,'admin-convert');loom_admin_audit('guest.convert-to-account','guest',$gid,'',['userId'=>$uid,'email'=>$email]);if(function_exists('loom_email_notify_user'))try{loom_email_notify_user('welcome',$u);}catch(Throwable $e){}json_out(['ok'=>true,'userId'=>$uid,'attachment'=>$a,'detail'=>loom_guest_detail($gid)]);}
