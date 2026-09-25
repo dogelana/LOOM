@@ -1,3 +1,13 @@
+## v0.15.46 - Frozen viewport Framer stability
+
+- Reworked HTML Framer viewport-app sizing using layout bridge v5. Once a frame is classified as a viewport app/game for the current desktop/mobile profile, LOOM stops content-height negotiation completely and freezes the outer iframe to one stable page-owned slot.
+- Removed `visualViewport`-height chatter from normal project sizing. Mobile browser chrome, internal game `ResizeObserver` callbacks, animation/HUD updates, and height-only iframe changes can no longer resize the surrounding LOOM project.
+- Meaningful outer page-width or desktop/mobile profile changes may recalculate the stable viewport slot once; ordinary mouse movement, animation, scrolling, and internal app resizing cannot.
+- Extended `overflow-anchor:none` across the Framer wrapper, surface, stage, iframe, and containing LOOM module frame so browser scroll anchoring cannot make Showcase/Framer appear to jump above or below each other.
+- Runtime Lock/Unlock is now available on every HTML frame. The per-frame **Start locked** setting remains off by default and only controls the initial state; users can lock an unlocked frame at any time from the dock. Full-screen entry still unlocks the frame.
+- Added automatic HTML Framer registry migration to presentation schema v2. Clearly legacy pre-presentation frames receive modern responsive defaults; the untouched historical 100% width shape normalizes to the current 80% page-lane default, while modern/explicit presentation values are preserved.
+- HTML Framer runtime version is now 1.11.0. Fullscreen, auto-fullscreen, project export/import portability, and document-flow auto-fit remain intact.
+
 ## v0.15.45 - Canonical release recovery
 
 - Added a clean forward recovery package for servers stuck in a partial/mixed 0.15.41→0.15.44 state.
@@ -610,7 +620,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.45 revision=64 policy=package-priority -->
+<!-- @loom-file release=0.15.46 revision=65 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

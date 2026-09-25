@@ -145,3 +145,13 @@ At serve time LOOM removes historical `data-loom-framed-layout` and `data-loom-f
 The default desktop and mobile frame width is 80% of the usable project page lane. This is intentional: outer gutters remain LOOM-owned scroll targets. Width remains configurable from 50–100% per device profile and per frame.
 
 A frame may set `interactionLockEnabled=true`. This setting is off by default and is persisted in `frames.json`. While locked, the iframe does not receive pointer interaction and a transparent parent-owned shield lets wheel/touch gestures operate on the LOOM page. A centered Unlock control restores iframe interaction. The user can subsequently lock it again from the runtime dock beside Full screen. Entering full screen always unlocks interaction.
+
+## Frozen viewport contract (0.15.46)
+
+Layout bridge v5 makes **viewport** classification terminal for the current desktop/mobile profile. A viewport app's outer iframe height is owned by LOOM and frozen to one stable layout-viewport slot. Internal ResizeObserver callbacks, animation/HUD updates, DOM churn, body overflow rules, iframe height changes, and mobile visual-viewport/browser-chrome height changes MUST NOT renegotiate the surrounding LOOM layout. A new slot may be chosen only after a meaningful outer page-width or desktop/mobile profile change.
+
+The parent Framer wrapper, surface, stage, iframe, and containing module frame opt out of browser scroll anchoring. This is a shell-stability rule: a framed game may resize its own canvas internally without causing Showcase or other neighboring modules to appear to swap position or jump the viewport.
+
+The runtime Lock/Unlock control is available on every frame. `interactionLockEnabled` remains an off-by-default **Start locked** preference, not a requirement for the runtime control to exist. Locked mode disables iframe pointer interaction while leaving the parent overlay available for normal LOOM wheel/touch scrolling; full-screen entry unlocks the frame.
+
+Legacy `loom-html-framer/v1` registries migrate to presentation schema v2. Missing responsive/fullscreen/lock fields receive current safe defaults. The old untouched 100% width shape is normalized to 80% only when the record clearly predates the presentation fields; explicit modern presentation values remain project-owned.

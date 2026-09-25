@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.45 revision=15 policy=package-priority
+// @loom-file release=0.15.46 revision=16 policy=package-priority
 // Admin API for LOOM HTML Framer.
 declare(strict_types=1);
 require __DIR__.'/_common.php';
@@ -92,6 +92,7 @@ try{
     if(array_key_exists('mobileWidthPercent',$raw))$frame['mobileWidthPercent']=max(50,min(100,(int)$raw['mobileWidthPercent']));
     if(array_key_exists('fullscreenEnabled',$raw))$frame['fullscreenEnabled']=(bool)$raw['fullscreenEnabled'];
     if(array_key_exists('interactionLockEnabled',$raw))$frame['interactionLockEnabled']=(bool)$raw['interactionLockEnabled'];
+    $frame['presentationVersion']=2;
     $frame['revision']=max(1,(int)($frame['revision']??1)+1);$frame['updatedAt']=server_timestamp();
     $registry['frames'][$frameId]=$frame;loom_html_framer_write_registry($project,$registry);
   }elseif($action==='move'){

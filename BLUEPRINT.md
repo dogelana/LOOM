@@ -1,3 +1,9 @@
+## v0.15.46 architecture note — viewport applications own internal motion, not LOOM shell geometry
+
+A viewport-style framed application is circular by nature: its internal `height:100%` layout depends on the iframe height. Therefore the iframe height MUST NOT continue to depend on measurements produced by that same application. Layout bridge v5 treats viewport classification as terminal for the active desktop/mobile profile. LOOM selects one stable outer slot and then stops content-height negotiation until a meaningful outer page-width/profile transition occurs.
+
+Browser scroll anchoring is disabled across the complete Framer integration boundary. Internal game/canvas motion, ResizeObservers, animation, HUD changes, and mobile visual-viewport chrome changes are application events, not module-order or shell-height events. Document-flow frames keep ordinary content auto-fit. Runtime Lock/Unlock is universally available, while persisted `interactionLockEnabled` remains only the off-by-default Start locked preference.
+
 ## v0.15.45 architecture note — canonical release authority recovery
 
 LOOM 0.15.45 is a release-convergence recovery package. A LOOM release tree remains package-owned and replaceable, while `instance/**` remains installation-owned and absent from the archive. This release is paired with Bridge Suite 8.9 / Deployer 5.8, where a byte-verified newer release manifest outranks historical per-file revision counters. This prevents stale bytes from an older canonical server release from being pulled over a newer local package during exhaustive reconciliation.
@@ -137,7 +143,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.45 revision=59 policy=package-priority -->
+<!-- @loom-file release=0.15.46 revision=60 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

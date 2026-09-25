@@ -1,14 +1,16 @@
-// @loom-file release=0.15.45 revision=14 policy=package-priority
+// @loom-file release=0.15.46 revision=15 policy=package-priority
 // Generic runtime for one dynamically generated HTML Framer module.
-// Frames auto-fit delivered document height by default. Fixed-height scrolling is explicit Admin opt-in.
+// Document frames auto-fit delivered content height. Viewport-style apps/games freeze to one stable page slot.
+// Interaction lock is always available as a runtime control; Admin can optionally make a frame start locked.
 // Optional full-page takeover portals the frame above LOOM chrome and restores it losslessly on exit.
 export function createModule(ctx){
   let root=null,surface=null,stage=null,frame=null,fullscreenDock=null,fullscreenButton=null,lockButton=null,lockOverlay=null,unlockButton=null;
   let onMessage=null,mobileMedia=null,onMobileChange=null,onKeyDown=null,onViewportChange=null,onFrameLoad=null;
   let fullscreen=false,placeholder=null,scrollX=0,scrollY=0,documentStyleSnapshot=null,interactionLocked=false;
-  let autoFullscreenTimer=null;
+  let autoFullscreenTimer=null,outerResizeTimer=null,lastOuterWidth=0,lastOuterDevice='';
   const autoHeight={desktop:null,mobile:null};
   const autoLayoutKind={desktop:null,mobile:null};
+  const viewportSlotHeight={desktop:null,mobile:null};
   const heightCandidate={desktop:null,mobile:null};
   const heightTimer={desktop:null,mobile:null};
   const clamp=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback};
@@ -17,8 +19,10 @@ export function createModule(ctx){
   const isMobile=()=>!!mobileMedia?.matches;
   const fullscreenAllowed=()=>ctx.config.fullscreenEnabled!==false;
   const autoFullscreenOnLoad=()=>ctx.config.autoFullscreenOnLoad===true;
-  const interactionLockConfigured=()=>ctx.config.interactionLockEnabled===true;
-  const viewportHeight=()=>Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||document.documentElement.clientHeight||720));
+  const startLockedConfigured=()=>ctx.config.interactionLockEnabled===true;
+  const liveViewportHeight=()=>Math.max(1,Math.round(window.visualViewport?.height||window.innerHeight||document.documentElement.clientHeight||720));
+  const layoutViewportHeight=()=>Math.max(360,Math.round(document.documentElement?.clientHeight||window.innerHeight||720));
+  const layoutViewportWidth=()=>Math.max(1,Math.round(document.documentElement?.clientWidth||window.innerWidth||1024));
   function profile(){
     const mobile=isMobile();
     return {
@@ -28,6 +32,11 @@ export function createModule(ctx){
       widthPercent:clamp(mobile?ctx.config.mobileWidthPercent:ctx.config.widthPercent,50,100,80)
     };
   }
+  function stableViewportSlot(key){
+    if(viewportSlotHeight[key]!=null)return viewportSlotHeight[key];
+    viewportSlotHeight[key]=clamp(layoutViewportHeight(),360,2400,720);
+    return viewportSlotHeight[key];
+  }
   function safeTarget(raw){
     if(!raw||typeof raw!=='object')return null;
     return {tag:clean(raw.tag),id:clean(raw.id),name:clean(raw.name),type:clean(raw.type),role:clean(raw.role),ordinal:Number(raw.ordinal||0)||null};
@@ -36,13 +45,18 @@ export function createModule(ctx){
   function setPillContent(button,icon,label){if(!button)return;button.replaceChildren();const i=document.createElement('span');i.textContent=icon;i.setAttribute('aria-hidden','true');i.style.cssText='font-size:16px;line-height:1;';const l=document.createElement('span');l.textContent=label;l.style.cssText='white-space:nowrap;';button.append(i,l)}
   function syncInteractionLockUI(){
     if(!frame)return;
-    if(!interactionLockConfigured()||fullscreen)interactionLocked=false;
+    if(fullscreen)interactionLocked=false;
     frame.style.pointerEvents=interactionLocked?'none':'auto';
     if(lockOverlay)lockOverlay.style.display=interactionLocked?'grid':'none';
-    if(lockButton){lockButton.hidden=!interactionLockConfigured()||fullscreen;lockButton.setAttribute('aria-pressed',interactionLocked?'true':'false');lockButton.title=interactionLocked?'Unlock this HTML frame':'Temporarily lock this frame so wheel/touch scrolls the LOOM page';setPillContent(lockButton,interactionLocked?'🔓':'🔒',interactionLocked?'Unlock':'Lock frame')}
+    if(lockButton){
+      lockButton.hidden=fullscreen;
+      lockButton.setAttribute('aria-pressed',interactionLocked?'true':'false');
+      lockButton.title=interactionLocked?'Unlock this HTML frame':'Lock this frame so wheel/touch scrolls the LOOM page';
+      setPillContent(lockButton,interactionLocked?'🔓':'🔒',interactionLocked?'Unlock':'Lock frame');
+    }
   }
   function setInteractionLocked(next,reason='control'){
-    const wanted=!!next&&interactionLockConfigured()&&!fullscreen;if(wanted===interactionLocked){syncInteractionLockUI();return}
+    const wanted=!!next&&!fullscreen;if(wanted===interactionLocked){syncInteractionLockUI();return}
     interactionLocked=wanted;syncInteractionLockUI();
     try{Promise.resolve(ctx.log('html-framer.interaction-lock.changed',{frameId:ctx.config.frameId,locked:interactionLocked,reason})).catch(()=>{})}catch{}
   }
@@ -57,14 +71,13 @@ export function createModule(ctx){
   }
   function wirePill(button){button.onmouseenter=()=>{button.style.transform='translateY(-1px)';button.style.background='rgba(10,24,15,.96)';button.style.boxShadow='0 10px 30px rgba(0,0,0,.26)'};button.onmouseleave=()=>{button.style.transform='';button.style.background='rgba(18,30,22,.88)';button.style.boxShadow='0 7px 24px rgba(0,0,0,.2)'};button.onfocus=()=>{button.style.outline='3px solid color-mix(in srgb,var(--loom-accent,#20a05a) 45%,white)';button.style.outlineOffset='2px'};button.onblur=()=>{button.style.outline=''}}
   function buildFullscreenControl(){
-    if(!fullscreenAllowed()&&!interactionLockConfigured())return null;
+    // Lock/Unlock is a runtime convenience on every frame. "Start locked" only controls initial state.
     fullscreenDock=document.createElement('div');fullscreenDock.className='loom-html-framer-fullscreen-dock';fullscreenDock.style.cssText='position:absolute;top:12px;right:12px;z-index:30;display:flex;gap:7px;align-items:center;pointer-events:none;';
-    if(interactionLockConfigured()){lockButton=document.createElement('button');lockButton.type='button';lockButton.className='loom-html-framer-lock-toggle';lockButton.style.cssText=pillButtonStyle;wirePill(lockButton);lockButton.onclick=()=>setInteractionLocked(!interactionLocked,'dock');fullscreenDock.appendChild(lockButton)}
+    lockButton=document.createElement('button');lockButton.type='button';lockButton.className='loom-html-framer-lock-toggle';lockButton.style.cssText=pillButtonStyle;wirePill(lockButton);lockButton.onclick=()=>setInteractionLocked(!interactionLocked,'dock');fullscreenDock.appendChild(lockButton);
     if(fullscreenAllowed()){fullscreenButton=document.createElement('button');fullscreenButton.type='button';fullscreenButton.className='loom-html-framer-fullscreen-toggle';fullscreenButton.style.cssText=pillButtonStyle;wirePill(fullscreenButton);fullscreenButton.onclick=()=>{if(interactionLocked)setInteractionLocked(false,'fullscreen');setFullscreen(!fullscreen,'control')};fullscreenDock.appendChild(fullscreenButton)}
     updateFullscreenControl();return fullscreenDock;
   }
   function buildInteractionLockOverlay(){
-    if(!interactionLockConfigured())return null;
     lockOverlay=document.createElement('div');lockOverlay.className='loom-html-framer-interaction-lock';lockOverlay.setAttribute('aria-live','polite');lockOverlay.style.cssText='position:absolute;inset:0;z-index:24;display:none;place-items:center;pointer-events:auto;touch-action:pan-y pinch-zoom;overscroll-behavior:auto;background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.035));';
     const card=document.createElement('div');card.style.cssText='display:grid;gap:7px;justify-items:center;max-width:min(88%,340px);padding:13px 16px;border:1px solid rgba(255,255,255,.45);border-radius:18px;background:rgba(18,30,22,.86);color:#fff;box-shadow:0 12px 34px rgba(0,0,0,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:center;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
     const note=document.createElement('div');note.textContent='Frame locked · scroll LOOM normally';note.style.cssText='font:800 11px/1.25 system-ui;opacity:.82;';
@@ -74,9 +87,13 @@ export function createModule(ctx){
   function requestMeasure(reason='parent'){
     if(!frame?.contentWindow)return;
     const p=profile();
+    // Once a viewport app is classified, its outer slot is parent-owned and frozen.
+    // No more content-height negotiation is needed until a real device-profile/width change.
+    if(autoLayoutKind[p.key]==='viewport'&&reason!=='device-profile-change'&&reason!=='viewport-width-change')return;
     try{frame.contentWindow.postMessage({__loomFramedLayoutRequest:'measure',frameId:String(ctx.config.frameId||''),device:p.key,heightMode:p.heightMode,reason},'*')}catch{}
   }
   function scheduleMeasure(reason='parent'){
+    const p=profile();if(p.heightMode!=='auto'||autoLayoutKind[p.key]==='viewport')return;
     requestAnimationFrame(()=>requestAnimationFrame(()=>requestMeasure(reason)));
     setTimeout(()=>requestMeasure(reason),90);
     setTimeout(()=>requestMeasure(reason),320);
@@ -84,11 +101,12 @@ export function createModule(ctx){
   function commitAutoHeight(key,h,layoutKind='document'){
     if(!frame)return;
     autoLayoutKind[key]=layoutKind;
-    const intrinsic=layoutKind==='viewport'?Math.max(360,viewportHeight()):h;
+    const intrinsic=layoutKind==='viewport'?stableViewportSlot(key):h;
     autoHeight[key]=intrinsic;heightCandidate[key]=null;
     if(heightTimer[key]){clearTimeout(heightTimer[key]);heightTimer[key]=null}
     root.dataset.frameAutoLayout=layoutKind;
-    const target=fullscreen?Math.max(intrinsic,viewportHeight()):intrinsic;
+    if(layoutKind==='viewport')root.dataset.frameViewportFrozen='true';else delete root.dataset.frameViewportFrozen;
+    const target=fullscreen?(layoutKind==='viewport'?liveViewportHeight():Math.max(intrinsic,liveViewportHeight())):intrinsic;
     const current=Math.round(parseFloat(frame.style.height)||0);
     if(Math.abs(current-target)<6)return;
     frame.style.height=`${target}px`;
@@ -97,21 +115,26 @@ export function createModule(ctx){
     if(!frame)return;
     const p=profile();if(p.heightMode!=='auto')return;
     const incomingKind=reportedKind==='viewport'?'viewport':'document';
-    // Lock the intrinsic layout family for this device profile after first detection. A foreign app
-    // must not flip between viewport-app and document-flow semantics while its own UI animates.
-    const layoutKind=autoLayoutKind[p.key]||incomingKind;
-    const h=layoutKind==='viewport'?Math.max(360,viewportHeight()):clamp(Math.ceil(Number(raw)||0),120,250000,Math.max(360,viewportHeight()));
+    const currentKind=autoLayoutKind[p.key];
+    // Viewport apps are a one-way classification for a given desktop/mobile profile.
+    // Their own 100%-height canvas/layout intentionally depends on the iframe slot, so
+    // treating subsequent child resizes as new content height creates a circular resize loop.
+    if(currentKind==='viewport')return;
+    if(currentKind==null&&incomingKind==='viewport'){
+      commitAutoHeight(p.key,stableViewportSlot(p.key),'viewport');
+      return;
+    }
+    const layoutKind=currentKind||incomingKind;
+    const h=clamp(Math.ceil(Number(raw)||0),120,250000,stableViewportSlot(p.key));
     const current=autoHeight[p.key];
     if(current==null){commitAutoHeight(p.key,h,layoutKind);return}
     if(Math.abs(h-current)<8)return;
-    if(layoutKind==='viewport'){commitAutoHeight(p.key,h,layoutKind);return}
     // Document-flow height changes must settle before they are allowed to move neighboring LOOM modules.
-    // This intentionally treats growth and shrinkage the same so a busy foreign app cannot pulse the shell.
     const prior=heightCandidate[p.key];
     if(prior!=null&&Math.abs(prior-h)<8){commitAutoHeight(p.key,h,layoutKind);return}
     heightCandidate[p.key]=h;
     if(heightTimer[p.key])clearTimeout(heightTimer[p.key]);
-    heightTimer[p.key]=setTimeout(()=>{heightTimer[p.key]=null;requestMeasure('confirm-settled-height')},180);
+    heightTimer[p.key]=setTimeout(()=>{heightTimer[p.key]=null;requestMeasure('confirm-settled-height')},220);
   }
   function restoreDocumentScrollLock(){
     if(!documentStyleSnapshot)return;
@@ -128,12 +151,12 @@ export function createModule(ctx){
   }
   function applyFullscreenShell(){
     if(!root||!surface||!stage||!frame)return;
-    const p=profile(),vh=viewportHeight();
+    const p=profile(),vh=liveViewportHeight();
     root.dataset.frameFullscreen='true';
-    root.style.cssText='position:fixed;inset:0;z-index:2147483000;width:100vw;max-width:none;height:100vh;min-height:100vh;margin:0;padding:0;background:var(--loom-page-bg,#fff);overflow-x:hidden;overscroll-behavior:contain;';root.style.height=`${vh}px`;root.style.minHeight=`${vh}px`;
+    root.style.cssText='position:fixed;inset:0;z-index:2147483000;width:100vw;max-width:none;height:100vh;min-height:100vh;margin:0;padding:0;background:var(--loom-page-bg,#fff);overflow-x:hidden;overscroll-behavior:contain;overflow-anchor:none;';root.style.height=`${vh}px`;root.style.minHeight=`${vh}px`;
     root.style.overflowY=p.heightMode==='fixed'?'hidden':'auto';
-    surface.style.cssText='position:relative;width:100%;max-width:none;min-width:0;min-height:100vh;margin:0;overflow:visible;background:#fff;border:0;box-shadow:none;border-radius:0;';surface.style.minHeight=`${vh}px`;
-    stage.style.cssText='position:relative;width:100%;min-width:0;min-height:100vh;background:#fff;overflow:visible;';stage.style.minHeight=`${vh}px`;
+    surface.style.cssText='position:relative;width:100%;max-width:none;min-width:0;min-height:100vh;margin:0;overflow:visible;background:#fff;border:0;box-shadow:none;border-radius:0;overflow-anchor:none;';surface.style.minHeight=`${vh}px`;
+    stage.style.cssText='position:relative;width:100%;min-width:0;min-height:100vh;background:#fff;overflow:visible;overflow-anchor:none;';stage.style.minHeight=`${vh}px`;
     frame.style.width='100%';frame.style.maxWidth='none';frame.style.minHeight=`${vh}px`;
     if(p.heightMode==='fixed'){
       frame.setAttribute('scrolling','auto');frame.style.overflow='auto';frame.style.height=`${vh}px`;
@@ -147,10 +170,10 @@ export function createModule(ctx){
   function applyNormalShell(){
     if(!root||!surface||!stage||!frame)return;
     root.dataset.frameFullscreen='false';
-    root.style.cssText='width:100%;max-width:100%;min-width:0;margin:0;';
-    surface.style.cssText='position:relative;width:100%;max-width:100%;min-width:0;margin-inline:auto;overflow:hidden;background:var(--loom-page-surface,#fff);border:1px solid var(--loom-page-border,#dbe7de);box-shadow:var(--loom-shadow-1,0 8px 28px rgba(19,58,30,.07));border-radius:var(--loom-page-radius,28px);';
-    stage.style.cssText='position:relative;width:100%;min-width:0;background:#fff;overflow:hidden;';
-    frame.style.minHeight='0';frame.style.maxWidth='100%';
+    root.style.cssText='width:100%;max-width:100%;min-width:0;margin:0;overflow-anchor:none;';
+    surface.style.cssText='position:relative;width:100%;max-width:100%;min-width:0;margin-inline:auto;overflow:hidden;background:var(--loom-page-surface,#fff);border:1px solid var(--loom-page-border,#dbe7de);box-shadow:var(--loom-shadow-1,0 8px 28px rgba(19,58,30,.07));border-radius:var(--loom-page-radius,28px);overflow-anchor:none;';
+    stage.style.cssText='position:relative;width:100%;min-width:0;background:#fff;overflow:hidden;overflow-anchor:none;';
+    frame.style.minHeight='0';frame.style.maxWidth='100%';frame.style.overflowAnchor='none';
     updateFullscreenControl();
   }
   function setFullscreen(next,reason='api'){
@@ -182,7 +205,7 @@ export function createModule(ctx){
       if(fullscreen)setFullscreen(false,'frame-escape');
       return;
     }
-    if(msg.__loomFramedLayout==='v1'||msg.__loomFramedLayout==='v2'||msg.__loomFramedLayout==='v3'||msg.__loomFramedLayout==='v4'){
+    if(msg.__loomFramedLayout==='v1'||msg.__loomFramedLayout==='v2'||msg.__loomFramedLayout==='v3'||msg.__loomFramedLayout==='v4'||msg.__loomFramedLayout==='v5'){
       applyAutoHeight(msg.height,msg.layoutKind);
       return;
     }
@@ -196,18 +219,19 @@ export function createModule(ctx){
   }
   function build(){
     root=document.createElement('section');root.className='loom-html-framer-module';root.dataset.htmlFrameId=String(ctx.config.frameId||'');root.style.overflowAnchor='none';
-    surface=document.createElement('div');surface.className='loom-html-framer-surface';
-    stage=document.createElement('div');
-    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${Math.max(360,viewportHeight())}px;border:0;background:#fff;overflow:hidden;overflow-anchor:none;`;
-    stage.appendChild(frame);surface.appendChild(stage);const lock=buildInteractionLockOverlay();if(lock)surface.appendChild(lock);const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();interactionLocked=interactionLockConfigured();syncInteractionLockUI();return root;
+    surface=document.createElement('div');surface.className='loom-html-framer-surface';surface.style.overflowAnchor='none';
+    stage=document.createElement('div');stage.style.overflowAnchor='none';
+    frame=document.createElement('iframe');frame.src=String(ctx.config.src||'about:blank');frame.title=String(ctx.action.name||'HTML Frame');frame.loading='lazy';frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-downloads');frame.setAttribute('allow','fullscreen');frame.setAttribute('scrolling','no');frame.style.cssText=`display:block;width:100%;height:${stableViewportSlot(profile().key)}px;border:0;background:#fff;overflow:hidden;overflow-anchor:none;`;
+    stage.appendChild(frame);surface.appendChild(stage);surface.appendChild(buildInteractionLockOverlay());const dock=buildFullscreenControl();if(dock)surface.appendChild(dock);root.appendChild(surface);applyNormalShell();interactionLocked=startLockedConfigured();syncInteractionLockUI();return root;
   }
   function fitToPageLane(){
     if(!root||!surface||fullscreen)return;
     const p=profile(),widthPercent=p.widthPercent;root.dataset.frameWidthPercent=String(widthPercent);root.dataset.frameDevice=p.key;root.dataset.frameHeightMode=p.heightMode;
     const shell=root.closest('.loom-module-frame');
     if(shell){
+      shell.style.overflowAnchor='none';
       const head=shell.querySelector(':scope>.loom-module-frame-head'),body=shell.querySelector(':scope>.loom-module-frame-body');
-      for(const node of [head,body])if(node){node.style.width=`${widthPercent}%`;node.style.maxWidth='100%';node.style.marginInline='auto'}
+      for(const node of [head,body])if(node){node.style.width=`${widthPercent}%`;node.style.maxWidth='100%';node.style.marginInline='auto';node.style.overflowAnchor='none'}
       root.style.width='100%';root.style.maxWidth='100%';root.style.marginInline='0';surface.style.width='100%';surface.style.maxWidth='100%';surface.style.marginInline='0';surface.style.borderRadius='0 0 var(--loom-page-radius,28px) var(--loom-page-radius,28px)';
     }else{surface.style.width=`${widthPercent}%`;surface.style.maxWidth='100%';surface.style.marginInline='auto';surface.style.borderRadius='var(--loom-page-radius,28px)'}
   }
@@ -220,21 +244,35 @@ export function createModule(ctx){
       frame.setAttribute('scrolling','auto');frame.style.overflow='auto';frame.style.height=`${p.fixedHeight}px`;
     }else{
       frame.setAttribute('scrolling','no');frame.style.overflow='hidden';
-      // Bootstrap auto-fit at a real viewport height so foreign 100vh layouts never get trapped in a tiny 240px iframe.
-      const autoTarget=autoLayoutKind[p.key]==='viewport'?Math.max(360,viewportHeight()):(autoHeight[p.key]||Math.max(360,viewportHeight()));
+      const autoTarget=autoLayoutKind[p.key]==='viewport'?stableViewportSlot(p.key):(autoHeight[p.key]||stableViewportSlot(p.key));
       frame.style.height=`${autoTarget}px`;
-      scheduleMeasure('responsive-layout');
+      if(autoLayoutKind[p.key]!=='viewport')scheduleMeasure('responsive-layout');
     }
+  }
+  function meaningfulOuterResize(){
+    const p=profile(),width=layoutViewportWidth();
+    const deviceChanged=lastOuterDevice!==''&&p.key!==lastOuterDevice;
+    const widthChanged=lastOuterWidth>0&&Math.abs(width-lastOuterWidth)>32;
+    if(!deviceChanged&&!widthChanged)return;
+    lastOuterDevice=p.key;lastOuterWidth=width;
+    viewportSlotHeight[p.key]=null;
+    if(autoLayoutKind[p.key]==='viewport'){
+      autoHeight[p.key]=stableViewportSlot(p.key);
+      applyResponsiveLayout();
+      return;
+    }
+    applyResponsiveLayout();scheduleMeasure(deviceChanged?'device-profile-change':'viewport-width-change');
   }
   function cleanup(){
     if(fullscreen)setFullscreen(false,'cleanup');
     if(onMessage)removeEventListener('message',onMessage);onMessage=null;
     if(frame&&onFrameLoad)frame.removeEventListener('load',onFrameLoad);onFrameLoad=null;
     if(onKeyDown)removeEventListener('keydown',onKeyDown,true);onKeyDown=null;
-    if(onViewportChange){removeEventListener('resize',onViewportChange);try{window.visualViewport?.removeEventListener('resize',onViewportChange)}catch{}}onViewportChange=null;
+    if(onViewportChange)removeEventListener('resize',onViewportChange);onViewportChange=null;
     if(mobileMedia&&onMobileChange){try{mobileMedia.removeEventListener('change',onMobileChange)}catch{mobileMedia.removeListener?.(onMobileChange)}}
     mobileMedia=null;onMobileChange=null;placeholder?.remove();placeholder=null;restoreDocumentScrollLock();
     if(autoFullscreenTimer){clearTimeout(autoFullscreenTimer);autoFullscreenTimer=null}
+    if(outerResizeTimer){clearTimeout(outerResizeTimer);outerResizeTimer=null}
     for(const key of ['desktop','mobile'])if(heightTimer[key]){clearTimeout(heightTimer[key]);heightTimer[key]=null}
     root?.remove();root=null;surface=null;stage=null;frame=null;fullscreenDock=null;fullscreenButton=null;lockButton=null;lockOverlay=null;unlockButton=null;interactionLocked=false;
   }
@@ -242,19 +280,20 @@ export function createModule(ctx){
     async mount(){},
     async activate(){
       if(root)return;ctx.step('mount-frame','active',{frameId:ctx.config.frameId});ctx.mount(build());
-      mobileMedia=matchMedia('(max-width: 760px)');onMobileChange=()=>{applyResponsiveLayout();scheduleMeasure('device-profile-change')};try{mobileMedia.addEventListener('change',onMobileChange)}catch{mobileMedia.addListener?.(onMobileChange)}
+      mobileMedia=matchMedia('(max-width: 760px)');lastOuterDevice=profile().key;lastOuterWidth=layoutViewportWidth();
+      onMobileChange=()=>{const p=profile();lastOuterDevice=p.key;lastOuterWidth=layoutViewportWidth();viewportSlotHeight[p.key]=null;applyResponsiveLayout();if(autoLayoutKind[p.key]!=='viewport')scheduleMeasure('device-profile-change')};try{mobileMedia.addEventListener('change',onMobileChange)}catch{mobileMedia.addListener?.(onMobileChange)}
       onMessage=event=>{handleMessage(event).catch(()=>{})};addEventListener('message',onMessage);
-      onFrameLoad=()=>{const p=profile();autoLayoutKind[p.key]=null;autoHeight[p.key]=null;heightCandidate[p.key]=null;scheduleMeasure('iframe-load')};frame.addEventListener('load',onFrameLoad);
+      onFrameLoad=()=>{const p=profile();autoLayoutKind[p.key]=null;autoHeight[p.key]=null;heightCandidate[p.key]=null;viewportSlotHeight[p.key]=null;frame.style.height=`${stableViewportSlot(p.key)}px`;scheduleMeasure('iframe-load')};frame.addEventListener('load',onFrameLoad);
       onKeyDown=event=>{if(fullscreen&&event.key==='Escape'){event.preventDefault();setFullscreen(false,'escape')}};addEventListener('keydown',onKeyDown,true);
-      onViewportChange=()=>{applyResponsiveLayout();scheduleMeasure('viewport-change')};addEventListener('resize',onViewportChange,{passive:true});try{window.visualViewport?.addEventListener('resize',onViewportChange,{passive:true})}catch{}
+      // Deliberately ignore visualViewport resize. Mobile browser chrome and iframe height changes must not
+      // re-size the surrounding LOOM project. Only a meaningful outer page width/profile change is relevant.
+      onViewportChange=()=>{if(outerResizeTimer)clearTimeout(outerResizeTimer);outerResizeTimer=setTimeout(()=>{outerResizeTimer=null;meaningfulOuterResize()},180)};addEventListener('resize',onViewportChange,{passive:true});
       if(autoFullscreenOnLoad()&&fullscreenAllowed()){
-        // Project-level launch takeover: exactly one selected frame can request this.
-        // Delay one task so the module frame has a stable DOM anchor before it is portaled to body.
         autoFullscreenTimer=setTimeout(()=>{autoFullscreenTimer=null;if(root&&!fullscreen)setFullscreen(true,'project-auto')},0);
       }
       queueMicrotask(()=>{applyResponsiveLayout();scheduleMeasure('activate')});
       ctx.step('mount-frame','completed',{frameId:ctx.config.frameId});
-      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,autoLayoutKind:autoLayoutKind[p.key]||null,fullscreenEnabled:fullscreenAllowed(),autoFullscreenOnLoad:autoFullscreenOnLoad(),interactionLockEnabled:interactionLockConfigured(),actionReaderSummary:ctx.config.actionReaderSummary||null});
+      const p=profile();await ctx.log('html-framer.frame.mounted',{frameId:ctx.config.frameId,entrypoint:ctx.config.entrypoint,tracking:ctx.config.tracking,heightMode:p.heightMode,widthPercent:p.widthPercent,widthScope:'page',responsive:true,autoLayoutKind:autoLayoutKind[p.key]||null,viewportSlotHeight:viewportSlotHeight[p.key]||null,fullscreenEnabled:fullscreenAllowed(),autoFullscreenOnLoad:autoFullscreenOnLoad(),interactionLockEnabled:startLockedConfigured(),lockControlAvailable:true,actionReaderSummary:ctx.config.actionReaderSummary||null});
       return()=>cleanup();
     },async deactivate(){cleanup()},async unmount(){cleanup()}
   };

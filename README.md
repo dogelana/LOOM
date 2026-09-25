@@ -1,3 +1,9 @@
+## v0.15.46 - Frozen Viewport HTML Framer Stability
+
+LOOM 0.15.46 fixes the remaining project-page jumping seen with true viewport games such as Lint Away. Viewport apps are now classified once and assigned a stable parent-owned iframe slot; after that, their internal canvas resizing, ResizeObservers, animation/HUD churn, body overflow rules, and mobile browser-chrome height changes cannot renegotiate the surrounding LOOM layout. Normal document-style HTML frames still auto-fit delivered content.
+
+Every HTML frame now exposes a runtime **Lock frame** control. **Start locked** remains an optional per-frame Admin preference and is still off by default. Legacy Framer registries are upgraded to presentation schema v2 so old untouched 100%-width frames adopt the modern 80% page lane while newer explicit presentation settings remain project-owned.
+
 ## v0.15.45 - Canonical Release Recovery
 
 LOOM 0.15.45 repairs mixed-release convergence after a server remained canonically on 0.15.41 while some release-managed files had already advanced. The package itself is a clean release payload with no `instance/**` state and is designed to be installed with Bridge Suite 8.9 / Deployer 5.8.
@@ -181,7 +187,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.45 revision=63 policy=package-priority -->
+<!-- @loom-file release=0.15.46 revision=64 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

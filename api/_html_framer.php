@@ -16,14 +16,34 @@ function loom_html_framer_registry_file(string $project): string { return loom_h
 function loom_html_framer_registry(string $project): array {
   $x=read_json_file(loom_html_framer_registry_file($project));
   if(!is_array($x))$x=[];
-  if(!isset($x['schema']))$x['schema']='loom-html-framer/v1';
   if(!is_array($x['frames']??null))$x['frames']=[];
+  $changed=false;
+  foreach($x['frames'] as $id=>$frame){
+    if(!is_array($frame))continue;
+    if((int)($frame['presentationVersion']??0)>=2)continue;
+    $legacyPresentation=!array_key_exists('heightMode',$frame)&&!array_key_exists('mobileHeightMode',$frame)&&!array_key_exists('fullscreenEnabled',$frame)&&!array_key_exists('interactionLockEnabled',$frame);
+    if(!array_key_exists('heightMode',$frame))$frame['heightMode']='auto';
+    if(!array_key_exists('mobileHeightMode',$frame))$frame['mobileHeightMode']='auto';
+    if(!array_key_exists('mobileHeight',$frame))$frame['mobileHeight']=max(200,min(2400,(int)($frame['height']??520)));
+    if(!array_key_exists('fullscreenEnabled',$frame))$frame['fullscreenEnabled']=true;
+    if(!array_key_exists('interactionLockEnabled',$frame))$frame['interactionLockEnabled']=false;
+    $width=max(50,min(100,(int)($frame['widthPercent']??80)));
+    // Frames created before the page-lane model commonly stored 100 simply because that was the historical default.
+    // Only that unmistakable legacy shape is normalized to today's 80% default; newer/edited presentation stays explicit.
+    if($legacyPresentation&&$width===100)$width=80;
+    $frame['widthPercent']=$width;
+    if(!array_key_exists('mobileWidthPercent',$frame))$frame['mobileWidthPercent']=$width;
+    $frame['presentationVersion']=2;
+    $x['frames'][$id]=$frame;$changed=true;
+  }
   $auto=(string)($x['autoFullscreenFrameId']??'');
   $x['autoFullscreenFrameId']=preg_match('/^hf_[a-f0-9]{14}$/',$auto)?$auto:'';
+  $x['schema']='loom-html-framer/v2';
+  if($changed){try{loom_html_framer_write_registry($project,$x);}catch(Throwable $e){/* best-effort migration; runtime can still use normalized memory */}}
   return $x;
 }
 function loom_html_framer_write_registry(string $project,array $data): void {
-  $data['schema']='loom-html-framer/v1';$data['updatedAt']=server_timestamp();
+  $data['schema']='loom-html-framer/v2';$data['updatedAt']=server_timestamp();
   $json=json_encode($data,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
   if($json===false||@file_put_contents(loom_html_framer_registry_file($project),$json."\n",LOCK_EX)===false)
     throw new RuntimeException('Could not save HTML Framer registry');
@@ -240,18 +260,19 @@ function loom_html_framer_layout_bridge_script(array $frame): string {
   $mobileAuto=strtolower((string)($frame['mobileHeightMode']??($frame['heightMode']??'auto')))!=='fixed';
   $cfg=json_encode(['desktopAuto'=>$desktopAuto,'mobileAuto'=>$mobileAuto,'breakpoint'=>760],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
   if($cfg===false)$cfg='{"desktopAuto":true,"mobileAuto":true,"breakpoint":760}';
-  return '<script data-loom-framed-layout="4">(function(){' .
-    'const ID='.$id.',C='.$cfg.';let lastH=0,lastKind="",raf=0,timer=0,ro=null,mq=null,started=false,lastVW=innerWidth,lastVH=innerHeight,suppressUntil=0;' .
+  return '<script data-loom-framed-layout="5">(function(){' .
+    'const ID='.$id.',C='.$cfg.';let lastH=0,lastKind="",raf=0,timer=0,ro=null,mq=null,started=false,viewportFrozen=false,viewportSent=false;' .
     'function isAuto(){return (mq&&mq.matches)?C.mobileAuto:C.desktopAuto}' .
     'function safeStyle(el){try{return getComputedStyle(el)}catch{return null}}' .
-    'function viewportApp(){if(!isAuto())return false;const de=document.documentElement,b=document.body;if(!de||!b)return false;const ds=safeStyle(de),bs=safeStyle(b);if(!ds||!bs)return false;const locked=/(hidden|clip)/.test(bs.overflowY)||/(hidden|clip)/.test(ds.overflowY);if(!locked)return false;const br=b.getBoundingClientRect(),dr=de.getBoundingClientRect(),near=Math.abs(br.height-innerHeight)<=8||Math.abs(dr.height-innerHeight)<=8;if(!near)return false;const sh=Math.max(de.scrollHeight||0,b.scrollHeight||0);if(sh>innerHeight+18)return false;let fill=false,n=0;for(const el of b.children){if(++n>24)break;if(/^(SCRIPT|STYLE|LINK)$/i.test(el.tagName||""))continue;const cs=safeStyle(el);if(!cs||cs.position==="fixed")continue;const r=el.getBoundingClientRect();if(r.height>=innerHeight*.72&&r.height<=innerHeight*1.28){fill=true;break}}return fill||b.children.length>0}' .
+    'function viewportApp(){if(!isAuto())return false;const de=document.documentElement,b=document.body;if(!de||!b)return false;const ds=safeStyle(de),bs=safeStyle(b);if(!ds||!bs)return false;const locked=/(hidden|clip)/.test(bs.overflowY)||/(hidden|clip)/.test(ds.overflowY);if(!locked)return false;const br=b.getBoundingClientRect(),dr=de.getBoundingClientRect(),near=Math.abs(br.height-innerHeight)<=10||Math.abs(dr.height-innerHeight)<=10;if(!near)return false;const sh=Math.max(de.scrollHeight||0,b.scrollHeight||0);if(sh>innerHeight+24)return false;let fill=false,n=0;for(const el of b.children){if(++n>24)break;if(/^(SCRIPT|STYLE|LINK)$/i.test(el.tagName||""))continue;const cs=safeStyle(el);if(!cs||cs.position==="fixed")continue;const r=el.getBoundingClientRect();if(r.height>=innerHeight*.68&&r.height<=innerHeight*1.35){fill=true;break}}return fill||b.children.length>0}' .
     'function naturalHeight(){const de=document.documentElement,b=document.body;let h=Math.max(de?.scrollHeight||0,de?.offsetHeight||0,b?.scrollHeight||0,b?.offsetHeight||0);if(b){let n=0;for(const el of b.children){if(++n>400)break;const cs=safeStyle(el);if(!cs||cs.position==="fixed")continue;const r=el.getBoundingClientRect();h=Math.max(h,Math.ceil(r.bottom+(scrollY||0)))}}return Math.max(1,Math.ceil(h))}' .
-    'function measure(){raf=0;if(!isAuto())return;const kind=viewportApp()?"viewport":"document",h=kind==="viewport"?Math.max(1,Math.round(innerHeight)):naturalHeight();if(kind===lastKind&&Math.abs(h-lastH)<4)return;lastKind=kind;lastH=h;parent.postMessage({__loomFramedLayout:"v4",frameId:ID,height:h,layoutKind:kind,viewportWidth:innerWidth,viewportHeight:innerHeight,auto:true},"*")}' .
-    'function schedule(delay=24){clearTimeout(timer);timer=setTimeout(()=>{timer=0;if(!raf)raf=requestAnimationFrame(measure)},delay)}' .
-    'function viewportResize(){const w=innerWidth,h=innerHeight,dw=Math.abs(w-lastVW),dh=Math.abs(h-lastVH);lastVW=w;lastVH=h;if(dw>1){suppressUntil=0;lastH=0;lastKind="";schedule(44);return}if(dh>1){suppressUntil=performance.now()+260;return}if(performance.now()>=suppressUntil)schedule(44)}' .
-    'function start(){if(started)return;started=true;mq=matchMedia("(max-width:"+C.breakpoint+"px)");const profileChange=()=>{lastH=0;lastKind="";schedule(40)};try{mq.addEventListener("change",profileChange)}catch{mq.addListener&&mq.addListener(profileChange)}try{ro=new ResizeObserver(()=>{const w=innerWidth,h=innerHeight,dw=Math.abs(w-lastVW),dh=Math.abs(h-lastVH);if(dw<=1&&dh>1){lastVH=h;suppressUntil=performance.now()+260;return}lastVW=w;lastVH=h;if(performance.now()<suppressUntil)return;schedule(42)});if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>schedule(20)).catch(()=>{});[0,90,280,800].forEach(t=>setTimeout(()=>schedule(0),t))}' .
-    'addEventListener("message",e=>{const m=e.data;if(!m||typeof m!=="object"||m.__loomFramedLayoutRequest!=="measure"||String(m.frameId||"")!==String(ID))return;suppressUntil=0;lastH=0;lastKind="";schedule(20)});' .
-    'addEventListener("load",()=>schedule(20));addEventListener("resize",viewportResize,{passive:true});addEventListener("transitionend",()=>schedule(40),true);addEventListener("animationend",()=>schedule(40),true);addEventListener("input",()=>schedule(40),true);addEventListener("change",()=>schedule(40),true);' .
+    'function postViewport(){viewportSent=true;lastKind="viewport";lastH=Math.max(1,Math.round(innerHeight));parent.postMessage({__loomFramedLayout:"v5",frameId:ID,height:lastH,layoutKind:"viewport",viewportWidth:innerWidth,viewportHeight:innerHeight,auto:true,frozen:true},"*")}' .
+    'function measure(){raf=0;if(!isAuto())return;if(viewportFrozen){if(!viewportSent)postViewport();return}const kind=viewportApp()?"viewport":"document";if(kind==="viewport"){viewportFrozen=true;postViewport();return}const h=naturalHeight();if(lastKind===kind&&Math.abs(h-lastH)<4)return;lastKind=kind;lastH=h;parent.postMessage({__loomFramedLayout:"v5",frameId:ID,height:h,layoutKind:kind,viewportWidth:innerWidth,viewportHeight:innerHeight,auto:true,frozen:false},"*")}' .
+    'function schedule(delay=24){if(viewportFrozen)return;clearTimeout(timer);timer=setTimeout(()=>{timer=0;if(!raf)raf=requestAnimationFrame(measure)},delay)}' .
+    'function start(){if(started)return;started=true;mq=matchMedia("(max-width:"+C.breakpoint+"px)");const profileChange=()=>{viewportFrozen=false;viewportSent=false;lastH=0;lastKind="";schedule(40)};try{mq.addEventListener("change",profileChange)}catch{mq.addListener&&mq.addListener(profileChange)}try{ro=new ResizeObserver(()=>{if(viewportFrozen)return;schedule(50)});if(document.documentElement)ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}catch{}if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>schedule(20)).catch(()=>{});[0,90,280,800].forEach(t=>setTimeout(()=>schedule(0),t))}' .
+    'addEventListener("message",e=>{const m=e.data;if(!m||typeof m!=="object"||m.__loomFramedLayoutRequest!=="measure"||String(m.frameId||"")!==String(ID))return;if(viewportFrozen){viewportSent=false;postViewport();return}lastH=0;lastKind="";schedule(20)});' .
+    'addEventListener("load",()=>schedule(20));addEventListener("resize",()=>{if(!viewportFrozen)schedule(70)},{passive:true});' .
+    'for(const ev of ["transitionend","animationend","input","change"]){addEventListener(ev,()=>{if(!viewportFrozen)schedule(50)},true)}' .
     'addEventListener("keydown",e=>{if(e.key==="Escape")parent.postMessage({__loomFramedFullscreen:"exit",frameId:ID},"*")},true);' .
     'if(document.readyState==="loading")addEventListener("DOMContentLoaded",start,{once:true});else start();' .
     '})();</script>';
@@ -506,6 +527,7 @@ function loom_html_framer_import(string $project,string $zipPath,string $zipName
       'mobileWidthPercent'=>max(50,min(100,(int)($existing['mobileWidthPercent']??$presentationDefaults['mobileWidthPercent']??$defaultWidthPercent))),
       'fullscreenEnabled'=>array_key_exists('fullscreenEnabled',$existing)?(bool)$existing['fullscreenEnabled']:(bool)($presentationDefaults['fullscreenEnabled']??true),
       'interactionLockEnabled'=>array_key_exists('interactionLockEnabled',$existing)?(bool)$existing['interactionLockEnabled']:false,
+      'presentationVersion'=>2,
       'order'=>$order,'revision'=>$revision,'zipName'=>basename($zipName),'fileCount'=>$analysis['fileCount'],
       'cssCount'=>$analysis['cssCount'],'jsCount'=>$analysis['jsCount'],'autoAttachCss'=>$analysis['autoAttachCss'],
       'autoAttachJs'=>$analysis['autoAttachJs'],'repairs'=>$analysis['repairs'],'missingRefs'=>$analysis['missingRefs'],
@@ -630,7 +652,7 @@ function loom_html_framer_runtime_descriptors(string $project,string $clientId='
         'tags'=>['html-framer','html','sandbox','interop'],'steps'=>[['id'=>'mount-frame','name'=>'Mount sandboxed HTML frame']]
       ],
       'user_actions'=>$readerActions,
-      'module'=>['entry'=>'frame-action.js','version'=>'1.10.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
+      'module'=>['entry'=>'frame-action.js','version'=>'1.11.0','dependencies'=>[],'styles'=>[],'order'=>(string)$order],
       'config'=>[
         'frameId'=>$id,'src'=>$src,
         'heightMode'=>strtolower((string)($frame['heightMode']??'auto'))==='fixed'?'fixed':'auto',

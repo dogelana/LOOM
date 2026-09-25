@@ -171,3 +171,11 @@ Serving also removes any legacy LOOM bridge script already present in an older i
 ### Optional interaction lock
 
 Each frame can independently enable **Start locked**. It is off by default. Locked frames preserve their visuals but temporarily stop receiving pointer/wheel/touch interaction, allowing the surrounding LOOM page to scroll naturally. A centered Unlock control re-enables the app, and the runtime dock then provides Lock frame beside Full screen. Full-screen takeover always unlocks the frame. The setting is stored in `frames.json`, so Project export/import preserves it.
+
+## Frozen viewport-app slot and universal runtime lock control (0.15.46)
+
+Viewport applications now use layout bridge v5. Once a desktop/mobile profile is classified as a viewport app/game, content-height negotiation stops completely for that profile. The parent owns one stable iframe slot height and ignores the app's internal ResizeObserver, animation, DOM, HUD, and height-only viewport chatter. Only a meaningful outer page width/device-profile transition may recalculate the slot. The parent runtime also disables scroll anchoring across the Framer module shell so surrounding LOOM modules cannot visually jump while a frame settles.
+
+Every HTML frame exposes a parent-owned **Lock frame** runtime control. The control itself is always available; the per-frame **Start locked** Admin setting only decides the initial state and remains off by default. When locked, pointer interaction is disabled on the iframe and the centered Unlock control allows the LOOM page to own wheel/touch scrolling. Entering full screen unlocks the frame.
+
+Legacy frame registries are migrated to presentation schema v2. Frames created before responsive presentation fields existed receive auto desktop/mobile height modes, full-screen permission, Start locked = off, and mobile width defaults. A historical untouched 100% width from the pre-page-lane shape normalizes to the modern 80% default; newer or explicitly edited presentation records are preserved.

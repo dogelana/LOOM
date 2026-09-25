@@ -24,7 +24,7 @@
   },
   "module": {
     "entry": "action.js",
-    "version": "1.10.0",
+    "version": "1.11.0",
     "scope": "project",
     "dependencies": [],
     "styles": [],
@@ -62,7 +62,7 @@
   "user_actions": [],
   "admin_settings": {
     "title": "HTML Framer",
-    "description": "Drop static HTML ZIP packages into LOOM. Smart auto-fit preserves foreign app layout. Frames default to 80% of the usable page width so the surrounding LOOM page remains easy to scroll; any individual frame can optionally start interaction-locked and be unlocked from a centered control.",
+    "description": "Drop static HTML ZIP packages into LOOM. Document pages auto-fit content; viewport-style games/apps freeze to one stable outer slot so they cannot bounce the surrounding LOOM page. Every frame has a runtime Lock/Unlock control, while Start locked remains an optional per-frame Admin preference.",
     "fields": [
       {
         "id": "enabled",
@@ -84,7 +84,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Auto-fit is the default. LOOM detects ordinary document pages versus viewport-style apps/games. Documents grow with content; viewport apps keep their intentional 100%-height/internal-layout contract without shell oscillation."
+        "help": "Auto-fit is the default. Ordinary documents grow with content. Viewport-style apps/games are detected once, then their outer iframe height is frozen until a meaningful device-profile or page-width change so internal ResizeObservers/animations cannot move LOOM modules."
       },
       {
         "id": "defaultFrameHeight",
@@ -124,7 +124,7 @@
             "label": "Fixed height + allow scrolling"
           }
         ],
-        "help": "Independent mobile behavior at 760px and below. Smart auto-fit preserves responsive document flow and viewport-style mobile apps without creating an iframe scrollbar."
+        "help": "Independent mobile behavior at 760px and below. Viewport apps use a stable mobile slot and ignore browser-chrome/visual-viewport height chatter; normal documents continue to auto-fit."
       },
       {
         "id": "defaultMobileFrameHeight",
