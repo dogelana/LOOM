@@ -1,3 +1,7 @@
+## v0.15.48 architecture note — global system email is Instance-owned infrastructure
+
+System email is a LOOM-wide service for permanent accounts, not a project module. SMTP credentials, delivery history, and reset-token state live under the protected Instance Vault. Public password recovery may restore account credentials but never grants authority from continuity inference. Notification delivery is best-effort and must not roll back successful account/referral state.
+
 ## v0.15.47 architecture note — recognition may restore continuity; only verification restores authority
 
 LOOM identity now has an explicit **Continuity Cluster** layer between disposable browser contexts and durable human accounts. A browser `clientId` remains a local technical identity. A Guest Identity may contain multiple browser clients when LOOM has high-confidence evidence that a fresh browser continues the same unclaimed human experience. A permanent `userId` remains the only durable authenticated authority.
@@ -155,7 +159,7 @@ Showcase is a Project Identity projection: live project name, dynamic fallback b
 - `core.seo.social` owns project SEO/social defaults, while public PHP gateways render metadata server-side for crawlers. See `docs/SEO-SOCIAL-METADATA-STANDARD.md`.
 - HTML Framer URL capture creates a static local snapshot, not a live remote embed. See `docs/HTML-FRAMER-STANDARD.md`.
 
-<!-- @loom-file release=0.15.47 revision=61 policy=package-priority -->
+<!-- @loom-file release=0.15.48 revision=62 policy=package-priority -->
 # LOOM — Modular Action Engine Blueprint v0.8.1
 
 ## v0.15.17 — Non-blocking project boot + live identity defaults

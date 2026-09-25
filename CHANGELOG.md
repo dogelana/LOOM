@@ -1,3 +1,13 @@
+## v0.15.48 - System Email + Forgot Password
+
+- Added a new global **Admin → Email** suite with SMTP / PHP mail transports, sender identity, reusable setup guidance, per-notification toggles, editable subjects, masked delivery history, live SMTP connection/authentication diagnostics, and test delivery.
+- Added host-agnostic SMTP support for STARTTLS, implicit SSL/TLS, optional authentication, configurable timeout, From/Reply-To identity, and protected saved credentials in the Instance Vault.
+- Added a privacy-safe **Forgot Password** flow for permanent accounts. Reset requests do not reveal whether an email exists, are rate-limited, use hashed one-time tokens, expire after 30 minutes, revoke prior login sessions, and invalidate sibling reset tokens after use.
+- Added starter system emails for permanent-account welcome, password reset, password changed, email changed, referral attribution, optional new sign-in, and Admin test delivery.
+- Account creation, referrals, and authentication remain successful even if a non-critical notification email cannot be delivered.
+- Email configuration, secrets, reset state, and delivery logs live under protected `instance/data/email/` and are never release-shipped.
+- Added `docs/SYSTEM-EMAIL-STANDARD.md` with generic setup guidance for any hosting/email provider and SPF/DKIM/DMARC expectations.
+
 ## v0.15.47 - Continuity Clusters + resilient referrals
 
 - Added an additive server-side Continuity Cluster layer above browser client IDs and Guest Identities. Existing guests, permanent accounts, referral records, and project identities remain intact.
@@ -631,7 +641,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.47 revision=66 policy=package-priority -->
+<!-- @loom-file release=0.15.48 revision=67 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.08 revision=4 policy=package-priority
+// @loom-file release=0.15.48 revision=5 policy=package-priority
 (() => {
   'use strict';
 
@@ -37,7 +37,7 @@
       .lgp-form{display:grid;gap:8px}.lgp-form input,.lgp-form select{width:100%;padding:10px 11px;border:1px solid #d5e3d8;border-radius:10px;background:#fff;color:#243e2c;font:700 11px/1.2 Inter,system-ui}
       .lgp-actions{display:flex;gap:7px;flex-wrap:wrap}.lgp-btn{border:0;border-radius:10px;padding:9px 11px;background:#177a40;color:#fff;font:900 10px/1 Inter,system-ui;cursor:pointer}.lgp-btn.secondary{background:#edf5ef;color:#3f5d48}.lgp-btn:disabled{opacity:.55;cursor:not-allowed}
       .lgp-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lgp-kv{padding:10px;border-radius:11px;background:#f7faf7;border:1px solid #e2ebe4;min-width:0}.lgp-kv b{display:block;font:900 8px/1 Inter,system-ui;color:#718078;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.lgp-kv code,.lgp-kv strong{font:800 10px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#294633;word-break:break-all}
-      .lgp-message{min-height:15px;color:#457153;font:800 10px/1.4 Inter,system-ui}.lgp-note{padding:10px 12px;border-radius:12px;background:#eef7f0;border:1px solid #d8e8dc;color:#5c7062;font:600 10px/1.45 Inter,system-ui}
+      .lgp-message{min-height:15px;color:#457153;font:800 10px/1.4 Inter,system-ui}.lgp-help-link{display:inline-block;margin-top:2px;color:#2b6e43;font:800 10px/1.3 Inter,system-ui;text-decoration:none}.lgp-help-link:hover{text-decoration:underline}.lgp-note{padding:10px 12px;border-radius:12px;background:#eef7f0;border:1px solid #d8e8dc;color:#5c7062;font:600 10px/1.45 Inter,system-ui}
       .lgp-badge{display:inline-flex;padding:5px 8px;border-radius:999px;background:#e9f6ec;color:#176839;font:900 9px/1 Inter,system-ui}
       .lgp-file{display:none}
       @media(max-width:720px){.loom-global-profile-overlay{padding:7px}.loom-global-profile-dialog{border-radius:20px;max-height:96vh}.loom-global-profile-body{padding:10px}.lgp-grid{grid-template-columns:1fr}.lgp-avatar-row{grid-template-columns:72px 1fr}.lgp-avatar{width:72px;height:72px}.lgp-meta{grid-template-columns:1fr}}
@@ -228,7 +228,7 @@
       return `<form class="lgp-form" data-role="register-form"><input type="email" data-role="register-email" placeholder="Email address" autocomplete="email"><input type="password" data-role="register-password" placeholder="Password · 8+ characters" autocomplete="new-password"><button class="lgp-btn" type="submit">Make LOOM Account Permanent</button><div class="lgp-message" data-role="register-message"></div></form>`;
     }
     loginForm(){
-      return `<form class="lgp-form" data-role="login-form"><input type="email" data-role="login-email" placeholder="Email address" autocomplete="email"><input type="password" data-role="login-password" placeholder="Password" autocomplete="current-password"><button class="lgp-btn secondary" type="submit">Sign In</button><div class="lgp-message" data-role="login-message"></div></form>`;
+      return `<form class="lgp-form" data-role="login-form"><input type="email" data-role="login-email" placeholder="Email address" autocomplete="email"><input type="password" data-role="login-password" placeholder="Password" autocomplete="current-password"><button class="lgp-btn secondary" type="submit">Sign In</button><a class="lgp-help-link" href="${esc(this._rootAsset('forgot-password.php'))}">Forgot password?</a><div class="lgp-message" data-role="login-message"></div></form>`;
     }
     bindControls(){
       const q=s=>this.overlay.querySelector(s),clientId=this.identity.clientId;

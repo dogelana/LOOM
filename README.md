@@ -1,3 +1,9 @@
+## v0.15.48 - System Email + Account Recovery
+
+LOOM now includes a global system-email layer for permanent accounts. **LOOM Admin → Email** configures SMTP or PHP mail delivery, sender identity, notification categories, editable subjects, connection diagnostics, test messages, and recent masked delivery results. The setup flow is intentionally provider-neutral so the same LOOM release can use a hosting mailbox, transactional email provider, or any standards-compliant SMTP service.
+
+Permanent-account sign-in now exposes **Forgot password?**. Recovery uses a non-enumerating request response, rate limits, one-time 30-minute hashed tokens, session revocation, and a dedicated reset page. Starter notices include welcome, password reset, password changed, email changed, referral attribution, and an optional new-sign-in alert. Email credentials and recovery state are Instance-owned and never ship in a LOOM release. See `docs/SYSTEM-EMAIL-STANDARD.md`.
+
 ## v0.15.47 - Continuity Clusters + Referral Resilience
 
 LOOM 0.15.47 adds privacy-bounded **Continuity Clusters** so an unclaimed guest can feel continuous when the same phone opens LOOM in a different browser context such as Facebook Messenger's in-app browser and then Chrome. A fresh browser gets its own client ID, but LOOM may reconnect it to one recent unattached Guest Identity only when a coarse device/display signature, current network, recency, and ambiguity checks all agree. If the same device signature has represented more than one guest, automatic recovery is refused instead of guessing.
@@ -195,7 +201,7 @@ LOOM 0.15.10 extends interoperability and observability. HTML Framer now has an 
 
 Social Links uses the fixed platform order Website → YouTube → Facebook → TikTok → Instagram.
 
-<!-- @loom-file release=0.15.47 revision=65 policy=package-priority -->
+<!-- @loom-file release=0.15.48 revision=66 policy=package-priority -->
 
 ## v0.15.09 - Responsive Module Visibility
 

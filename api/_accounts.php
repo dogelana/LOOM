@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.46 revision=12 policy=package-priority
+// @loom-file release=0.15.48 revision=13 policy=package-priority
 declare(strict_types=1);
 
 function loom_accounts_dir(): string { return loom_data_dir().'/accounts'; }
@@ -182,6 +182,12 @@ function loom_register_account(string $clientId,string $projectUsername,string $
   $user=loom_create_account_record($email,$password,$privilege);$userId=(string)($user['user_id']??$user['userId']??'');
   loom_bind_client_to_user($clientId,$userId);loom_issue_auth_session($userId,$clientId);
   return loom_account_user_by_id($userId)?:$user;
+}
+function loom_replace_account_password(string $userId,string $password,string $issueClientId=''): void {
+  $userId=safe_token($userId);if($userId==='')throw new RuntimeException('Invalid account.');if(strlen($password)<8)throw new RuntimeException('Password must be at least 8 characters.');$hash=password_hash($password,PASSWORD_DEFAULT);
+  if(loom_db_ready()){$pdo=loom_db_pdo(true);$pdo->prepare("UPDATE loom_users SET password_hash=?,updated_at=UTC_TIMESTAMP(3) WHERE user_id=?")->execute([$hash,$userId]);$pdo->prepare("DELETE FROM loom_auth_sessions WHERE user_id=?")->execute([$userId]);}
+  else{$s=loom_temp_account_store();if(!isset($s['users'][$userId]))throw new RuntimeException('User account not found.');$s['users'][$userId]['passwordHash']=$hash;$s['users'][$userId]['updatedAt']=server_timestamp();foreach(($s['sessions']??[]) as $k=>$sess)if(($sess['userId']??'')===$userId)unset($s['sessions'][$k]);loom_write_temp_account_store($s);}
+  if($issueClientId!=='')loom_issue_auth_session($userId,$issueClientId);$u=loom_account_user_by_id($userId);if($u&&function_exists('loom_email_notify_user'))try{loom_email_notify_user('passwordChanged',$u);}catch(Throwable $e){}
 }
 function loom_login_account(string $clientId,string $email,string $password): array {
   $u=loom_account_user_by_email($email);if(!$u)throw new RuntimeException('Email or password is incorrect.');

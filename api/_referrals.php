@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.47 revision=3 policy=package-priority
+// @loom-file release=0.15.48 revision=4 policy=package-priority
 declare(strict_types=1);
 
 /** LOOM Sharing + Referrals durable Instance Vault store. */
@@ -60,13 +60,15 @@ function loom_referral_hit(string $code,string $visitKey=''): ?array {
 }
 function loom_referral_accept(string $code,string $clientId,string $project='',string $path=''): array {
   $code=safe_token($code);$project=safe_slug($project);$actor=loom_referral_actor($clientId,$project);if($code==='')return ['accepted'=>false,'reason'=>'invalid-code'];
-  return loom_referral_mutate(function(array &$s)use($code,$actor,$project,$path){
+  $result=loom_referral_mutate(function(array &$s)use($code,$actor,$project,$path){
     if(!isset($s['shares'][$code]))return ['accepted'=>false,'reason'=>'not-found'];$share=&$s['shares'][$code];$ref=(array)($share['referrer']??[]);if(loom_referral_same_owner($ref,$actor)){$share['selfVisits']=(int)($share['selfVisits']??0)+1;$share['updatedAt']=server_timestamp();loom_audit_record('referral.self-visit',['clientId'=>$actor['clientId'],'userId'=>$actor['userId'],'project'=>$project?:($share['project']??null),'details'=>['shareCode'=>$code]],'Referral owner opened their own reusable share link; no referral credit was consumed.');return ['accepted'=>false,'reason'=>'self-referral','share'=>loom_referral_public_share($share)];}
     $visitorKey=(string)($actor['guestId']?:$actor['userId']?:$actor['clientId']);$acceptKey=hash('sha256',$code.'|'.$visitorKey);if(isset($s['acceptances'][$acceptKey]))return ['accepted'=>false,'reason'=>'already-attributed','share'=>loom_referral_public_share($share),'referrerUsername'=>(string)($ref['username']??'LOOM User')];
     $row=['id'=>'ref_'.substr($acceptKey,0,24),'shareCode'=>$code,'project'=>$project?:($share['project']??null),'path'=>substr($path,0,500),'referrer'=>$ref,'visitor'=>$actor,'createdAt'=>server_timestamp()];$s['acceptances'][$acceptKey]=$row;$share['referrals']=(int)($share['referrals']??0)+1;$share['updatedAt']=server_timestamp();
     loom_audit_record('referral.attributed',['clientId'=>$actor['clientId'],'userId'=>$actor['userId'],'project'=>$row['project'],'details'=>['referralId'=>$row['id'],'shareCode'=>$code,'referrerGuestId'=>$ref['guestId']??null,'referrerUserId'=>$ref['userId']??null]]);
     return ['accepted'=>true,'referral'=>$row,'share'=>loom_referral_public_share($share),'referrerUsername'=>(string)($ref['username']??'LOOM User')];
   });
+  if(!empty($result['accepted'])&&function_exists('loom_email_notify_referral'))try{loom_email_notify_referral((array)($result['referral']['referrer']??[]),(array)($result['referral']['visitor']??[]));}catch(Throwable $e){}
+  return $result;
 }
 function loom_referral_stats(string $clientId): array {
   $actor=loom_referral_actor($clientId,'');$aliases=loom_referral_owner_aliases($actor);$s=loom_referral_read_store();$shares=[];$clicks=0;$unique=0;$refs=0;
