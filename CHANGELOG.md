@@ -1,3 +1,14 @@
+# LOOM v0.15.57 — Project Identity Avatar Visibility
+
+## v0.15.57 — Project Identity Avatar Visibility
+
+- Admin → Users project-scoped directory cards now render each person’s effective **project avatar**, rather than always using the global LOOM avatar.
+- The Per-project identity & controls inspector now shows the selected project avatar visually beside the project username and reports avatar mode/source metadata.
+- Global and project avatar presentation are deliberately separate: the canonical person header remains global, while the project inspector represents the identity seen inside that project.
+- Added deterministic project-avatar cache revisions so project avatar changes refresh independently of the global avatar cache key.
+- Hardened canonical project-avatar resolution for proven linked-client legacy records, allowing incomplete historical client→user/Guest project-avatar migrations to remain readable without exposing protected storage paths.
+- Preserved project/global bans, Project Admin/LOOM Admin controls, unified user directory behavior, identity lineage, deletion cleanup, HTML Framer, friendly routes, deployment safety and Instance Vault ownership boundaries.
+
 # LOOM v0.15.56 — Unified Users + Canonical Avatar Delivery
 
 ## v0.15.56 — Unified Users + Canonical Avatar Delivery

@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.56 revision=7 policy=package-priority */
+/* @loom-file release=0.15.57 revision=8 policy=package-priority */
 /* LOOM v0.12.14 visual foundation — polished defaults, same semantics */
 :root{
   color-scheme:light;
@@ -116,7 +116,7 @@ body{font-family:var(--loom-font);text-rendering:optimizeLegibility;-webkit-font
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
 
-/* v0.15.56 global UX rhythm */
+/* v0.15.57 global UX rhythm */
 .loom-ui-card>:first-child{margin-top:0}
 .loom-ui-card>:last-child{margin-bottom:0}
 .loom-ui-cluster>:where(button,a,.loom-ui-button){flex:0 0 auto}

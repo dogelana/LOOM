@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.56 revision=10 policy=package-priority
+// @loom-file release=0.15.57 revision=11 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 
@@ -38,7 +38,7 @@ function loom_guest_profile_avatar_mode(string $preset): string { return 'loom-d
 
 function loom_guest_profile_clean_legacy_display_name(string $name,string $clientId=''): string {
   $name=loom_clean_username($name);if($name==='')return '';
-  // Pre-0.15.56 storage sometimes appended a numeric collision suffix to what
+  // Pre-0.15.57 storage sometimes appended a numeric collision suffix to what
   // was supposed to be a human-facing name. Strip it only when the unsuffixed
   // base is demonstrably owned by another profile, which identifies the legacy
   // allocator pattern rather than blindly changing names people actually typed.

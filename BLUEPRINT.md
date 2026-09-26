@@ -8,7 +8,14 @@
 - Approximate geolocation remains display-only and never establishes person identity.
 - Canonical avatar delivery accepts `user` / `guest` subjects, reads protected Instance storage, may use proven legacy-client image locations only as migration fallback, and always degrades to a safe default instead of turning “no custom avatar” into an identity error.
 
-# LOOM Blueprint — 0.15.56
+# LOOM Blueprint — 0.15.57
+
+## 0.15.57 project-avatar rule
+
+- A person has one canonical global LOOM identity plus zero or more project identities. Avatar presentation follows the same separation as username presentation.
+- Global directory/header surfaces use the canonical global avatar. When a Users directory is explicitly project-scoped, its people cards use that project’s effective avatar.
+- Per-project identity inspection must visibly render the effective project avatar and expose its mode/source without reading protected Instance paths directly.
+- Project avatar resolution may consult only proven linked-client legacy records as migration fallback; arbitrary client IDs must never be able to retrieve another identity’s protected avatar.
 
 ## 1. Purpose
 

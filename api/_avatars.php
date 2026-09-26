@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.56 revision=5 policy=package-priority
+// @loom-file release=0.15.57 revision=6 policy=package-priority
 declare(strict_types=1);
 
 function loom_avatar_root(): string { return loom_data_dir().'/avatars'; }

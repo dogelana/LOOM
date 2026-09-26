@@ -1,11 +1,17 @@
 
-## Canonical Users directory (0.15.56)
+## Canonical Users directory (0.15.57)
 
 Admin → Users is one global people directory. Choose **Global LOOM** or a project scope; the same permanent accounts and Guest Identities are shown in either view, with project participation resolved from canonical identity plus proven linked-client history. Clicking a person opens one inspector for identity, avatar, network/geolocation context, continuity/referrals, project activity, access roles, and global/project moderation. Global LOOM bans and per-project bans are independent and do not delete data. Raw orphan browser clients are cleanup evidence, not first-class people.
 
-# LOOM 0.15.56
+# LOOM 0.15.57
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
+
+## 0.15.57 — project-specific avatar visibility in Users
+
+Project-focused user administration now renders the avatar that LOOM actually resolves **inside that project**, instead of showing only the person’s global avatar. When Admin → Users is focused on a project, directory cards use the project-scoped avatar endpoint. The per-project identity inspector now displays the project avatar prominently beside the project username and reports the project avatar mode/source.
+
+Canonical global identity remains separate: the main person header still represents the LOOM-wide identity, while each project inspector shows that project identity’s effective avatar. Protected project custom images, project defaults, inherited global avatars and the LOOM fallback are all resolved through the same safe avatar endpoint. Proven linked-client fallback remains available for incomplete legacy project-avatar migrations without exposing protected Instance storage paths.
 
 ## 0.15.56 — canonical Users hardening + avatar migration safety
 
