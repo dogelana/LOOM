@@ -1,3 +1,12 @@
+# LOOM 0.15.71 — Loader, Admin UX & Navigation Reliability
+
+- Project loaders no longer render an empty secondary flying pill when the project wordmark has only one meaningful line.
+- LOOM Home project mutations carry the active client identity through authorization, and `project-manager.php` reads JSON identity context before access checks, eliminating false 403s for authorized System Owner/Admin project identity saves.
+- Active tabs use high-contrast light selected surfaces with dark text across Home, Admin, and Backup & Restore.
+- Native file pickers receive shared LOOM production styling instead of browser-default chrome.
+- Backup & Restore removes redundant Home navigation and gives its Admin control an explicit settings icon.
+- The permanent animated LOOM brand at the top-left of the global shell is now a keyboard-accessible Home link using the same canonical Home URL resolver as the normal Home control.
+
 # LOOM 0.15.70 — Clean Core Baseline
 
 - Removed the final bundled concrete-project migration payload from LOOM core. Release archives now contain engine code, generic project infrastructure, templates, and upgrade tombstones only.

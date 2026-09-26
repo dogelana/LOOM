@@ -1,3 +1,13 @@
+# LOOM Blueprint — 0.15.71
+
+## Shell/navigation and project-mutation invariants
+
+- A loader orbit token exists only when its corresponding project wordmark line is non-empty; decorative empty pills are invalid UI.
+- LOOM Home project mutations must transmit the active client identity before authorization so System Owner/Admin capability resolution is identical for JSON mutations and query-based requests.
+- Selected tab state must remain legible under the shared production theme; active state may not depend on white text over variable accent colors.
+- Native file inputs must inherit the shared LOOM control language rather than exposing an unstyled browser-default selector.
+- The permanent animated LOOM brand in the global shell is a canonical Home affordance and must resolve the same dynamic Home URL as the normal Home navigation control.
+
 # LOOM Blueprint — 0.15.70
 
 ## Clean-core baseline invariants

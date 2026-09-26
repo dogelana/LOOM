@@ -1,9 +1,10 @@
 <?php
-// @loom-file release=0.15.50 revision=8 policy=package-priority
+// @loom-file release=0.15.71 revision=9 policy=package-priority
 require __DIR__.'/_common.php';
-if(!loom_request_is_admin())json_out(['ok'=>false,'error'=>'admin-access-required'],403);
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
 $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))$body=$_POST;
+$requestClientId=safe_token((string)($body['clientId']??$_REQUEST['clientId']??''));
+if(!loom_request_is_admin()&&($requestClientId===''||!loom_client_is_admin($requestClientId)))json_out(['ok'=>false,'error'=>'admin-access-required'],403);
 $action=(string)($body['action']??'');
 
 function loom_project_manager_profile_input(array $body): array {

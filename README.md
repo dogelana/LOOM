@@ -1,3 +1,9 @@
+## 0.15.71 loader + navigation + Admin UX reliability
+
+LOOM 0.15.71 closes a set of small but visible production UX gaps without changing installation-owned data. Project loaders suppress the unused second orbit token when branding has only one line; authorized Home project identity mutations now include their client identity before server authorization; selected tabs, native file controls, and Backup & Restore navigation are visually normalized.
+
+The animated LOOM mark in the permanent top-left shell is also a first-class Home link. It uses the same resolved `homeHref` contract as the ordinary LOOM Home control, so installations can move Home between `/home/`, a base route, or another supported canonical location without hard-coding the logo destination.
+
 
 ## 0.15.70 production UI + release-watch contract
 

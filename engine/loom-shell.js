@@ -1,4 +1,4 @@
-// @loom-file release=0.15.70 revision=39 policy=package-priority
+// @loom-file release=0.15.71 revision=40 policy=package-priority
 (() => {
   'use strict';
 
@@ -192,7 +192,7 @@
     let profile=null;const header=document.getElementById(opts.headerId||'loomShellHeader'),footer=document.getElementById(opts.footerId||'loomShellFooter');
     if(header){
       const shellLinks=(opts.links||[]).filter(x=>!/loom home/i.test(String(x?.label||'')));
-      await LoomBrand.mountShellHeader(header,{apiBase,settings,pageTitle:opts.pageTitle||'LOOM',links:shellLinks});
+      await LoomBrand.mountShellHeader(header,{apiBase,settings,pageTitle:opts.pageTitle||'LOOM',links:shellLinks,homeHref});
       const nav=header.querySelector('.loom-shell-chrome-links');
       if(nav){const controls=await mountUserControls(nav,{apiBase,settings,identity,homeHref,share:opts.share!==false,shareProject:opts.shareProject||'',shareUrl:opts.shareUrl||location.href,shareTitle:opts.shareTitle||document.title,profile:opts.profile!==false,projectsProvider:opts.projectsProvider||null,reloadAfterSwitch:true,prepend:true});profile=controls.profile}
       if(opts.adminTools!==false){const status=await adminStatus(apiBase,identity,opts.project||'');const canAdmin=!!status?.isAdmin||['system-owner','loom-admin','project-admin','project-manager'].includes(status?.projectRole);if(canAdmin)mountAdminTools({apiBase,project:opts.project||'',target:opts.adminTarget||'_self',settings,host:opts.adminHost||header.querySelector('[data-loom-admin-links]'),status,excludeCurrent:opts.adminExcludeCurrent!==false,excludeLabels:opts.adminExcludeLabels||[]})}
