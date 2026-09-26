@@ -1,4 +1,4 @@
-// @loom-file release=0.15.20 revision=6 policy=package-priority
+// @loom-file release=0.15.64 revision=7 policy=package-priority
 (() => {
   'use strict';
   function normalizeProject(project) {
@@ -10,12 +10,18 @@
     return response.json();
   }
   function effectiveOrder(module) {
-    const reservedId = window.LoomConfig?.moduleOrdering?.reservedFirstActionId || 'core.ui.header-bar';
-    const reservedOrder = Number(window.LoomConfig?.moduleOrdering?.reservedFirstOrder ?? 0);
+    if (module?.module?.bootstrap?.role === 'loader' || module?.bootstrap?.role === 'loader') return -1;
+    // Live modules.php is authoritative. Never throw away the server's resolved
+    // per-project Positioning Index by recomputing from the manifest in the browser.
+    for (const candidate of [module?.position_resolved, module?.order_effective]) {
+      const n = Number.parseInt(String(candidate ?? ''), 10);
+      if (Number.isFinite(n)) return n;
+    }
+    const id = String(module?.action?.id || '');
+    const softDefaults = {'core.ui.header-bar':1,'loom.showcase':2,'core.ui.footer-bar':99};
+    if (Object.prototype.hasOwnProperty.call(softDefaults,id)) return softDefaults[id];
     const minNormal = Number(window.LoomConfig?.moduleOrdering?.minNonReservedOrder ?? 1);
     const fallback = Number(window.LoomConfig?.moduleOrdering?.defaultOrder ?? 50000);
-    const id = String(module?.action?.id || '');
-    if (id === reservedId) return reservedOrder;
     const parsed = Number.parseInt(String(module?.module?.order ?? ''), 10);
     if (!Number.isFinite(parsed)) return fallback;
     return Math.max(minNormal, parsed);
@@ -26,7 +32,7 @@
       const order = effectiveOrder(module);
       module.order_effective = order;
       module.order_display = String(order).padStart(5, '0');
-      module.order_locked = module?.action?.id === (window.LoomConfig?.moduleOrdering?.reservedFirstActionId || 'core.ui.header-bar');
+      module.order_locked = module?.order_locked === true || module?.module?.bootstrap?.role === 'loader' || module?.bootstrap?.role === 'loader';
     }
     modules.sort((a,b)=>effectiveOrder(a)-effectiveOrder(b) || String(a?.action?.id||'').localeCompare(String(b?.action?.id||'')));
     data.modules = modules;
@@ -65,10 +71,10 @@
       const liveUrl = `${this.apiBase}/modules.php?project=${encodeURIComponent(this.project)}&clientId=${encodeURIComponent(clientId)}`;
       const cached=this._readCache();
       const startupMaxAge=Math.max(5000,Number(window.LoomConfig?.performance?.registryStartupCacheMaxAgeMs||120000));
-      if(startup&&cached?.data&&Date.now()-Number(cached.storedAt||0)<=startupMaxAge){
-        this.lastSource='startup-session-cache';this._revalidate(liveUrl,cached);
-        const data=this._clone(cached.data);data.discovery={...(data.discovery||{}),source:'startup-session-cache'};return normalizeAndSortRegistry(data);
-      }
+      // Project module settings (especially Positioning Index) are server-owned and
+      // must be visible immediately after an Admin save/reload. Do not paint a stale
+      // startup registry for up to two minutes and merely revalidate it in the background.
+      // The cached copy remains a network-failure fallback below.
       try {
         const live=await this._fetchLive(liveUrl,cached);this.lastSource=live.source;return normalizeAndSortRegistry(live.data);
       } catch (liveError) {

@@ -1,3 +1,7 @@
+# LOOM 0.15.64
+
+LOOM 0.15.64 makes Project Settings module positioning authoritative end-to-end. The server-resolved Positioning Index now survives registry normalization and runtime mounting, with standard soft layout defaults of Header Bar `1`, Showcase `2`, and Footer Bar `99`. Explicit project choices always outrank those defaults.
+
 # LOOM 0.15.63
 
 This release makes project module position indexing visible in Project Settings and reconciles stale browser identity labels with the canonical global user display name.

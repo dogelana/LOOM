@@ -156,7 +156,7 @@
       },
       "order_effective": 0,
       "order_display": "00000",
-      "order_locked": true,
+      "order_locked": false,
       "bootstrap": {},
       "entry_url": "./templates/projects/baseline/actions/core/ui/header-bar/action.js",
       "styles": [

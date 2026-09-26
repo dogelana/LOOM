@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.63 revision=61 policy=package-priority
+// @loom-file release=0.15.64 revision=62 policy=package-priority
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -578,7 +578,7 @@ function loom_native_admin_page_guard(string $pageTitle='Admin',string $rootPref
   if(loom_request_is_admin())return;
   http_response_code(403);header('Content-Type: text/html; charset=utf-8');header('Cache-Control: no-store, no-cache, must-revalidate');
   $prefix=rtrim($rootPrefix,'/').'/';$title=htmlspecialchars($pageTitle,ENT_QUOTES,'UTF-8');$api=htmlspecialchars($prefix.'api',ENT_QUOTES,'UTF-8');$home=htmlspecialchars($prefix.'home/',ENT_QUOTES,'UTF-8');$engine=htmlspecialchars($prefix.'engine/',ENT_QUOTES,'UTF-8');
-  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.63"></script><script src="'.$engine.'identity.js?v=0.15.63"></script><script src="'.$engine.'identity-entry.js?v=0.15.63"></script><script src="'.$engine.'loom-brand.js?v=0.15.63"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.63"></script><script src="'.$engine.'loom-toast.js?v=0.15.63"></script><script src="'.$engine.'share-referrals.js?v=0.15.63"></script><script src="'.$engine.'loom-shell.js?v=0.15.63"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
+  echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.$title.' · LOOM</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;font-family:Inter,system-ui;background:#eef5ef;color:#18311f}.loom-admin-gate{display:grid;place-items:center;padding:30px}.loom-admin-gate-card{width:min(620px,100%);padding:30px;background:#fff;border:1px solid #d8e6da;border-radius:24px;box-shadow:0 22px 65px #153b2112}.loom-admin-gate-card h1{margin:0 0 8px}.loom-admin-gate-card p{color:#65766b;line-height:1.55}.loom-admin-gate-state{font-size:11px;font-weight:800;color:#4d6a56}</style></head><body><div id="loomShellHeader"></div><main class="loom-admin-gate"><section class="loom-admin-gate-card"><h1>Checking Administrator access…</h1><p>LOOM is verifying this browser against the same Administrator identity used by the Admin console.</p><div id="loomAdminGateState" class="loom-admin-gate-state">Authorizing…</div></section></main><div id="loomShellFooter"></div><script src="'.$engine.'deployment-guard.js?v=0.15.64"></script><script src="'.$engine.'identity.js?v=0.15.64"></script><script src="'.$engine.'identity-entry.js?v=0.15.64"></script><script src="'.$engine.'loom-brand.js?v=0.15.64"></script><script src="'.$engine.'loom-global-profile.js?v=0.15.64"></script><script src="'.$engine.'loom-toast.js?v=0.15.64"></script><script src="'.$engine.'share-referrals.js?v=0.15.64"></script><script src="'.$engine.'loom-shell.js?v=0.15.64"></script><script>(async()=>{const state=document.getElementById("loomAdminGateState");await window.LoomIdentityEntry?.ensure?.();const identity=window.LoomIdentity?.get?.("loom-admin-page-gate");await window.LoomShell?.mount?.({apiBase:"'.$api.'",identity,pageTitle:"'.$title.'",links:[{label:"LOOM Home",href:"'.$home.'"}],adminTools:false});const status=await window.LoomShell?.refreshAdminStatus?.("'.$api.'",identity,"");const retryKey="loom:admin-page-gate:"+location.pathname,lastRetry=Number(sessionStorage.getItem(retryKey)||0);if(status?.isAdmin){if(Date.now()-lastRetry>5000){sessionStorage.setItem(retryKey,String(Date.now()));state.textContent="Administrator confirmed. Opening protected page…";location.reload();return}state.textContent="Administrator was confirmed, but the protected page session could not be established. Reload once or sign in again.";return}sessionStorage.removeItem(retryKey);state.textContent="Administrator access required. Switch to an authorized LOOM Admin identity, then reload this page."})().catch(e=>{document.getElementById("loomAdminGateState").textContent=e?.message||"Administrator access required."});</script></body></html>';
   exit;
 }
 function loom_admin_settings_file(string $project): string {
@@ -619,17 +619,59 @@ function loom_set_project_module_hide_on_mobile(string $project,string $actionId
   $s=loom_read_admin_settings($project);if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];
   $row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];$row['hideOnMobile']=$hide;$row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
 }
-function loom_project_module_position_index(string $project,string $actionId): ?int {
+function loom_project_module_default_position_index(string $actionId): ?int {
+  // Soft LOOM composition defaults. Explicit project choices always outrank these.
+  return match($actionId){
+    'core.ui.header-bar'=>1,
+    'loom.showcase'=>2,
+    'core.ui.footer-bar'=>99,
+    default=>null
+  };
+}
+function loom_project_module_explicit_position_index(string $project,string $actionId): ?int {
   $s=loom_read_admin_settings($project);$row=$s['moduleStates'][$actionId]??null;$n=is_array($row)?($row['positionIndex']??null):null;if($n===null||$n===''||!is_numeric($n))return null;$n=(int)$n;return $n>=1?$n:null;
+}
+function loom_project_module_position_index(string $project,string $actionId): ?int {
+  $explicit=loom_project_module_explicit_position_index($project,$actionId);return $explicit!==null?$explicit:loom_project_module_default_position_index($actionId);
+}
+function loom_project_module_position_map(string $project,array $actionIds): array {
+  $ids=[];foreach($actionIds as $id){$id=safe_token((string)$id);if($id!==''&&!in_array($id,$ids,true))$ids[]=$id;}
+  $explicit=[];$defaults=[];$out=[];
+  foreach($ids as $id){$saved=loom_project_module_explicit_position_index($project,$id);$default=loom_project_module_default_position_index($id);if($saved!==null)$explicit[]=['id'=>$id,'requested'=>$saved,'source'=>'explicit','default'=>$default];elseif($default!==null)$defaults[]=['id'=>$id,'requested'=>$default,'source'=>'default','default'=>$default];else$out[$id]=['requested'=>null,'resolved'=>null,'source'=>'automatic','default'=>null,'explicit'=>null];}
+  $sort=fn($a,$b)=>(($a['requested']<=>$b['requested'])?:strcmp($a['id'],$b['id']));usort($explicit,$sort);usort($defaults,$sort);$slots=[];
+  foreach(array_merge($explicit,$defaults) as $row){$slot=max(1,(int)$row['requested']);while(isset($slots[$slot]))$slot++;$slots[$slot]=$row['id'];$out[$row['id']]=['requested'=>$row['requested'],'resolved'=>$slot,'source'=>$row['source'],'default'=>$row['default'],'explicit'=>$row['source']==='explicit'?$row['requested']:null];}
+  return $out;
 }
 function loom_set_project_module_position_index(string $project,string $actionId,?int $requested,array $knownActionIds=[]): array {
   $project=safe_slug($project);$actionId=safe_token($actionId);if($project===''||$actionId==='')throw new RuntimeException('Invalid module position request.');$s=loom_read_admin_settings($project);if(!is_array($s['moduleStates']??null))$s['moduleStates']=[];$row=$s['moduleStates'][$actionId]??[];if(!is_array($row))$row=[];
-  if($requested===null||$requested<1){unset($row['positionIndex']);$resolved=null;$collision=null;}else{$used=[];foreach(($s['moduleStates']??[]) as $id=>$other){if($id===$actionId||!is_array($other))continue;$v=$other['positionIndex']??null;if(is_numeric($v)&&(int)$v>=1)$used[(int)$v]=(string)$id;}$resolved=max(1,(int)$requested);$collision=$used[$resolved]??null;while(isset($used[$resolved]))$resolved++;$row['positionIndex']=$resolved;}
-  $row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);return ['requested'=>$requested,'resolved'=>$resolved,'collisionWith'=>$collision,'autoIterated'=>$requested!==null&&$resolved!==$requested];
+  $collision=null;$resolvedExplicit=null;
+  if($requested===null||$requested<1){unset($row['positionIndex']);}
+  else{
+    // Only another explicit operator choice blocks a requested slot. Soft LOOM defaults
+    // yield to project customization, which keeps reordering effortless.
+    $used=[];foreach(($s['moduleStates']??[]) as $id=>$other){if($id===$actionId||!is_array($other))continue;$v=$other['positionIndex']??null;if(is_numeric($v)&&(int)$v>=1)$used[(int)$v]=(string)$id;}
+    $resolvedExplicit=max(1,(int)$requested);$collision=$used[$resolvedExplicit]??null;while(isset($used[$resolvedExplicit]))$resolvedExplicit++;$row['positionIndex']=$resolvedExplicit;
+  }
+  $row['updatedAt']=server_timestamp();$s['moduleStates'][$actionId]=$row;loom_write_admin_settings($project,$s);
+  $effective=$resolvedExplicit??loom_project_module_default_position_index($actionId);
+  return ['requested'=>$requested,'resolved'=>$effective,'explicit'=>$resolvedExplicit,'default'=>loom_project_module_default_position_index($actionId),'revertedToDefault'=>$requested===null&&$effective!==null,'collisionWith'=>$collision,'autoIterated'=>$requested!==null&&$resolvedExplicit!==$requested];
 }
 function loom_apply_project_module_positioning(string $project,array $modules): array {
-  $baseline=$modules;usort($baseline,fn($a,$b)=>(($a['order_effective']<=>$b['order_effective'])?:strcmp((string)($a['action']['id']??''),(string)($b['action']['id']??''))));$explicit=[];$unindexed=[];$loader=[];foreach($baseline as $m){$id=(string)($m['action']['id']??'');if(($m['module']['bootstrap']['role']??'')==='loader'){$m['position_index']=null;$m['position_resolved']=-1;$m['order_effective']=-1;$loader[]=$m;continue;}$idx=loom_project_module_position_index($project,$id);$m['position_index']=$idx;if($idx!==null)$explicit[]=$m;else $unindexed[]=$m;}
-  usort($explicit,fn($a,$b)=>(($a['position_index']<=>$b['position_index'])?:strcmp((string)($a['action']['id']??''),(string)($b['action']['id']??''))));$slots=[];foreach($explicit as $m){$slot=max(1,(int)$m['position_index']);while(isset($slots[$slot]))$slot++;$m['position_resolved']=$slot;$m['order_effective']=$slot;$m['order_display']=str_pad((string)$slot,5,'0',STR_PAD_LEFT);$slots[$slot]=$m;}$slot=1;foreach($unindexed as $m){while(isset($slots[$slot]))$slot++;$m['position_resolved']=$slot;$m['order_effective']=$slot;$m['order_display']=str_pad((string)$slot,5,'0',STR_PAD_LEFT);$slots[$slot]=$m;$slot++;}ksort($slots,SORT_NUMERIC);return array_merge($loader,array_values($slots));
+  $baseline=$modules;usort($baseline,fn($a,$b)=>(($a['order_effective']<=>$b['order_effective'])?:strcmp((string)($a['action']['id']??''),(string)($b['action']['id']??''))));
+  $explicit=[];$defaults=[];$unindexed=[];$loader=[];
+  foreach($baseline as $m){
+    $id=(string)($m['action']['id']??'');
+    if(($m['module']['bootstrap']['role']??'')==='loader'){$m['position_index']=null;$m['position_source']='bootstrap';$m['position_resolved']=-1;$m['order_effective']=-1;$loader[]=$m;continue;}
+    $saved=loom_project_module_explicit_position_index($project,$id);$default=loom_project_module_default_position_index($id);
+    if($saved!==null){$m['position_index']=$saved;$m['position_source']='explicit';$explicit[]=$m;}
+    elseif($default!==null){$m['position_index']=$default;$m['position_source']='default';$defaults[]=$m;}
+    else{$m['position_index']=null;$m['position_source']='automatic';$unindexed[]=$m;}
+  }
+  $sortPosition=fn($a,$b)=>(($a['position_index']<=>$b['position_index'])?:strcmp((string)($a['action']['id']??''),(string)($b['action']['id']??'')));
+  usort($explicit,$sortPosition);usort($defaults,$sortPosition);$slots=[];
+  foreach(array_merge($explicit,$defaults) as $m){$slot=max(1,(int)$m['position_index']);while(isset($slots[$slot]))$slot++;$m['position_resolved']=$slot;$m['order_effective']=$slot;$m['order_display']=str_pad((string)$slot,5,'0',STR_PAD_LEFT);$slots[$slot]=$m;}
+  $slot=1;foreach($unindexed as $m){while(isset($slots[$slot]))$slot++;$m['position_resolved']=$slot;$m['order_effective']=$slot;$m['order_display']=str_pad((string)$slot,5,'0',STR_PAD_LEFT);$slots[$slot]=$m;$slot++;}
+  ksort($slots,SORT_NUMERIC);return array_merge($loader,array_values($slots));
 }
 function loom_global_module_enabled(string $actionId,bool $default=true): bool {
   $s=loom_read_global_settings();$row=$s['moduleStates'][$actionId]??null;return is_array($row)&&array_key_exists('enabled',$row)?(bool)$row['enabled']:$default;

@@ -29,7 +29,7 @@
       "action.css"
     ],
     "order": "00020",
-    "order_locked": true
+    "order_locked": false
   },
   "config": {
     "bioMode": "project",

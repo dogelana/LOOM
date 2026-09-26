@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.60 revision=13 policy=package-priority
+// @loom-file release=0.15.64 revision=14 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 require_once __DIR__.'/_project_release_updates.php';
@@ -11,18 +11,16 @@ $clientId=safe_token((string)($_GET['clientId']??''));if($clientId!=='')loom_cap
 loom_apply_project_release_updates(safe_slug((string)$project));
 
 /*
-  LOOM protected module ordering
-  ------------------------------
-  00000 is an engine-reserved absolute-first slot for the project Header Bar layout region.
-  Manifests may request an order, but no ordinary plugin can claim or outrank
-  that reserved position.
+  LOOM module ordering baseline
+  -----------------------------
+  The bootstrap loader alone owns an absolute pre-layout slot. Normal project
+  modules receive their final page order from loom_apply_project_module_positioning(),
+  where explicit project choices outrank soft LOOM layout defaults.
 */
 function is_bootstrap_loader(array $manifest): bool { return (($manifest['module']['bootstrap']['role']??'')==='loader'); }
 function effective_module_order(array $manifest): int {
   if(is_bootstrap_loader($manifest)) return -1;
   $id=(string)($manifest['action']['id']??'');
-  if($id==='core.ui.header-bar') return 0;
-  if($id==='core.user.profile') return 10;
   if($id==='project.system.update-log') return 99999;
   $raw=$manifest['module']['order']??'50000';
   $n=is_numeric($raw)?intval($raw):50000;

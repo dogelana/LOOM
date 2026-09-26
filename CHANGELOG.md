@@ -1,3 +1,13 @@
+# LOOM 0.15.64 — Authoritative module positioning + default project composition
+
+- Fixed the Positioning Index runtime break: the browser registry client no longer overwrites the server-resolved per-project order with manifest order.
+- Removed the legacy runtime Header Bar reservation that could outrank an Admin-entered position. The bootstrap loader remains the only absolute pre-layout module.
+- Positioning is live and authoritative after reload: startup registry caching no longer paints a stale module order for up to two minutes after Project Settings changes.
+- Added soft default positions for the standard LOOM composition: **Header Bar = 1**, **Showcase = 2**, and **Footer Bar = 99**. Explicit project choices outrank these defaults.
+- Explicit collisions still auto-advance to the next available explicit slot. Soft defaults yield instead of blocking customization.
+- The shared Instance Project footer host now participates in the same root flex ordering, so Footer positioning is real rather than merely metadata.
+- Project Settings visibly labels soft default positions while retaining the same simple numeric control.
+
 # LOOM 0.15.63 — Visible module positioning + canonical Admin identity
 
 - Project Settings now exposes **Positioning Index Number** directly on every project-scoped module and HTML Framer module in Module Control Center. Blank preserves deterministic automatic ordering; `1` is the first normal module.

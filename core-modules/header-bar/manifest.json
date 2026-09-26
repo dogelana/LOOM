@@ -42,7 +42,7 @@
       "action.css"
     ],
     "order": "00000",
-    "order_locked": true,
+    "order_locked": false,
     "scope": "project"
   },
   "presentation": {

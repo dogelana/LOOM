@@ -1,4 +1,4 @@
-// @loom-file release=0.15.60 revision=15 policy=package-priority
+// @loom-file release=0.15.64 revision=16 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -113,18 +113,20 @@
     _moduleOrder(descriptor){
       if(this._isBootstrapLoader(descriptor))return -1;
       const policy=CFG.moduleOrdering||{};
-      const reservedId=policy.reservedFirstActionId||'core.ui.header-bar';
-      const reservedOrder=Number(policy.reservedFirstOrder??0);
+      // modules.php resolves project positioning authoritatively. Respect it before
+      // any legacy reserved/fallback manifest order so an Admin-entered `1` is real.
+      for(const candidate of [descriptor?.position_resolved,descriptor?.order_effective]){
+        const n=Number.parseInt(String(candidate??''),10);if(Number.isFinite(n))return n;
+      }
+      const id=String(descriptor?.action?.id||'');
+      const softDefaults={'core.ui.header-bar':1,'loom.showcase':2,'core.ui.footer-bar':99};
+      if(Object.prototype.hasOwnProperty.call(softDefaults,id))return softDefaults[id];
       const profileId=policy.reservedProfileActionId||'core.user.profile';
       const profileOrder=Number(policy.reservedProfileOrder??10);
       const lastId=policy.reservedLastActionId||'project.system.update-log';
       const lastOrder=Number(policy.reservedLastOrder??99999);
       const minNormal=Number(policy.minNonReservedOrder??1);
       const fallback=Number(policy.defaultOrder??50000);
-      const id=String(descriptor?.action?.id||'');
-      if(id===reservedId)return reservedOrder;
-      const resolved=Number.parseInt(String(descriptor?.order_effective??''),10);
-      if(Number.isFinite(resolved))return resolved;
       if(id===profileId)return profileOrder;
       if(id===lastId)return lastOrder;
       const parsed=Number.parseInt(String(descriptor?.module?.order??''),10);
@@ -135,6 +137,12 @@
     }
     _presentation(descriptor){return descriptor?.presentation||{}}
     _presentationOrder(descriptor){
+      // Inside a module-owned region, a deliberate project position override still
+      // wins. Automatic/default modules retain their region-specific layout order.
+      if(descriptor?.position_source==='explicit'){
+        const resolved=Number.parseInt(String(descriptor?.position_resolved??''),10);
+        if(Number.isFinite(resolved))return resolved;
+      }
       const raw=this._presentation(descriptor)?.layout?.order;
       const parsed=Number.parseInt(String(raw??''),10);
       return Number.isFinite(parsed)?parsed:this._moduleOrder(descriptor);
@@ -263,6 +271,10 @@
     }
     _mountModuleNode(descriptor,node,fallbackSelector=null){
       const host=this._resolveMountTarget(descriptor,fallbackSelector);
+      // Some structural regions (currently the project footer) are permanent shell
+      // hosts rather than module-created nodes. Let that host proxy the module's
+      // page position so Positioning Index still participates in the same root order.
+      if(host?.dataset?.loomPositionProxy==='module')host.dataset.loomPositionProxyFor=descriptor.action.id;
       if(this._shouldFrameModule(descriptor,host)){
         const frame=this._createModuleFrame(descriptor,node);this._applyPresentation(frame,descriptor);host.appendChild(frame);
       }else{this._applyPresentation(node,descriptor);host.appendChild(node)}
@@ -275,6 +287,10 @@
         const id=node?.dataset?.module,record=this.modules.get(id);if(!record)continue;
         const order=node.parentElement===this.mountRoot?this._moduleOrder(record.descriptor):this._presentationOrder(record.descriptor);
         node.style.order=String(order);node.dataset.moduleOrder=this._moduleOrderDisplay(record.descriptor);
+      }
+      for(const host of this.mountRoot.children){
+        const id=host?.dataset?.loomPositionProxyFor;if(!id)continue;const record=this.modules.get(id);if(!record)continue;
+        const order=this._moduleOrder(record.descriptor);host.style.order=String(order);host.dataset.moduleOrder=this._moduleOrderDisplay(record.descriptor);
       }
     }
     _preloadModuleEntries(modules=[]){
