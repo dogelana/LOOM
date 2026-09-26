@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.backup.restore",
+    "name": "Export, Import & Restore",
+    "description": "Portable project exports (including HTML Framer packages), project/data migration, full LOOM state backups, database staging, checksum verification, and transactional restore tooling.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/backup",
+    "tags": [
+      "loom",
+      "backup",
+      "restore",
+      "export",
+      "import",
+      "migration",
+      "instance",
+      "database",
+      "admin",
+      "audit"
+    ]
+  },
+  "user_actions": [
+    {
+      "id": "admin.backup.project.export",
+      "name": "Export Project",
+      "description": "Create a portable project-only LOOM bundle including project-owned HTML Framer packages.",
+      "behavior": "transient",
+      "category": "admin/backup"
+    },
+    {
+      "id": "admin.backup.project-data.export",
+      "name": "Export Project + Data",
+      "description": "Create a portable project bundle including project-owned Instance data.",
+      "behavior": "transient",
+      "category": "admin/backup"
+    },
+    {
+      "id": "admin.backup.global.export",
+      "name": "Export Full LOOM State",
+      "description": "Create a full installation-state backup without connection credentials or live auth sessions.",
+      "behavior": "transient",
+      "category": "admin/backup"
+    },
+    {
+      "id": "admin.backup.import.preview",
+      "name": "Preview Import Bundle",
+      "description": "Verify and preview a LOOM portable bundle before applying it.",
+      "behavior": "transient",
+      "category": "admin/backup"
+    },
+    {
+      "id": "admin.backup.import.apply",
+      "name": "Apply Import Bundle",
+      "description": "Apply a verified portable project or full-state bundle using an explicit conflict strategy.",
+      "behavior": "stateful",
+      "category": "admin/backup"
+    }
+  ],
+  "module": {
+    "version": "1.1.0",
+    "scope": "global",
+    "order": "00030"
+  },
+  "config": {
+    "enabled": true,
+    "generatedBackupRetentionDays": 14
+  },
+  "admin_settings": {
+    "title": "Export, Import & Restore",
+    "description": "Create portable project bundles or complete LOOM state backups, and preview/import them safely.",
+    "fields": [
+      {
+        "id": "generatedBackupRetentionDays",
+        "label": "Generated backup retention (days)",
+        "type": "number",
+        "min": 1,
+        "max": 365
+      }
+    ],
+    "tools": [
+      {
+        "type": "backup-restore-manager",
+        "label": "Open Backup & Restore"
+      }
+    ]
+  }
+}

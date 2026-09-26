@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.background-orbs",
+    "name": "Background Orbs",
+    "description": "Render the LOOM ambient energy field with inherited project colors, circular glowing energy particles, and occasional extensible special particles.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/background",
+    "tags": [
+      "core",
+      "ui",
+      "background",
+      "ambient",
+      "animation",
+      "orbs",
+      "project-extensible",
+      "presence-tracked",
+      "energy",
+      "circuitry",
+      "special-particle"
+    ],
+    "steps": [
+      {
+        "id": "resolve-provider",
+        "name": "Resolve project orb provider"
+      },
+      {
+        "id": "create-field",
+        "name": "Create ambient orb field"
+      },
+      {
+        "id": "animate-field",
+        "name": "Start zero-gravity motion"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.6.0",
+    "dependencies": [],
+    "styles": [],
+    "order": "00005",
+    "scope": "project"
+  },
+  "presentation": {
+    "role": "ambient-background",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "order": 5
+    },
+    "responsive": {
+      "hideOnMobile": true
+    }
+  },
+  "config": {
+    "sourceMode": "project",
+    "orbVolume": 192,
+    "speed": 135,
+    "glowLevel": 74,
+    "glowColor": "#168346",
+    "specialOrbEnabled": true,
+    "specialOrbIntervalSeconds": 19,
+    "specialOrbDurationSeconds": 15,
+    "specialOrbSize": 54,
+    "secondaryGlowColor": "#111111"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "blue"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Background Energy Field",
+    "description": "Ambient project background. LOOM defaults are inherited automatically until this project saves an explicit override. Regular LOOM particles are small circular energy orbs that inherit project branding; project providers may still replace their artwork.",
+    "fields": [
+      {
+        "id": "sourceMode",
+        "label": "Orb source",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project Provided (when available)"
+          },
+          {
+            "value": "loom",
+            "label": "LOOM Default Orbs"
+          }
+        ]
+      },
+      {
+        "id": "orbVolume",
+        "label": "Particle / orb volume",
+        "type": "range",
+        "min": 0,
+        "max": 360,
+        "step": 1,
+        "unit": " particles",
+        "help": "LOOM default is 192 particles. Projects with no saved override inherit future LOOM default changes."
+      },
+      {
+        "id": "speed",
+        "label": "Drift speed",
+        "type": "range",
+        "min": 20,
+        "max": 250,
+        "step": 5,
+        "unit": "%",
+        "help": "LOOM default drift speed is 135%."
+      },
+      {
+        "id": "glowLevel",
+        "label": "Energy glow level",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "LOOM default energy glow is 74%."
+      },
+      {
+        "id": "glowColor",
+        "label": "Glow color",
+        "type": "color",
+        "projectDefaultFromExtension": {
+          "extension": "core.ui.background-orbs.provider",
+          "property": "defaultGlowColor"
+        },
+        "help": "Defaults to the project accent color unless explicitly overridden."
+      },
+      {
+        "id": "specialOrbEnabled",
+        "label": "Occasional special particle",
+        "type": "checkbox"
+      },
+      {
+        "id": "specialOrbIntervalSeconds",
+        "label": "Special particle interval",
+        "type": "range",
+        "min": 12,
+        "max": 180,
+        "step": 1,
+        "unit": " sec",
+        "help": "LOOM default is 19 seconds, roughly twice the previous special-particle frequency."
+      },
+      {
+        "id": "specialOrbDurationSeconds",
+        "label": "Special particle visible time",
+        "type": "range",
+        "min": 5,
+        "max": 36,
+        "step": 1,
+        "unit": " sec"
+      },
+      {
+        "id": "specialOrbSize",
+        "label": "Special particle size",
+        "type": "range",
+        "min": 24,
+        "max": 110,
+        "step": 1,
+        "unit": " px"
+      }
+    ],
+    "tools": [
+      {
+        "id": "orb-default-presets",
+        "label": "Background defaults",
+        "type": "config-presets",
+        "presets": [
+          {
+            "id": "project-defaults",
+            "label": "Use Project Defaults",
+            "reset": true,
+            "values": {},
+            "requiresExtension": "core.ui.background-orbs.provider"
+          },
+          {
+            "id": "loom-defaults",
+            "label": "Use LOOM Defaults",
+            "reset": true,
+            "values": {
+              "sourceMode": "loom"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

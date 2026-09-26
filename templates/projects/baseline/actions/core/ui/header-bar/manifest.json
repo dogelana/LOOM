@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.6",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.header-bar",
+    "name": "Load Header Bar",
+    "description": "Create a reusable LOOM header region with true full-width or shrink-to-content sizing and configurable branding alignment.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/layout",
+    "tags": [
+      "core",
+      "ui",
+      "layout",
+      "region",
+      "header",
+      "slots",
+      "presence-tracked"
+    ],
+    "steps": [
+      {
+        "id": "create-region",
+        "name": "Create header region"
+      },
+      {
+        "id": "create-slots",
+        "name": "Create header slots"
+      },
+      {
+        "id": "mount-region",
+        "name": "Mount header region"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "2.3.1",
+    "dependencies": [],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00000",
+    "order_locked": false
+  },
+  "presentation": {
+    "role": "region",
+    "region": "header-bar",
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "start",
+      "position": "flow",
+      "order": 0,
+      "className": "loom-project-header-region"
+    }
+  },
+  "config": {
+    "mountSelector": "#feature-stage",
+    "brandSlot": "brand",
+    "utilitySlot": "utility",
+    "brandMediaSlot": "brand-media",
+    "brandTextSlot": "brand-text",
+    "barHeight": 124,
+    "cornerRadius": 30,
+    "backgroundColor": "#FFFFFF",
+    "widthMode": "fit-content",
+    "brandPosition": "left"
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Header Bar",
+    "description": "Reusable LOOM header container presentation. Starter default: fit-content width with project branding aligned left.",
+    "fields": [
+      {
+        "id": "barHeight",
+        "label": "Header height",
+        "type": "range",
+        "min": 88,
+        "max": 220,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "cornerRadius",
+        "label": "Corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "backgroundColor",
+        "label": "Background",
+        "type": "color"
+      },
+      {
+        "id": "widthMode",
+        "label": "Header width",
+        "type": "select",
+        "options": [
+          {
+            "value": "full",
+            "label": "Full Width"
+          },
+          {
+            "value": "fit-content",
+            "label": "Fit Content"
+          }
+        ]
+      },
+      {
+        "id": "brandPosition",
+        "label": "Logo / branding position",
+        "type": "select",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      }
+    ]
+  }
+}

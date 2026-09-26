@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "loom.toast",
+    "name": "LOOM Toast & Feedback",
+    "description": "Global LOOM notification, save-confirmation, requirement, and tooltip presentation defaults used across LOOM-owned surfaces.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/feedback",
+    "tags": [
+      "loom",
+      "global",
+      "ui",
+      "toast",
+      "feedback",
+      "tooltip"
+    ]
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "global",
+    "order": "00035"
+  },
+  "config": {
+    "position": "bottom-right",
+    "durationMs": 3600,
+    "saveDurationMs": 2400,
+    "maxVisible": 4,
+    "accentColor": "#173F27",
+    "surfaceColor": "#FFFFFF",
+    "textColor": "#173722"
+  },
+  "admin_settings": {
+    "title": "LOOM Toast & Feedback",
+    "description": "Controls LOOM-wide save confirmations, warnings, errors, requirement prompts, and tooltips. Projects can independently theme their own toasts through Project Settings → Toast Theme.",
+    "fields": [
+      {
+        "id": "position",
+        "label": "Toast position",
+        "type": "select",
+        "options": [
+          {
+            "value": "bottom-right",
+            "label": "Bottom right"
+          },
+          {
+            "value": "bottom-center",
+            "label": "Bottom center"
+          },
+          {
+            "value": "top-right",
+            "label": "Top right"
+          },
+          {
+            "value": "top-center",
+            "label": "Top center"
+          }
+        ]
+      },
+      {
+        "id": "durationMs",
+        "label": "Normal toast duration",
+        "type": "range",
+        "min": 1200,
+        "max": 12000,
+        "step": 200,
+        "unit": "ms"
+      },
+      {
+        "id": "saveDurationMs",
+        "label": "Saved confirmation duration",
+        "type": "range",
+        "min": 900,
+        "max": 8000,
+        "step": 100,
+        "unit": "ms"
+      },
+      {
+        "id": "maxVisible",
+        "label": "Maximum visible toasts",
+        "type": "range",
+        "min": 1,
+        "max": 8,
+        "step": 1
+      },
+      {
+        "id": "accentColor",
+        "label": "LOOM toast accent",
+        "type": "color",
+        "help": "Default accent used on LOOM Home, Admin, and projects that choose LOOM colors."
+      },
+      {
+        "id": "surfaceColor",
+        "label": "Toast surface",
+        "type": "color"
+      },
+      {
+        "id": "textColor",
+        "label": "Toast text",
+        "type": "color"
+      }
+    ]
+  }
+}

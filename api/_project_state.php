@@ -1,0 +1,59 @@
+<?php
+// @loom-file release=0.15.60 revision=5 policy=package-priority
+declare(strict_types=1);
+function loom_project_state_dir(): string { $d=loom_data_dir().'/project-state';ensure_dir($d);$ht=$d.'/.htaccess';if(!is_file($ht))@file_put_contents($ht,"Require all denied\n",LOCK_EX);return $d; }
+function loom_project_state_file(string $project): string { return loom_project_state_dir().'/'.safe_slug($project).'.json'; }
+function loom_project_state_owner(string $clientId): array { $u=loom_account_user_for_client($clientId);$uid=(string)($u['user_id']??$u['userId']??'');if($uid!=='')return ['type'=>'user','id'=>$uid];$canonical=function_exists('loom_guest_canonical_client_id')?loom_guest_canonical_client_id($clientId):$clientId;return ['type'=>'client','id'=>$canonical]; }
+function loom_project_state_db_table(): void { if(!loom_db_ready())return;static $done=false;if($done)return;try{loom_db_pdo(true)->exec("CREATE TABLE IF NOT EXISTS loom_project_module_state (project_slug VARCHAR(96) NOT NULL,module_id VARCHAR(160) NOT NULL,owner_type ENUM('client','user') NOT NULL,owner_id VARCHAR(96) NOT NULL,state_json LONGTEXT NOT NULL,updated_at DATETIME(3) NOT NULL,PRIMARY KEY(project_slug,module_id,owner_type,owner_id),INDEX idx_project_module_state_owner(owner_type,owner_id),INDEX idx_project_module_state_updated(updated_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");$done=true;}catch(Throwable $e){} }
+function loom_project_state_read(string $project,string $module,string $type,string $id): array { loom_project_state_db_table();if(loom_db_ready())try{$st=loom_db_pdo(true)->prepare("SELECT state_json,updated_at FROM loom_project_module_state WHERE project_slug=? AND module_id=? AND owner_type=? AND owner_id=?");$st->execute([$project,$module,$type,$id]);$r=$st->fetch();if($r){$j=json_decode((string)$r['state_json'],true);return ['state'=>is_array($j)?$j:[],'updatedAt'=>$r['updated_at']];}}catch(Throwable $e){}$all=read_json_file(loom_project_state_file($project))?:[];$key=$module.'|'.$type.'|'.$id;$r=$all[$key]??null;return ['state'=>is_array($r['state']??null)?$r['state']:[],'updatedAt'=>$r['updatedAt']??null]; }
+function loom_project_state_write(string $project,string $module,string $type,string $id,array $state,?string $updatedAt=null): array {
+  $payload=['state'=>$state,'updatedAt'=>$updatedAt?:server_timestamp()];$file=loom_project_state_file($project);ensure_dir(dirname($file));$key=$module.'|'.$type.'|'.$id;
+  // Project state is also the portable fallback when no database is configured. Use a
+  // real read/modify/write lock so simultaneous project modules cannot clobber one another.
+  $fh=@fopen($file,'c+');if($fh){if(@flock($fh,LOCK_EX)){rewind($fh);$raw=stream_get_contents($fh);$all=is_string($raw)&&trim($raw)!==''?json_decode($raw,true):[];if(!is_array($all))$all=[];$all[$key]=$payload;$json=json_encode($all,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);if($json!==false){rewind($fh);ftruncate($fh,0);fwrite($fh,$json);fflush($fh);}@flock($fh,LOCK_UN);}fclose($fh);}else{$all=read_json_file($file)?:[];$all[$key]=$payload;@file_put_contents($file,json_encode($all,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT),LOCK_EX);}
+  loom_project_state_db_table();if(loom_db_ready()){$st=loom_db_pdo(true)->prepare("INSERT INTO loom_project_module_state(project_slug,module_id,owner_type,owner_id,state_json,updated_at) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE state_json=VALUES(state_json),updated_at=VALUES(updated_at)");$st->execute([$project,$module,$type,$id,json_encode($state,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE),loom_db_dt($payload['updatedAt'])?:gmdate('Y-m-d H:i:s.000')]);}return $payload;
+}
+
+function loom_project_state_rows_for_module(string $project,string $module): array {
+  $project=safe_slug($project);$module=safe_token($module);$out=[];if($project===''||$module==='')return [];
+  $all=read_json_file(loom_project_state_file($project))?:[];$prefix=$module.'|';foreach($all as $key=>$r){if(!str_starts_with((string)$key,$prefix)||!is_array($r))continue;$tail=substr((string)$key,strlen($prefix));$split=strpos($tail,'|');if($split===false)continue;$type=substr($tail,0,$split);$id=substr($tail,$split+1);if(!in_array($type,['client','user'],true)||$id==='')continue;$out[$type.'|'.$id]=['ownerType'=>$type,'ownerId'=>$id,'state'=>is_array($r['state']??null)?$r['state']:[],'updatedAt'=>$r['updatedAt']??null];}
+  loom_project_state_db_table();if(loom_db_ready())try{$st=loom_db_pdo(true)->prepare("SELECT owner_type,owner_id,state_json,updated_at FROM loom_project_module_state WHERE project_slug=? AND module_id=?");$st->execute([$project,$module]);foreach($st->fetchAll() as $r){$j=json_decode((string)$r['state_json'],true);$out[$r['owner_type'].'|'.$r['owner_id']]=['ownerType'=>$r['owner_type'],'ownerId'=>$r['owner_id'],'state'=>is_array($j)?$j:[],'updatedAt'=>$r['updated_at']];}}catch(Throwable $e){}
+  return array_values($out);
+}
+
+function loom_project_state_rows_for_owner(string $type,string $id): array {
+  $out=[];$id=safe_token($id);if($id===''||!in_array($type,['client','user'],true))return $out;
+  foreach(glob(loom_project_state_dir().'/*.json')?:[] as $file){$project=basename($file,'.json');foreach((read_json_file($file)?:[]) as $key=>$r){$suffix='|'.$type.'|'.$id;if(!str_ends_with($key,$suffix))continue;$module=substr($key,0,-strlen($suffix));$out[$project.'|'.$module]=['project'=>$project,'module'=>$module,'state'=>is_array($r['state']??null)?$r['state']:[],'updatedAt'=>$r['updatedAt']??null];}}
+  loom_project_state_db_table();if(loom_db_ready())try{$st=loom_db_pdo(true)->prepare("SELECT project_slug,module_id,state_json,updated_at FROM loom_project_module_state WHERE owner_type=? AND owner_id=?");$st->execute([$type,$id]);foreach($st->fetchAll() as $r){$j=json_decode((string)$r['state_json'],true);$out[$r['project_slug'].'|'.$r['module_id']]=['project'=>$r['project_slug'],'module'=>$r['module_id'],'state'=>is_array($j)?$j:[],'updatedAt'=>$r['updated_at']];}}catch(Throwable $e){}
+  return array_values($out);
+}
+function loom_state_is_list(array $a): bool { if(function_exists('array_is_list'))return array_is_list($a);$i=0;foreach(array_keys($a) as $k)if($k!==$i++)return false;return true; }
+function loom_state_ts(?string $t): int { $x=$t?strtotime($t):false;return $x===false?0:$x; }
+function loom_state_json_key($v): string { $j=json_encode($v,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);return $j===false?serialize($v):$j; }
+function loom_state_merge_value($guest,$user,string $guestAt,string $userAt,string $path,array &$conflicts){
+  if(is_array($guest)&&is_array($user)){
+    $gl=loom_state_is_list($guest);$ul=loom_state_is_list($user);
+    if($gl&&$ul){
+      $allObjects=true;foreach(array_merge($guest,$user) as $x)if(!is_array($x)||!isset($x['id'])){$allObjects=false;break;}
+      if($allObjects){$map=[];$order=[];foreach($user as $x){$id=(string)$x['id'];$map[$id]=$x;$order[]=$id;}foreach($guest as $x){$id=(string)$x['id'];if(!isset($map[$id])){$map[$id]=$x;$order[]=$id;}else $map[$id]=loom_state_merge_value($x,$map[$id],(string)($x['updatedAt']??$guestAt),(string)($map[$id]['updatedAt']??$userAt),$path.'['.$id.']',$conflicts);}return array_values(array_map(fn($id)=>$map[$id],array_values(array_unique($order))));}
+      $seen=[];$out=[];foreach(array_merge($user,$guest) as $x){$k=loom_state_json_key($x);if(isset($seen[$k]))continue;$seen[$k]=true;$out[]=$x;}return $out;
+    }
+    if(!$gl&&!$ul){$out=$user;foreach($guest as $k=>$v){$p=$path===''?(string)$k:$path.'.'.$k;if(!array_key_exists($k,$out))$out[$k]=$v;else $out[$k]=loom_state_merge_value($v,$out[$k],$guestAt,$userAt,$p,$conflicts);}return $out;}
+  }
+  if(loom_state_json_key($guest)===loom_state_json_key($user))return $user;
+  $guestWins=loom_state_ts($guestAt)>=loom_state_ts($userAt);$conflicts[]=['path'=>$path,'guest'=>$guest,'user'=>$user,'resolution'=>$guestWins?'guest-newer-active':'user-newer-active'];return $guestWins?$guest:$user;
+}
+function loom_project_state_merge_records(array $guestRow,array $userRow): array { $conflicts=[];$merged=loom_state_merge_value($guestRow['state']??[],$userRow['state']??[],(string)($guestRow['updatedAt']??''),(string)($userRow['updatedAt']??''),'',$conflicts);return ['state'=>is_array($merged)?$merged:[],'updatedAt'=>loom_state_ts($guestRow['updatedAt']??null)>=loom_state_ts($userRow['updatedAt']??null)?($guestRow['updatedAt']??server_timestamp()):($userRow['updatedAt']??server_timestamp()),'conflicts'=>$conflicts]; }
+function loom_project_state_attach_client(string $clientId,string $userId): array {
+  $clientId=safe_token($clientId);$userId=safe_token($userId);if($clientId===''||$userId==='')return ['modules'=>0,'conflicts'=>0];$modules=0;$conflictCount=0;
+  foreach(loom_project_state_rows_for_owner('client',$clientId) as $guestRow){$userRow=loom_project_state_read($guestRow['project'],$guestRow['module'],'user',$userId);$hasUser=!empty($userRow['updatedAt'])||!empty($userRow['state']);if(!$hasUser){loom_project_state_write($guestRow['project'],$guestRow['module'],'user',$userId,$guestRow['state'],$guestRow['updatedAt']);$modules++;continue;}$m=loom_project_state_merge_records($guestRow,$userRow);loom_project_state_write($guestRow['project'],$guestRow['module'],'user',$userId,$m['state'],$m['updatedAt']);$modules++;$conflictCount+=count($m['conflicts']);if($m['conflicts']&&function_exists('loom_guest_record_conflicts_for_client'))loom_guest_record_conflicts_for_client($clientId,$userId,$guestRow['project'],$guestRow['module'],$m['conflicts']);}
+  return ['modules'=>$modules,'conflicts'=>$conflictCount];
+}
+function loom_project_state_merge_client_to_client(string $sourceClientId,string $targetClientId): array {
+  $sourceClientId=safe_token($sourceClientId);$targetClientId=safe_token($targetClientId);$modules=0;$conflictCount=0;if($sourceClientId===''||$targetClientId===''||$sourceClientId===$targetClientId)return ['modules'=>0,'conflicts'=>0];
+  foreach(loom_project_state_rows_for_owner('client',$sourceClientId) as $src){$dst=loom_project_state_read($src['project'],$src['module'],'client',$targetClientId);$has=!empty($dst['updatedAt'])||!empty($dst['state']);if(!$has){loom_project_state_write($src['project'],$src['module'],'client',$targetClientId,$src['state'],$src['updatedAt']);$modules++;continue;}$m=loom_project_state_merge_records($src,$dst);loom_project_state_write($src['project'],$src['module'],'client',$targetClientId,$m['state'],$m['updatedAt']);$modules++;$conflictCount+=count($m['conflicts']);}
+  return ['modules'=>$modules,'conflicts'=>$conflictCount];
+}
+// Backward-compatible name. v0.12.00 deliberately preserves source client rows.
+function loom_project_state_promote_client(string $clientId,string $userId): void { loom_project_state_attach_client($clientId,$userId); }
+function loom_project_state_migrate_temp_to_db(): int { if(!loom_db_ready())return 0;$n=0;foreach(glob(loom_project_state_dir().'/*.json')?:[] as $file){$project=basename($file,'.json');foreach((read_json_file($file)?:[]) as $key=>$r){$parts=explode('|',$key);if(count($parts)<3)continue;$id=array_pop($parts);$type=array_pop($parts);$module=implode('|',$parts);if(!in_array($type,['client','user'],true)||!is_array($r['state']??null))continue;try{loom_project_state_write($project,$module,$type,$id,$r['state'],$r['updatedAt']??null);$n++;}catch(Throwable $e){}}}return $n; }

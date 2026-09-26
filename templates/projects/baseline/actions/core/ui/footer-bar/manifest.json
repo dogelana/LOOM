@@ -1,0 +1,425 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.footer-bar",
+    "name": "Footer Bar",
+    "description": "Create a polished responsive LOOM footer with project branding, centered quick-access tools, animated LOOM attribution, and guarded fit-content spacing controls.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/layout",
+    "tags": [
+      "core",
+      "ui",
+      "layout",
+      "region",
+      "footer",
+      "branding"
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.3.0",
+    "dependencies": [],
+    "styles": [
+      "action.css"
+    ],
+    "order": "00006"
+  },
+  "presentation": {
+    "role": "region",
+    "region": "footer-bar",
+    "mount": {
+      "region": "footer-root"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "stretch",
+      "position": "flow",
+      "order": 6,
+      "className": "loom-project-footer-region"
+    }
+  },
+  "config": {
+    "cornerRadius": 30,
+    "backgroundColor": "#F7FBF8",
+    "widthMode": "full",
+    "outerPadding": 18,
+    "rowGap": 14,
+    "projectLogoSize": 64,
+    "projectTextSize": 17,
+    "brandRowWidthMode": "fit-content",
+    "brandRowAlign": "center",
+    "brandRowPaddingX": 18,
+    "brandRowPaddingY": 16,
+    "brandRowRadius": 22,
+    "brandRowBackground": "#FFFFFF",
+    "toolsRowWidthMode": "fit-content",
+    "toolsRowAlign": "center",
+    "toolsRowPaddingX": 16,
+    "toolsRowPaddingY": 13,
+    "toolsRowRadius": 22,
+    "toolsRowBackground": "#F4F9F5",
+    "loomLogoSize": 50,
+    "loomTextSize": 16,
+    "loomRowWidthMode": "fit-content",
+    "loomRowAlign": "center",
+    "loomRowPaddingX": 18,
+    "loomRowPaddingY": 15,
+    "loomRowRadius": 22,
+    "loomRowBackground": "#FFFFFF",
+    "orbSlot": "orbs",
+    "brandFitExtraWidth": 100,
+    "brandFitExtraHeight": 20,
+    "loomFitExtraWidth": 100,
+    "loomFitExtraHeight": 20
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Footer Bar",
+    "description": "Control the responsive footer and each independent row. The default project-branding row is centered and fit-to-content with 100px total extra width and 20px total extra height.",
+    "fields": [
+      {
+        "id": "outerPadding",
+        "label": "Footer outer padding",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "rowGap",
+        "label": "Space between footer rows",
+        "type": "range",
+        "min": 0,
+        "max": 48,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "cornerRadius",
+        "label": "Footer outer corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "backgroundColor",
+        "label": "Footer outer background",
+        "type": "color"
+      },
+      {
+        "id": "widthMode",
+        "label": "Whole footer width",
+        "type": "select",
+        "options": [
+          {
+            "value": "full",
+            "label": "Full Width"
+          },
+          {
+            "value": "fit-content",
+            "label": "Fit Content"
+          }
+        ]
+      },
+      {
+        "id": "projectLogoSize",
+        "label": "Project logo size",
+        "type": "range",
+        "min": 32,
+        "max": 140,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "projectTextSize",
+        "label": "Project wordmark size",
+        "type": "range",
+        "min": 10,
+        "max": 44,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "brandRowWidthMode",
+        "label": "Branding row width",
+        "type": "select",
+        "options": [
+          {
+            "value": "full",
+            "label": "Full Width"
+          },
+          {
+            "value": "fit-content",
+            "label": "Fit Content"
+          }
+        ]
+      },
+      {
+        "id": "brandFitExtraWidth",
+        "label": "Fit-content extra width",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px total",
+        "visibleWhen": {
+          "field": "brandRowWidthMode",
+          "equals": "fit-content"
+        },
+        "help": "Total extra horizontal room around project branding. LOOM divides this evenly between left and right."
+      },
+      {
+        "id": "brandFitExtraHeight",
+        "label": "Fit-content extra height",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px total",
+        "visibleWhen": {
+          "field": "brandRowWidthMode",
+          "equals": "fit-content"
+        },
+        "help": "Total extra vertical room around project branding. LOOM divides this evenly between top and bottom."
+      },
+      {
+        "id": "brandRowAlign",
+        "label": "Branding row position",
+        "type": "select",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "id": "brandRowPaddingX",
+        "label": "Branding row horizontal padding",
+        "type": "range",
+        "min": 0,
+        "max": 80,
+        "step": 1,
+        "unit": "px",
+        "visibleWhen": {
+          "field": "brandRowWidthMode",
+          "equals": "full"
+        }
+      },
+      {
+        "id": "brandRowPaddingY",
+        "label": "Branding row vertical padding",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px",
+        "visibleWhen": {
+          "field": "brandRowWidthMode",
+          "equals": "full"
+        }
+      },
+      {
+        "id": "brandRowRadius",
+        "label": "Branding row corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "brandRowBackground",
+        "label": "Branding row background",
+        "type": "color"
+      },
+      {
+        "id": "toolsRowWidthMode",
+        "label": "More Tools row width",
+        "type": "select",
+        "options": [
+          {
+            "value": "fit-content",
+            "label": "Fit Orbs / Content"
+          },
+          {
+            "value": "full",
+            "label": "Full Width"
+          }
+        ]
+      },
+      {
+        "id": "toolsRowAlign",
+        "label": "More Tools row position",
+        "type": "select",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "id": "toolsRowPaddingX",
+        "label": "More Tools horizontal padding",
+        "type": "range",
+        "min": 0,
+        "max": 80,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "toolsRowPaddingY",
+        "label": "More Tools vertical padding",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "toolsRowRadius",
+        "label": "More Tools corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "toolsRowBackground",
+        "label": "More Tools background",
+        "type": "color"
+      },
+      {
+        "id": "loomLogoSize",
+        "label": "Animated LOOM mark container size",
+        "type": "range",
+        "min": 32,
+        "max": 110,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomTextSize",
+        "label": "LOOM attribution text size",
+        "type": "range",
+        "min": 10,
+        "max": 30,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomRowWidthMode",
+        "label": "LOOM attribution row width",
+        "type": "select",
+        "options": [
+          {
+            "value": "full",
+            "label": "Full Width"
+          },
+          {
+            "value": "fit-content",
+            "label": "Fit Content"
+          }
+        ]
+      },
+      {
+        "id": "loomRowAlign",
+        "label": "LOOM attribution row position",
+        "type": "select",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "id": "loomFitExtraWidth",
+        "label": "LOOM fit-content extra width",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomFitExtraHeight",
+        "label": "LOOM fit-content extra height",
+        "type": "range",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomRowPaddingX",
+        "label": "LOOM row horizontal padding",
+        "type": "range",
+        "min": 0,
+        "max": 80,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomRowPaddingY",
+        "label": "LOOM row vertical padding",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomRowRadius",
+        "label": "LOOM row corner radius",
+        "type": "range",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "loomRowBackground",
+        "label": "LOOM row background",
+        "type": "color"
+      }
+    ]
+  }
+}

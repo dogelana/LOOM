@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "slug": "baseline",
+  "name": "New LOOM Project",
+  "version": "0.1.0",
+  "tagline": "Powered by LOOM",
+  "description": "A baseline LOOM project.",
+  "bio": "",
+  "theme": "default",
+  "engine": "LOOM",
+  "project_generation": "instance-baseline-v1",
+  "branding": {
+    "logo_asset": "assets/logo.png",
+    "logo_alt": "New LOOM Project",
+    "wordmark": {
+      "mode": "auto",
+      "font_family": "League Spartan",
+      "font_weight": 900
+    }
+  },
+  "engine_version": "0.15.30",
+  "social_color": "#000000"
+}

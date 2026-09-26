@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "core.seo.social",
+    "name": "SEO & Social Preview",
+    "description": "Automatic project-aware metadata for search engines, Messenger/social previews, canonical links, Open Graph, and Twitter cards.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "category": "core/web/metadata",
+    "tags": [
+      "core",
+      "seo",
+      "social",
+      "open-graph",
+      "twitter",
+      "sharing"
+    ]
+  },
+  "module": {
+    "version": "1.0.0",
+    "scope": "project",
+    "order": "00070",
+    "entry": "action.js",
+    "dependencies": [],
+    "styles": []
+  },
+  "config": {
+    "enabled": true,
+    "titleMode": "project",
+    "descriptionMode": "project",
+    "imageMode": "auto",
+    "robotsMode": "index-follow",
+    "customTitle": "",
+    "customDescription": ""
+  },
+  "admin_settings": {
+    "title": "SEO & Social Preview",
+    "description": "Automatic by default. Project name, bio, Showcase image/logo, canonical URL, Open Graph, and Twitter metadata stay synchronized as project identity changes.",
+    "fields": [
+      {
+        "id": "titleMode",
+        "label": "Share/search title",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Current project name (Recommended)"
+          },
+          {
+            "value": "custom",
+            "label": "Custom title"
+          }
+        ]
+      },
+      {
+        "id": "customTitle",
+        "label": "Custom title",
+        "type": "text",
+        "maxLength": 120,
+        "visibleWhen": {
+          "field": "titleMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "descriptionMode",
+        "label": "Share/search description",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Current project bio (Recommended)"
+          },
+          {
+            "value": "custom",
+            "label": "Custom description"
+          }
+        ]
+      },
+      {
+        "id": "customDescription",
+        "label": "Custom description",
+        "type": "text",
+        "maxLength": 240,
+        "visibleWhen": {
+          "field": "descriptionMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "imageMode",
+        "label": "Social preview image",
+        "type": "select",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Showcase image → project logo → LOOM logo"
+          },
+          {
+            "value": "showcase",
+            "label": "Showcase image, then fallback"
+          },
+          {
+            "value": "logo",
+            "label": "Project logo, then LOOM fallback"
+          },
+          {
+            "value": "loom",
+            "label": "LOOM logo"
+          }
+        ]
+      },
+      {
+        "id": "robotsMode",
+        "label": "Search indexing",
+        "type": "select",
+        "options": [
+          {
+            "value": "index-follow",
+            "label": "Index + follow"
+          },
+          {
+            "value": "noindex-follow",
+            "label": "No index + follow"
+          },
+          {
+            "value": "noindex-nofollow",
+            "label": "No index + no follow"
+          }
+        ]
+      }
+    ]
+  }
+}

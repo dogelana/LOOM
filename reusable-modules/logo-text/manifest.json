@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.3",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.load-logo-text",
+    "name": "Load Logo Text",
+    "description": "Render reusable two-line project logo text with deterministic responsive fitting that cannot feed back against the header's own changing size.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.ui.header-bar",
+    "category": "core/ui/branding",
+    "tags": [
+      "core",
+      "ui",
+      "branding",
+      "logo-text",
+      "header-child",
+      "stacked-wordmark"
+    ],
+    "steps": [
+      {
+        "id": "create-element",
+        "name": "Create wordmark element"
+      },
+      {
+        "id": "fit-text",
+        "name": "Fit stacked text widths"
+      },
+      {
+        "id": "mount-text",
+        "name": "Inject wordmark into header"
+      }
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "2.5.0",
+    "dependencies": [
+      "core.ui.header-bar"
+    ],
+    "styles": [],
+    "order": "00002"
+  },
+  "presentation": {
+    "role": "content",
+    "mount": {
+      "region": "header-bar",
+      "slot": "brand-text"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "start",
+      "position": "flow",
+      "order": 20,
+      "maxWidth": "100%",
+      "offsetY": "10px"
+    }
+  },
+  "config": {
+    "mountSelector": "#feature-stage",
+    "line1": "PROJECT",
+    "line2": "",
+    "fontFamily": "League Spartan",
+    "fontWeight": 900,
+    "fontGoogleCss": "https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap",
+    "primaryColor": "#111111",
+    "accentColor": "#168346",
+    "opticalOffsetY": "10px",
+    "fontSize": 54
+  },
+  "pegboard": {
+    "preferredDepth": 3,
+    "accent": "green"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Logo Text",
+    "description": "Edit the project wordmark. Font size directly controls rendered size; responsive fitting uses the stable containing width without self-resize feedback loops.",
+    "fields": [
+      {
+        "id": "line1",
+        "label": "Top line",
+        "type": "text",
+        "maxLength": 30
+      },
+      {
+        "id": "line2",
+        "label": "Bottom line",
+        "type": "text",
+        "maxLength": 30
+      },
+      {
+        "id": "fontSize",
+        "label": "Font size",
+        "type": "range",
+        "min": 20,
+        "max": 144,
+        "step": 1,
+        "unit": "px"
+      },
+      {
+        "id": "fontFamily",
+        "label": "Font",
+        "type": "select",
+        "options": [
+          {
+            "value": "League Spartan",
+            "label": "League Spartan"
+          },
+          {
+            "value": "Arial Black",
+            "label": "Arial Black"
+          },
+          {
+            "value": "Impact",
+            "label": "Impact"
+          },
+          {
+            "value": "system-ui",
+            "label": "System UI"
+          },
+          {
+            "value": "Georgia",
+            "label": "Georgia"
+          }
+        ]
+      },
+      {
+        "id": "primaryColor",
+        "label": "Custom header top-line color",
+        "type": "color"
+      },
+      {
+        "id": "accentColor",
+        "label": "Custom header bottom-line color",
+        "type": "color"
+      }
+    ]
+  }
+}

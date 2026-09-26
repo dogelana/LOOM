@@ -1,0 +1,14 @@
+{
+  "schema": "loom-instance/v1",
+  "protocol": "clean-instance",
+  "release_archive_contains_real_instance": false,
+  "persistent_root": "instance/",
+  "sample_root": "instance.sample/",
+  "hot_drop_contract": "overwrite release files in place; never delete or mirror-delete instance/",
+  "areas": {
+    "config": "installation/database configuration",
+    "data": "identity, accounts, settings, module state, telemetry, backups",
+    "projects": "project profile overrides and persistent asset overlays",
+    "archives": "installation-owned archived project state"
+  }
+}

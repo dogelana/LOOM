@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.navigation.chrome",
+    "name": "LOOM Navigation Chrome",
+    "description": "Global LOOM Home/Profile/Share controls and Admin-only Tools presentation shared across LOOM and project surfaces.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/navigation",
+    "tags": [
+      "loom",
+      "global",
+      "navigation",
+      "admin",
+      "profile",
+      "home",
+      "sharing",
+      "referrals"
+    ]
+  },
+  "module": {
+    "version": "1.3.0",
+    "scope": "global",
+    "order": "00015"
+  },
+  "config": {
+    "adminToolsPresentation": "drawer",
+    "adminDrawerSide": "right",
+    "homeEmoji": "🏠",
+    "homeLabel": "LOOM Home",
+    "homeHeaderMode": "both",
+    "homeFooterMode": "emoji",
+    "profileEmoji": "👤",
+    "profileLabel": "LOOM Profile",
+    "profileHeaderMode": "both",
+    "profileFooterMode": "emoji",
+    "shareEmoji": "🔗",
+    "shareLabel": "Share",
+    "shareHeaderMode": "both",
+    "shareFooterMode": "emoji",
+    "shareNative": true,
+    "shareReferralBanner": true,
+    "switchEmoji": "🔄",
+    "switchLabel": "Switch User",
+    "switchHeaderMode": "both",
+    "switchFooterMode": "emoji"
+  },
+  "admin_settings": {
+    "title": "Global Navigation & Admin Tools",
+    "description": "Controls the permanent LOOM Home/Profile/Share buttons and how Administrator-only tools appear across LOOM. The default Admin Tools surface is an auto-hiding side drawer.",
+    "fields": [
+      {
+        "id": "adminToolsPresentation",
+        "label": "Admin-only Tools presentation",
+        "type": "select",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Auto-hiding side drawer (Default)"
+          },
+          {
+            "value": "top-bar",
+            "label": "Inject into top bar"
+          }
+        ]
+      },
+      {
+        "id": "adminDrawerSide",
+        "label": "Admin Tools drawer side",
+        "type": "select",
+        "options": [
+          {
+            "value": "right",
+            "label": "Right side"
+          },
+          {
+            "value": "left",
+            "label": "Left side"
+          }
+        ],
+        "visibleWhen": {
+          "field": "adminToolsPresentation",
+          "equals": "drawer"
+        }
+      },
+      {
+        "id": "homeEmoji",
+        "label": "LOOM Home emoji",
+        "type": "text",
+        "maxLength": 12
+      },
+      {
+        "id": "homeLabel",
+        "label": "LOOM Home text",
+        "type": "text",
+        "maxLength": 40
+      },
+      {
+        "id": "homeHeaderMode",
+        "label": "Home button in top bar",
+        "type": "select",
+        "options": [
+          {
+            "value": "both",
+            "label": "Emoji + text (Default)"
+          },
+          {
+            "value": "emoji",
+            "label": "Emoji only"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "homeFooterMode",
+        "label": "Home button in footer",
+        "type": "select",
+        "options": [
+          {
+            "value": "emoji",
+            "label": "Emoji only (Default)"
+          },
+          {
+            "value": "both",
+            "label": "Emoji + text"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "shareEmoji",
+        "label": "Share emoji",
+        "type": "text",
+        "maxLength": 12
+      },
+      {
+        "id": "shareLabel",
+        "label": "Share button text",
+        "type": "text",
+        "maxLength": 40
+      },
+      {
+        "id": "shareHeaderMode",
+        "label": "Share button in top bar",
+        "type": "select",
+        "options": [
+          {
+            "value": "both",
+            "label": "Emoji + text (Default)"
+          },
+          {
+            "value": "emoji",
+            "label": "Emoji only"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "shareFooterMode",
+        "label": "Share button in footer",
+        "type": "select",
+        "options": [
+          {
+            "value": "emoji",
+            "label": "Emoji only (Default)"
+          },
+          {
+            "value": "both",
+            "label": "Emoji + text"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "shareNative",
+        "label": "Use device share sheet when available",
+        "type": "checkbox"
+      },
+      {
+        "id": "shareReferralBanner",
+        "label": "Show gentle “Referred by” confirmation",
+        "type": "checkbox"
+      },
+      {
+        "id": "switchEmoji",
+        "label": "Switch User emoji",
+        "type": "text",
+        "maxLength": 12
+      },
+      {
+        "id": "switchLabel",
+        "label": "Switch User text",
+        "type": "text",
+        "maxLength": 40
+      },
+      {
+        "id": "switchHeaderMode",
+        "label": "Switch User button in top bar",
+        "type": "select",
+        "options": [
+          {
+            "value": "both",
+            "label": "Emoji + text (Default)"
+          },
+          {
+            "value": "emoji",
+            "label": "Emoji only"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "switchFooterMode",
+        "label": "Switch User button in footer",
+        "type": "select",
+        "options": [
+          {
+            "value": "emoji",
+            "label": "Emoji only (Default)"
+          },
+          {
+            "value": "both",
+            "label": "Emoji + text"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "profileEmoji",
+        "label": "LOOM Profile emoji",
+        "type": "text",
+        "maxLength": 12
+      },
+      {
+        "id": "profileLabel",
+        "label": "LOOM Profile text",
+        "type": "text",
+        "maxLength": 40
+      },
+      {
+        "id": "profileHeaderMode",
+        "label": "Profile button in top bar",
+        "type": "select",
+        "options": [
+          {
+            "value": "both",
+            "label": "Emoji + text (Default)"
+          },
+          {
+            "value": "emoji",
+            "label": "Emoji only"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      },
+      {
+        "id": "profileFooterMode",
+        "label": "Profile button in footer",
+        "type": "select",
+        "options": [
+          {
+            "value": "emoji",
+            "label": "Emoji only (Default)"
+          },
+          {
+            "value": "both",
+            "label": "Emoji + text"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ]
+      }
+    ]
+  }
+}

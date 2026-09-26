@@ -1,0 +1,71 @@
+/* @loom-file release=0.15.70 revision=4 policy=package-priority */
+.loom-header-bar{
+  width:100%;
+  min-width:0;
+  min-height:112px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  padding:12px 20px;
+  margin:0;
+  border:1px solid rgba(45,118,66,.18);
+  border-radius:24px;
+  background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(248,252,249,.93));
+  box-shadow:0 16px 52px rgba(17,66,31,.075),inset 0 1px rgba(255,255,255,.94);
+  backdrop-filter:blur(18px);
+  overflow:visible;
+  box-sizing:border-box;
+}
+.loom-header-bar[data-width-mode="fit-content"]{
+  width:max-content!important;
+  inline-size:max-content!important;
+  max-width:100%;
+  flex:0 0 auto!important;
+  justify-content:flex-start;
+}
+.loom-header-slot{min-width:0;display:flex;align-items:center}
+.loom-header-brand{
+  flex:1 1 auto;
+  min-width:0;
+  justify-content:flex-start;
+  align-items:center;
+  gap:14px;
+  overflow:visible;
+}
+.loom-header-bar[data-width-mode="fit-content"] .loom-header-brand{
+  flex:0 0 auto;
+  width:max-content;
+  min-width:0;
+}
+.loom-header-brand-media{
+  flex:0 0 92px;
+  width:92px;
+  height:98px;
+  min-width:92px;
+  display:grid;
+  place-items:center;
+  overflow:visible;
+}
+.loom-header-brand-text{
+  flex:0 0 auto;
+  width:auto;
+  height:auto;
+  min-width:0;
+  max-width:none;
+  max-height:none;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  overflow:visible;
+}
+.loom-header-brand-text:empty{display:none}
+.loom-header-utility{flex:0 0 auto;justify-content:flex-end;gap:10px;margin-left:auto;min-height:44px}
+.loom-header-utility:empty{display:none}
+.loom-header-bar[data-width-mode="fit-content"] .loom-header-utility{margin-left:0}
+@media(max-width:620px){
+  .loom-header-bar{min-height:96px;padding:9px 12px;border-radius:22px;gap:10px}
+  .loom-header-brand{gap:8px}
+  .loom-header-brand-media{flex-basis:68px;width:68px;height:74px;min-width:68px}
+  .loom-header-brand-text{flex:0 0 auto;width:auto;height:auto;min-width:0;max-width:none;max-height:none;overflow:visible}
+}

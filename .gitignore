@@ -1,0 +1,18 @@
+# LOOM source-control boundary
+# Release/application code belongs in Git. Installation-owned mutable state does not.
+/instance/
+/archives/
+*.local.json
+*.local.php
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+
+# Local Bridge/Git workspace metadata
+.loom-bridge/
+.loom-git/
+
+# Editors
+.vscode/
+.idea/

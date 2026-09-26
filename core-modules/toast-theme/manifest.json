@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "enabled": true,
+  "action": {
+    "id": "core.ui.toast-theme",
+    "name": "Project Toast Theme",
+    "description": "Project-scoped color provider for the global LOOM toast service. It can inherit project branding, use LOOM defaults, or use custom toast colors.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "core/ui/feedback",
+    "tags": [
+      "core",
+      "ui",
+      "feedback",
+      "toast",
+      "theme"
+    ]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [],
+    "order": "00003"
+  },
+  "config": {
+    "colorMode": "project",
+    "customAccent": "#168346",
+    "customSurface": "#FFFFFF",
+    "customText": "#173722",
+    "projectPrimary": "#111111",
+    "projectAccent": "#168346"
+  },
+  "admin_settings": {
+    "title": "Toast Theme",
+    "description": "Choose how save confirmations, warnings, and other LOOM toast feedback look inside this project. Behavior remains LOOM-owned; this module only provides project presentation.",
+    "fields": [
+      {
+        "id": "colorMode",
+        "label": "Toast colors",
+        "type": "select",
+        "options": [
+          {
+            "value": "project",
+            "label": "Project branding (recommended)"
+          },
+          {
+            "value": "loom",
+            "label": "LOOM default"
+          },
+          {
+            "value": "custom",
+            "label": "Custom colors"
+          }
+        ]
+      },
+      {
+        "id": "customAccent",
+        "label": "Custom accent",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "customSurface",
+        "label": "Custom surface",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorMode",
+          "equals": "custom"
+        }
+      },
+      {
+        "id": "customText",
+        "label": "Custom text",
+        "type": "color",
+        "visibleWhen": {
+          "field": "colorMode",
+          "equals": "custom"
+        }
+      }
+    ]
+  }
+}

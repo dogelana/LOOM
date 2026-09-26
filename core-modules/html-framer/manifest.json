@@ -1,0 +1,185 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.html-framer",
+    "name": "HTML Framer",
+    "description": "LOOM core bridge for turning uploaded static HTML ZIP packages into isolated, portable project modules with compatibility Action Reader telemetry.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": false,
+    "parent": "core.load",
+    "category": "loom/core/interop",
+    "tags": [
+      "loom",
+      "core",
+      "html",
+      "iframe",
+      "zip",
+      "interop",
+      "sandbox",
+      "legacy-ui"
+    ],
+    "steps": []
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.11.0",
+    "scope": "project",
+    "dependencies": [],
+    "styles": [],
+    "order": "00030",
+    "order_locked": true
+  },
+  "config": {
+    "enabled": true,
+    "defaultHeightMode": "auto",
+    "defaultFrameHeight": 520,
+    "defaultFrameWidthPercent": 80,
+    "defaultMobileHeightMode": "auto",
+    "defaultMobileFrameHeight": 520,
+    "defaultMobileFrameWidthPercent": 80,
+    "actionReaderEnabled": true,
+    "defaultFullscreenEnabled": true
+  },
+  "presentation": {
+    "role": "utility",
+    "collapsible": false,
+    "mount": {
+      "region": "root"
+    },
+    "layout": {
+      "width": "auto",
+      "align": "stretch",
+      "position": "flow",
+      "order": 30
+    }
+  },
+  "pegboard": {
+    "preferredDepth": 1,
+    "accent": "blue"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "HTML Framer",
+    "description": "Drop static HTML ZIP packages into LOOM. Document pages auto-fit content; viewport-style games/apps freeze to one stable outer slot so they cannot bounce the surrounding LOOM page. Every frame has a runtime Lock/Unlock control, while Start locked remains an optional per-frame Admin preference.",
+    "fields": [
+      {
+        "id": "enabled",
+        "label": "Enable HTML Framer modules",
+        "type": "checkbox",
+        "help": "When off, stored HTML frames remain preserved in the Instance Vault but are not added to the project runtime."
+      },
+      {
+        "id": "defaultHeightMode",
+        "label": "Desktop height behavior",
+        "type": "select",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Stretch to delivered content (recommended)"
+          },
+          {
+            "value": "fixed",
+            "label": "Fixed height + allow scrolling"
+          }
+        ],
+        "help": "Auto-fit is the default. Ordinary documents grow with content. Viewport-style apps/games are detected once, then their outer iframe height is frozen until a meaningful device-profile or page-width change so internal ResizeObservers/animations cannot move LOOM modules."
+      },
+      {
+        "id": "defaultFrameHeight",
+        "label": "Desktop fixed height",
+        "type": "range",
+        "min": 200,
+        "max": 2400,
+        "step": 10,
+        "unit": "px",
+        "visibleWhen": {
+          "field": "defaultHeightMode",
+          "equals": "fixed"
+        },
+        "help": "Used only when Desktop height behavior is Fixed."
+      },
+      {
+        "id": "defaultFrameWidthPercent",
+        "label": "Desktop page width",
+        "type": "range",
+        "min": 50,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "Percentage of the usable project page width. Default is 80%, leaving page gutters available for normal LOOM scrolling."
+      },
+      {
+        "id": "defaultMobileHeightMode",
+        "label": "Mobile height behavior",
+        "type": "select",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Stretch to delivered content (recommended)"
+          },
+          {
+            "value": "fixed",
+            "label": "Fixed height + allow scrolling"
+          }
+        ],
+        "help": "Independent mobile behavior at 760px and below. Viewport apps use a stable mobile slot and ignore browser-chrome/visual-viewport height chatter; normal documents continue to auto-fit."
+      },
+      {
+        "id": "defaultMobileFrameHeight",
+        "label": "Mobile fixed height",
+        "type": "range",
+        "min": 200,
+        "max": 2400,
+        "step": 10,
+        "unit": "px",
+        "visibleWhen": {
+          "field": "defaultMobileHeightMode",
+          "equals": "fixed"
+        },
+        "help": "Used only when Mobile height behavior is Fixed."
+      },
+      {
+        "id": "defaultMobileFrameWidthPercent",
+        "label": "Mobile page width",
+        "type": "range",
+        "min": 50,
+        "max": 100,
+        "step": 1,
+        "unit": "%",
+        "help": "Independent phone/narrow-screen width. Default is 80%; Admin can raise it to 100% when a full-bleed mobile app is intentional."
+      },
+      {
+        "id": "defaultFullscreenEnabled",
+        "label": "Allow full-screen frame control by default",
+        "type": "checkbox",
+        "help": "New HTML frames receive a Full screen control that temporarily takes over the browser viewport and hides LOOM chrome. Admin can disable the control per frame."
+      },
+      {
+        "id": "actionReaderEnabled",
+        "label": "Framed Action Reader",
+        "type": "checkbox",
+        "help": "Automatically instruments framed HTML controls and turns observable clicks, navigation, form submits, and field changes into LOOM user actions. Does not capture typed field values."
+      }
+    ],
+    "tools": [
+      {
+        "type": "html-framer-manager",
+        "label": "HTML Frames"
+      }
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "loom.html-framer",
+        "description": "Sandboxed static HTML frame-module hosting"
+      }
+    ],
+    "requires": [],
+    "permissions": [
+      "html-framer.manage"
+    ]
+  }
+}

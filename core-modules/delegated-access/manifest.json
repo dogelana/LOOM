@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.8",
+  "enabled": true,
+  "action": {
+    "id": "loom.delegated-access",
+    "name": "Delegated Administration",
+    "description": "Capability-based delegation for System Owner, LOOM Admins, and project-scoped Admin/Manager access for permanent accounts and guest identities.",
+    "kind": "system",
+    "behavior": "stateful",
+    "category": "loom/global/access",
+    "tags": ["loom","admin","permissions","delegation","project","guest","account"]
+  },
+  "module": {"version":"1.0.0","scope":"global","order":"00025"},
+  "config": {"enabled": true},
+  "admin_settings": {
+    "title": "Delegated Administration",
+    "description": "The System Owner remains the immutable root authority. Add secondary LOOM Admins or delegate project-only Admin/Manager access from the Access tab.",
+    "fields": [],
+    "tools": [{"type":"delegated-access-manager","label":"Open Delegated Access Manager"}]
+  }
+}
