@@ -1,3 +1,13 @@
+# LOOM Blueprint — 0.15.67
+
+## Runtime-liveness and identity-resolution invariants
+
+- Identity conflict validation must be non-mutating. A global-profile write may inspect project identity rows, but that inspection must never call back into global-profile ensure for the same owner.
+- Every cross-subsystem identity repair path must have a recursion fuse. Cyclic resolver mistakes fail safely to stored state instead of consuming PHP workers.
+- `.loom-deploying.json` is leased transient state. Current v2 markers without a valid positive lease are malformed and self-clear; legacy unleased markers receive only a short compatibility grace period.
+- Deployment-status probing is advisory UX and must never block ordinary browser bootstrap. Server endpoints remain the authority for enforcing an active deployment gate.
+- Startup network timeouts are bounded failure detectors, not permanent UI states. Core Home discovery may retry conservatively after a transient failure without generating a retry storm.
+
 # LOOM Blueprint — 0.15.62
 
 ## 0.15.62 identity-media, avatar, discovery, and time invariants

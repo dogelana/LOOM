@@ -1,3 +1,12 @@
+# LOOM 0.15.67 — Runtime liveness and identity recursion recovery
+
+- Fixed a global-profile / project-identity recursion in which repairing a visible LOOM name could invoke global project-username collision checks, which enriched the same project rows by ensuring the same global profile again. On affected identities this could run until PHP's execution timeout and exhaust shared-host PHP workers, surfacing as broad 503 failures.
+- Project identity collision checks now use raw owner rows and non-mutating global-name reads. Global profile ensure also has a hard per-owner recursion fuse so future cross-subsystem resolver mistakes degrade safely instead of consuming a worker indefinitely.
+- Deployment gate validation now self-removes malformed v2 markers and expires legacy non-leased markers after a short compatibility window. A transient marker can no longer become permanent installation state.
+- Browser deployment guard startup is non-blocking. The first application fetch no longer waits behind the deployment-status probe, and active deployment responses are returned as bounded 503 responses instead of an unresolved Promise.
+- LOOM Home project discovery now uses a clearer 10-second request budget, one bounded retry, and up to three spaced startup recovery attempts. This prevents a single temporary shared-host stall from leaving Home permanently empty.
+- Admin/global settings startup budgets were relaxed to eight seconds to reduce false-negative UI fallbacks on ordinary shared-host latency.
+
 # LOOM 0.15.66 — Home recovery + canonical visible identity + deployment quieting
 
 - Restored the LOOM Home helper block accidentally lost in 0.15.65, including `load()` and `openCreate()`, while preserving project search and ten-at-a-time pagination.

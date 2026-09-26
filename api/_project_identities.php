@@ -1,8 +1,8 @@
 <?php
-// @loom-file release=0.15.65 revision=9 policy=package-priority
+// @loom-file release=0.15.67 revision=10 policy=package-priority
 declare(strict_types=1);
 
-// LOOM Project Identity Standard v0.15.65
+// LOOM Project Identity Standard v0.15.67
 // A project username has one authoritative mode:
 //   global  -> dynamically resolve the CURRENT LOOM-wide visible username.
 //   project -> use an explicitly saved project override.
@@ -39,8 +39,39 @@ function loom_project_identity_get_for_owner(string $project,string $type,string
 function loom_project_identity_rows_for_project(string $project): array { $project=safe_slug($project);$out=[];loom_project_identity_db_table();if(loom_db_ready())try{$pdo=loom_db_pdo(true);$st=$pdo->prepare("SELECT * FROM loom_project_identities WHERE project_slug=?");$st->execute([$project]);foreach($st->fetchAll() as $r){$n=loom_project_identity_row_normalize($r);$out[loom_project_identity_key($project,$n['ownerType'],$n['ownerId'])]=$n;}}catch(Throwable $e){}foreach((loom_project_identity_store()['identities']??[]) as $r){$n=loom_project_identity_row_normalize($r);if($n['project']!==$project)continue;$k=loom_project_identity_key($project,$n['ownerType'],$n['ownerId']);if(!isset($out[$k]))$out[$k]=$n;}return array_values($out); }
 function loom_project_identity_effective_username_from_row(array $row,?string $globalCandidate=null): ?string { $r=loom_project_identity_row_normalize($row);if($r['usernameMode']==='project'&&($r['usernameExplicit']||!$r['usernameExplicitKnown'])&&trim((string)($r['username']??''))!=='')return (string)$r['username'];if($globalCandidate!==null)return $globalCandidate;$g=loom_global_profile_ensure_for_owner($r['ownerType'],$r['ownerId']);$visible=function_exists('loom_global_profile_display_name')?loom_global_profile_display_name($g):loom_clean_username((string)($g['displayName']??$g['username']??''));return $visible!==''?$visible:null; }
 function loom_project_identity_effective_username(string $project,string $type,string $id): ?string { $r=loom_project_identity_get_for_owner($project,$type,$id);if(!$r){$g=loom_global_profile_ensure_for_owner($type,$id);$visible=function_exists('loom_global_profile_display_name')?loom_global_profile_display_name($g):loom_clean_username((string)($g['displayName']??$g['username']??''));return $visible!==''?$visible:null;}return loom_project_identity_effective_username_from_row($r); }
-function loom_project_identity_conflict(string $project,string $type,string $id,string $candidate): ?array { $norm=loom_username_norm($candidate);if($norm==='')return null;foreach(loom_project_identity_rows_for_project($project) as $r){if($r['ownerType']===$type&&$r['ownerId']===$id)continue;$effective=loom_project_identity_effective_username_from_row($r);if($effective!==null&&loom_username_norm($effective)===$norm)return $r;}return null; }
-function loom_project_identity_global_username_conflicts(string $type,string $id,string $candidate): bool { foreach(loom_project_identity_list_for_owner($type,$id) as $mine){if(($mine['usernameMode']??'global')!=='global')continue;if(loom_project_identity_conflict($mine['project'],$type,$id,$candidate))return true;}return false; }
+function loom_project_identity_nonmutating_global_name(string $type,string $id): ?string {
+  // Conflict checks must never call the profile *ensure* path. Doing so while a
+  // global profile is itself being repaired creates a cycle:
+  // global-profile write -> project conflict check -> global-profile ensure -> ...
+  // Read the currently stored presentation value only; ordinary profile reads
+  // will repair legacy/internal names separately.
+  $p=loom_global_profile_get($type,$id);if($p){$visible=function_exists('loom_global_profile_display_name')?loom_global_profile_display_name($p):loom_clean_username((string)($p['displayName']??$p['username']??''));if($visible!=='')return $visible;}
+  return null;
+}
+function loom_project_identity_conflict(string $project,string $type,string $id,string $candidate): ?array {
+  $norm=loom_username_norm($candidate);if($norm==='')return null;
+  foreach(loom_project_identity_rows_for_project($project) as $r){
+    if($r['ownerType']===$type&&$r['ownerId']===$id)continue;
+    if(($r['usernameMode']??'global')==='project'&&(($r['usernameExplicit']??false)||!($r['usernameExplicitKnown']??false))&&trim((string)($r['username']??''))!=='')$effective=(string)$r['username'];
+    else $effective=loom_project_identity_nonmutating_global_name((string)$r['ownerType'],(string)$r['ownerId']);
+    if($effective!==null&&loom_username_norm($effective)===$norm)return $r;
+  }
+  return null;
+}
+function loom_project_identity_raw_rows_for_owner(string $type,string $id): array {
+  $id=safe_token($id);if($id===''||!in_array($type,['client','user'],true))return [];$rows=[];
+  loom_project_identity_db_table();if(loom_db_ready())try{$pdo=loom_db_pdo(true);$st=$pdo->prepare("SELECT * FROM loom_project_identities WHERE owner_type=? AND owner_id=?");$st->execute([$type,$id]);foreach($st->fetchAll() as $raw){$r=loom_project_identity_row_normalize($raw);$rows[$r['project']]=$r;}}catch(Throwable $e){}
+  foreach((loom_project_identity_store()['identities']??[]) as $raw){$r=loom_project_identity_row_normalize($raw);if($r['ownerType']===$type&&$r['ownerId']===$id&&!isset($rows[$r['project']]))$rows[$r['project']]=$r;}
+  return array_values($rows);
+}
+function loom_project_identity_global_username_conflicts(string $type,string $id,string $candidate): bool {
+  // Intentionally use raw owner rows here. The enriched list function resolves
+  // inherited usernames by calling loom_global_profile_ensure_for_owner(), which
+  // is unsafe from inside a global-profile write and caused the 0.15.66 request
+  // recursion / PHP worker exhaustion incident.
+  foreach(loom_project_identity_raw_rows_for_owner($type,$id) as $mine){if(($mine['usernameMode']??'global')!=='global')continue;if(loom_project_identity_conflict((string)$mine['project'],$type,$id,$candidate))return true;}
+  return false;
+}
 function loom_project_identity_write(array $row): array {
   $r=loom_project_identity_row_normalize($row);$project=safe_slug($r['project']);$type=$r['ownerType'];$id=safe_token($r['ownerId']);if($project===''||!project_dir($project)||!in_array($type,['client','user'],true)||$id==='')throw new RuntimeException('Invalid project identity.');
   $r['project']=$project;$r['ownerId']=$id;$r['identityId']=$r['identityId']?:loom_project_identity_id($project,$type,$id);$r['usernameMode']=in_array($r['usernameMode'],['global','project'],true)?$r['usernameMode']:'global';$r['avatarMode']=in_array($r['avatarMode'],['auto','global','project-default','custom'],true)?$r['avatarMode']:'auto';$r['createdAt']=$r['createdAt']?:server_timestamp();$r['updatedAt']=$r['updatedAt']?:server_timestamp();

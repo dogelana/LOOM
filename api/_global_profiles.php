@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.66 revision=13 policy=package-priority
+// @loom-file release=0.15.67 revision=14 policy=package-priority
 declare(strict_types=1);
 
 // LOOM Global Profile Standard v0.11.20
@@ -72,19 +72,27 @@ function loom_global_profile_seed_display_name(string $type,string $id): string 
 // copied project name capable of becoming global again after a reset.
 function loom_global_profile_seed_username(string $type,string $id): string { return loom_global_default_username($type,$id); }
 function loom_global_profile_ensure_for_owner(string $type,string $id): array {
-  $r=loom_global_profile_get($type,$id);
-  if($r){
-    $dirty=false;
-    if(preg_match('/^LOOMUser-[0-9A-F]{6}(?:-[0-9]+)?$/i',(string)$r['username'])){$r['username']=loom_global_default_username($type,$id);$dirty=true;}
-    $visible=loom_clean_username((string)($r['displayName']??''));
-    if($visible===''||loom_visible_name_is_internal($visible)){$seedDisplay=loom_global_profile_seed_display_name($type,$id);if($seedDisplay===''||loom_visible_name_is_internal($seedDisplay))$seedDisplay=loom_global_default_username($type,$id);$r['displayName']=$seedDisplay;$dirty=true;}
-    if((string)($r['avatarMode']??'')==='loom-default'||(!loom_global_avatar_preset_valid((string)($r['avatarMode']??''))&&(string)($r['avatarMode']??'')!=='custom')){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$dirty=true;}
-    elseif(($canonical=loom_global_avatar_preset_normalize((string)($r['avatarMode']??'')))!==null&&$canonical!==(string)$r['avatarMode']){$r['avatarMode']=$canonical;$dirty=true;}
-    if((string)($r['avatarMode']??'')==='custom'&&!loom_global_avatar_find($type,$id)){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$r['customExt']=$r['mimeType']=$r['byteSize']=null;$dirty=true;}
-    if($dirty){$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);}return $r;
-  }
-  $handle=loom_global_profile_seed_username($type,$id);$display=loom_global_profile_seed_display_name($type,$id);if($display==='')$display=$handle;
-  return loom_global_profile_write(['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>$handle,'displayName'=>$display,'avatarMode'=>loom_global_avatar_random_preset(),'createdAt'=>server_timestamp(),'updatedAt'=>server_timestamp()]);
+  // A profile repair may consult Guest/Profile lineage and project identity
+  // collision rules. Keep a hard recursion fuse so a future cross-subsystem
+  // resolver mistake degrades to the stored row instead of exhausting PHP workers.
+  static $ensuring=[];$id=safe_token($id);$guardKey=$type.'|'.$id;
+  if(isset($ensuring[$guardKey])){$existing=loom_global_profile_get($type,$id);if($existing)return $existing;return ['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>loom_global_default_username($type,$id),'usernameNorm'=>'','displayName'=>null,'avatarMode'=>loom_global_avatar_repair_preset($type,$id),'customExt'=>null,'mimeType'=>null,'byteSize'=>null,'createdAt'=>null,'updatedAt'=>null];}
+  $ensuring[$guardKey]=true;
+  try{
+    $r=loom_global_profile_get($type,$id);
+    if($r){
+      $dirty=false;
+      if(preg_match('/^LOOMUser-[0-9A-F]{6}(?:-[0-9]+)?$/i',(string)$r['username'])){$r['username']=loom_global_default_username($type,$id);$dirty=true;}
+      $visible=loom_clean_username((string)($r['displayName']??''));
+      if($visible===''||loom_visible_name_is_internal($visible)){$seedDisplay=loom_global_profile_seed_display_name($type,$id);if($seedDisplay===''||loom_visible_name_is_internal($seedDisplay))$seedDisplay=loom_global_default_username($type,$id);$r['displayName']=$seedDisplay;$dirty=true;}
+      if((string)($r['avatarMode']??'')==='loom-default'||(!loom_global_avatar_preset_valid((string)($r['avatarMode']??''))&&(string)($r['avatarMode']??'')!=='custom')){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$dirty=true;}
+      elseif(($canonical=loom_global_avatar_preset_normalize((string)($r['avatarMode']??'')))!==null&&$canonical!==(string)$r['avatarMode']){$r['avatarMode']=$canonical;$dirty=true;}
+      if((string)($r['avatarMode']??'')==='custom'&&!loom_global_avatar_find($type,$id)){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$r['customExt']=$r['mimeType']=$r['byteSize']=null;$dirty=true;}
+      if($dirty){$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);}return $r;
+    }
+    $handle=loom_global_profile_seed_username($type,$id);$display=loom_global_profile_seed_display_name($type,$id);if($display==='')$display=$handle;
+    return loom_global_profile_write(['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>$handle,'displayName'=>$display,'avatarMode'=>loom_global_avatar_random_preset(),'createdAt'=>server_timestamp(),'updatedAt'=>server_timestamp()]);
+  } finally { unset($ensuring[$guardKey]); }
 }
 function loom_global_profile_public(array $profile,string $clientId=''): array {
   $p=loom_global_profile_normalize($profile);$visible=loom_global_profile_display_name($p);

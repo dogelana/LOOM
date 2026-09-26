@@ -1,6 +1,6 @@
-// @loom-file release=0.15.66 revision=68 policy=package-priority
+// @loom-file release=0.15.67 revision=69 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.66';
+  const CLIENT_RELEASE='0.15.67';
   const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
   const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
   const configuredRelease=String(window.LoomConfig?.engineVersion||'').trim();
@@ -63,7 +63,7 @@
   function settingsFallback(){return{ok:false,settings:{'loom.brand.motion':{animationPath:'hero-orbit',animationSpeedPercent:100,animationEnabled:'on'},'loom.loader.experience':{showTips:'on',tipIntervalSeconds:4,minimumVisibleMs:320},'loom.release.watch':{autoReload:'on',pollSeconds:8,noticeMs:1200,warningSeconds:60},'loom.home.update-log':{maxReleases:12,expandedReleases:1}}}}
   async function fetchSettings(apiBase='api'){
     const base=String(apiBase||'api').replace(/\/$/,''),key=`loom:global-settings:${VERSION}:${base}`;let cached=null;try{cached=JSON.parse(sessionStorage.getItem(key)||'null')}catch{}
-    const request=async()=>{const controller=typeof AbortController!=='undefined'?new AbortController():null,timer=controller?setTimeout(()=>controller.abort('settings-timeout'),4000):null;try{const r=await fetch(`${base}/global-settings.php?_=${Date.now()}`,{cache:'no-store',...(controller?{signal:controller.signal}:{})});if(!r.ok)throw new Error(`settings ${r.status}`);const value=await r.json();try{sessionStorage.setItem(key,JSON.stringify({storedAt:Date.now(),value}))}catch{}return value}finally{if(timer)clearTimeout(timer)}};
+    const request=async()=>{const controller=typeof AbortController!=='undefined'?new AbortController():null,timer=controller?setTimeout(()=>controller.abort('settings-timeout'),8000):null;try{const r=await fetch(`${base}/global-settings.php?_=${Date.now()}`,{cache:'no-store',...(controller?{signal:controller.signal}:{})});if(!r.ok)throw new Error(`settings ${r.status}`);const value=await r.json();try{sessionStorage.setItem(key,JSON.stringify({storedAt:Date.now(),value}))}catch{}return value}finally{if(timer)clearTimeout(timer)}};
     if(cached?.value&&Date.now()-Number(cached.storedAt||0)<120000){request().catch(()=>{});return cached.value}
     try{return await request()}catch{return cached?.value||settingsFallback()}
   }

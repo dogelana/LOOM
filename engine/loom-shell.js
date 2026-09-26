@@ -1,4 +1,4 @@
-// @loom-file release=0.15.62 revision=36 policy=package-priority
+// @loom-file release=0.15.67 revision=37 policy=package-priority
 (() => {
   'use strict';
 
@@ -153,7 +153,7 @@
     const fallback={isAdmin:false,projectRole:'member',capabilities:[]};
     if(!identity?.clientId)return fallback;
     const controller=typeof AbortController!=='undefined'?new AbortController():null;
-    const timer=controller?setTimeout(()=>controller.abort('admin-status-timeout'),3500):null;
+    const timer=controller?setTimeout(()=>controller.abort('admin-status-timeout'),8000):null;
     try{
       const r=await fetch(`${String(apiBase||'api').replace(/\/$/,'')}/admin.php`,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',...(controller?{signal:controller.signal}:{}),body:JSON.stringify({action:'status',clientId:identity.clientId,project,claim:false})});
       const j=await r.json();if(!r.ok)return fallback;

@@ -1,3 +1,9 @@
+# LOOM 0.15.67
+
+LOOM 0.15.67 is a runtime-liveness recovery release. It removes a recursive identity-resolution cycle that could keep `global-profile.php` executing until PHP's worker timeout, eventually causing host-level 503 responses across otherwise healthy APIs. Global-profile repair and project-username collision checks are now non-recursive, with an additional recursion fuse around profile normalization.
+
+Deployment gating is also fail-open for stale/corrupt lease markers and non-blocking during browser bootstrap. The client guard no longer parks application fetches on a never-resolving Promise, and LOOM Home uses bounded transient recovery rather than leaving project discovery permanently failed after one slow startup request.
+
 # LOOM 0.15.66
 
 LOOM 0.15.66 repairs the Home runtime and hardens the boundary between internal identity handles and human-facing identity. `GuestHandle-*`, `ProfileHandle-*`, account allocation keys, and anonymous bootstrap labels are never valid visible LOOM-wide display names. When a meaningful historical display name exists, LOOM recovers it; otherwise it assigns the existing readable maker-style default username.
