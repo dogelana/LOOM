@@ -1,3 +1,10 @@
+# LOOM 0.15.63 — Visible module positioning + canonical Admin identity
+
+- Project Settings now exposes **Positioning Index Number** directly on every project-scoped module and HTML Framer module in Module Control Center. Blank preserves deterministic automatic ordering; `1` is the first normal module.
+- Position collisions resolve live against the server authority. If a requested slot is occupied, LOOM advances to the next available slot and reports exactly what happened without requiring a reload.
+- Fixed the Admin header identity mismatch where the header could show a stale browser-local label such as `MintDeckA03230` while the canonical Users directory correctly showed `MichaelYebba`. Admin status now returns the canonical global display name and repairs the browser-local label cache when they differ.
+- This release carries forward the 0.15.62 avatar hygiene, project search/paging, project-focused Users links, and viewer-local timestamp work.
+
 # LOOM v0.15.62 — Identity Hygiene + Project Discovery Consistency
 
 ## v0.15.62 — Identity Hygiene + Project Discovery Consistency

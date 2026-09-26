@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.60 revision=24 policy=package-priority
+// @loom-file release=0.15.63 revision=25 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
 
@@ -131,7 +131,8 @@ if($action==='status'){
   $projectRole=$statusProject!==''?loom_access_project_role($clientId,$statusProject):($isOwner?'system-owner':(loom_access_client_is_loom_admin($clientId)?'loom-admin':'member'));
   $caps=loom_access_effective_capabilities($clientId,$statusProject);
   if(!empty($status['isAdmin'])||$isOwner||$projectRole==='loom-admin')loom_issue_admin_navigation_cookie($clientId);
-  json_out(['ok'=>true]+$status+['projectRole'=>$projectRole,'capabilities'=>$caps,'isSystemOwner'=>$isOwner]);
+  $viewer=loom_account_public_status($clientId,$statusProject);
+  json_out(['ok'=>true]+$status+['projectRole'=>$projectRole,'capabilities'=>$caps,'isSystemOwner'=>$isOwner,'viewer'=>$viewer]);
 }
 
 // v0.15.18: authorization is capability-based. Global actions still require a

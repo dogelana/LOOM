@@ -1,3 +1,7 @@
+# LOOM 0.15.63
+
+This release makes project module position indexing visible in Project Settings and reconciles stale browser identity labels with the canonical global user display name.
+
 # LOOM 0.15.62
 
 ## 0.15.62 — Identity media hygiene, canonical avatar presets, project search, and viewer-local time
