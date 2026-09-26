@@ -1,4 +1,13 @@
-# LOOM Blueprint — 0.15.60
+# LOOM Blueprint — 0.15.61
+
+## 0.15.61 User-portability invariants
+
+- A permanent user is one portable identity aggregate: permanent account + proven linked clients + attached Guest Histories/Profiles + global/project presentation + project state + attributable history, access, moderation, continuity/referrals, media, and database rows.
+- The canonical identity/cleanup relationship graph is the ownership authority for portability. Export must not invent a parallel notion of who owns a browser, Guest History, or project record.
+- Exact clean-install restore preserves stable identity IDs and the password hash. Existing-ID/email destinations merge only after preview; an identity already owned by a different person is a hard conflict.
+- User portability never transfers active sessions, reset/recovery secrets, infrastructure credentials, or the installation-global System Owner binding.
+- User import is non-destructive to other users and projects. Project-linked data may be restored dormant by project slug when project code is absent; importing a person never silently imports project code.
+- Backup & Restore presents Global LOOM, Projects, and Users as separate scopes so operators cannot confuse installation replacement with project or person portability.
 
 
 ## 0.15.60 Default-avatar and module-order invariants

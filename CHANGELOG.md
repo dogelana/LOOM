@@ -1,3 +1,16 @@
+# LOOM v0.15.61 — Portable Users + Scoped Backup & Restore
+
+## v0.15.61 — Portable Users + Scoped Backup & Restore
+
+- Split Backup & Restore into three explicit tabs: **Global LOOM**, **Projects**, and **Users**.
+- Added System-Owner-only single-user export/import with a versioned `loom-user-portable/v1` payload inside the normal checksummed LOOM portable bundle.
+- User export walks the canonical identity ownership graph to include the permanent account/password hash, linked browser clients, attached Guest Histories and Guest Profiles, global/project identities, project module state, avatars/media, access grants, moderation, continuity/referrals, activity/replay/audit history, and attributable database rows across LOOM features.
+- Database collection is schema-driven across `loom_*` tables using canonical user/client/guest/profile/installation ownership columns, allowing ordinary future feature tables to participate without a bespoke exporter.
+- Clean-install restore preserves the original permanent User ID and password hash. Existing User-ID/email matches preview as safe merges; browser identities already attached to unrelated permanent users block import instead of being stolen.
+- User restore is merge/create-only and never destructive to unrelated users or projects. Project-referenced state may be restored dormant by slug until the corresponding project exists.
+- Active auth sessions, password-reset tokens, Guest recovery secrets, infrastructure credentials, and source System Owner ownership are explicitly excluded. Ordinary account privilege/project grants remain portable.
+- Added `docs/USER-PORTABILITY-STANDARD.md` documenting the identity aggregate, security boundary, conflict semantics, and restore guarantees.
+
 # LOOM v0.15.60 — Avatar Presets + Deterministic Module Positioning
 
 ## v0.15.60 — Avatar Presets + Deterministic Module Positioning

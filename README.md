@@ -1,4 +1,12 @@
-# LOOM 0.15.60
+# LOOM 0.15.61
+
+## 0.15.61 — Portable users + three-scope Backup & Restore
+
+Backup & Restore is now explicitly split into **Global LOOM**, **Projects**, and **Users**. A permanent user can be exported as one verified portable identity bundle containing the permanent account credential hash, global/project identities, linked browser identities and attached Guest Histories, Guest Profiles, avatars/media, project module state, access grants, moderation, continuity/referrals, activity/replay/audit history, and every database row LOOM can prove belongs to that identity graph.
+
+On a clean LOOM installation, user restore preserves the original permanent User ID and password hash so the person can return with the same password and their history remains internally continuous. Existing destinations are previewed for exact-ID/email merge; browser identities already owned by someone else are treated as conflicts. User import is intentionally merge/create-only and never deletes unrelated people to make room.
+
+Active sessions, reset/recovery secrets, database/server credentials, and the source installation's System Owner binding are never placed in a user bundle. Project-referenced user data can be restored before the project itself exists and remains dormant by project slug until that project is installed. See `docs/USER-PORTABILITY-STANDARD.md`.
 
 
 ## 0.15.60 — Default avatar presets + deterministic module positioning
