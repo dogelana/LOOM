@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.55 revision=5 policy=package-priority
+// @loom-file release=0.15.62 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'POST')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
 $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);
@@ -14,11 +14,11 @@ try{
     // plausibly be this environment, permanent authentication is required instead.
     if(!$profiles&&$legacy!==''&&(loom_guest_profile_for_client($legacy)||loom_guest_for_client($legacy)))loom_guest_profile_adopt_legacy($installationId,$legacy);
     $auth=loom_auth_user();$policy=loom_continuity_guest_mode_policy($installationId,$legacy,$signals,true,false);
-    json_out(['ok'=>true,'installationId'=>$installationId,'profiles'=>loom_guest_profiles_for_installation($installationId),'authenticated'=>(bool)$auth,'account'=>$auth?['userId'=>$auth['user_id']??$auth['userId']??null,'email'=>$auth['email']??null,'privilege'=>$auth['privilege']??'User']:null,'continuity'=>['matched'=>false,'reason'=>'strict-permanent-on-overlap'],'guestPolicy'=>$policy,'avatarPresets'=>[['id'=>'loom-default','url'=>web_base_path().'/assets/loom-default-avatar.svg']]]);
+    json_out(['ok'=>true,'installationId'=>$installationId,'profiles'=>loom_guest_profiles_for_installation($installationId),'authenticated'=>(bool)$auth,'account'=>$auth?['userId'=>$auth['user_id']??$auth['userId']??null,'email'=>$auth['email']??null,'privilege'=>$auth['privilege']??'User']:null,'continuity'=>['matched'=>false,'reason'=>'strict-permanent-on-overlap'],'guestPolicy'=>$policy,'avatarPresets'=>array_map(fn($n)=>['id'=>sprintf('loom-default-preset-%02d',$n),'url'=>web_base_path().sprintf('/assets/avatars/defaults/avatar-%02d.svg',$n)],range(1,10))]);
   }
   if($action==='create'){
     $preferred=safe_token((string)($body['clientId']??''));if($preferred!=='')loom_enforce_global_access($preferred);if($preferred==='')throw new RuntimeException('Invalid client identity.');$policy=loom_continuity_guest_mode_policy($installationId,$preferred,$signals,true,true);if(!empty($policy['permanentRequired']))loom_identity_hub_permanent_required($policy);
-    $profile=loom_guest_profile_create($installationId,(string)($body['displayName']??''),(string)($body['avatarPreset']??'loom-default'),$preferred);
+    $profile=loom_guest_profile_create($installationId,(string)($body['displayName']??''),(string)($body['avatarPreset']??'auto'),$preferred);
     $observed=loom_continuity_observe($installationId,(string)($profile['currentClientId']??''),(string)($profile['guestProfileId']??''),$signals,'created');
     $after=loom_continuity_guest_mode_policy($installationId,(string)($profile['currentClientId']??''),$signals,true,false);
     if(!empty($after['permanentRequired']))loom_identity_hub_permanent_required($after);

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.60 revision=12 policy=package-priority
+// @loom-file release=0.15.62 revision=13 policy=package-priority
 (() => {
   'use strict';
   const scriptUrl=document.currentScript?.src||new URL('engine/identity-entry.js',document.baseURI).href;
@@ -20,7 +20,7 @@
   async function account(payload){return jsonFetch(API('api/account.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}
   function activate(profile){if(!profile?.currentClientId)return;safeSet(activeProfileKey,profile.guestProfileId);safeSet(activeClientKey,profile.currentClientId);safeSet('loom:client-id',profile.currentClientId);safeRemove('loom:account-active');window.LOOM_USER_LABEL=profile.displayName||window.LOOM_USER_LABEL;post({action:'continuity-observe',clientId:profile.currentClientId,guestProfileId:profile.guestProfileId,continuitySignals:continuitySignals()}).catch(()=>{});window.dispatchEvent(new CustomEvent('loom:identity-selected',{detail:profile}))}
   function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]))}
-  function presetUrl(_state,preset){const m=String(preset||'').match(/^preset-(0[1-9]|10)$/);return m?API(`assets/avatars/defaults/avatar-${m[1]}.svg`):API('assets/avatars/defaults/avatar-01.svg')}
+  function presetUrl(_state,preset){const m=String(preset||'').match(/^(?:loom-default-)?preset-(0[1-9]|10)$/);return m?API(`assets/avatars/defaults/avatar-${m[1]}.svg`):API('assets/avatars/defaults/avatar-01.svg')}
   function styles(){if(document.getElementById('loom-identity-entry-style'))return;const s=document.createElement('style');s.id='loom-identity-entry-style';s.textContent=`
   .loom-entry{position:fixed;inset:0;z-index:2147482000;background:radial-gradient(circle at 12% -5%,rgba(169,223,79,.30),transparent 34%),radial-gradient(circle at 90% 0,rgba(39,158,56,.18),transparent 30%),linear-gradient(180deg,#f7faf7,#eaf2ec);display:grid;place-items:center;padding:18px;font-family:Inter,ui-sans-serif,system-ui;color:#111b15;overflow:hidden;height:100vh;height:100dvh;max-height:100dvh}
   .loom-entry-card{width:min(1120px,100%);height:min(720px,calc(100vh - 36px));height:min(720px,calc(100dvh - 36px));max-height:calc(100dvh - 36px);min-height:0;border:1px solid rgba(205,222,210,.92);border-radius:34px;background:rgba(255,255,255,.93);backdrop-filter:blur(24px) saturate(130%);-webkit-backdrop-filter:blur(24px) saturate(130%);box-shadow:0 40px 120px rgba(23,60,36,.20),inset 0 1px #fff;display:grid;grid-template-columns:minmax(300px,.9fr) minmax(420px,1.1fr);overflow:hidden}

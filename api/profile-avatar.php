@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.60 revision=6 policy=package-priority
+// @loom-file release=0.15.62 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 
 function loom_profile_avatar_default_source(): array {
@@ -7,7 +7,7 @@ function loom_profile_avatar_default_source(): array {
   return ['kind'=>'loom-default','file'=>$file,'mime'=>'image/svg+xml','size'=>is_file($file)?(int)filesize($file):0];
 }
 function loom_profile_avatar_preset_source(string $mode): ?array {
-  if(!preg_match('/^preset-(0[1-9]|10)$/',$mode))return null;
+  $mode=loom_global_avatar_preset_normalize($mode)??'';if($mode==='')return null;
   $file=root_dir().'/assets/avatars/defaults/avatar-'.substr($mode,-2).'.svg';
   return is_file($file)?['kind'=>'global-preset','file'=>$file,'mime'=>'image/svg+xml','size'=>(int)filesize($file)]:null;
 }

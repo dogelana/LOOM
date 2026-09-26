@@ -1,3 +1,16 @@
+# LOOM v0.15.62 — Identity Hygiene + Project Discovery Consistency
+
+## v0.15.62 — Identity Hygiene + Project Discovery Consistency
+
+- Centralized avatar hygiene around canonical ownership. Factory Identity Wipe now removes the complete avatar and Guest media namespaces even when old hashed files can no longer be reverse-mapped to deleted identities, then recreates only the protected empty directories.
+- Added System-Owner **Scan orphan media** and **Sweep orphan media** controls. Ordinary identity deletion performs conservative orphan reconciliation after deleting known identity assets; SQL-backed project avatar references are honored when a database is connected.
+- Canonicalized selectable LOOM avatar modes as `loom-default-preset-01` … `loom-default-preset-10`. Legacy `preset-XX` values preserve their preset number; legacy `loom-default` records repair to a deterministic real preset. The generic blank SVG is emergency rendering fallback only and is never a selectable profile state.
+- Fixed the Global Profile popup and baseline User Profile module so preset avatars resolve and render consistently instead of falling through to the emergency SVG. Guest identity creation now exposes the ten real presets and randomly assigns one when no preset is chosen.
+- Added a search field and deterministic ten-project client-side pagination to LOOM Home. Active/Archived project collections remain on one Home page while their cards are divided into navigable result pages.
+- Fixed Admin deep links such as `?tab=users&project=finance-planner` so the Users scope selector opens directly on the requested project instead of remaining on Global LOOM.
+- Added `LoomTime`, a viewer-local timestamp layer. LOOM Admin, activity/referrals/backups, Global Profile, and User Profile surfaces now display relative time plus the current viewer browser’s local absolute time; timezone-less server timestamps are interpreted as UTC. Project shells load the helper automatically for existing projects.
+- Preserved the generic emergency avatar asset and historical `user.profile.avatar.loom-default` action ID only for backward compatibility/audit history; current UI and writes cannot select that fallback as a stable avatar mode.
+
 # LOOM v0.15.61 — Portable Users + Scoped Backup & Restore
 
 ## v0.15.61 — Portable Users + Scoped Backup & Restore

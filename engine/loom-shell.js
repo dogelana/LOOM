@@ -1,4 +1,4 @@
-// @loom-file release=0.15.60 revision=35 policy=package-priority
+// @loom-file release=0.15.62 revision=36 policy=package-priority
 (() => {
   'use strict';
 
@@ -12,6 +12,8 @@
     }catch{}
   }
   function installRoot(apiBase){try{const apiUrl=new URL(String(apiBase||'api').replace(/\/?$/,'/'),document.baseURI||location.href);return new URL('../',apiUrl)}catch{return new URL('./',location.href)}}
+  let loomTimePromise=null;
+  function ensureViewerTime(apiBase){if(window.LoomTime)return Promise.resolve(window.LoomTime);if(loomTimePromise)return loomTimePromise;loomTimePromise=new Promise(resolve=>{try{const src=new URL('engine/loom-time.js',installRoot(apiBase)).href;let el=document.querySelector('script[data-loom-time=\"1\"]');if(el){el.addEventListener('load',()=>resolve(window.LoomTime||null),{once:true});el.addEventListener('error',()=>resolve(null),{once:true});return}el=document.createElement('script');el.src=src;el.async=true;el.dataset.loomTime='1';el.onload=()=>resolve(window.LoomTime||null);el.onerror=()=>resolve(null);document.head.appendChild(el)}catch{resolve(null)}});return loomTimePromise}
   function canonicalAdminLinks({apiBase='api',project=''}={}){
     const base=installRoot(apiBase),p=String(project||new URLSearchParams(location.search).get('project')||'').replace(/[^a-z0-9_-]/gi,'').toLowerCase();
     const q=p?`&project=${encodeURIComponent(p)}`:'';
@@ -183,7 +185,7 @@
 
   async function mount(opts={}){
     if(!window.LoomBrand)throw new Error('LoomBrand is required before LoomShell.');
-    const apiBase=opts.apiBase||'api';ensureFavicon(apiBase);
+    const apiBase=opts.apiBase||'api';ensureFavicon(apiBase);await ensureViewerTime(apiBase);
     const identity=opts.identity||window.LoomIdentity?.get?.('loom-global-shell');
     const settings=opts.settings||await LoomBrand.fetchSettings(apiBase);window.LoomToast?.configureGlobal?.(settings);
     const cfg=navConfig(settings),base=installRoot(apiBase),homeHref=new URL('home/',base).href;

@@ -1,4 +1,4 @@
-// @loom-file release=0.15.58 revision=10 policy=package-priority
+// @loom-file release=0.15.62 revision=11 policy=package-priority
 (() => {
   'use strict';
 
@@ -9,7 +9,7 @@
   }
   function fmt(v){
     if(!v)return '—';
-    try{return new Date(v).toLocaleString()}catch{return String(v)}
+    try{return window.LoomTime?.format?.(v)||new Date(v).toLocaleString()}catch{return String(v)}
   }
   function shortId(v){
     const s=String(v||'');
@@ -39,7 +39,7 @@
       .lgp-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.lgp-kv{padding:10px;border-radius:11px;background:#f7faf7;border:1px solid #e2ebe4;min-width:0}.lgp-kv b{display:block;font:900 8px/1 Inter,system-ui;color:#718078;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.lgp-kv code,.lgp-kv strong{font:800 10px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#294633;word-break:break-all}
       .lgp-message{min-height:15px;color:#457153;font:800 10px/1.4 Inter,system-ui}.lgp-help-link{display:inline-block;margin-top:2px;color:#2b6e43;font:800 10px/1.3 Inter,system-ui;text-decoration:none}.lgp-help-link:hover{text-decoration:underline}.lgp-note{padding:10px 12px;border-radius:12px;background:#eef7f0;border:1px solid #d8e8dc;color:#5c7062;font:600 10px/1.45 Inter,system-ui}
       .lgp-badge{display:inline-flex;padding:5px 8px;border-radius:999px;background:#e9f6ec;color:#176839;font:900 9px/1 Inter,system-ui}
-      .lgp-file{display:none}
+      .lgp-avatar-presets{display:grid;grid-template-columns:repeat(5,minmax(42px,1fr));gap:7px;margin-top:10px;max-width:330px}.lgp-avatar-preset{border:2px solid transparent;border-radius:13px;background:#f3f8f4;padding:4px;cursor:pointer}.lgp-avatar-preset.active{border-color:#168346;background:#e7f5eb}.lgp-avatar-preset img{display:block;width:100%;aspect-ratio:1;border-radius:9px}.lgp-file{display:none}
       @media(max-width:720px){.loom-global-profile-overlay{padding:7px}.loom-global-profile-dialog{border-radius:20px;max-height:96vh}.loom-global-profile-body{padding:10px}.lgp-grid{grid-template-columns:1fr}.lgp-avatar-row{grid-template-columns:72px 1fr}.lgp-avatar{width:72px;height:72px}.lgp-meta{grid-template-columns:1fr}}
     `;
     document.head.appendChild(s);
@@ -86,7 +86,8 @@
       if(a?.mode==='custom'&&a?.customAvailable){
         return this.api(`profile-avatar.php?action=image&scope=global&clientId=${encodeURIComponent(this.identity.clientId)}&v=${encodeURIComponent(a.customUpdatedAt||Date.now())}`);
       }
-      return this._rootAsset('assets/loom-default-avatar.svg');
+      if(a?.presetUrl)return a.presetUrl;
+      return this._rootAsset('assets/avatars/defaults/avatar-01.svg');
     }
     _rootAsset(rel){
       try{
@@ -149,10 +150,11 @@
               <img class="lgp-avatar" src="${esc(avatar)}" alt="LOOM profile picture">
               <div>
                 <div class="lgp-actions">
-                  <button class="lgp-btn secondary" data-act="avatar-default" type="button">LOOM Default</button>
                   <button class="lgp-btn secondary" data-act="avatar-upload" type="button">Upload Picture</button>
+                  <span class="lgp-badge">Choose a LOOM default preset below</span>
                 </div>
                 ${projects.length?`<div class="lgp-actions" style="margin-top:8px"><select data-role="project-pull" aria-label="Choose project">${projects.map(x=>`<option value="${esc(x.slug)}">${esc(x.name||x.slug)}</option>`).join('')}</select><button class="lgp-btn secondary" data-act="avatar-pull" type="button">Pull from Project</button></div>`:''}
+                <div class="lgp-avatar-presets" aria-label="Choose a LOOM default profile picture">${Array.from({length:10},(_,i)=>{const n=i+1,mode=`loom-default-preset-${String(n).padStart(2,'0')}`;return `<button class="lgp-avatar-preset ${p.avatar?.mode===mode?'active':''}" type="button" data-avatar-preset="${mode}" title="LOOM default preset ${n}"><img src="${esc(this._rootAsset(`assets/avatars/defaults/avatar-${String(n).padStart(2,'0')}.svg`))}" alt="LOOM default preset ${n}"></button>`}).join('')}</div>
                 <input class="lgp-file" data-role="avatar-file" type="file" accept="image/*">
                 <div class="lgp-message" data-role="avatar-message"></div>
               </div>
@@ -250,9 +252,9 @@
           await this.refresh('LOOM profile picture saved.');
         }catch(err){if(m)m.textContent=err.message}
       });
-      q('[data-act="avatar-default"]')?.addEventListener('click',async()=>{
-        try{await json(this.api('global-profile.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set-avatar-mode',clientId,mode:'loom-default'})});await this.refresh('LOOM default profile picture restored.')}catch(e){q('[data-role="avatar-message"]').textContent=e.message}
-      });
+      this.overlay.querySelectorAll('[data-avatar-preset]').forEach(btn=>btn.addEventListener('click',async()=>{
+        try{await json(this.api('global-profile.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'set-avatar-mode',clientId,mode:btn.dataset.avatarPreset})});await this.refresh('LOOM default preset saved.')}catch(e){q('[data-role="avatar-message"]').textContent=e.message}
+      }));
       q('[data-act="avatar-pull"]')?.addEventListener('click',async()=>{
         const project=q('[data-role="project-pull"]')?.value,m=q('[data-role="avatar-message"]');
         try{if(m)m.textContent='Retrieving project picture…';await json(this.api('global-profile.php'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'copy-project-avatar',clientId,project})});await this.refresh('Project picture copied into your LOOM profile.')}catch(e){if(m)m.textContent=e.message}

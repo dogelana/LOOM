@@ -1,3 +1,13 @@
+# LOOM Blueprint — 0.15.62
+
+## 0.15.62 identity-media, avatar, discovery, and time invariants
+
+- `loom-default-preset-01` … `loom-default-preset-10` are the only built-in selectable LOOM avatar modes. The generic `loom-default` SVG is an emergency renderer fallback and must never be persisted by current UI/API writes. Legacy generic/preset values normalize forward without changing a legitimate preset choice.
+- Identity-media cleanup cannot depend solely on discovering currently surviving owner IDs. Factory identity reset owns and resets the whole identity-media namespace; ordinary cleanup uses conservative live-reference reconciliation. No new identity feature should create avatar/media storage outside the canonical avatar / Guest-media roots without registering it with cleanup and user portability.
+- Project discovery presentation is deterministic: search changes only filtering, each result page contains at most ten projects, and unfiltered ordering remains the canonical project ordering. Pagination is UI state inside LOOM Home, never a separate server route.
+- Project-scoped Admin deep links are authoritative initial UI state. `tab=users&project=<slug>` must select that project in both the global project context and Users scope when it exists.
+- Human-visible LOOM timestamps are formatted in the current viewer's browser timezone. Relative time is paired with an absolute viewer-local value; server timestamps without an explicit timezone are interpreted as UTC rather than browser-local input. Stored timestamps remain canonical server values.
+
 # LOOM Blueprint — 0.15.61
 
 ## 0.15.61 User-portability invariants

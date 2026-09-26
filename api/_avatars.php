@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.60 revision=7 policy=package-priority
+// @loom-file release=0.15.62 revision=8 policy=package-priority
 declare(strict_types=1);
 
 function loom_avatar_root(): string { return loom_data_dir().'/avatars'; }
@@ -84,6 +84,6 @@ function loom_avatar_effective_source(string $clientId,string $project): array {
   $project=safe_slug($project);$state=loom_avatar_state($clientId,$project);$owner=loom_avatar_owner_for_client($clientId);$mode=(string)($state['mode']??'auto');
   if($mode==='custom'){$f=loom_avatar_find_file($project,$owner['type'],$owner['id']);if($f)return ['kind'=>'project-custom','file'=>$f['file'],'mime'=>$f['mime'],'size'=>$f['size'],'project'=>$project];}
   if(in_array($mode,['auto','project-default'],true)){$f=loom_avatar_project_provider_default_file($project);if($f)return $f;}
-  if(in_array($mode,['auto','global'],true)){$go=loom_global_profile_owner_for_client($clientId);$gf=loom_global_avatar_find($go['type'],$go['id']);$gs=loom_global_avatar_state($clientId);if(($gs['mode']??'')==='custom'&&$gf)return ['kind'=>'global-custom','file'=>$gf['file'],'mime'=>$gf['mime'],'size'=>$gf['size'],'project'=>$project];if(preg_match('/^preset-(0[1-9]|10)$/',(string)($gs['mode']??''))){$pf=root_dir().'/assets/avatars/defaults/avatar-'.substr((string)$gs['mode'],-2).'.svg';if(is_file($pf))return ['kind'=>'global-preset','file'=>$pf,'mime'=>'image/svg+xml','size'=>(int)filesize($pf),'project'=>$project,'presetMode'=>$gs['mode']];}}
+  if(in_array($mode,['auto','global'],true)){$go=loom_global_profile_owner_for_client($clientId);$gf=loom_global_avatar_find($go['type'],$go['id']);$gs=loom_global_avatar_state($clientId);if(($gs['mode']??'')==='custom'&&$gf)return ['kind'=>'global-custom','file'=>$gf['file'],'mime'=>$gf['mime'],'size'=>$gf['size'],'project'=>$project];if(loom_global_avatar_preset_valid((string)($gs['mode']??''))){$pf=root_dir().'/assets/avatars/defaults/avatar-'.substr((string)$gs['mode'],-2).'.svg';if(is_file($pf))return ['kind'=>'global-preset','file'=>$pf,'mime'=>'image/svg+xml','size'=>(int)filesize($pf),'project'=>$project,'presetMode'=>$gs['mode']];}}
   return ['kind'=>'loom-default','file'=>null,'mime'=>null,'size'=>0,'project'=>$project];
 }

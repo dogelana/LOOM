@@ -1411,7 +1411,7 @@
         },
         {
           "id": "user.profile.avatar.loom-default",
-          "name": "Use LOOM Default Avatar",
+          "name": "Choose LOOM Default Preset",
           "description": "Switch the profile picture back to the native LOOM default.",
           "behavior": "transient",
           "category": "user/profile/avatar"

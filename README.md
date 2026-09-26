@@ -1,3 +1,13 @@
+# LOOM 0.15.62
+
+## 0.15.62 — Identity media hygiene, canonical avatar presets, project search, and viewer-local time
+
+LOOM now treats identity media as owned data with a complete cleanup lifecycle. A Factory Identity Wipe removes the entire avatar / Guest-media namespace even when older owner records have already disappeared, while ordinary deletion and a new Admin orphan-media scanner conservatively reconcile only files that no surviving identity references. This closes the historical hashed-avatar straggler case without requiring a database.
+
+The ten selectable defaults now use the explicit `loom-default-preset-01` … `loom-default-preset-10` contract. The original generic `loom-default` SVG is renderer fallback only; it is not offered by User Profile, Global Profile, Guest creation, or project avatar writes. Legacy preset names migrate without changing the visible preset, and legacy fallback records repair deterministically.
+
+LOOM Home adds project search and ten-at-a-time in-page pagination. Admin Users honors `?project=<slug>` deep links immediately. `LoomTime` standardizes visible timestamps as relative time plus the current viewer's local absolute time, with timezone-less LOOM server timestamps interpreted as UTC.
+
 # LOOM 0.15.61
 
 ## 0.15.61 — Portable users + three-scope Backup & Restore

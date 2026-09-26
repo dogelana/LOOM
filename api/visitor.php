@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.55 revision=6 policy=package-priority
+// @loom-file release=0.15.62 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
@@ -60,7 +60,7 @@ json_out([
     'profileId'=>$global['profileId']??null,
     'username'=>(function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'')?:($global['username']??null),
     'internalHandle'=>$global['username']??null,
-    'avatarMode'=>$global['avatarMode']??'loom-default'
+    'avatarMode'=>$global['avatarMode']??loom_global_avatar_repair_preset('client',$clientId)
   ],
   'firstSeen'=>$profile['createdAt'],
   'lastSeen'=>$profile['updatedAt']
