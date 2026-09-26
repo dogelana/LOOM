@@ -1,3 +1,9 @@
+## 0.15.72 permanent-account identity collapse
+
+LOOM 0.15.72 fixes a presentation/lineage bug in account promotion. When a Guest becomes or signs into a permanent account, the claimed Guest History remains attached to that permanent person. The next fresh Guest generation is now a **standby payload**, not a second current person. It is invisible in Admin Users and portable-person export until the browser explicitly signs out or chooses Guest mode, at which point the payload activates normally.
+
+The release also repairs empty legacy post-claim generations created by 0.15.68–0.15.71, while preserving any generation that has real project identity/state so intentional Guest activity is never collapsed.
+
 ## 0.15.71 loader + navigation + Admin UX reliability
 
 LOOM 0.15.71 closes a set of small but visible production UX gaps without changing installation-owned data. Project loaders suppress the unused second orbit token when branding has only one line; authorized Home project identity mutations now include their client identity before server authorization; selected tabs, native file controls, and Backup & Restore navigation are visually normalized.

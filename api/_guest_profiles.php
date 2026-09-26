@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.70 revision=16 policy=package-priority
+// @loom-file release=0.15.72 revision=17 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 
@@ -13,6 +13,10 @@ function loom_guest_profiles_store(): array {
   $changed=false;
   foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$g=(string)($p['currentGeneration']??'1');$cid=safe_token((string)($p['generations'][$g]['clientId']??''));$preset=(string)($p['avatarPreset']??'');$canonical=loom_global_avatar_preset_normalize($preset);if($canonical!==null&&$canonical!==$preset){$p['avatarPreset']=$canonical;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}elseif($canonical===null&&$cid!==''){$p['avatarPreset']=loom_global_avatar_repair_preset('client',$cid);$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}$ownerId=$cid!==''?(function_exists('loom_guest_canonical_client_id')?loom_guest_canonical_client_id($cid):$cid):'';if($ownerId!=='')try{$gp=loom_global_profile_get('client',$ownerId);$internal=loom_clean_username((string)($gp['username']??''));$visible=loom_clean_username(function_exists('loom_global_profile_display_name')&&$gp?loom_global_profile_display_name($gp):(string)($gp['displayName']??''));$current=loom_clean_username((string)($p['displayName']??''));if(loom_visible_name_is_internal($current)){$recovered=$visible!==''&&!loom_visible_name_is_internal($visible)?$visible:loom_global_default_username('client',$ownerId);$p['displayName']=$recovered;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}elseif($gp&&$visible!==''&&$visible!==$internal&&$current===$internal){$p['displayName']=$visible;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}}catch(Throwable $e){}}
   foreach(($s['profiles']??[]) as $pid=>$p){if(!is_array($p))continue;$sourceId=safe_token((string)($p['continuitySourceProfileId']??''));if($sourceId===''||!is_array($s['profiles'][$sourceId]??null))continue;$sourceName=loom_clean_username((string)($s['profiles'][$sourceId]['displayName']??''));$name=loom_clean_username((string)($p['displayName']??''));if($sourceName!==''&&($name===''||preg_match('/^'.preg_quote($sourceName,'/').'\s+\d+$/iu',$name))){$p['displayName']=$sourceName;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;$changed=true;}}
+  // v0.15.72: pre-created post-claim guest generations are standby payloads, not
+  // separate people. Repair old 0.15.68-0.15.72 rows that were accidentally
+  // marked active even though they have never accumulated project state.
+  if(function_exists('loom_guest_profile_repair_standby_store')&&loom_guest_profile_repair_standby_store($s))$changed=true;
   if($changed){$json=json_encode($s,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);if($json!==false)@file_put_contents(loom_guest_profiles_file(),$json."\n",LOCK_EX);}
   return $s;
 }
@@ -70,6 +74,45 @@ function loom_guest_profile_visible_name_for_client(string $clientId): string {
 }
 function loom_guest_profile_get(string $profileId): ?array { $s=loom_guest_profiles_store();$p=$s['profiles'][safe_token($profileId)]??null;return is_array($p)?$p:null; }
 function loom_guest_profile_for_client(string $clientId): ?array { $s=loom_guest_profiles_store();$pid=(string)($s['clientProfileMap'][safe_token($clientId)]??'');$p=$pid!==''?($s['profiles'][$pid]??null):null;return is_array($p)?$p:null; }
+
+// v0.15.72 — claimed permanent-account lineage may reserve a fresh Guest
+// generation for a future explicit sign-out. Reserved/standby payloads are not
+// people and must never appear in Admin Users, portable-person lists, or project
+// participation until the user actually switches back into Guest mode.
+function loom_guest_profile_client_has_project_payload(string $clientId): bool {
+  $clientId=safe_token($clientId);if($clientId==='')return false;
+  // Inspect raw ownership stores only. Do not call effective project-identity
+  // resolvers here because those can consult global/guest presentation again.
+  try{if(function_exists('loom_project_identity_store'))foreach((array)(loom_project_identity_store()['identities']??[]) as $r){if(!is_array($r))continue;if(($r['ownerType']??$r['owner_type']??'')==='client'&&safe_token((string)($r['ownerId']??$r['owner_id']??''))===$clientId)return true;}}catch(Throwable $e){}
+  try{if(function_exists('loom_project_state_rows_for_owner')&&count(loom_project_state_rows_for_owner('client',$clientId))>0)return true;}catch(Throwable $e){}
+  return false;
+}
+function loom_guest_profile_set_guest_status(string $guestId,string $status): void {
+  $guestId=safe_token($guestId);if($guestId==='')return;$gs=loom_guest_store();$g=$gs['guests'][$guestId]??null;if(!is_array($g))return;
+  if(($g['status']??'')==='merged'||safe_token((string)($g['attachedUserId']??''))!=='')return;
+  if(($g['status']??'')===$status)return;$g['status']=$status;$g['updatedAt']=server_timestamp();$gs['guests'][$guestId]=$g;loom_guest_write_store($gs);loom_guest_db_sync($g);
+}
+function loom_guest_profile_repair_standby_store(array &$s): bool {
+  $changed=false;
+  foreach((array)($s['profiles']??[]) as $pid=>$p){
+    if(!is_array($p))continue;$current=(int)($p['currentGeneration']??1);if($current<2)continue;$key=(string)$current;$row=$p['generations'][$key]??null;if(!is_array($row))continue;
+    if(($row['status']??'active')!=='active'||!empty($row['activatedAt']))continue;$claimed=safe_token((string)($p['lastClaimedUserId']??''));if($claimed==='')continue;
+    $prev=$p['generations'][(string)($current-1)]??null;if(!is_array($prev)||($prev['status']??'')!=='claimed'||safe_token((string)($prev['userId']??''))!==$claimed)continue;
+    $cid=safe_token((string)($row['clientId']??''));$gid=safe_token((string)($row['guestId']??''));if($cid===''||$gid==='')continue;
+    if(loom_guest_profile_client_has_project_payload($cid))continue;
+    $row['status']='standby';$row['standbyAt']=$row['createdAt']??server_timestamp();unset($row['activatedAt']);$p['generations'][$key]=$row;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;loom_guest_profile_set_guest_status($gid,'standby');$changed=true;
+    if(function_exists('loom_identity_audit'))loom_identity_audit('guest-profile.standby-repaired',['guestProfileId'=>$pid,'generation'=>$current,'clientId'=>$cid,'guestId'=>$gid,'claimedUserId'=>$claimed]);
+  }
+  return $changed;
+}
+function loom_guest_profile_is_standby_guest(string $guestId): bool {
+  $guestId=safe_token($guestId);if($guestId==='')return false;$s=loom_guest_profiles_store();foreach((array)($s['profiles']??[]) as $p){if(!is_array($p))continue;foreach((array)($p['generations']??[]) as $g){if(!is_array($g))continue;if(safe_token((string)($g['guestId']??''))===$guestId&&($g['status']??'')==='standby')return true;}}return false;
+}
+function loom_guest_profile_activate_current_generation(string $profileId,string $reason='guest-select'): array {
+  $profileId=safe_token($profileId);$s=loom_guest_profiles_store();$p=$s['profiles'][$profileId]??null;if(!is_array($p))throw new RuntimeException('Guest profile is unavailable.');$current=(int)($p['currentGeneration']??1);$key=(string)$current;$row=$p['generations'][$key]??null;if(!is_array($row))throw new RuntimeException('Guest profile generation is unavailable.');
+  if(($row['status']??'active')==='standby'){$row['status']='active';$row['activatedAt']=server_timestamp();$row['activationReason']=$reason;$p['generations'][$key]=$row;$p['updatedAt']=$row['activatedAt'];$s['profiles'][$profileId]=$p;loom_guest_profiles_write($s);loom_guest_profile_set_guest_status((string)($row['guestId']??''),'unattached');if(function_exists('loom_identity_audit'))loom_identity_audit('guest-profile.standby-activated',['guestProfileId'=>$profileId,'generation'=>$current,'clientId'=>$row['clientId']??null,'guestId'=>$row['guestId']??null,'reason'=>$reason]);}
+  return loom_guest_profile_public($p);
+}
 function loom_guest_profile_make_client(): string { return 'client_'.bin2hex(random_bytes(12)); }
 function loom_guest_profile_seed_system_username(string $display,string $clientId): string {
   // Guest-facing names are never made unique by appending " 2", " 3", etc.
@@ -132,7 +175,9 @@ function loom_guest_profile_claim_generation(string $clientId,string $userId,str
   $clientId=safe_token($clientId);$userId=safe_token($userId);if($clientId===''||$userId==='')return null;$s=loom_guest_profiles_store();$pid=(string)($s['clientProfileMap'][$clientId]??'');if($pid===''||!isset($s['profiles'][$pid]))return null;$p=$s['profiles'][$pid];$current=(int)($p['currentGeneration']??1);$key=(string)$current;$row=$p['generations'][$key]??null;if(!is_array($row)||($row['clientId']??'')!==$clientId)return null;
   if(($row['status']??'active')!=='claimed'){$row['status']='claimed';$row['claimedAt']=server_timestamp();$row['userId']=$userId;$row['claimMode']=$mode;$p['generations'][$key]=$row;}
   $effectiveName=loom_guest_profile_effective_display_name($p);if($effectiveName!=='')$p['displayName']=$effectiveName;
-  $next=$current+1;$nextKey=(string)$next;if(!isset($p['generations'][$nextKey])){$nextClient=loom_guest_profile_make_client();$guest=loom_guest_create_for_client($nextClient);$p['generations'][$nextKey]=['generation'=>$next,'clientId'=>$nextClient,'guestId'=>$guest['guestId'],'status'=>'active','createdAt'=>server_timestamp(),'claimedAt'=>null,'userId'=>null];$s['clientProfileMap'][$nextClient]=$pid;loom_guest_profile_seed_generation_profile($nextClient,$p['displayName'],$p['avatarPreset']);}
-  $p['currentGeneration']=$next;$p['lastClaimedUserId']=$userId;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;loom_guest_profiles_write($s);$nextRow=$p['generations'][$nextKey];loom_identity_audit('guest-profile.generation-claimed',['guestProfileId'=>$pid,'generation'=>$current,'clientId'=>$clientId,'userId'=>$userId,'nextGeneration'=>$next,'nextClientId'=>$nextRow['clientId'],'mode'=>$mode]);return ['profile'=>loom_guest_profile_public($p),'claimedGeneration'=>$current,'resumeGuestClientId'=>$nextRow['clientId']];
+  // Reserve the next Guest payload for a future explicit sign-out, but keep it
+  // standby so account promotion does not materialize a duplicate visible person.
+  $next=$current+1;$nextKey=(string)$next;if(!isset($p['generations'][$nextKey])){$nextClient=loom_guest_profile_make_client();$guest=loom_guest_create_for_client($nextClient);loom_guest_profile_set_guest_status((string)$guest['guestId'],'standby');$p['generations'][$nextKey]=['generation'=>$next,'clientId'=>$nextClient,'guestId'=>$guest['guestId'],'status'=>'standby','createdAt'=>server_timestamp(),'standbyAt'=>server_timestamp(),'claimedAt'=>null,'userId'=>null];$s['clientProfileMap'][$nextClient]=$pid;loom_guest_profile_seed_generation_profile($nextClient,$p['displayName'],$p['avatarPreset']);}
+  $p['currentGeneration']=$next;$p['lastClaimedUserId']=$userId;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;loom_guest_profiles_write($s);$nextRow=$p['generations'][$nextKey];loom_identity_audit('guest-profile.generation-claimed',['guestProfileId'=>$pid,'generation'=>$current,'clientId'=>$clientId,'userId'=>$userId,'nextGeneration'=>$next,'nextClientId'=>$nextRow['clientId'],'nextStatus'=>$nextRow['status']??'standby','mode'=>$mode]);return ['profile'=>loom_guest_profile_public($p),'claimedGeneration'=>$current,'resumeGuestClientId'=>$nextRow['clientId']];
 }
-function loom_guest_profile_resume_client_for_claimed_client(string $clientId): ?string { $p=loom_guest_profile_for_client($clientId);if(!$p)return null;$row=$p['generations'][(string)$p['currentGeneration']]??[];$cid=safe_token((string)($row['clientId']??''));return $cid!==''?$cid:null; }
+function loom_guest_profile_resume_client_for_claimed_client(string $clientId): ?string { $p=loom_guest_profile_for_client($clientId);if(!$p)return null;$pub=loom_guest_profile_activate_current_generation((string)($p['guestProfileId']??''),'account-logout');$cid=safe_token((string)($pub['currentClientId']??''));return $cid!==''?$cid:null; }

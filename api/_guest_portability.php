@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.68 revision=1 policy=package-priority
+// @loom-file release=0.15.72 revision=2 policy=package-priority
 // LOOM v0.15.68 — First-class standalone Guest portability.
 declare(strict_types=1);
 
@@ -38,7 +38,7 @@ function loom_guest_portability_all_guests(string $clientId): array {
     $gid=safe_token((string)($root['guestId']??''));
     if($gid===''||isset($seen[$gid])) continue;
     $seen[$gid]=true;
-    if(($root['status']??'')==='merged') continue;
+    if(in_array((string)($root['status']??''),['merged','standby'],true)||(function_exists('loom_guest_profile_is_standby_guest')&&loom_guest_profile_is_standby_guest($gid))) continue;
     $attached=safe_token((string)($root['attachedUserId']??''));
     $clients=array_keys((array)($root['clients']??[]));
     $projects=loom_guest_project_set($root);
@@ -66,6 +66,7 @@ function loom_guest_portability_graph(string $guestId): array {
   $selected=loom_guest_root($selected);
   $rootId=safe_token((string)($selected['guestId']??''));
   if($rootId==='') throw new RuntimeException('Guest Identity is invalid.');
+  if(($selected['status']??'')==='standby'||(function_exists('loom_guest_profile_is_standby_guest')&&loom_guest_profile_is_standby_guest($rootId)))throw new RuntimeException('This is a standby Guest payload reserved for a future sign-out, not a separate portable person.');
   if(safe_token((string)($selected['attachedUserId']??''))!==''){
     throw new RuntimeException('This Guest History is attached to a permanent user. Export the permanent user instead so the complete person stays together.');
   }

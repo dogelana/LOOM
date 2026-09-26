@@ -1,3 +1,13 @@
+# LOOM Blueprint — 0.15.72
+
+## Permanent-account identity-collapse invariants
+
+- Promoting a Guest to a permanent account must collapse the visible person atomically: the claimed Guest History remains provenance beneath the permanent user and must not remain a second Admin-directory person.
+- A fresh post-claim Guest generation is a `standby` payload until the user explicitly signs out or selects Guest mode. Standby payloads are lineage infrastructure, not people, and are excluded from Admin Users and standalone Guest export.
+- Account promotion must preserve global/project presentation, avatars, project identities/state, browser/client linkage, activity/history, moderation/access, and System Owner binding on the permanent user.
+- Legacy empty post-claim generations may be repaired to standby only when they have not accumulated client-owned project identity/state. Real Guest activity always wins over automatic cleanup.
+- Activating Guest mode transitions the standby generation to `active` exactly once and records activation provenance; subsequent reads must not demote it again.
+
 # LOOM Blueprint — 0.15.71
 
 ## Shell/navigation and project-mutation invariants

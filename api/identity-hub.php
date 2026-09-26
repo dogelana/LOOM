@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.62 revision=6 policy=package-priority
+// @loom-file release=0.15.72 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'POST')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
 $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);
@@ -25,7 +25,7 @@ try{
     json_out(['ok'=>true,'profile'=>$profile,'continuity'=>$observed,'guestPolicy'=>$after]);
   }
   if($action==='select'){
-    $pid=safe_token((string)($body['guestProfileId']??''));$profiles=loom_guest_profiles_for_installation($installationId);$found=null;foreach($profiles as $p)if(($p['guestProfileId']??'')===$pid)$found=$p;if(!$found)throw new RuntimeException('Guest profile is not available on this installation.');$cid=safe_token((string)($found['currentClientId']??''));if($cid!=='')loom_enforce_global_access($cid);$policy=loom_continuity_guest_mode_policy($installationId,$cid,$signals,true,false);if(!empty($policy['permanentRequired']))loom_identity_hub_permanent_required($policy);json_out(['ok'=>true,'profile'=>$found,'guestPolicy'=>$policy]);
+    $pid=safe_token((string)($body['guestProfileId']??''));$profiles=loom_guest_profiles_for_installation($installationId);$found=null;foreach($profiles as $p)if(($p['guestProfileId']??'')===$pid)$found=$p;if(!$found)throw new RuntimeException('Guest profile is not available on this installation.');$found=loom_guest_profile_activate_current_generation($pid,'identity-select');$cid=safe_token((string)($found['currentClientId']??''));if($cid!=='')loom_enforce_global_access($cid);$policy=loom_continuity_guest_mode_policy($installationId,$cid,$signals,true,false);if(!empty($policy['permanentRequired']))loom_identity_hub_permanent_required($policy);json_out(['ok'=>true,'profile'=>$found,'guestPolicy'=>$policy]);
   }
   if($action==='update'){
     $pid=safe_token((string)($body['guestProfileId']??''));$existing=loom_guest_profile_get($pid);$cid=safe_token((string)($existing['generations'][(string)($existing['currentGeneration']??1)]['clientId']??''));if($cid!=='')loom_enforce_global_access($cid);$policy=loom_continuity_guest_mode_policy($installationId,$cid,$signals,true,false);if(!empty($policy['permanentRequired']))loom_identity_hub_permanent_required($policy);json_out(['ok'=>true,'profile'=>loom_guest_profile_update($installationId,$pid,array_key_exists('displayName',$body)?(string)$body['displayName']:null,array_key_exists('avatarPreset',$body)?(string)$body['avatarPreset']:null),'guestPolicy'=>$policy]);

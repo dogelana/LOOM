@@ -1,3 +1,10 @@
+# LOOM 0.15.72 — Permanent Account Identity Collapse
+
+- Permanent-account promotion no longer surfaces the pre-created future Guest generation as a second visible person. Future Guest generations are reserved as `standby` until an explicit sign-out or Guest selection activates them.
+- Admin Users and portable-person export hide standby Guest shells while preserving the claimed Guest History, aliases, browser lineage, avatars, project participation, project state, and activity under the permanent account.
+- Existing 0.15.68–0.15.71 split records are repaired idempotently when their empty post-claim generation has never accumulated project payload.
+- Explicit sign-out / Switch User activates the reserved Guest generation on demand, preserving the intended fresh-Guest workflow without duplicating the person at promotion time.
+
 # LOOM 0.15.71 — Loader, Admin UX & Navigation Reliability
 
 - Project loaders no longer render an empty secondary flying pill when the project wordmark has only one meaningful line.
