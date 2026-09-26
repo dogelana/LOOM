@@ -1,3 +1,16 @@
+# LOOM v0.15.58 — System Owner Identity Reconciliation
+
+## v0.15.58 — System Owner Identity Reconciliation
+
+- Fixed Global Profile **Save Display Name** for Guest identities. The mutation now writes the canonical Guest Profile/presentation layer that LOOM subsequently reads, so a successful save no longer snaps back to the prior name.
+- Hardened the System Owner invariant for installations bootstrapped before a permanent account was bound. The durable owner pointer remains authoritative, a missing browser-backed owner Guest can be safely reconstructed around that exact owner client, and a permanent account is bound only from one uniquely verified/resolvable owner-client account relationship.
+- Fixed the cleanup hole that allowed a browser-backed System Owner Guest to be deleted. Single, bulk and attached-Guest cleanup paths now protect both owner account and owner Guest/client lineage; only an explicit factory identity wipe can remove root ownership.
+- Admin → Users now makes System Owner status unmistakable, exposes owner backing/bootstrap metadata, and links directly to the Access Manager. The global Profile panel also shows System Owner authority and provides a direct System Owner controls link.
+- Corrected target-role inspection: project role / LOOM Admin / System Owner status is now calculated from the person being inspected rather than the viewing Admin's current session.
+- Added proven historical browser aliases to canonical user detail. Names such as older `PixelShift…` or `CircuitPath…` labels are shown as lineage history when backed by the same account relationship, not as competing canonical users.
+- Standardized avatar-upload profile responses through the public canonical profile serializer, preserving the same identity presentation immediately after upload.
+- Synchronized active runtime/cache version identifiers to `0.15.58` while preserving legitimate historical per-file provenance where files were not changed.
+
 # LOOM v0.15.57 — Project Identity Avatar Visibility
 
 ## v0.15.57 — Project Identity Avatar Visibility

@@ -1,12 +1,12 @@
 <?php
-// @loom-file release=0.15.57 revision=62 policy=package-priority
+// @loom-file release=0.15.58 revision=63 policy=package-priority
 require __DIR__.'/../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 $loomPageMeta=loom_generic_social_meta(loom_absolute_web_url(rtrim(web_base_path(),'/').'/pegboard/'),'LOOM Pegboard','LOOM developer pegboard and live module inspection.');$loomPageMeta['robots']='noindex,nofollow';$loomPageSocial=loom_social_meta_html($loomPageMeta,false);
 loom_native_admin_page_guard('Pegboard','../');
 ?>
-<!doctype html><html lang="en"><head><?php echo $loomPageSocial; ?><link rel="icon" type="image/png" data-loom-favicon="1" href="../assets/loom-logo.png?v=0.15.57"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><link rel="stylesheet" href="pegboard.css?v=0.15.57"></head>
+<!doctype html><html lang="en"><head><?php echo $loomPageSocial; ?><link rel="icon" type="image/png" data-loom-favicon="1" href="../assets/loom-logo.png?v=0.15.58"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><link rel="stylesheet" href="pegboard.css?v=0.15.58"></head>
 <body class="theme-loom-dark">
 <div id="loomShellHeader"></div>
 <div id="pegWorkspace" class="peg-workspace">
@@ -29,14 +29,14 @@ loom_native_admin_page_guard('Pegboard','../');
 </div>
 <div id="loomShellFooter"></div>
 
-<script src="../engine/config.js?v=0.15.57"></script>
-<script src="../engine/loom-brand.js?v=0.15.57"></script>
-<script src="../engine/identity.js?v=0.15.57"></script>
-<script src="../engine/loom-global-profile.js?v=0.15.57"></script>
-<script src="../engine/loom-toast.js?v=0.15.57"></script><script src="../engine/share-referrals.js?v=0.15.57"></script><script src="../engine/loom-shell.js?v=0.15.57"></script>
-<script src="../engine/event-bus.js?v=0.15.57"></script>
-<script src="../engine/registry-client.js?v=0.15.57"></script>
-<script src="pegboard.js?v=0.15.57"></script>
+<script src="../engine/config.js?v=0.15.58"></script>
+<script src="../engine/loom-brand.js?v=0.15.58"></script>
+<script src="../engine/identity.js?v=0.15.58"></script>
+<script src="../engine/loom-global-profile.js?v=0.15.58"></script>
+<script src="../engine/loom-toast.js?v=0.15.58"></script><script src="../engine/share-referrals.js?v=0.15.58"></script><script src="../engine/loom-shell.js?v=0.15.58"></script>
+<script src="../engine/event-bus.js?v=0.15.58"></script>
+<script src="../engine/registry-client.js?v=0.15.58"></script>
+<script src="pegboard.js?v=0.15.58"></script>
 <script>
 (async()=>{
   const ident=LoomIdentity.get('loom-pegboard');

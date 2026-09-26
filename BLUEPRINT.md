@@ -1,21 +1,14 @@
+# LOOM Blueprint — 0.15.58
 
-## 0.15.56 canonical people model
+## 0.15.58 System Owner and identity invariants
 
-- Admin has one Users directory: global by default, optionally project-focused.
-- First-class people are permanent `user` identities or canonical unattached `guest` identities; `client_*` records are browser lineage only.
-- A permanent user's project participation includes proven linked-client history and is reconciled to the user without fuzzy matching.
-- Moderation is canonical and scoped: global LOOM ban or per-project ban, independently.
-- Approximate geolocation remains display-only and never establishes person identity.
-- Canonical avatar delivery accepts `user` / `guest` subjects, reads protected Instance storage, may use proven legacy-client image locations only as migration fallback, and always degrades to a safe default instead of turning “no custom avatar” into an identity error.
-
-# LOOM Blueprint — 0.15.57
-
-## 0.15.57 project-avatar rule
-
-- A person has one canonical global LOOM identity plus zero or more project identities. Avatar presentation follows the same separation as username presentation.
-- Global directory/header surfaces use the canonical global avatar. When a Users directory is explicitly project-scoped, its people cards use that project’s effective avatar.
-- Per-project identity inspection must visibly render the effective project avatar and expose its mode/source without reading protected Instance paths directly.
-- Project avatar resolution may consult only proven linked-client legacy records as migration fallback; arbitrary client IDs must never be able to retrieve another identity’s protected avatar.
+- The System Owner is an installation authority anchored by the durable owner pointer. It may be backed by a permanent `user` or, on older/bootstrap installs, by the protected owner browser client.
+- A browser-backed System Owner must always have a visible canonical person in Users. If its Guest wrapper was removed by an older cleanup path, LOOM may recreate that Guest only around the exact durable owner client.
+- A permanent owner account may be reconciled only from a unique, server-resolvable, proven account relationship to the owner client. Display-name similarity is never ownership proof.
+- Ordinary identity cleanup must not delete the System Owner permanent account, owner Guest wrapper, or owner browser lineage. Only the explicit factory identity wipe may intentionally remove root ownership.
+- Global display-name edits must mutate the canonical identity presentation layer consumed by the UI. Browser/client labels remain lineage history and do not override the current canonical name.
+- Project/Admin role shown while inspecting a person must be derived from the target identity, not from the viewer's current authorization session.
+- Historical browser aliases may be displayed for provenance when their relationship is proven, but they are never promoted into separate current people by name alone.
 
 ## 1. Purpose
 

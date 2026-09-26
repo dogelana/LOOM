@@ -1,4 +1,4 @@
-// @loom-file release=0.15.55 revision=9 policy=package-priority
+// @loom-file release=0.15.58 revision=10 policy=package-priority
 (() => {
   'use strict';
 
@@ -137,7 +137,7 @@
     render(message=''){
       const d=this.data,p=d.profile||{},a=d.account||{},projects=d.projects||[],guest=d.guest||{},attachedGuests=d.attachedGuests||[];
       const avatar=this.avatarUrl();
-      const authenticated=!!a.authenticated,registered=!!a.registered;
+      const authenticated=!!a.authenticated,registered=!!a.registered,isOwner=!!a.isSystemOwner,authorityLabel=isOwner?'System Owner':(a.effectivePrivilege==='Admin'?'LOOM Admin':'User');
       const body=this.overlay.querySelector('.loom-global-profile-body');
       body.innerHTML=`
         <div class="lgp-grid">
@@ -165,13 +165,13 @@
           </section>
 
           <section class="lgp-card">
-            <span class="lgp-badge">${authenticated?'Signed in':registered?'Account linked':'LOOM account'}</span>
+            <span class="lgp-badge">${isOwner?'SYSTEM OWNER':authenticated?'Signed in':registered?'Account linked':'LOOM account'}</span>
             <h3 style="margin-top:8px">${esc(p.displayName||a.globalUsername||p.username||'LOOM user')}</h3>
             ${registered?`
               <div class="lgp-meta">
                 <div class="lgp-kv"><b>Email</b><strong>${esc(a.email||'—')}</strong></div>
                 <div class="lgp-kv"><b>User ID</b><code title="${esc(a.userId||'')}">${esc(shortId(a.userId))}</code></div>
-                <div class="lgp-kv"><b>Privilege</b><strong>${esc(a.effectivePrivilege||a.privilege||'User')}</strong></div>
+                <div class="lgp-kv"><b>Authority</b><strong>${esc(authorityLabel)}</strong></div><div class="lgp-kv"><b>Owner backing</b><strong>${isOwner?(a.systemOwnerAccountBound?'Permanent account':'Protected browser bootstrap'):'—'}</strong></div>
                 <div class="lgp-kv"><b>Authorization</b><code>${esc(a.authorizationSource||'account')}</code></div>
               </div>
               ${authenticated?`<div class="lgp-actions" style="margin-top:12px"><button class="lgp-btn secondary" data-act="logout" type="button">Sign Out</button></div>`:`
@@ -193,6 +193,8 @@
           <div class="lgp-meta">
             <div class="lgp-kv"><b>Global Profile ID</b><code>${esc(p.profileId||'—')}</code></div>
             <div class="lgp-kv"><b>Client ID</b><code title="${esc(this.identity.clientId)}">${esc(shortId(this.identity.clientId))}</code></div>
+            ${isOwner?`<div class="lgp-kv"><b>Installation authority</b><strong>System Owner</strong></div><div class="lgp-kv"><b>Owner account binding</b><strong>${a.systemOwnerAccountBound?'Bound to permanent account':'Browser-backed · sign in/create account here to bind'}</strong></div>`:''}
+            ${isOwner?`<div class="lgp-kv"><b>System Owner controls</b><a class="lgp-help-link" href="${esc(this._rootAsset('admin/?tab=access'))}">Open Access Manager →</a></div>`:''}
             <div class="lgp-kv"><b>Profile since</b><strong>${esc(fmt(p.createdAt))}</strong></div>
             <div class="lgp-kv"><b>Last saved</b><strong>${esc(fmt(p.updatedAt))}</strong></div>
           </div>

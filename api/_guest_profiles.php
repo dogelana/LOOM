@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.57 revision=11 policy=package-priority
+// @loom-file release=0.15.58 revision=12 policy=package-priority
 // LOOM v0.12.08 — explicit guest profiles + generation lineage.
 declare(strict_types=1);
 
@@ -102,6 +102,21 @@ function loom_guest_profile_update(string $installationId,string $profileId,?str
   $installationId=loom_guest_installation_id($installationId);$profileId=safe_token($profileId);$s=loom_guest_profiles_store();if(!in_array($profileId,$s['installationMap'][$installationId]??[],true)||!isset($s['profiles'][$profileId]))throw new RuntimeException('Guest profile is not available on this installation.');$p=$s['profiles'][$profileId];
   if($displayName!==null){$name=loom_clean_username($displayName);if($name==='')throw new RuntimeException('Guest name cannot be empty.');if(!loom_guest_profile_name_available($s,$installationId,$name,$profileId))throw new RuntimeException('That guest name is already in use on this device.');$p['displayName']=$name;}
   if($avatarPreset!==null)$p['avatarPreset']='loom-default';$p['updatedAt']=server_timestamp();$s['profiles'][$profileId]=$p;loom_guest_profiles_write($s);$g=$p['generations'][(string)$p['currentGeneration']]??[];$cid=(string)($g['clientId']??'');if($cid!=='')loom_guest_profile_seed_generation_profile($cid,$p['displayName'],$p['avatarPreset']);return loom_guest_profile_public($p);
+}
+
+// v0.15.58: self-profile display-name edits must mutate the canonical Guest
+// Profile, not only its legacy global-client presentation row. A Guest Profile
+// can be present on more than one installation through explicit continuity, so
+// enforce the existing per-installation name rule everywhere that profile is
+// visible, then synchronize every generation's compatibility presentation row.
+function loom_guest_profile_set_display_name_for_client(string $clientId,string $displayName): ?array {
+  $clientId=safe_token($clientId);$name=loom_clean_username($displayName);if($clientId===''||!str_starts_with($clientId,'client_'))return null;if($name==='')throw new RuntimeException('Guest name cannot be empty.');
+  $s=loom_guest_profiles_store();$pid=safe_token((string)($s['clientProfileMap'][$clientId]??''));$p=$pid!==''?($s['profiles'][$pid]??null):null;if(!is_array($p))return null;
+  foreach(($s['installationMap']??[]) as $installationId=>$profileIds){if(!in_array($pid,(array)$profileIds,true))continue;if(!loom_guest_profile_name_available($s,(string)$installationId,$name,$pid))throw new RuntimeException('That guest name is already in use on this device.');}
+  $p['displayName']=$name;$p['updatedAt']=server_timestamp();$s['profiles'][$pid]=$p;loom_guest_profiles_write($s);
+  foreach((array)($p['generations']??[]) as $generation){$cid=safe_token((string)($generation['clientId']??''));if($cid!=='')loom_guest_profile_seed_generation_profile($cid,$name,(string)($p['avatarPreset']??'loom-default'));}
+  loom_identity_audit('guest-profile.display-name.updated',['guestProfileId'=>$pid,'clientId'=>$clientId,'displayName'=>$name]);
+  return loom_guest_profile_public($p);
 }
 function loom_guest_profile_create_continuity_alias(string $installationId,string $sourceProfileId,string $clientId,string $guestId,string $clusterId=''): array {
   $installationId=loom_guest_installation_id($installationId);$sourceProfileId=safe_token($sourceProfileId);$clientId=safe_token($clientId);$guestId=safe_token($guestId);$clusterId=safe_token($clusterId);

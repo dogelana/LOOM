@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.55 revision=8 policy=package-priority
+// @loom-file release=0.15.58 revision=9 policy=package-priority
 declare(strict_types=1);
 
 // LOOM Global Profile Standard v0.11.20
@@ -49,7 +49,17 @@ function loom_global_profile_write(array $row): array { $r=loom_global_profile_n
 function loom_global_profile_seed_username(string $type,string $id): string { if(function_exists('loom_project_identity_list_for_owner')){foreach(loom_project_identity_list_for_owner($type,$id) as $x){$u=loom_clean_username((string)($x['username']??''));if($u!==''){$owner=loom_global_profile_username_owner($u);if(!$owner||($owner['ownerType']===$type&&$owner['ownerId']===$id))return $u;}}}return loom_global_default_username($type,$id); }
 function loom_global_profile_ensure_for_owner(string $type,string $id): array { $r=loom_global_profile_get($type,$id);if($r){if(preg_match('/^LOOMUser-[0-9A-F]{6}(?:-[0-9]+)?$/i',(string)$r['username'])){$r['username']=loom_global_default_username($type,$id);$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);}return $r;}$seed=loom_global_profile_seed_username($type,$id);return loom_global_profile_write(['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>$seed,'displayName'=>$seed,'avatarMode'=>'loom-default','createdAt'=>server_timestamp(),'updatedAt'=>server_timestamp()]); }
 function loom_global_profile_ensure(string $clientId): array { $o=loom_global_profile_owner_for_client($clientId);return loom_global_profile_ensure_for_owner($o['type'],$o['id']); }
-function loom_global_profile_set_username(string $clientId,string $username): array { loom_global_profile_assert_mutation_access($clientId);$r=loom_global_profile_ensure($clientId);$name=loom_clean_username($username);if($name==='')throw new RuntimeException('LOOM display name cannot be empty.');if(function_exists('loom_project_identity_global_username_conflicts')){$o=loom_global_profile_owner_for_client($clientId);if(loom_project_identity_global_username_conflicts($o['type'],$o['id'],$name))throw new RuntimeException('That display name conflicts with an identity in a project that inherits your LOOM-wide name.');}$r['displayName']=$name;$r['updatedAt']=server_timestamp();return loom_global_profile_write($r); }
+function loom_global_profile_set_username(string $clientId,string $username): array {
+  loom_global_profile_assert_mutation_access($clientId);$name=loom_clean_username($username);if($name==='')throw new RuntimeException('LOOM display name cannot be empty.');$o=loom_global_profile_owner_for_client($clientId);
+  // Display names are presentation data. For an unauthenticated Guest, the
+  // canonical source is the Guest Profile that the profile UI reads back. The
+  // pre-0.15.58 path wrote only the compatibility global-client row, so the UI
+  // immediately appeared to "snap back" to the unchanged Guest Profile name.
+  if(($o['type']??'')==='client'&&function_exists('loom_guest_profile_set_display_name_for_client')){
+    $guest=loom_guest_profile_set_display_name_for_client($clientId,$name);if($guest){$ownerId=function_exists('loom_guest_canonical_client_id')?loom_guest_canonical_client_id($clientId):$clientId;return loom_global_profile_ensure_for_owner('client',$ownerId);}
+  }
+  $r=loom_global_profile_ensure_for_owner((string)$o['type'],(string)$o['id']);$r['displayName']=$name;$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);
+}
 function loom_global_profile_admin_set_username(string $type,string $id,string $username): array { $r=loom_global_profile_ensure_for_owner($type,$id);$name=loom_clean_username($username);if($name==='')throw new RuntimeException('LOOM display name cannot be empty.');$r['displayName']=$name;$r['updatedAt']=server_timestamp();return loom_global_profile_write($r); }
 function loom_global_profile_list_all(): array { $out=[];loom_global_profile_db_table();if(loom_db_ready())try{$pdo=loom_db_pdo(true);foreach($pdo->query("SELECT * FROM loom_global_profiles") as $r){$n=loom_global_profile_normalize($r);$out[loom_global_profile_key($n['ownerType'],$n['ownerId'])]=$n;}}catch(Throwable $e){}foreach((loom_global_profile_store()['profiles']??[]) as $r){$n=loom_global_profile_normalize($r);$k=loom_global_profile_key($n['ownerType'],$n['ownerId']);if(!isset($out[$k]))$out[$k]=$n;}return array_values($out); }
 function loom_global_profile_promote_client(string $clientId,string $userId): void { $clientId=safe_token($clientId);$userId=safe_token($userId);$c=loom_global_profile_get('client',$clientId);if(!$c)return;$u=loom_global_profile_get('user',$userId);if($u){$s=loom_global_profile_store();unset($s['profiles'][loom_global_profile_key('client',$clientId)]);loom_write_global_profile_store($s);if(loom_db_ready())try{loom_db_pdo(true)->prepare("DELETE FROM loom_global_profiles WHERE owner_type='client' AND owner_id=?")->execute([$clientId]);}catch(Throwable $e){}loom_global_avatar_promote_client($clientId,$userId);return;}

@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.51 revision=7 policy=package-priority
+// @loom-file release=0.15.58 revision=8 policy=package-priority
 // LOOM delegated administration: immutable System Owner, delegated LOOM Admins,
 // and project-scoped Admin/Manager grants for permanent accounts or guest profiles.
 declare(strict_types=1);
@@ -25,6 +25,28 @@ function loom_access_write(array $s): void {
 function loom_access_system_owner_state(): ?array { $s=loom_admin_identity(); return is_array($s)?$s:null; }
 function loom_access_system_owner_user_id(): string { $s=loom_access_system_owner_state(); return safe_token((string)($s['userId']??'')); }
 function loom_access_system_owner_client_id(): string { $s=loom_access_system_owner_state(); return safe_token((string)($s['clientId']??'')); }
+function loom_access_reconcile_system_owner_identity(string $requestClientId=''): array {
+  $requestClientId=safe_token($requestClientId);$state=loom_access_system_owner_state();if(!$state)return ['bound'=>false,'recoveredGuestId'=>null,'state'=>null];
+  // First use the long-standing authenticated bootstrap reconciliation path.
+  if($requestClientId!=='')try{loom_reconcile_admin_identity($requestClientId);}catch(Throwable $e){}
+  $state=loom_access_system_owner_state()?:$state;$ownerClient=safe_token((string)($state['clientId']??''));$ownerUser=safe_token((string)($state['userId']??''));$bound=false;
+  // If the owner is still browser-backed, accept only an account relation that
+  // remains resolvable server-side. Historical payloads can suggest a candidate,
+  // but can never resurrect a deleted/nonexistent account.
+  if($ownerUser===''&&$ownerClient!==''){
+    $candidates=[];$linked=loom_account_user_for_client($ownerClient);$linkedId=safe_token((string)($linked['user_id']??$linked['userId']??''));if($linkedId!==''&&loom_account_user_by_id($linkedId))$candidates[$linkedId]=true;
+    if($requestClientId!==''&&hash_equals($ownerClient,$requestClientId)){$auth=loom_auth_user();$authId=safe_token((string)($auth['user_id']??$auth['userId']??''));if($authId!==''&&loom_account_user_by_id($authId)&&loom_admin_cookie_valid())$candidates[$authId]=true;}
+    $profileFile=loom_data_dir().'/users/'.hash('sha256',$ownerClient).'.json';$legacy=read_json_file($profileFile);$legacyId=safe_token((string)($legacy['userId']??$legacy['user_id']??''));if($legacyId!==''&&loom_account_user_by_id($legacyId))$candidates[$legacyId]=true;
+    if(count($candidates)===1){$uid=(string)array_key_first($candidates);$state['userId']=$uid;$state['ownerBindingUpdatedAt']=server_timestamp();$state['ownerBindingMethod']='verified-client-account-reconciliation';loom_write_admin_identity($state);try{loom_bind_client_to_user($ownerClient,$uid);}catch(Throwable $e){}if(loom_db_ready()){try{loom_db_pdo(true)->prepare("UPDATE loom_users SET privilege='Admin',updated_at=UTC_TIMESTAMP(3) WHERE user_id=?")->execute([$uid]);}catch(Throwable $e){}}else{$t=loom_temp_account_store();if(isset($t['users'][$uid])){$t['users'][$uid]['privilege']='Admin';$t['users'][$uid]['updatedAt']=server_timestamp();loom_write_temp_account_store($t);}}$ownerUser=$uid;$bound=true;}
+  }
+  $recoveredGuestId=null;
+  // A browser-backed owner must always have a canonical person wrapper in the
+  // unified directory. Cleanup in older releases could delete that Guest while
+  // leaving the owner pointer alive. Recreate only around the authoritative
+  // owner client; do not infer or merge any other person.
+  if($ownerUser===''&&$ownerClient!==''&&function_exists('loom_guest_ensure_for_client')){try{$g=loom_guest_for_client($ownerClient);if(!$g)$g=loom_guest_ensure_for_client($ownerClient);$root=is_array($g)?loom_guest_root($g):null;$recoveredGuestId=safe_token((string)($root['guestId']??''));}catch(Throwable $e){}}
+  return ['bound'=>$bound,'recoveredGuestId'=>$recoveredGuestId?:null,'state'=>loom_access_system_owner_state()];
+}
 function loom_access_auth_user_id(): string { $u=loom_auth_user(); return safe_token((string)($u['user_id']??$u['userId']??'')); }
 function loom_access_linked_user_id(string $clientId): string { $u=loom_account_user_for_client(safe_token($clientId)); return safe_token((string)($u['user_id']??$u['userId']??'')); }
 function loom_access_effective_user_id(string $clientId): string { $uid=loom_access_auth_user_id(); return $uid!==''?$uid:loom_access_linked_user_id($clientId); }

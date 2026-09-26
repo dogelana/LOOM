@@ -1,6 +1,6 @@
 <?php
-// @loom-file release=0.15.57 revision=5 policy=package-priority
-// LOOM v0.15.57 — Canonical user cleanup + legacy-orphan client sweeping.
+// @loom-file release=0.15.58 revision=6 policy=package-priority
+// LOOM v0.15.58 — Canonical identity cleanup + System Owner protection.
 declare(strict_types=1);
 
 function loom_cleanup_bool(array $o,string $k,bool $default=true): bool { return array_key_exists($k,$o)?(bool)$o[$k]:$default; }
@@ -37,6 +37,12 @@ function loom_cleanup_guest_wrapped_client_ids(): array {
   if(loom_db_ready())try{foreach(loom_db_pdo(true)->query("SELECT client_id FROM loom_guest_clients") as $r){$cid=safe_token((string)$r['client_id']);if($cid!=='')$ids[$cid]=true;}}catch(Throwable $e){}
   return $ids;
 }
+function loom_cleanup_guest_contains_system_owner(string $guestId): bool {
+  $guestId=safe_token($guestId);$owner=safe_token(loom_access_system_owner_client_id());if($guestId===''||$owner==='')return false;
+  $g=loom_guest_get($guestId);if($g){$root=loom_guest_root($g);$primary=safe_token((string)($root['primaryClientId']??''));if($primary!==''&&hash_equals($owner,$primary))return true;foreach(array_keys((array)($root['clients']??[])) as $cid){$cid=safe_token((string)$cid);if($cid!==''&&hash_equals($owner,$cid))return true;}}
+  if(loom_db_ready())try{$st=loom_db_pdo(true)->prepare("SELECT 1 FROM loom_guest_clients WHERE guest_id=? AND client_id=? LIMIT 1");$st->execute([$guestId,$owner]);if($st->fetchColumn())return true;}catch(Throwable $e){}
+  return false;
+}
 function loom_cleanup_orphan_client_ids(bool $includeOwner=false): array {
   $linked=loom_cleanup_user_linked_client_ids();$wrapped=loom_cleanup_guest_wrapped_client_ids();$owner=safe_token(loom_access_system_owner_client_id());$out=[];
   foreach(loom_cleanup_all_client_ids() as $cid){$cid=safe_token($cid);if($cid===''||isset($linked[$cid])||isset($wrapped[$cid]))continue;if(!$includeOwner&&$owner!==''&&hash_equals($owner,$cid))continue;$out[$cid]=true;}
@@ -46,15 +52,17 @@ function loom_cleanup_db_values(string $sql,array $params=[]): array { if(!loom_
 function loom_cleanup_plan(string $kind,string $subjectId,array $options=[]): array {
   $allowed=['user-one','guest-one','users-all','guests-all','orphans-all','all-except-owner','factory-all'];if(!in_array($kind,$allowed,true))throw new RuntimeException('Choose a valid cleanup target.');
   $subjectId=safe_token($subjectId);$ownerUser=loom_access_system_owner_user_id();$ownerClient=loom_access_system_owner_client_id();$users=[];$guests=[];
+  $protectedOwnerGuests=[];
   if($kind==='user-one'){if($subjectId==='')throw new RuntimeException('Choose a permanent account.');if($ownerUser!==''&&hash_equals($ownerUser,$subjectId))throw new RuntimeException('The System Owner can only be removed with the explicit Factory identity wipe target.');$users[$subjectId]=true;}
-  elseif($kind==='guest-one'){if($subjectId==='')throw new RuntimeException('Choose a Guest Identity.');$guests[$subjectId]=true;}
+  elseif($kind==='guest-one'){if($subjectId==='')throw new RuntimeException('Choose a Guest Identity.');if(loom_cleanup_guest_contains_system_owner($subjectId))throw new RuntimeException('This Guest Identity contains the System Owner bootstrap browser and is protected. Bind the System Owner to a permanent account first, or use the explicit Factory identity wipe if the installation truly must be reset.');$guests[$subjectId]=true;}
   elseif($kind==='users-all'){foreach(loom_cleanup_all_user_ids() as $uid)if($ownerUser===''||!hash_equals($ownerUser,$uid))$users[$uid]=true;}
-  elseif($kind==='guests-all'){foreach(loom_cleanup_all_guest_ids() as $gid)$guests[$gid]=true;}
+  elseif($kind==='guests-all'){foreach(loom_cleanup_all_guest_ids() as $gid){if(loom_cleanup_guest_contains_system_owner($gid)){$protectedOwnerGuests[$gid]=true;continue;}$guests[$gid]=true;}}
   elseif($kind==='orphans-all'){}
-  elseif($kind==='all-except-owner'){foreach(loom_cleanup_all_user_ids() as $uid)if($ownerUser===''||!hash_equals($ownerUser,$uid))$users[$uid]=true;foreach(loom_cleanup_all_guest_ids() as $gid)$guests[$gid]=true;}
+  elseif($kind==='all-except-owner'){foreach(loom_cleanup_all_user_ids() as $uid)if($ownerUser===''||!hash_equals($ownerUser,$uid))$users[$uid]=true;foreach(loom_cleanup_all_guest_ids() as $gid){if(loom_cleanup_guest_contains_system_owner($gid)){$protectedOwnerGuests[$gid]=true;continue;}$guests[$gid]=true;}}
   elseif($kind==='factory-all'){foreach(loom_cleanup_all_user_ids() as $uid)$users[$uid]=true;foreach(loom_cleanup_all_guest_ids() as $gid)$guests[$gid]=true;}
 
   $guestStore=loom_guest_store();if(loom_cleanup_bool($options,'attachedGuests',false)&&$users){foreach(($guestStore['guests']??[]) as $gid=>$g)if(loom_cleanup_matches($users,(string)($g['attachedUserId']??'')))$guests[safe_token((string)($g['guestId']??$gid))]=true;foreach(loom_cleanup_db_values("SELECT guest_id FROM loom_guest_identities WHERE attached_user_id IN (".implode(',',array_fill(0,count($users),'?')).")",array_keys($users)) as $gid)$guests[$gid]=true;}
+  if($kind!=='factory-all')foreach(array_keys($guests) as $gid)if(loom_cleanup_guest_contains_system_owner($gid)){unset($guests[$gid]);$protectedOwnerGuests[$gid]=true;}
 
   $clients=[];$profiles=[];$installations=[];$orphanClients=[];
   if(in_array($kind,['guests-all','orphans-all','all-except-owner','factory-all'],true)){foreach(loom_cleanup_orphan_client_ids($kind==='factory-all') as $cid){$clients[$cid]=true;$orphanClients[$cid]=true;}}
@@ -64,6 +72,7 @@ function loom_cleanup_plan(string $kind,string $subjectId,array $options=[]): ar
   // Removing an account detaches those links; preserved Guest Histories keep their
   // client-owned project state, continuity evidence and presentation data.
   if($guests){$ph=implode(',',array_fill(0,count($guests),'?'));foreach(loom_cleanup_db_values("SELECT client_id FROM loom_guest_clients WHERE guest_id IN ($ph)",array_keys($guests)) as $cid)$clients[$cid]=true;}
+  if($kind!=='factory-all'&&$ownerClient!==''){unset($clients[$ownerClient],$orphanClients[$ownerClient]);}
   $gps=loom_guest_profiles_store();foreach(($gps['profiles']??[]) as $pid=>$p){$hit=false;foreach((array)($p['generations']??[]) as $g){if(loom_cleanup_matches($guests,(string)($g['guestId']??''))||loom_cleanup_matches($clients,(string)($g['clientId']??''))){$hit=true;break;}}if($hit)$profiles[safe_token((string)($p['guestProfileId']??$pid))]=true;}
   foreach(($gps['installationMap']??[]) as $iid=>$pids)foreach((array)$pids as $pid)if(isset($profiles[safe_token((string)$pid)])){$iid=safe_token((string)$iid);if($iid!=='')$installations[$iid]=true;}
   if($guests||$clients){$conds=[];$params=[];if($guests){$conds[]='guest_id IN ('.implode(',',array_fill(0,count($guests),'?')).')';$params=array_merge($params,array_keys($guests));}if($clients){$conds[]='client_id IN ('.implode(',',array_fill(0,count($clients),'?')).')';$params=array_merge($params,array_keys($clients));}if($conds)foreach(loom_cleanup_db_values("SELECT DISTINCT guest_profile_id FROM loom_guest_profile_generations WHERE ".implode(' OR ',$conds),$params) as $pid)$profiles[$pid]=true;}
@@ -71,7 +80,7 @@ function loom_cleanup_plan(string $kind,string $subjectId,array $options=[]): ar
   $flags=['projectData'=>loom_cleanup_bool($options,'projectData',true),'activity'=>loom_cleanup_bool($options,'activity',true),'referrals'=>loom_cleanup_bool($options,'referrals',true),'continuity'=>loom_cleanup_bool($options,'continuity',true),'media'=>loom_cleanup_bool($options,'media',true),'audit'=>loom_cleanup_bool($options,'audit',false),'attachedGuests'=>loom_cleanup_bool($options,'attachedGuests',false)];
   $scope=(string)($options['scope']??'both');if(!in_array($scope,['local','database','both'],true))$scope='both';
   $phrase=$kind==='factory-all'?'WIPE ALL IDENTITIES AND OWNER':(in_array($kind,['users-all','guests-all','orphans-all','all-except-owner'],true)?'DELETE ALL SELECTED IDENTITIES':'DELETE IDENTITY DATA');
-  $warnings=[];if($orphanClients)$warnings[]=count($orphanClients).' legacy orphan client record(s) have no canonical Guest Identity or permanent-account owner and will be swept.';if(in_array($scope,['database','both'],true)&&!loom_db_ready())$warnings[]='Database cleanup was selected, but SQL is not currently connected; execution will stop instead of silently skipping it.';if($scope==='database')$warnings[]='Database-only deletion leaves the durable local fallback files intact; a future migration could restore them. Use Both for a complete deletion.';if($kind==='factory-all'){$warnings[]='Factory identity wipe removes the System Owner record and returns LOOM to first-run Admin bootstrap state.';if(loom_db_ready()&&$scope!=='both')$warnings[]='Because SQL is connected, Factory identity wipe requires Durable local + SQL together so the System Owner cannot survive in the other persistence layer.';}if(!$flags['audit'])$warnings[]='Audit history is preserved by default for accountability and may still contain historical identity IDs.';
+  $warnings=[];if($protectedOwnerGuests)$warnings[]=count($protectedOwnerGuests).' System Owner Guest Identity record(s) were excluded from this deletion target.';if($orphanClients)$warnings[]=count($orphanClients).' legacy orphan client record(s) have no canonical Guest Identity or permanent-account owner and will be swept.';if(in_array($scope,['database','both'],true)&&!loom_db_ready())$warnings[]='Database cleanup was selected, but SQL is not currently connected; execution will stop instead of silently skipping it.';if($scope==='database')$warnings[]='Database-only deletion leaves the durable local fallback files intact; a future migration could restore them. Use Both for a complete deletion.';if($kind==='factory-all'){$warnings[]='Factory identity wipe removes the System Owner record and returns LOOM to first-run Admin bootstrap state.';if(loom_db_ready()&&$scope!=='both')$warnings[]='Because SQL is connected, Factory identity wipe requires Durable local + SQL together so the System Owner cannot survive in the other persistence layer.';}if(!$flags['audit'])$warnings[]='Audit history is preserved by default for accountability and may still contain historical identity IDs.';
   return ['kind'=>$kind,'subjectId'=>$subjectId?:null,'scope'=>$scope,'flags'=>$flags,'systemOwner'=>['userId'=>$ownerUser?:null,'clientId'=>$ownerClient?:null],'userIds'=>array_keys($users),'guestIds'=>array_keys($guests),'clientIds'=>array_keys($clients),'guestProfileIds'=>array_keys($profiles),'installationIds'=>array_keys($installations),'orphanClientIds'=>array_keys($orphanClients),'counts'=>['permanentUsers'=>count($users),'guestIdentities'=>count($guests),'browserClients'=>count($clients),'orphanClients'=>count($orphanClients),'guestProfiles'=>count($profiles),'installations'=>count($installations)],'confirmPhrase'=>$phrase,'warnings'=>$warnings];
 }
 function loom_cleanup_contains_ids(mixed $v,array $sets): bool { if(is_array($v)){foreach($v as $x)if(loom_cleanup_contains_ids($x,$sets))return true;return false;}$s=safe_token((string)$v);if($s==='')return false;foreach($sets as $set)if(isset($set[$s]))return true;return false; }

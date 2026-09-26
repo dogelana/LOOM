@@ -1,9 +1,19 @@
+# LOOM 0.15.58
+
+## 0.15.58 — System Owner identity reconciliation + canonical profile saves
+
+LOOM now treats the **System Owner** as a protected installation authority even when the original bootstrap happened before a permanent account was bound. The root owner can no longer disappear from Users because a browser-backed Guest wrapper was deleted. If that wrapper is missing, LOOM safely rebuilds a canonical owner Guest around the immutable owner client; if the owner browser has one currently resolvable permanent account relationship, LOOM can bind that verified account without guessing from names.
+
+Global Profile display-name saves now write the canonical identity layer that the UI reads. Guest display names therefore persist instead of snapping back to an older Guest Profile value. Historical browser labels such as `PixelShift…` remain visible as **historical aliases/lineage**, rather than being mistaken for the current canonical person name.
+
+Admin → Users now marks root ownership prominently, computes project/Admin role from the **target person** being inspected, protects the owner in Identity Cleanup at both UI and backend layers, and links directly to the System Owner / Access Manager. Global/project avatars, bans, continuity/referrals, email, password recovery, HTML Framer, friendly routes, deletion/orphan cleanup, and deployment safety remain intact.
+
 
 ## Canonical Users directory (0.15.57)
 
 Admin → Users is one global people directory. Choose **Global LOOM** or a project scope; the same permanent accounts and Guest Identities are shown in either view, with project participation resolved from canonical identity plus proven linked-client history. Clicking a person opens one inspector for identity, avatar, network/geolocation context, continuity/referrals, project activity, access roles, and global/project moderation. Global LOOM bans and per-project bans are independent and do not delete data. Raw orphan browser clients are cleanup evidence, not first-class people.
 
-# LOOM 0.15.57
+## Historical release · 0.15.57
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
 
