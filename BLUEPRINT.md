@@ -1,3 +1,12 @@
+# LOOM Blueprint — 0.15.74
+
+## Core UX consistency invariants
+
+- The permanent LOOM shell is the canonical navigation layer. LOOM-owned utility pages must not duplicate Home/Admin controls inside page content when the same destination is already present in the shell.
+- Global shell controls use one geometry contract for height, icon box, spacing, typography, focus, hover, and responsive behavior regardless of whether the control is Home, Share, Profile, Switch User, Admin, or another static shell link.
+- Administrative refresh/reload actions expose an explicit busy state and must not visually dominate search/filter controls.
+- Shared visual standardization may affect LOOM-owned core/Admin surfaces only; project-owned branding and application UI remain independently styled.
+
 # LOOM Blueprint — 0.15.72
 
 ## Permanent-account identity-collapse invariants
@@ -221,4 +230,8 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.59 revision=73 policy=package-priority -->
+<!-- @loom-file release=0.15.74 revision=84 policy=package-priority -->
+## Runtime readiness and shell waiting state
+
+Initial Action Runtime readiness is the authoritative completion signal for the static project-shell waiting placeholder. The runtime directly dismisses the fallback after the boot registry/module pass completes so legacy Instance Project CSS cannot strand `Loading project modules…` on an otherwise-ready page.
+

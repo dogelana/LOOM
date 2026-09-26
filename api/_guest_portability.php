@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.72 revision=2 policy=package-priority
+// @loom-file release=0.15.74 revision=4 policy=package-priority
 // LOOM v0.15.68 — First-class standalone Guest portability.
 declare(strict_types=1);
 

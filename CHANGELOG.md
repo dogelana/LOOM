@@ -1,3 +1,18 @@
+# LOOM 0.15.74 — Project Module Completion State
+
+- Fixed the project-shell `Loading project modules…` fallback remaining visible after every real module had finished loading.
+- Action Runtime now authoritatively dismisses the shell waiting state when initial runtime startup reaches ready, so existing Instance Projects are repaired without modifying their instance-owned shell files.
+- New/baseline project shells use a stronger completed-state CSS rule and no longer depend on child-count MutationObserver heuristics.
+- The waiting element remains available when runtime startup actually fails, preserving useful startup-error feedback.
+
+# LOOM 0.15.73 — Core UX Consistency Polish
+
+- Backup & Restore removes its redundant in-page Admin button; the permanent global shell remains the single Admin navigation affordance.
+- Static shell links such as Admin now use the exact same global-control geometry, icon sizing, spacing, hover/focus treatment, and responsive height as Home, Share, Profile, and Switch User.
+- Admin Users receives a quieter integrated Refresh control with real busy feedback, improved directory-row hover/selection states, and smoother search/filter control rhythm.
+- Backup & Restore adopts the standard LOOM green primary/active-state language instead of a one-off blue accent.
+- Shared LOOM-owned Admin surfaces receive a restrained form/button/empty-state consistency pass without changing project-owned branding or application UI.
+
 # LOOM 0.15.72 — Permanent Account Identity Collapse
 
 - Permanent-account promotion no longer surfaces the pre-created future Guest generation as a second visible person. Future Guest generations are reserved as `standby` until an explicit sign-out or Guest selection activates them.

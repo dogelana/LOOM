@@ -1,4 +1,4 @@
-// @loom-file release=0.15.64 revision=16 policy=package-priority
+// @loom-file release=0.15.74 revision=17 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -49,9 +49,24 @@
       await this._coreStep('discover-project',async()=>{});
       await this.refresh(true);
       await this._coreStep('ready',async()=>{});
+      this._dismissProjectWaitingState();
       if(window.LoomInteractionCapture)this.stopInteractionCapture=window.LoomInteractionCapture.start({project:this.project,identity:this.identity,runtimeId:this.runtimeId,apiBase:this.apiBase});
       this._startHeartbeat();this._bindPresenceActivity();this._schedulePoll();
       addEventListener('pagehide',this._onPageHide);addEventListener('pageshow',this._onPageShow);addEventListener('focus',this._onFocus,{passive:true});
+    }
+    _dismissProjectWaitingState(){
+      try{
+        const waiting=this.mountRoot?.querySelector?.('#waitingMessage,[data-loom-waiting-message]');
+        if(!waiting)return;
+        waiting.classList.add('modules-loaded');
+        waiting.setAttribute('aria-hidden','true');
+        // Older project shells declared `.loom-project-page .waiting { display:grid }`
+        // after the legacy `.waiting.modules-loaded` rule, so the completion class
+        // could be present while the placeholder still remained visible forever.
+        // Inline important is intentional here: runtime readiness is authoritative.
+        waiting.style.setProperty('display','none','important');
+        waiting.dataset.loomRuntimeReady='true';
+      }catch{}
     }
     async stop(){return this.close('runtime-stop')}
     async close(reason='closed'){

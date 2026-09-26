@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.12.08 revision=2 policy=package-priority -->
+<!-- @loom-file release=0.15.74 revision=3 policy=package-priority -->
 # LOOM Loader Standard — v0.11.01
 
 ## Purpose
@@ -32,3 +32,7 @@ The Loader remains a Pegboard capability with normal action steps/history even t
 
 ## Ordering
 Bootstrap modules exist outside the normal five-digit module card order and display `BOOT`. They do not displace the protected Header Bar `00000` project-layout slot.
+## Project-shell completion placeholder
+
+The static project-shell `Loading project modules…` placeholder is a shell fallback, not a module. Runtime readiness is authoritative: after the initial registry load, module mount/activation pass, and bootstrap Loader completion finish successfully, Action Runtime dismisses that placeholder directly. This remains compatible with older Instance Project shells whose CSS may otherwise keep the placeholder visible after the `modules-loaded` class is applied. A runtime-start failure leaves the placeholder available for the shell error message.
+

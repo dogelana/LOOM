@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.72 revision=10 policy=package-priority
+// @loom-file release=0.15.74 revision=12 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);
 $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))$body=$_POST;

@@ -1,3 +1,13 @@
+## 0.15.74 project module completion state
+
+LOOM 0.15.74 fixes the final project-shell loading placeholder lifecycle. The core Action Runtime now dismisses `Loading project modules…` only after the initial module runtime reaches ready, including on older Instance Project shells, while failed runtime startup still leaves the shell fallback available for its error message.
+
+## 0.15.73 core UX consistency polish
+
+LOOM 0.15.73 is a deliberately small production-polish release. Backup & Restore relies on the permanent global Admin navigation instead of duplicating Admin inside the page, shell-level Admin/static links now share the same control geometry as Home/Share/Profile, and the Admin Users directory gets a calmer Refresh/search interaction with explicit loading feedback.
+
+The release also applies a restrained consistency layer to LOOM-owned administrative controls, empty states, and interaction transitions. Project-owned branding and project application UI remain untouched.
+
 ## 0.15.72 permanent-account identity collapse
 
 LOOM 0.15.72 fixes a presentation/lineage bug in account promotion. When a Guest becomes or signs into a permanent account, the claimed Guest History remains attached to that permanent person. The next fresh Guest generation is now a **standby payload**, not a second current person. It is invisible in Admin Users and portable-person export until the browser explicitly signs out or chooses Guest mode, at which point the payload activates normally.
@@ -215,4 +225,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.59 revision=77 policy=package-priority -->
+<!-- @loom-file release=0.15.74 revision=92 policy=package-priority -->

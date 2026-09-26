@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.72 revision=17 policy=package-priority
+// @loom-file release=0.15.74 revision=19 policy=package-priority
 // Canonical LOOM people directory. Permanent accounts and Guest Identities are
 // one Admin surface; raw browser clients are evidence/lineage, never people.
 require __DIR__.'/_common.php';
