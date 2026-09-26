@@ -1,10 +1,14 @@
-// @loom-file release=0.15.67 revision=69 policy=package-priority
+// @loom-file release=0.15.69 revision=70 policy=package-priority
 (()=>{
-  const CLIENT_RELEASE='0.15.67';
+  const HARD_RELEASE='0.15.69';
   const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
   const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
+  const bootScript=document.currentScript;
+  const scriptRelease=(()=>{try{return String(new URL(bootScript?.src||'',location.href).searchParams.get('v')||'').trim()}catch{return''}})();
   const configuredRelease=String(window.LoomConfig?.engineVersion||'').trim();
-  const VERSION=configuredRelease&&compareBootVersions(configuredRelease,CLIENT_RELEASE)>0?configuredRelease:CLIENT_RELEASE;
+  const bootEvidence=[scriptRelease,configuredRelease].filter(Boolean);
+  const CLIENT_RELEASE=bootEvidence.length?bootEvidence.reduce((best,v)=>compareBootVersions(v,best)>0?v:best,bootEvidence[0]):HARD_RELEASE;
+  const VERSION=CLIENT_RELEASE;
   function consumeReleaseReloadMarker(){
     try{
       const u=new URL(location.href),markerVersion=String(u.searchParams.get('_loom_release')||''),had=u.searchParams.has('_loom_release')||u.searchParams.has('_loom_reload');
@@ -17,7 +21,7 @@
     }catch{return false}
   }
   consumeReleaseReloadMarker();
-  const BRAND_SCRIPT_URL=(()=>{try{return new URL(document.currentScript?.src||'engine/loom-brand.js',location.href)}catch{return null}})();
+  const BRAND_SCRIPT_URL=(()=>{try{return new URL(bootScript?.src||'engine/loom-brand.js',location.href)}catch{return null}})();
   const BRAND_API_BASE=(()=>{try{return new URL('../api/',BRAND_SCRIPT_URL||location.href).href.replace(/\/$/,'')}catch{return 'api'}})();
   const HERO_X=-35.26438968,HERO_Y=315,HOLD_MS=3000,SPIN_MS=7000,LOOP_MS=10000;
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -84,7 +88,7 @@
     try{const r=await fetch(`${BRAND_API_BASE}/version.php?watch=${Date.now()}`,{cache:'no-store',headers:{'Accept':'application/json'}});if(!r.ok)throw 0;return await r.json()}catch{return null}
   }
   function showReleaseFallback(version){
-    if(compareVersions(version,VERSION)<0)return;
+    if(compareVersions(version,VERSION)<=0)return;
     if(document.getElementById('loom-release-refresh-fallback'))return;
     const el=document.createElement('div');el.id='loom-release-refresh-fallback';el.className='loom-release-refresh-fallback';el.textContent=`LOOM v${version||'new'} is available. Automatic refresh was paused to avoid a reload loop; refresh this page manually.`;document.body?.appendChild(el);
   }
@@ -120,8 +124,7 @@
       if(!releaseIsHealthy(payload))return false;
       const server=String(payload.canonicalVersion||''),fp=releaseFingerprint(payload);
       if(compareVersions(server,VERSION)>0)return true;
-      if(compareVersions(server,VERSION)<0)return false; // client file can arrive before the manifest commit
-      return !!(baselineFingerprint&&fp&&fp!==baselineFingerprint);
+      return false; // Equal-version manifest/fingerprint churn is not a new release. Canonical releases must increment the version.
     };
     const verifyAndReload=async(expectedFp)=>{
       await new Promise(r=>setTimeout(r,1800));

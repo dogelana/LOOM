@@ -1,3 +1,10 @@
+
+## 0.15.69 production UI + release-watch contract
+
+LOOM 0.15.69 makes release identity self-consistent: the browser derives its running release from canonical boot/config/script evidence and only announces a strictly newer semantic version. Same-version manifest fingerprints are deployment/integrity metadata, not a second release.
+
+The shared LOOM-owned surfaces also receive a production visual pass while preserving project ownership of project-specific branding and application UI.
+
 # LOOM 0.15.68
 
 LOOM 0.15.68 is the migration-preparation release that makes **portable people** symmetrical: permanent Users and standalone Guests can both be exported and restored as complete identity graphs. A Guest bundle follows canonical Guest History, linked browser/client identities, Guest Profiles and generations, installation aliases, LOOM-wide/project presentation, avatars/media, project state, project grants, moderation, continuity/referrals, network/history metadata, activity/replay/audit streams, and attributable database rows. Guests already attached to a permanent User remain inside that User bundle and are intentionally not exported twice.

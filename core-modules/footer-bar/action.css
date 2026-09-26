@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.18 revision=3 policy=package-priority */
+/* @loom-file release=0.15.69 revision=4 policy=package-priority */
 .loom-footer-bar{
   width:100%;
   max-width:100%;
@@ -19,7 +19,7 @@
   min-width:0;
   box-sizing:border-box;
   border:1px solid rgba(45,118,66,.10);
-  box-shadow:inset 0 1px rgba(255,255,255,.82),0 8px 28px rgba(25,76,39,.055);
+  box-shadow:inset 0 1px rgba(255,255,255,.9),0 7px 24px rgba(25,76,39,.045);
   transition:width .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
 }
 .loom-footer-row[data-row-width="full"]{width:100%;max-width:100%}

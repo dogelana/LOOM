@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.67 revision=52 policy=package-priority
+// @loom-file release=0.15.69 revision=53 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -9,10 +9,12 @@ loom_native_admin_page_guard('Activity Explorer','../../');
 <html lang="en">
 <head><?php echo $loomPageSocial; ?>
 <meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/loom-design.css?v=0.15.69">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3f7f4">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 
-<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.67">
+<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.69">
 <style>
 :root{--ink:#132019;--muted:#6d7b72;--green:#168346;--line:#dce9df;--soft:#f5faf6;--red:#9f2929}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% -10%,#dff6e6,#f6faf6 45%,#edf4ee)}
@@ -20,9 +22,21 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
 .hero{padding:22px}.head{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}.eyebrow{font-size:9px;font-weight:950;letter-spacing:.14em;color:#57705f;text-transform:uppercase}.hero h1{margin:4px 0 6px;font-size:38px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav a,.btn{border:1px solid #d2e2d5;border-radius:10px;background:#f8fcf9;color:#245b36;padding:9px 11px;text-decoration:none;font-weight:850;font-size:10px;cursor:pointer}.btn.primary{background:#173f27;color:white;border-color:#173f27}.filters{padding:18px;margin-top:12px}.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px}.field label{display:block;font-size:9px;font-weight:900;color:#58705f;margin-bottom:5px}.field input,.field select{width:100%;padding:10px 11px;border:1px solid #d4e3d7;border-radius:10px;background:white;min-width:0}.actions{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-top:12px}.summary{display:grid;grid-template-columns:repeat(6,minmax(100px,1fr));gap:9px;margin:12px 0}.stat{padding:12px;border:1px solid #dce8df;border-radius:14px;background:#fff}.stat b{display:block;font-size:20px}.stat span{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#75837a;font-weight:900}.results{overflow:hidden}.result-head{padding:15px 17px;border-bottom:1px solid #e5eee7;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.rows{display:grid}.row{display:grid;grid-template-columns:155px 110px minmax(230px,1.35fr) minmax(170px,.75fr) minmax(150px,.7fr);gap:12px;padding:12px 16px;border-bottom:1px solid #edf2ee;align-items:start}.row:last-child{border-bottom:0}.time{font-size:9px;color:#64766b}.badge{display:inline-block;padding:5px 7px;border-radius:999px;background:#eaf6ed;color:#17633a;font-size:8px;font-weight:950;text-transform:uppercase;letter-spacing:.06em}.badge.interactions{background:#eef0ff;color:#414c8a}.badge.framed{background:#f0eaff;color:#65418a}.badge.errors{background:#ffe9e9;color:#922c2c}.main strong{display:block;font-size:11px;line-height:1.35}.main code,.meta code{font:800 8px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;color:#42604b}.meta{font-size:9px;color:#6d7d73;line-height:1.5;min-width:0}.detail summary{cursor:pointer;font-size:9px;font-weight:850;color:#3b6046}.detail pre{white-space:pre-wrap;word-break:break-word;font:8px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#f7faf7;border:1px solid #e1e9e3;border-radius:10px;padding:8px;max-height:220px;overflow:auto}.empty{padding:28px;text-align:center;color:#75837a;font-size:11px}.msg{font-size:9px;color:#607268;min-height:14px}
 @media(max-width:1000px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:repeat(3,minmax(0,1fr))}.row{grid-template-columns:130px 90px minmax(0,1fr);}.row .who,.row .session{grid-column:3}}
 @media(max-width:640px){.wrap{width:min(100% - 14px,1320px);margin:12px auto 36px}.hero,.filters{padding:15px;border-radius:18px}.hero h1{font-size:30px}.filter-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.row{grid-template-columns:1fr;gap:6px;padding:13px}.row .who,.row .session{grid-column:auto}.result-head{padding:13px}.actions .btn{flex:1}.nav a{flex:1;text-align:center}}
+
+/* 0.15.69 shared admin utility polish */
+body.loom-admin-utility{min-height:100vh;background:radial-gradient(circle at 15% -8%,rgba(169,223,79,.12),transparent 30%),linear-gradient(180deg,#f8fbf8,#eef5f0);color:#142019}
+.loom-admin-utility .wrap{width:min(1280px,calc(100% - 32px));margin:30px auto 72px}
+.loom-admin-utility .hero,.loom-admin-utility .panel{border-color:rgba(51,103,65,.12)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 12px 40px rgba(18,54,29,.055),inset 0 1px rgba(255,255,255,.95)!important}
+.loom-admin-utility .hero{padding:25px!important}.loom-admin-utility .hero h1{font-size:clamp(34px,4vw,44px)!important;letter-spacing:-.05em!important;line-height:1.02}
+.loom-admin-utility .panel{padding:20px!important}.loom-admin-utility .nav a,.loom-admin-utility .btn,.loom-admin-utility .tab{min-height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px!important;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease}
+.loom-admin-utility .nav a:hover,.loom-admin-utility .btn:hover:not(:disabled),.loom-admin-utility .tab:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(18,54,29,.07)}
+.loom-admin-utility input,.loom-admin-utility select,.loom-admin-utility textarea{min-height:44px;border-radius:10px!important;outline:none;transition:border-color .14s ease,box-shadow .14s ease}.loom-admin-utility input:focus,.loom-admin-utility select:focus,.loom-admin-utility textarea:focus{border-color:#7fbd92!important;box-shadow:0 0 0 4px rgba(22,131,70,.09)}
+.loom-admin-utility .option,.loom-admin-utility .usercard,.loom-admin-utility .stat{border-color:rgba(51,103,65,.11)!important;background:#fbfdfb!important}
+@media(max-width:760px){.loom-admin-utility .wrap{width:min(100% - 18px,1280px);margin-top:14px}.loom-admin-utility .hero,.loom-admin-utility .panel{padding:18px!important;border-radius:18px!important}}
+
 </style>
 </head>
-<body>
+<body class="loom-admin-utility loom-activity-page">
 <div id="loomShellHeader"></div>
 <div class="wrap">
   <section class="hero">
@@ -53,10 +67,10 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.67"></script><script src="../../engine/loom-time.js?v=0.15.67"></script><script src="../../engine/loom-brand.js?v=0.15.67"></script>
-<script src="../../engine/identity.js?v=0.15.67"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.67"></script>
-<script src="../../engine/loom-toast.js?v=0.15.67"></script><script src="../../engine/share-referrals.js?v=0.15.67"></script><script src="../../engine/loom-shell.js?v=0.15.67"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.69"></script><script src="../../engine/loom-time.js?v=0.15.69"></script><script src="../../engine/loom-brand.js?v=0.15.69"></script>
+<script src="../../engine/identity.js?v=0.15.69"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.69"></script>
+<script src="../../engine/loom-toast.js?v=0.15.69"></script><script src="../../engine/share-referrals.js?v=0.15.69"></script><script src="../../engine/loom-shell.js?v=0.15.69"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];

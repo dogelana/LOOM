@@ -1,3 +1,10 @@
+
+## 0.15.69 — production presentation and release identity
+
+- `engine/config.js` is the canonical runtime release declaration; `engine/loom-brand.js` also reads its own cache-bust release as boot evidence and must never depend on an independently stale release constant.
+- Release Watch only notifies/reloads for a strictly newer semantic release. A fingerprint change at the same version is not a release event.
+- LOOM-owned surfaces share production design tokens and interaction rhythm. Project-owned branding and application UI remain independent.
+
 # LOOM Blueprint — 0.15.68
 
 ## 0.15.68 Portable-person and owner-migration invariants

@@ -1,3 +1,11 @@
+# LOOM 0.15.69 — Canonical Release Watch + Production UI
+
+- Release Watch now derives the running client release from canonical boot evidence instead of a manually maintained stale constant. LOOM Home can no longer advertise the release it is already running merely because `loom-brand.js` drifted behind `engine/config.js`.
+- Equal-version deployment fingerprint churn is no longer treated as a new release. Canonical release notifications require a strictly newer semantic version, preventing same-version reload loops and false fallback banners.
+- LOOM Home receives a production UI pass: stronger information hierarchy, consistent controls, balanced hero sizing, denser project browsing, unified cards, improved modal/forms, responsive project search/tabs, and clearer primary project actions.
+- LOOM Admin, Backup & Restore, Activity, Referrals, Admin Setup, Action Registry, the default project shell, shared global controls, and core Header/Showcase/Footer defaults now share the same production-grade spacing, elevation, input, focus, hover, and responsive rhythm.
+- The design work is deliberately LOOM-owned. Project brand colors, logos, wordmarks, HTML Framer applications, and project-specific visual systems remain project-owned and are not flattened into the LOOM house style.
+
 # LOOM 0.15.68 — Portable Guests + System Owner migration bootstrap
 
 - Backup & Restore → Users now exports **standalone Guests** as first-class portable people in addition to permanent accounts.

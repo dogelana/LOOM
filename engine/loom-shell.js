@@ -1,4 +1,4 @@
-// @loom-file release=0.15.67 revision=37 policy=package-priority
+// @loom-file release=0.15.69 revision=38 policy=package-priority
 (() => {
   'use strict';
 
@@ -71,7 +71,7 @@
     const style=document.createElement('style');style.id='loom-shell-user-controls-style';style.textContent=`
       .loom-global-controls{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;vertical-align:middle}
       .loom-global-control-slot{display:inline-flex;align-items:center;justify-content:center;min-width:0}
-      .loom-global-control{box-sizing:border-box;min-height:40px;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px;padding:8px 11px!important;border:1px solid #d5e4d8!important;border-radius:11px!important;background:linear-gradient(180deg,#fff,#f6faf7)!important;color:#244d31!important;text-decoration:none!important;font:900 10px/1 Inter,system-ui!important;white-space:nowrap;cursor:pointer;box-shadow:0 4px 15px rgba(22,74,38,.045);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease}.loom-global-control:focus-visible{outline:3px solid rgba(50,174,96,.20);outline-offset:2px;border-color:#8fc7a0!important}
+      .loom-global-control{box-sizing:border-box;min-height:42px;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px;padding:8px 11px!important;border:1px solid #d5e4d8!important;border-radius:12px!important;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,251,248,.96))!important;color:#244d31!important;text-decoration:none!important;font:900 10px/1 Inter,system-ui!important;white-space:nowrap;cursor:pointer;box-shadow:0 5px 18px rgba(22,74,38,.055),inset 0 1px rgba(255,255,255,.9);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease}.loom-global-control:focus-visible{outline:3px solid rgba(50,174,96,.20);outline-offset:2px;border-color:#8fc7a0!important}
       .loom-global-control:hover{transform:translateY(-1px);border-color:#bcd7c3!important;box-shadow:0 8px 20px rgba(22,74,38,.08)}
       .loom-global-control .loom-global-nav-emoji,.loom-global-control .pic,.loom-global-control .loom-share-emoji,.loom-global-control .loom-profile-dock-icon{width:16px;height:16px;display:inline-grid;place-items:center;font-size:16px;line-height:1;flex:0 0 16px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
       .loom-global-control[disabled]{opacity:.55;cursor:not-allowed;transform:none}
