@@ -22,8 +22,22 @@ function loom_leaderboard_retotal(array &$state): void { $state['lifetimeEarned'
 function loom_leaderboard_compact_runs(array &$state,int $keep=128): void {
   if(count($state['runs'])<=$keep)return;$drop=count($state['runs'])-$keep;$keys=array_keys($state['runs']);foreach(array_slice($keys,0,$drop) as $key){$state['archivedEarned']+=(float)$state['runs'][$key];unset($state['runs'][$key]);}
 }
+function loom_leaderboard_avatar_version(string $project,string $type,string $id): string {
+  $parts=[$project,$type,$id];$gp=function_exists('loom_global_profile_get')?loom_global_profile_get($type,$id):null;if(is_array($gp))$parts[]=[(string)($gp['updatedAt']??''),(string)($gp['avatarMode']??'')];
+  $pi=function_exists('loom_project_identity_get_for_owner')?loom_project_identity_get_for_owner($project,$type,$id):null;if(is_array($pi))$parts[]=[(string)($pi['updatedAt']??''),(string)($pi['avatarMode']??'')];
+  if($type==='user'&&function_exists('loom_project_identity_client_ids_for_owner'))foreach(array_slice(loom_project_identity_client_ids_for_owner(['type'=>'user','id'=>$id],''),0,4) as $cid){$cgp=loom_global_profile_get('client',$cid);$cpi=loom_project_identity_get_for_owner($project,'client',$cid);if(is_array($cgp))$parts[]=[(string)($cgp['updatedAt']??''),(string)($cgp['avatarMode']??'')];if(is_array($cpi))$parts[]=[(string)($cpi['updatedAt']??''),(string)($cpi['avatarMode']??'')];}
+  return substr(hash('sha256',json_encode($parts,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)?:implode('|',$parts)),0,16);
+}
+function loom_leaderboard_avatar_url(string $project,string $type,string $id): string {
+  $base=rtrim(web_base_path(),'/').'/api/profile-avatar.php?action=image&project='.rawurlencode($project).'&scope=project';
+  if($type==='user'){
+    $base.='&subjectType=user&subjectId='.rawurlencode($id);
+    if(function_exists('loom_project_identity_client_ids_for_owner')){$clients=loom_project_identity_client_ids_for_owner(['type'=>'user','id'=>$id],'');if(!empty($clients[0]))$base.='&clientId='.rawurlencode((string)$clients[0]);}
+  }else{$base.='&clientId='.rawurlencode($id);}
+  return $base.'&v='.rawurlencode(loom_leaderboard_avatar_version($project,$type,$id));
+}
 function loom_leaderboard_rows(string $project,string $module,array $currentOwner,int $limit): array {
-  $rows=[];foreach(loom_project_state_rows_for_module($project,$module) as $row){$s=loom_leaderboard_state_normalize($row['state']??[]);loom_leaderboard_retotal($s);if($s['lifetimeEarned']<=0&&$s['playSeconds']<=0)continue;$type=(string)$row['ownerType'];$id=(string)$row['ownerId'];$name=loom_project_identity_effective_username($project,$type,$id);if(!$name)$name='Player '.strtoupper(substr(hash('sha256',$type.'|'.$id),0,6));$rows[]=['name'=>$name,'earned'=>$s['lifetimeEarned'],'playSeconds'=>(int)round($s['playSeconds']),'isCurrent'=>$currentOwner['type']===$type&&$currentOwner['id']===$id,'updatedAt'=>$row['updatedAt']??null];}
+  $rows=[];foreach(loom_project_state_rows_for_module($project,$module) as $row){$s=loom_leaderboard_state_normalize($row['state']??[]);loom_leaderboard_retotal($s);if($s['lifetimeEarned']<=0&&$s['playSeconds']<=0)continue;$type=(string)$row['ownerType'];$id=(string)$row['ownerId'];$name=loom_project_identity_effective_username($project,$type,$id);if(!$name)$name='Player '.strtoupper(substr(hash('sha256',$type.'|'.$id),0,6));$rows[]=['name'=>$name,'avatarUrl'=>loom_leaderboard_avatar_url($project,$type,$id),'earned'=>$s['lifetimeEarned'],'playSeconds'=>(int)round($s['playSeconds']),'isCurrent'=>$currentOwner['type']===$type&&$currentOwner['id']===$id,'updatedAt'=>$row['updatedAt']??null];}
   usort($rows,function($a,$b){$cash=$b['earned']<=>$a['earned'];if($cash!==0)return $cash;$time=$b['playSeconds']<=>$a['playSeconds'];if($time!==0)return $time;return strcmp((string)($a['name']??''),(string)($b['name']??''));});$rows=array_slice($rows,0,max(1,min(100,$limit)));foreach($rows as $i=>&$row)$row['rank']=$i+1;unset($row);return $rows;
 }
 

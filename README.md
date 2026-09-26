@@ -1,3 +1,9 @@
+## 0.15.75 project privacy, canonical access identities & live leaderboard avatars
+
+LOOM 0.15.75 adds System-Owner-controlled project visibility with explicit private-project access grants, canonicalizes Access Manager people selectors to the same visible identity names used by Admin Users, and removes attached/standby Guest lineage shells from grant choosers. Private projects are filtered server-side from Home/project discovery for unauthorized viewers, direct private entry is rejected before project metadata or shell HTML is emitted, and private project assets use signed non-guessable URLs.
+
+The generic project leaderboard API now resolves avatar URLs from current LOOM profile/project identity state on every standings request, so project leaderboards can follow avatar changes instead of retaining stale snapshots.
+
 ## 0.15.74 project module completion state
 
 LOOM 0.15.74 fixes the final project-shell loading placeholder lifecycle. The core Action Runtime now dismisses `Loading project modules…` only after the initial module runtime reaches ready, including on older Instance Project shells, while failed runtime startup still leaves the shell fallback available for its error message.
@@ -225,4 +231,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.74 revision=92 policy=package-priority -->
+<!-- @loom-file release=0.15.75 revision=93 policy=package-priority -->

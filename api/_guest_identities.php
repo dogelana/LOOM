@@ -148,6 +148,7 @@ function loom_guest_attach_client_to_user(string $clientId,string $userId,string
     if(function_exists('loom_project_identity_promote_client'))try{loom_project_identity_promote_client($cid,$userId);}catch(Throwable $e){}
     if(function_exists('loom_avatar_promote_client_to_user'))try{loom_avatar_promote_client_to_user($cid,$userId);}catch(Throwable $e){}
     if(function_exists('loom_promote_client_moderation_to_user'))try{loom_promote_client_moderation_to_user($cid,$userId);}catch(Throwable $e){}
+    if(function_exists('loom_access_promote_client_to_user'))try{$a=loom_access_promote_client_to_user($cid,$userId);$summary['accessGrantsPromoted']=($summary['accessGrantsPromoted']??0)+(int)($a['moved']??0);}catch(Throwable $e){}
   }
   foreach($clients as $cid)loom_guest_link_mapping_only($cid,$userId);
   return loom_guest_record_attachment($g,$userId,$clientId,$actorType,$actorId,$mode,$summary);

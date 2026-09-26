@@ -194,10 +194,11 @@ function loom_project_access_status(string $project,string $clientId=''): array 
   if(in_array($canonical['type'],['user','guest'],true)){$global=loom_identity_global_ban_state($canonical['type'],$canonical['id']);$projectState=loom_identity_project_ban_state($project,$canonical['type'],$canonical['id']);}
   $legacyState=loom_project_subject_state($project,$legacy['type'],$legacy['id']);$banned=(bool)($global['banned']??false)||(bool)($projectState['banned']??false)||(bool)($legacyState['banned']??false);
   $state=($global['banned']??false)?$global:(($projectState['banned']??false)?$projectState:$legacyState);
-  return ['allowed'=>!$banned,'banned'=>$banned,'subject'=>$canonical,'state'=>$state,'globalState'=>$global,'projectState'=>$projectState,'legacyState'=>$legacyState];
+  $privateDenied=false;if(function_exists('loom_access_project_is_private')&&loom_access_project_is_private($project))$privateDenied=!loom_access_can_view_project($clientId,$project);
+  return ['allowed'=>!$banned&&!$privateDenied,'banned'=>$banned,'privateDenied'=>$privateDenied,'visibility'=>function_exists('loom_access_project_visibility')?loom_access_project_visibility($project):'public','subject'=>$canonical,'state'=>$state,'globalState'=>$global,'projectState'=>$projectState,'legacyState'=>$legacyState];
 }
 function loom_enforce_project_access(string $project,string $clientId=''): void {
-  $s=loom_project_access_status($project,$clientId);if(!$s['allowed'])json_out(['ok'=>false,'error'=>'project-access-banned','message'=>'This profile is banned from this project. The account remains preserved.','project'=>$project,'banned'=>true,'bannedAt'=>$s['state']['bannedAt']],403);
+  $s=loom_project_access_status($project,$clientId);if(!empty($s['privateDenied']))json_out(['ok'=>false,'error'=>'project-not-found','message'=>'Project not found.'],404);if(!$s['allowed'])json_out(['ok'=>false,'error'=>'project-access-banned','message'=>'This profile is banned from this project. The account remains preserved.','project'=>$project,'banned'=>true,'bannedAt'=>$s['state']['bannedAt']??null],403);
 }
 function loom_project_record_visible(string $project,string $clientId='',string $userId=''): bool {
   $canonical=loom_identity_subject_for_record($clientId,$userId);if($canonical['id']==='')return true;

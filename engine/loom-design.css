@@ -1,4 +1,4 @@
-/* @loom-file release=0.15.74 revision=14 policy=package-priority */
+/* @loom-file release=0.15.75 revision=14 policy=package-priority */
 /* LOOM v0.12.14 visual foundation — polished defaults, same semantics */
 :root{
   color-scheme:light;
@@ -179,12 +179,12 @@ code{font-size:.92em}
 @media(max-width:720px){:root{--loom-radius-xl:24px;--loom-radius-lg:20px}.loom-ui-input{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.loom-ui-skeleton::after{animation:none}}
 
-/* LOOM 0.15.74 native file-picker polish. */
+/* LOOM 0.15.75 native file-picker polish. */
 :where(input[type="file"]){min-height:46px;padding:5px 7px;border:1px solid var(--loom-line);border-radius:var(--loom-radius-sm);background:linear-gradient(180deg,var(--loom-surface),var(--loom-surface-soft));color:var(--loom-muted);cursor:pointer}
 :where(input[type="file"])::file-selector-button{min-height:34px;margin:0 10px 0 0;padding:7px 11px;border:1px solid color-mix(in srgb,var(--loom-accent) 24%,var(--loom-line));border-radius:9px;background:var(--loom-accent-soft);color:color-mix(in srgb,var(--loom-accent) 72%,#102318);font:900 10px/1 var(--loom-font);cursor:pointer;transition:background var(--loom-transition-fast),border-color var(--loom-transition-fast),transform var(--loom-transition-fast)}
 :where(input[type="file"]):hover::file-selector-button{background:color-mix(in srgb,var(--loom-accent-soft) 78%,#fff);border-color:var(--loom-border-hover)}
 
-/* LOOM 0.15.74 restrained core-surface standardization. Project-owned UI is intentionally excluded. */
+/* LOOM 0.15.75 restrained core-surface standardization. Project-owned UI is intentionally excluded. */
 body:is(.loom-admin-page,.loom-admin-utility,.loom-admin-setup-page){--loom-core-control-radius:10px;--loom-core-control-height:44px}
 body:is(.loom-admin-page,.loom-admin-utility,.loom-admin-setup-page) :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea){border-color:var(--loom-line);background-color:var(--loom-surface);color:var(--loom-ink);transition:border-color var(--loom-transition-fast),box-shadow var(--loom-transition-fast),background var(--loom-transition-fast)}
 body:is(.loom-admin-page,.loom-admin-utility,.loom-admin-setup-page) :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select):not([type="file"]){min-height:var(--loom-core-control-height)}

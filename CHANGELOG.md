@@ -1,3 +1,15 @@
+# LOOM 0.15.75 — Project Privacy, Canonical Access Identities & Live Avatars
+
+- Added System-Owner-only Public/Private project visibility. Public projects are marked with a globe; private projects are marked with a lock for authorized viewers.
+- Private projects are omitted server-side from project discovery for unauthorized viewers and rejected with a generic 404 before project metadata/shell output, preventing page-load glimpses.
+- Private project-owned assets are emitted with signed project/path URLs and return generic 404s when probed without a valid signature, closing the static-branding/media discovery gap.
+- Added System-Owner grant/revoke controls for giving specific permanent users or active standalone Guests access to private projects. Existing LOOM Admin / Project Admin authority remains valid for its scoped project.
+- Delegated-access grants follow a Guest when that identity is promoted into a permanent account, preventing access loss during account creation.
+- Access Manager now uses canonical visible display names everywhere and excludes attached browser lineage, claimed Guest histories, and standby future-Guest shells from grant selectors.
+- Portable User/Guest bundles now include private-project view grants and identity cleanup removes those grants alongside the person.
+- Generic project leaderboard responses resolve current avatar URLs live from LOOM profile/project identity state, with avatar-state cache versioning so avatar changes propagate to project leaderboards.
+- LOOM Home shows explicit `🌐 Public` / `🔒 Private` project visibility state; only the System Owner receives the visibility toggle.
+
 # LOOM 0.15.74 — Project Module Completion State
 
 - Fixed the project-shell `Loading project modules…` fallback remaining visible after every real module had finished loading.

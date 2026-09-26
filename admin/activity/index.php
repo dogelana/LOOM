@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.74 revision=58 policy=package-priority
+// @loom-file release=0.15.75 revision=58 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -9,12 +9,12 @@ loom_native_admin_page_guard('Activity Explorer','../../');
 <html lang="en">
 <head><?php echo $loomPageSocial; ?>
 <meta charset="utf-8">
-<link rel="stylesheet" href="../../engine/loom-design.css?v=0.15.74">
+<link rel="stylesheet" href="../../engine/loom-design.css?v=0.15.75">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f3f7f4">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 
-<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.74">
+<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.75">
 <style>
 :root{--ink:#132019;--muted:#6d7b72;--green:#168346;--line:#dce9df;--soft:#f5faf6;--red:#9f2929}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% -10%,#dff6e6,#f6faf6 45%,#edf4ee)}
@@ -23,7 +23,7 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
 @media(max-width:1000px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{grid-template-columns:repeat(3,minmax(0,1fr))}.row{grid-template-columns:130px 90px minmax(0,1fr);}.row .who,.row .session{grid-column:3}}
 @media(max-width:640px){.wrap{width:min(100% - 14px,1320px);margin:12px auto 36px}.hero,.filters{padding:15px;border-radius:18px}.hero h1{font-size:30px}.filter-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.row{grid-template-columns:1fr;gap:6px;padding:13px}.row .who,.row .session{grid-column:auto}.result-head{padding:13px}.actions .btn{flex:1}.nav a{flex:1;text-align:center}}
 
-/* 0.15.74 shared admin utility polish */
+/* 0.15.75 shared admin utility polish */
 body.loom-admin-utility{min-height:100vh;background:radial-gradient(circle at 15% -8%,rgba(169,223,79,.12),transparent 30%),linear-gradient(180deg,#f8fbf8,#eef5f0);color:#142019}
 .loom-admin-utility .wrap{width:min(1280px,calc(100% - 32px));margin:30px auto 72px}
 .loom-admin-utility .hero,.loom-admin-utility .panel{border-color:rgba(51,103,65,.12)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 12px 40px rgba(18,54,29,.055),inset 0 1px rgba(255,255,255,.95)!important}
@@ -67,10 +67,10 @@ body.loom-admin-utility{min-height:100vh;background:radial-gradient(circle at 15
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.74"></script><script src="../../engine/loom-time.js?v=0.15.74"></script><script src="../../engine/loom-brand.js?v=0.15.74"></script>
-<script src="../../engine/identity.js?v=0.15.74"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.74"></script>
-<script src="../../engine/loom-toast.js?v=0.15.74"></script><script src="../../engine/share-referrals.js?v=0.15.74"></script><script src="../../engine/loom-shell.js?v=0.15.74"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.75"></script><script src="../../engine/loom-time.js?v=0.15.75"></script><script src="../../engine/loom-brand.js?v=0.15.75"></script>
+<script src="../../engine/identity.js?v=0.15.75"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.75"></script>
+<script src="../../engine/loom-toast.js?v=0.15.75"></script><script src="../../engine/share-referrals.js?v=0.15.75"></script><script src="../../engine/loom-shell.js?v=0.15.75"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];

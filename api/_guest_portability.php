@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.74 revision=4 policy=package-priority
+// @loom-file release=0.15.75 revision=4 policy=package-priority
 // LOOM v0.15.68 — First-class standalone Guest portability.
 declare(strict_types=1);
 
@@ -331,6 +331,7 @@ function loom_guest_portability_merge_local(array $payload): array {
 
   $ac=loom_access_store();$slice=(array)($local['access']??[]);
   foreach((array)($slice['projectGrants']??[]) as $project=>$rows)foreach((array)$rows as $k=>$r)$ac['projectGrants'][$project][$k]=$r;
+  foreach((array)($slice['projectViewGrants']??[]) as $project=>$rows)foreach((array)$rows as $k=>$r)$ac['projectViewGrants'][$project][$k]=$r;
   loom_access_write($ac);
   $n=loom_network_store();foreach((array)($local['network']['identities']??[]) as $k=>$r)$n['identities'][$k]=$r;loom_write_network_store($n);
   $c=loom_continuity_read_store();foreach((array)($local['continuity']??[]) as $bucket=>$rows){if(!is_array($rows))continue;if(!isset($c[$bucket])||!is_array($c[$bucket]))$c[$bucket]=[];foreach($rows as $k=>$r)$c[$bucket][$k]=$r;}loom_cleanup_write_json(loom_continuity_file(),$c);

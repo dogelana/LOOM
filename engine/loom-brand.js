@@ -1,6 +1,6 @@
-// @loom-file release=0.15.74 revision=75 policy=package-priority
+// @loom-file release=0.15.75 revision=75 policy=package-priority
 (()=>{
-  const HARD_RELEASE='0.15.74';
+  const HARD_RELEASE='0.15.75';
   const versionParts=v=>String(v||'').split('.').slice(0,3).map(x=>Number.parseInt(x,10)||0);
   const compareBootVersions=(a,b)=>{const aa=versionParts(a),bb=versionParts(b);for(let i=0;i<3;i++){if((aa[i]||0)>(bb[i]||0))return 1;if((aa[i]||0)<(bb[i]||0))return -1}return 0};
   const bootScript=document.currentScript;

@@ -1,4 +1,4 @@
-# LOOM Blueprint — 0.15.74
+# LOOM Blueprint — 0.15.75
 
 ## Core UX consistency invariants
 
@@ -230,7 +230,7 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.74 revision=84 policy=package-priority -->
+<!-- @loom-file release=0.15.75 revision=84 policy=package-priority -->
 ## Runtime readiness and shell waiting state
 
 Initial Action Runtime readiness is the authoritative completion signal for the static project-shell waiting placeholder. The runtime directly dismisses the fallback after the boot registry/module pass completes so legacy Instance Project CSS cannot strand `Loading project modules…` on an otherwise-ready page.
