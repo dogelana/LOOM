@@ -1,4 +1,4 @@
-// @loom-file release=0.15.31 revision=2 policy=package-priority
+// @loom-file release=0.15.66 revision=3 policy=package-priority
 (() => {
   'use strict';
   if (window.LoomDeploymentGuard) return;
@@ -14,6 +14,8 @@
   let observedTransaction = '';
   let observedTargetRelease = '';
   let reloading = false;
+  let initialProbeDone = false;
+  let initialProbePromise = null;
 
   function sameOrigin(input) {
     try {
@@ -122,6 +124,10 @@
 
   async function guardedFetch(input, init) {
     if (!sameOrigin(input) || isStatusRequest(input)) return originalFetch(input, init);
+    if (!initialProbeDone) {
+      if (!initialProbePromise) initialProbePromise = probeStatus().finally(() => { initialProbeDone = true; });
+      await initialProbePromise;
+    }
     if (active) return NEVER;
     const response = await originalFetch(input, init);
     if (response.status === 503) {
@@ -146,22 +152,24 @@
     return response;
   }
 
+  async function probeStatus() {
+    try {
+      const r = await originalFetch(`${statusUrl}${statusUrl.includes('?') ? '&' : '?'}_=${Date.now()}`, {cache:'no-store',headers:{'Accept':'application/json'}});
+      const j = await r.json().catch(() => ({}));
+      if (j?.deploying) enter(j); else if (active) finish(j || {});
+      return j;
+    } catch { return null; }
+  }
+
   window.fetch = guardedFetch;
   window.LoomDeploymentGuard = Object.freeze({
     get active(){ return active; },
     get statusUrl(){ return statusUrl; },
     get transactionId(){ return observedTransaction; },
     enter,
-    probe: async () => {
-      try {
-        const r = await originalFetch(`${statusUrl}${statusUrl.includes('?') ? '&' : '?'}_=${Date.now()}`, {cache:'no-store',headers:{'Accept':'application/json'}});
-        const j = await r.json().catch(() => ({}));
-        if (j?.deploying) enter(j); else if (active) finish(j || {});
-        return j;
-      } catch { return null; }
-    }
+    probe: probeStatus
   });
-  const start = () => { window.LoomDeploymentGuard.probe().finally(() => schedulePoll(retryDelay(null, true))); };
+  const start = () => { if(!initialProbePromise) initialProbePromise=probeStatus().finally(()=>{initialProbeDone=true;}); initialProbePromise.finally(() => schedulePoll(retryDelay(null, true))); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true}); else queueMicrotask(start);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !reloading) schedulePoll(50); });
   window.addEventListener('focus', () => { if (!reloading) schedulePoll(50); });

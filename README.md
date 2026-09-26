@@ -1,3 +1,9 @@
+# LOOM 0.15.66
+
+LOOM 0.15.66 repairs the Home runtime and hardens the boundary between internal identity handles and human-facing identity. `GuestHandle-*`, `ProfileHandle-*`, account allocation keys, and anonymous bootstrap labels are never valid visible LOOM-wide display names. When a meaningful historical display name exists, LOOM recovers it; otherwise it assigns the existing readable maker-style default username.
+
+This release also makes identity storage safe inside sandboxed HTML Framer documents, quiets transactional deployment 503 races with an initial deployment-status probe, cleans expired deployment markers, and makes Admin Users avatars follow the selected scope: LOOM-wide in Global LOOM and project-resolved inside a selected project.
+
 # LOOM 0.15.65
 
 LOOM 0.15.65 makes project username inheritance truly dynamic. A project using **Use LOOM Username** stores no frozen username of its own; it resolves the person's current LOOM-wide visible name every time. Only an explicitly saved project username becomes a static override. Legacy copied identities are conservatively repaired when LOOM can prove the old value came from the person's historical LOOM/Guest/browser identity lineage.

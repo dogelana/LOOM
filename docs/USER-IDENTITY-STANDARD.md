@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.65 revision=4 policy=package-priority -->
+<!-- @loom-file release=0.15.66 revision=5 policy=package-priority -->
 # LOOM User Identity Standard — v0.11.0
 
 ## Identity layers
@@ -67,3 +67,7 @@ Project username inheritance is reference-based, never copy-once. A project iden
 A project stores a static username only after an explicit project-level save. New identity rows carry `usernameExplicit`, and SQL uses nullable `username_explicit` so pre-0.15.65 rows can be distinguished from newly intentional overrides. Legacy project rows are reconciled conservatively: copied browser/global/Guest aliases revert to live global inheritance unless LOOM can prove a project-username save action, while unknown historical nicknames are preserved as explicit overrides rather than guessed away.
 
 Browser identity cache is global presentation state. Project-specific usernames must never be written into the browser's global LOOM label. The global profile UI must display `visibleUsername` / `displayName`; internal allocation handles such as `GuestHandle-*`, `ProfileHandle-*`, and `acct_*` are never human-facing LOOM-wide usernames.
+## Presentation identity vs. internal handles (v0.15.66)
+
+Internal allocation/lineage values such as `GuestHandle-*`, `ProfileHandle-*`, `acct_*`, and bootstrap anonymous labels are never valid human-facing LOOM-wide names. They may remain stored as immutable lineage keys, but every presentation surface must resolve `displayName` / `visibleUsername` from the canonical global profile. If legacy presentation data contains a reserved handle, LOOM repairs it from proven historical display data when available and otherwise allocates the standard readable maker-style default. Projects in global/inherited username mode resolve that canonical visible name dynamically.
+

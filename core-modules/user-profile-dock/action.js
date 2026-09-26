@@ -1,4 +1,4 @@
-// @loom-file release=0.15.30 revision=9 policy=package-priority
+// @loom-file release=0.15.66 revision=10 policy=package-priority
 export async function createModule(ctx){
   let button=null,overlay=null,bank=null,observer=null,captured=null,restore=null,profileControl=null,profileControlPromise=null;
 
@@ -25,6 +25,7 @@ export async function createModule(ctx){
     capture();
     if(!overlay)return;
     if(captured)captured.hidden=false;
+    overlay.inert=false;
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
@@ -32,10 +33,12 @@ export async function createModule(ctx){
 
   function close(){
     if(!overlay)return;
-    overlay.classList.remove('open');
+    const active=document.activeElement;if(active&&overlay.contains(active)&&typeof active.blur==='function')active.blur();
+    overlay.classList.remove('open');overlay.inert=true;
     overlay.setAttribute('aria-hidden','true');
     if(captured)captured.hidden=true;
     document.body.style.overflow='';
+    queueMicrotask(()=>button?.focus?.({preventScroll:true}));
   }
 
   async function resolveProfileControl(){
@@ -68,6 +71,7 @@ export async function createModule(ctx){
   function mountOverlay(){
     overlay=document.createElement('div');
     overlay.className='loom-profile-dock-overlay';
+    overlay.inert=true;
     overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML=`
       <section class="loom-profile-dock-dialog" role="dialog" aria-modal="true" aria-label="User Profile">

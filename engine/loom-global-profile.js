@@ -1,4 +1,4 @@
-// @loom-file release=0.15.62 revision=11 policy=package-priority
+// @loom-file release=0.15.66 revision=12 policy=package-priority
 (() => {
   'use strict';
 
@@ -80,6 +80,7 @@
       this.boundButtons=[];
     }
     api(path){return `${this.apiBase}/${path}`}
+    visibleName(){const p=this.data?.profile||{},a=this.data?.account||{};const bad=v=>/^(?:GuestHandle-|ProfileHandle-|acct_|LOOMUser-|Anonymous\s+[A-F0-9]{4,})/i.test(String(v||'').trim());for(const v of [p.visibleUsername,p.displayName,a.globalDisplayName,a.username]){const n=String(v||'').trim();if(n&&!bad(n))return n}return 'LOOM User'}
     defaultAvatar(){return new URL('../assets/loom-default-avatar.svg',this.apiBase.endsWith('/api')?this.apiBase+'/':(document.baseURI||location.href)).href}
     avatarUrl(){
       const a=this.data?.profile?.avatar;
@@ -104,6 +105,7 @@
         this.projectsProvider?this.projectsProvider():json(this.api(`projects.php?clientId=${encodeURIComponent(clientId)}&_=${Date.now()}`)).catch(()=>({projects:[]}))
       ]);
       this.data={profile:{...gp.profile,avatar:gp.avatar},account:account.account||{},privilege:account.privilege||{},guest:guestState.guest||account.guest||{},attachedGuests:guestState.attachedGuests||account.attachedGuestHistories||[],projects:projects.projects||[]};
+      const visible=this.visibleName();if(visible&&visible!=='LOOM User'&&this.identity?.clientId){const clean=window.LoomIdentity?.setUserLabel?.(this.identity.clientId,visible);if(clean)this.identity.userLabel=clean;}
       return this.data;
     }
     async open(){
@@ -144,7 +146,7 @@
         <div class="lgp-grid">
           <section class="lgp-card">
             <span class="lgp-badge">LOOM-wide identity</span>
-            <h3 style="margin-top:8px">${esc(p.displayName||p.username||'LOOM Profile')}</h3>
+            <h3 style="margin-top:8px">${esc(this.visibleName())}</h3>
             <p>This display name and picture exist outside projects. Each project may inherit them or use its own override.</p>
             <div class="lgp-avatar-row">
               <img class="lgp-avatar" src="${esc(avatar)}" alt="LOOM profile picture">
@@ -160,7 +162,7 @@
               </div>
             </div>
             <form class="lgp-form" data-role="username-form" style="margin-top:13px">
-              <input data-role="username" maxlength="40" autocomplete="nickname" value="${esc(p.displayName||p.username||'')}" placeholder="LOOM display name">
+              <input data-role="username" maxlength="40" autocomplete="nickname" value="${esc(this.visibleName()==='LOOM User'?'':this.visibleName())}" placeholder="LOOM display name">
               <button class="lgp-btn" type="submit">Save Display Name</button>
               <div class="lgp-message" data-role="username-message"></div>
             </form>
@@ -168,7 +170,7 @@
 
           <section class="lgp-card">
             <span class="lgp-badge">${isOwner?'SYSTEM OWNER':authenticated?'Signed in':registered?'Account linked':'LOOM account'}</span>
-            <h3 style="margin-top:8px">${esc(p.displayName||a.globalUsername||p.username||'LOOM user')}</h3>
+            <h3 style="margin-top:8px">${esc(this.visibleName())}</h3>
             ${registered?`
               <div class="lgp-meta">
                 <div class="lgp-kv"><b>Email</b><strong>${esc(a.email||'—')}</strong></div>

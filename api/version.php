@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.65 revision=70 policy=package-priority
+// @loom-file release=0.15.66 revision=71 policy=package-priority
 require __DIR__.'/_common.php';
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
@@ -7,7 +7,7 @@ header('Expires: 0');
 
 $manifestPath=root_dir().'/.loom-deployment.json';
 $manifest=is_file($manifestPath)?read_json_file($manifestPath):[];
-$canonical=loom_release_version('0.15.65');
+$canonical=loom_release_version('0.15.66');
 
 function loom_extract_version(string $file,string $pattern): ?string {
   if(!is_file($file))return null;

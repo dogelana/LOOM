@@ -1,3 +1,14 @@
+# LOOM 0.15.66 — Home recovery + canonical visible identity + deployment quieting
+
+- Restored the LOOM Home helper block accidentally lost in 0.15.65, including `load()` and `openCreate()`, while preserving project search and ten-at-a-time pagination.
+- Reserved identity handles (`GuestHandle-*`, `ProfileHandle-*`, account allocation keys and bootstrap anonymous labels) are now explicitly presentation-invalid. Existing profiles recover a meaningful historical LOOM display name when available or receive LOOM's readable deterministic maker-style default.
+- Fixed the Global Profile resolver so an internal handle can remain available for lineage without ever becoming the visible LOOM-wide username. Saving a display name remains presentation-only and does not rewrite identity lineage keys.
+- Hardened Guest Profile and Admin Users/Identities reads so old internal handles cannot leak back into current visible names.
+- Made `identity.js` safe in sandboxed HTML Framer documents that deny `localStorage`/`sessionStorage`; storage capability is now acquired inside the protected access path rather than evaluated before the catch.
+- Deployment Guard now performs one deployment-status probe before ordinary same-origin API traffic, preventing startup modules from racing an active deployment gate into visible 503 noise. Expired deployment markers are removed best-effort by both the common API gate and deployment-status endpoint.
+- Admin Users avatar resolution is scope-relative end-to-end: Global LOOM uses the LOOM-wide avatar, while a selected project uses that project's resolved avatar in both the directory row and selected-person header.
+- Profile Dock close/open focus handling now uses `inert` and explicit focus transfer, eliminating the hidden-focused-descendant accessibility warning.
+
 # LOOM 0.15.65 — Dynamic project identity inheritance + canonical global profile
 
 - Project usernames now have an explicit ownership contract: **Global / inherited** identities resolve the current LOOM-wide visible username live, while **Project override** identities remain static only after an explicit project username save.

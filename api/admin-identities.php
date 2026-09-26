@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.55 revision=9 policy=package-priority
+// @loom-file release=0.15.66 revision=10 policy=package-priority
 require __DIR__.'/_common.php';
 if(($_SERVER['REQUEST_METHOD']??'POST')!=='POST')json_out(['ok'=>false,'error'=>'POST required'],405);$body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['ok'=>false,'error'=>'Invalid JSON'],400);$clientId=safe_token((string)($body['clientId']??''));loom_require_admin($clientId);$action=(string)($body['action']??'list');
 function identity_confirm(array $b): void { if((string)($b['confirmPhrase']??'')!=='CONFIRM')throw new RuntimeException('Type CONFIRM to perform this identity operation.'); }
