@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.57 revision=5 policy=package-priority
+// @loom-file release=0.15.60 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
 
 function loom_profile_avatar_default_source(): array {
@@ -53,7 +53,7 @@ function loom_profile_avatar_context(string $subjectType,string $subjectId,strin
 function loom_profile_avatar_global_source(array $ctx): array {
   $type=(string)$ctx['ownerType'];$id=(string)$ctx['ownerId'];$clientId=(string)($ctx['clientId']??'');
   $profile=loom_global_profile_get($type,$id);$mode=(string)($profile['avatarMode']??'');
-  if($mode==='loom-default')return loom_profile_avatar_default_source();
+  if($mode==='loom-default')$mode=loom_global_avatar_repair_preset($type,$id);
   if($preset=loom_profile_avatar_preset_source($mode))return $preset;
 
   $custom=loom_global_avatar_find($type,$id);
@@ -79,7 +79,7 @@ function loom_profile_avatar_project_source(array $ctx,string $project): array {
   $legacyIdentity=null;if($clientId!==''&&($type!=='client'||$id!==$clientId))$legacyIdentity=loom_project_identity_get_for_owner($project,'client',$clientId);
   if(!$identity&&$legacyIdentity){$identity=$legacyIdentity;$type='client';$id=$clientId;}
   $mode=(string)($identity['avatarMode']??'auto');
-  if(!in_array($mode,['auto','global','loom-default','project-default','custom'],true))$mode='auto';
+  if($mode==='loom-default')$mode='global';if(!in_array($mode,['auto','global','project-default','custom'],true))$mode='auto';
   if($mode==='custom'){
     $custom=loom_avatar_find_file($project,$type,$id);if($custom)return ['kind'=>$type==='client'?'legacy-linked-project-custom':'project-custom']+$custom;
     if($clientId!==''&&($type!=='client'||$id!==$clientId)){$legacy=loom_avatar_find_file($project,'client',$clientId);if($legacy)return ['kind'=>'legacy-linked-project-custom']+$legacy;}
@@ -90,7 +90,7 @@ function loom_profile_avatar_project_source(array $ctx,string $project): array {
     if($mode==='project-default')return loom_profile_avatar_default_source();
   }
   if(in_array($mode,['auto','global'],true))return loom_profile_avatar_global_source($ctx);
-  return loom_profile_avatar_default_source();
+  return loom_profile_avatar_global_source($ctx);
 }
 function loom_profile_avatar_serve(array $source): void {
   $file=(string)($source['file']??'');$mime=(string)($source['mime']??'application/octet-stream');

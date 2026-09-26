@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0",
+  "updateId": "lint-away-0.15.60-leaderboard",
+  "project": "lint-away",
+  "release": "0.15.60",
+  "description": "Installs Lint Away leaderboard and gameplay telemetry bridge without replacing unrelated project or instance data.",
+  "files": [
+    {
+      "path": "project/actions/lint-away/game-leaderboard/manifest.json",
+      "sha256": "344dfe23cc559271eed0e3093af2192b62d994445304ef541aaa333b3c3c8246",
+      "mode": "replace",
+      "allowedPreviousSha256": []
+    },
+    {
+      "path": "project/actions/lint-away/game-leaderboard/action.js",
+      "sha256": "fc1ec50ae60a50b47c12ab2352ef332897c0fa76b644d72466e90d32fee14625",
+      "mode": "replace",
+      "allowedPreviousSha256": []
+    },
+    {
+      "path": "project/actions/lint-away/game-leaderboard/action.css",
+      "sha256": "ebb0b85a2c36a74af686027e6b8b53fad4af3946b0afa59e06c30625ca38edaf",
+      "mode": "replace",
+      "allowedPreviousSha256": []
+    },
+    {
+      "path": "html-framer/frames/hf_6ba08b1de94d64/files/Lint Away.html",
+      "sha256": "85e29047d3d399913d0987b44ba91a7ba490af7acd4dabd8041ee4a5da1276e1",
+      "mode": "replace",
+      "allowedPreviousSha256": [
+        "547f5393cb11a8024437f58a267617a507d1c7dd090570b82faed7cae41d467b"
+      ]
+    },
+    {
+      "path": "html-framer/frames/hf_6ba08b1de94d64/source.zip",
+      "sha256": "10e2c8a8ec41f261417e29aa91170b964d3340ca5d8cd0443a2980d3a8da92c2",
+      "mode": "replace",
+      "allowedPreviousSha256": [
+        "19a0a033be5de88e1bfafcf1d4530d2b02070e8e80f2001ff22fd35539b1d4c5"
+      ]
+    }
+  ]
+}

@@ -99,3 +99,17 @@ Download authorization is derived from `exportType`, not from that display metad
 ## Project-owned HTML Framer portability
 
 Starting with LOOM 0.15.37, HTML Framer packages are classified as project structure. A plain **Project** export includes the project HTML Framer registry, extracted frame files, and preserved source ZIPs. **Project + Data** adds project-owned runtime/data state on top of that and does not duplicate the Framer payload. Imports restore the Framer payload into the destination Instance Project before runtime discovery. Bundles produced by older LOOM versions remain importable; if an older plain Project bundle did not contain its Framer files, LOOM cannot reconstruct bytes that were never exported.
+## Component-aware project import (0.15.59+)
+
+Import preview inspects the files that are actually present in the verified ZIP for each project. The Admin UI exposes only applicable content modes:
+
+- **Project files/settings only** — runtime, overlays, project overrides, module settings and HTML Framer structure.
+- **Project data only** — project Instance data and/or project module state. This requires an already-existing destination project.
+- **Project files + data** — available only when both layers are physically present.
+
+The export label is descriptive metadata, not proof that a layer contains bytes. For example, a Project + Data bundle with no project state/data files is correctly detected as project-files-only.
+
+For an existing target, **Replace safely** snapshots the destination before mutation. Structure replacement is scoped to project-owned structure. Data replacement removes only top-level data paths actually supplied by the incoming bundle, leaving unrelated destination storage untouched. **Merge** never pre-deletes destination paths; project-state JSON is merged by state record key.
+
+This makes same-slug project updates a supported workflow: upload, preview the conflict, choose the content layer, choose Replace safely or Merge, and apply.
+

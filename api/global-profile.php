@@ -1,8 +1,8 @@
 <?php
-// @loom-file release=0.15.58 revision=6 policy=package-priority
+// @loom-file release=0.15.60 revision=7 policy=package-priority
 require __DIR__.'/_common.php';
 $method=$_SERVER['REQUEST_METHOD']??'GET';
-function loom_global_profile_api_public(array $p,string $clientId): array { $visible=function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'';$p['displayName']=$visible!==''?$visible:(!preg_match('/^(?:GuestHandle-|acct_)/i',(string)($p['username']??''))?(string)($p['username']??''):'LOOM User');$p['internalHandle']=$p['username']??null;return $p; }
+function loom_global_profile_api_public(array $p,string $clientId): array { $visible=function_exists('loom_global_profile_display_name')?loom_global_profile_display_name($p):loom_clean_username((string)($p['displayName']??''));if($visible==='')$visible=function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'';$internal=(string)($p['username']??'');$p['displayName']=$visible!==''?$visible:'LOOM User';$p['username']=$p['displayName'];$p['internalHandle']=$internal?:null;return $p; }
 if($method==='GET'){$clientId=safe_token((string)($_GET['clientId']??''));if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['ok'=>false,'error'=>'Invalid client identity'],400);$p=loom_global_profile_ensure($clientId);$a=loom_global_avatar_state($clientId);json_out(['ok'=>true,'profile'=>loom_global_profile_api_public($p,$clientId),'avatar'=>$a]);}
 if($method!=='POST')json_out(['ok'=>false,'error'=>'GET or POST required'],405);
 $ct=(string)($_SERVER['CONTENT_TYPE']??'');
@@ -13,7 +13,7 @@ $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($b
   elseif($action==='set-avatar-mode'){loom_global_avatar_set_mode($clientId,(string)($body['mode']??''));$p=loom_global_profile_ensure($clientId);}
   elseif($action==='copy-project-avatar'){
     loom_global_profile_assert_mutation_access($clientId);$project=safe_slug((string)($body['project']??''));if($project===''||!project_dir($project))throw new RuntimeException('Choose a valid project.');$src=loom_avatar_effective_source($clientId,$project);$sourceMeta=['project'=>$project,'kind'=>$src['kind']??'unknown'];
-    if(($src['kind']??'')==='loom-default'){loom_global_avatar_set_mode($clientId,'loom-default');$p=loom_global_profile_ensure($clientId);}
+    if(($src['kind']??'')==='loom-default'){loom_global_avatar_set_mode($clientId,'auto');$p=loom_global_profile_ensure($clientId);}
     elseif(($src['kind']??'')==='global-custom'){loom_global_avatar_set_mode($clientId,'custom');$p=loom_global_profile_ensure($clientId);}
     else{loom_global_avatar_copy_trusted_source($clientId,(string)$src['file'],(string)$src['mime'],(int)$src['size']);$p=loom_global_profile_ensure($clientId);}
   }

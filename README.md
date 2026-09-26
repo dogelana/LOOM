@@ -1,4 +1,20 @@
-# LOOM 0.15.58
+# LOOM 0.15.60
+
+
+## 0.15.60 — Default avatar presets + deterministic module positioning
+
+LOOM now treats the ten designed default avatar presets as the normal profile-picture system. New Guest Profiles receive a random preset at creation, permanent/global profiles retain that preset through identity promotion, and User Profile exposes all ten presets for direct selection. The historical generic blank LOOM avatar remains an emergency rendering fallback only; legacy `loom-default` records and missing custom-avatar files are repaired to a deterministic preset when touched. Avatar-mode changes and new custom uploads are identity-audited.
+
+Project Settings now exposes a **Positioning Index Number** for every project module/HTML frame. `1` is the earliest normal module slot; blank modules retain deterministic manifest order and fill the remaining slots. If an operator requests an occupied position, LOOM resolves the collision to the next free slot both immediately in Admin and authoritatively on the server. The bootstrap loader remains outside normal positioning.
+
+This release also removes the duplicate Admin → Users navigation entry, hardens visible-name precedence so historical internal handles cannot unexpectedly replace a newer display name, and carries the 0.15.59 Lint Away leaderboard/import work forward through a clean package-owned project-update payload. Release ZIPs remain clean-instance packages: `instance/**` is never shipped.
+
+
+## 0.15.59 — Lint Away leaderboard + smart project overwrite imports
+
+LOOM now supports project-specific game telemetry and leaderboards without turning application-specific UI into core modules. The Lint Away Instance Project includes its own top-10 game leaderboard, while a generic project-scoped leaderboard state API provides identity-aware persistence. Lint Away reports its native lifetime `earned` value and explicit active-game state so cash totals survive sessions and playtime measures real gameplay instead of generic iframe presence. Existing browser saves can seed historical lifetime earnings when those players next revisit; unverifiable historical playtime is intentionally not backfilled.
+
+Backup & Restore now inspects the actual portable ZIP payload and distinguishes **project files**, **project data**, and **both**. Existing-project imports can choose the layer to apply. Safe Replace creates a rollback snapshot first, replaces only the selected/incoming paths, and preserves unrelated project storage; Merge remains non-destructive.
 
 ## 0.15.58 — System Owner identity reconciliation + canonical profile saves
 
@@ -126,4 +142,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.56 revision=74 policy=package-priority -->
+<!-- @loom-file release=0.15.59 revision=77 policy=package-priority -->

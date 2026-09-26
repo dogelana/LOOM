@@ -1,4 +1,4 @@
-// @loom-file release=0.15.55 revision=34 policy=package-priority
+// @loom-file release=0.15.60 revision=35 policy=package-priority
 (() => {
   'use strict';
 
@@ -18,7 +18,6 @@
     return [
       {label:'⚙️ LOOM Settings',href:new URL(`admin/?tab=loom${q}`,base).href},
       {label:'🎨 Project Settings',href:new URL(`admin/?tab=project${q}`,base).href},
-      {label:'👥 Users',href:new URL(`admin/?tab=users${q}`,base).href},
       {label:'👥 Users',href:new URL(`admin/?tab=users${q}`,base).href},
       {label:'🛡️ Access',href:new URL(`admin/?tab=access${q}`,base).href},
       {label:'🗄️ Database',href:new URL(`admin/?tab=database${q}`,base).href},

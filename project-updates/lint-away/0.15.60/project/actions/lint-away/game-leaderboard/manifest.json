@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.5",
+  "enabled": true,
+  "action": {
+    "id": "lint-away.game.leaderboard",
+    "name": "Lint Away Game Leaderboard",
+    "description": "Project-specific top-ten leaderboard for lifetime Lint Away game earnings and active playtime.",
+    "kind": "system",
+    "behavior": "stateful",
+    "autostart": true,
+    "parent": "core.load",
+    "category": "lint-away/game",
+    "tags": ["lint-away", "game", "leaderboard", "project-specific"]
+  },
+  "module": {
+    "entry": "action.js",
+    "version": "1.0.0",
+    "dependencies": [],
+    "styles": ["action.css"],
+    "order": "60100"
+  },
+  "config": {
+    "title": "Lint Away Game Leaderboard",
+    "boardId": "lint-away-game",
+    "frameId": "hf_6ba08b1de94d64",
+    "maxEntries": 10,
+    "refreshSeconds": 15
+  },
+  "pegboard": {
+    "preferredDepth": 2,
+    "accent": "red"
+  },
+  "user_actions": [],
+  "admin_settings": {
+    "title": "Lint Away Game Leaderboard",
+    "description": "Project-only leaderboard settings for the Lint Away dryer vent game.",
+    "fields": [
+      {"id":"title","label":"Leaderboard title","type":"text","maxLength":80},
+      {"id":"maxEntries","label":"Maximum entries","type":"range","min":3,"max":10,"step":1},
+      {"id":"refreshSeconds","label":"Refresh interval","type":"range","min":5,"max":60,"step":1,"unit":"s"}
+    ]
+  }
+}

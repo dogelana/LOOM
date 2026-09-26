@@ -1,4 +1,4 @@
--- @loom-file release=0.12.08 revision=3 policy=package-priority
+-- @loom-file release=0.15.60 revision=4 policy=package-priority
 -- LOOM v0.12.00 MySQL / MariaDB persistence schema.
 -- Designed for Hostinger MySQL/MariaDB with utf8mb4.
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS loom_username_registry (
 
 CREATE TABLE IF NOT EXISTS loom_global_profiles (
   owner_type ENUM('client','user') NOT NULL, owner_id VARCHAR(96) NOT NULL, profile_id VARCHAR(96) NOT NULL,
-  username VARCHAR(64) NOT NULL, username_norm VARCHAR(64) NOT NULL, avatar_mode VARCHAR(32) NOT NULL DEFAULT 'loom-default',
+  username VARCHAR(64) NOT NULL, username_norm VARCHAR(64) NOT NULL, avatar_mode VARCHAR(32) NOT NULL DEFAULT 'preset-01',
   custom_ext VARCHAR(12) NULL, mime_type VARCHAR(64) NULL, byte_size INT UNSIGNED NULL, created_at DATETIME(3) NOT NULL, updated_at DATETIME(3) NOT NULL,
   PRIMARY KEY(owner_type,owner_id), UNIQUE KEY uq_global_profile_username(username_norm), UNIQUE KEY uq_global_profile_id(profile_id), INDEX idx_global_profile_updated(updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

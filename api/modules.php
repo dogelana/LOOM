@@ -1,12 +1,14 @@
 <?php
-// @loom-file release=0.15.20 revision=12 policy=package-priority
+// @loom-file release=0.15.60 revision=13 policy=package-priority
 require __DIR__.'/_common.php';
 require __DIR__.'/_html_framer.php';
+require_once __DIR__.'/_project_release_updates.php';
 
 $project=$_GET['project']??'';
 $dir=project_dir($project);
 if(!$dir)json_out(['error'=>'Project not found'],404);
 $clientId=safe_token((string)($_GET['clientId']??''));if($clientId!=='')loom_capture_request_ip($clientId,(string)$project);loom_enforce_project_access(safe_slug((string)$project),$clientId);
+loom_apply_project_release_updates(safe_slug((string)$project));
 
 /*
   LOOM protected module ordering
@@ -57,7 +59,7 @@ function build_runtime_module_descriptor(string $project,array $manifest,string 
     'config'=>loom_module_config_with_admin_overrides($project,$manifest),'admin_overrides'=>loom_module_admin_overrides($project,(string)$action['id']),'admin_settings'=>$manifest['admin_settings']??new stdClass(),
     'extensions'=>$manifest['extensions']??new stdClass(),'capabilities'=>$manifest['capabilities']??['provides'=>[],'requires'=>[],'permissions'=>[]],'presentation'=>$presentation,'pegboard'=>$manifest['pegboard']??new stdClass(),
     'order_effective'=>$effectiveOrder,'order_display'=>is_bootstrap_loader($manifest)?'BOOT':str_pad((string)$effectiveOrder,5,'0',STR_PAD_LEFT),
-    'order_locked'=>(bool)($module['order_locked']??false)||(is_bootstrap_loader($manifest)||in_array((string)($action['id']??''),['core.ui.header-bar','core.user.profile','project.system.update-log'],true)),
+    'order_locked'=>(bool)($module['order_locked']??false)||is_bootstrap_loader($manifest),
     'bootstrap'=>$manifest['module']['bootstrap']??new stdClass(),'entry_url'=>$urlFor($entry),'styles'=>$styles,'manifest_url'=>$urlFor($manifestFile),
     'fingerprint'=>substr(hash('sha256',implode('|',$fingerParts)),0,16),'folder'=>$folderLabel,'source'=>$source
   ];
@@ -92,7 +94,7 @@ if(is_dir($actionRoot)){
   }
 }
 
-usort($modules,fn($a,$b)=>(($a['order_effective']<=>$b['order_effective'])?:strcmp($a['action']['id'],$b['action']['id'])));$modules=loom_capability_contract_status(safe_slug($project),$modules);$registryEtag='"'.substr(hash('sha256',json_encode(array_map(fn($m)=>[$m['action']['id']??'', $m['fingerprint']??'', $m['config']??[], $m['capabilities']??[]],$modules))),0,24).'"';header('ETag: '.$registryEtag);if(trim((string)($_SERVER['HTTP_IF_NONE_MATCH']??''))===$registryEtag){http_response_code(304);exit;}
+$modules=loom_apply_project_module_positioning(safe_slug((string)$project),$modules);$modules=loom_capability_contract_status(safe_slug($project),$modules);$registryEtag='"'.substr(hash('sha256',json_encode(array_map(fn($m)=>[$m['action']['id']??'', $m['fingerprint']??'', $m['config']??[], $m['capabilities']??[]],$modules))),0,24).'"';header('ETag: '.$registryEtag);if(trim((string)($_SERVER['HTTP_IF_NONE_MATCH']??''))===$registryEtag){http_response_code(304);exit;}
 json_out([
   'project'=>safe_slug($project),
   'generated_at'=>gmdate('c'),'registry_etag'=>$registryEtag,

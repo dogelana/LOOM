@@ -1,3 +1,33 @@
+# LOOM v0.15.60 — Avatar Presets + Deterministic Module Positioning
+
+## v0.15.60 — Avatar Presets + Deterministic Module Positioning
+
+- Promoted the ten designed LOOM avatar presets into the canonical default-avatar system. New Guest Profiles receive a random preset; legacy generic `loom-default` records and missing custom-avatar files repair to stable deterministic presets instead of exposing the blank fallback.
+- Added all ten preset choices to User Profile while preserving custom uploads. The generic blank avatar remains render-fallback-only and is not user-selectable.
+- Added durable identity audit events for global/project avatar-mode changes and new custom avatar uploads.
+- Repaired visible-name precedence: canonical display names beat historical/internal global handles, and stale project/Guest copies that merely echo the old internal handle migrate back to the current global display identity without rewriting legitimate project nicknames.
+- Removed the duplicated **Users** entry from the Admin sidebar.
+- Added per-project **Positioning Index Number** controls for project modules and HTML Framer frames. Blank values retain stable manifest order; explicit positions fill requested slots; collisions automatically advance to the next free slot and report the resolution immediately.
+- Runtime module order now consumes the server-resolved project position while retaining bootstrap-loader precedence and deterministic fallback ordering.
+- Added a clean, package-owned Lint Away 0.15.60 project-update payload that safely installs the project-only leaderboard/game instrumentation into an existing `instance/projects/lint-away` without shipping or overwriting the whole `instance/**` tree. Known prior file hashes are required before any existing project file is replaced and previous bytes are backed up first.
+- Preserved all 0.15.59 smart project import, leaderboard persistence, and Lint Away telemetry behavior.
+- Release packaging now strictly follows the clean-instance contract: the release archive contains zero `instance/**` entries.
+
+# LOOM v0.15.59 — Lint Away Leaderboard + Smart Project Imports
+
+## v0.15.59 — Lint Away Leaderboard + Smart Project Imports
+
+- Added a **Lint Away Game Leaderboard** as a true project-specific Instance module at `instance/projects/lint-away/project/actions/lint-away/game-leaderboard/`; it is not a global/core LOOM module.
+- Added generic project-scoped leaderboard persistence so project apps can report durable metrics against canonical LOOM permanent-user or Guest ownership while still rendering their own project-only UI.
+- Instrumented the Lint Away dryer-vent game to report its native lifetime gross `earned` value and explicit active/inactive gameplay state. Ranking uses lifetime earned rather than spendable cash, so upgrades do not lower a player’s score.
+- Added authoritative active-game playtime accumulation from short server-side heartbeats. Generic HTML Framer presence is intentionally not backfilled as gameplay time. Existing browser saves automatically report their already-stored lifetime `earned` value when a player next visits.
+- Added top-10 rendering with gold, silver and bronze trophy placements, project-visible usernames, lifetime earnings and total active playtime. The board naturally renders fewer than ten rows until more players have valid telemetry.
+- Hardened portable project-state writes with an exclusive read/modify/write file lock for database-less installations.
+- Backup & Restore preview now inspects each ZIP’s actual payload and reports **Project files**, **Project data**, or **Project files + data**, rather than inferring content only from the export label.
+- Existing-project imports now expose per-project content selection: project files/settings only, project data only, or both when available. Data-only imports require an existing destination project.
+- Safe Replace snapshots the destination first and replaces only selected/incoming layers; project-data replacement removes only paths that actually exist in the incoming payload, preserving unrelated project storage. Project-state Merge overlays incoming keys instead of wiping unrelated state.
+- Synchronized active runtime/cache release identifiers to `0.15.59` while retaining legitimate historical per-file provenance for untouched files.
+
 # LOOM v0.15.58 — System Owner Identity Reconciliation
 
 ## v0.15.58 — System Owner Identity Reconciliation
@@ -746,7 +776,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.56 revision=76 policy=package-priority -->
+<!-- @loom-file release=0.15.59 revision=79 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.

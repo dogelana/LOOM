@@ -1,4 +1,20 @@
-# LOOM Blueprint — 0.15.58
+# LOOM Blueprint — 0.15.60
+
+
+## 0.15.60 Default-avatar and module-order invariants
+
+- The ten designed `preset-01` … `preset-10` avatars are normal LOOM defaults. The old generic avatar is an emergency renderer fallback, not a selectable identity state. New Guest Profiles receive a random preset; legacy generic/missing custom states repair safely on read/write.
+- A current human-facing display name is presentation authority. Internal unique handles and historical browser labels remain lineage/storage identifiers and must not silently override the current display name.
+- Project-specific module positioning is project configuration, not a mutation of reusable/core manifests. Explicit positive indexes occupy requested slots; collisions advance monotonically to the next free slot; unindexed modules fill remaining slots using the preexisting stable manifest/action order. The bootstrap loader is never displaced.
+- Package-owned migrations into Instance Projects must be narrow, hash-gated, backed up, idempotent, and must never justify shipping `instance/**` inside a clean LOOM release.
+
+
+## 0.15.59 Project-specific telemetry + component-aware imports
+
+- Application-specific UI modules belong to the owning Instance Project under `instance/projects/<slug>/project/actions/**`; they do not become LOOM core modules merely because they use reusable platform APIs.
+- Project gameplay/business metrics should be emitted explicitly by the application and persisted against canonical LOOM user/Guest ownership. Generic frame-open duration is not a substitute for application-active time when the framed app has its own paused/title states.
+- Portable import preview must inspect the actual ZIP payload and identify whether each project contains structure, project data, or both. Import applies only the operator-selected layers.
+- Replacing an existing project snapshots it first. Structure replacement may remove old incoming-owned structure; data replacement removes only incoming data paths and must not erase unrelated project storage. Project-state Merge preserves unrelated state keys.
 
 ## 0.15.58 System Owner and identity invariants
 
@@ -132,4 +148,4 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.56 revision=70 policy=package-priority -->
+<!-- @loom-file release=0.15.59 revision=73 policy=package-priority -->

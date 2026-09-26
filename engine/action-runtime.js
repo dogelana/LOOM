@@ -1,4 +1,4 @@
-// @loom-file release=0.15.50 revision=14 policy=package-priority
+// @loom-file release=0.15.60 revision=15 policy=package-priority
 (() => {
   'use strict';
   const CFG=window.LoomConfig||window.PegboardEngineConfig;
@@ -123,6 +123,8 @@
       const fallback=Number(policy.defaultOrder??50000);
       const id=String(descriptor?.action?.id||'');
       if(id===reservedId)return reservedOrder;
+      const resolved=Number.parseInt(String(descriptor?.order_effective??''),10);
+      if(Number.isFinite(resolved))return resolved;
       if(id===profileId)return profileOrder;
       if(id===lastId)return lastOrder;
       const parsed=Number.parseInt(String(descriptor?.module?.order??''),10);
