@@ -1,13 +1,14 @@
 
-## 0.15.55 canonical people model
+## 0.15.56 canonical people model
 
 - Admin has one Users directory: global by default, optionally project-focused.
 - First-class people are permanent `user` identities or canonical unattached `guest` identities; `client_*` records are browser lineage only.
 - A permanent user's project participation includes proven linked-client history and is reconciled to the user without fuzzy matching.
 - Moderation is canonical and scoped: global LOOM ban or per-project ban, independently.
 - Approximate geolocation remains display-only and never establishes person identity.
+- Canonical avatar delivery accepts `user` / `guest` subjects, reads protected Instance storage, may use proven legacy-client image locations only as migration fallback, and always degrades to a safe default instead of turning “no custom avatar” into an identity error.
 
-# LOOM Blueprint — 0.15.55
+# LOOM Blueprint — 0.15.56
 
 ## 1. Purpose
 
@@ -131,4 +132,4 @@ A LOOM release advances the server canonical version only after release-managed 
 
 Shared LOOM chrome and controls should favor consistent touch targets, visible keyboard focus, restrained elevation, responsive action rows, and stable spacing without changing feature semantics. Generated Showcase fallback art keeps its Powered by LOOM plate as a floating overlay with a default 10% bottom inset. Product/project-specific styling remains project-owned.
 
-<!-- @loom-file release=0.15.55 revision=69 policy=package-priority -->
+<!-- @loom-file release=0.15.56 revision=70 policy=package-priority -->

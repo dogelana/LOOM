@@ -1,11 +1,19 @@
 
-## Canonical Users directory (0.15.55)
+## Canonical Users directory (0.15.56)
 
 Admin → Users is one global people directory. Choose **Global LOOM** or a project scope; the same permanent accounts and Guest Identities are shown in either view, with project participation resolved from canonical identity plus proven linked-client history. Clicking a person opens one inspector for identity, avatar, network/geolocation context, continuity/referrals, project activity, access roles, and global/project moderation. Global LOOM bans and per-project bans are independent and do not delete data. Raw orphan browser clients are cleanup evidence, not first-class people.
 
-# LOOM 0.15.55
+# LOOM 0.15.56
 
 LOOM is a modular browser application engine for independently owned Instance Projects. The engine supplies project discovery, project lifecycle management, account and guest identity, Admin tooling, Action Registry/Pegboard observability, reusable/core modules, HTML Framer, referrals, system email, and optional durable SQL persistence.
+
+## 0.15.56 — canonical Users hardening + avatar migration safety
+
+LOOM Admin now has exactly one first-class Users directory. It opens on **Global LOOM · All users** and can be narrowed to one project without switching identity systems. Permanent accounts and unattached Guest Identities use the same canonical inspector, count, project participation model, global/project moderation controls, continuity/referral context, and account management surface.
+
+Avatar delivery now accepts canonical permanent-user and Guest Identity targets, resolves protected global/project custom images, preserves safe reads from incomplete legacy client-avatar migrations, serves presets, and falls back to the LOOM default image instead of emitting repeated 404s for valid identities with no custom avatar. Admin avatar URLs use stable identity/version keys instead of `Date.now()` cache busting.
+
+The obsolete hidden Project Users DOM/event path and superseded identity-list/detail handlers were removed. Users controls now stack/wrap responsively, user cards cannot overflow their column, and permanent accounts no longer depend on legacy client target shapes for click-through detail. Runtime/cache release references are synchronized to 0.15.56 while historical per-file release markers remain valid provenance for untouched files.
 
 ## 0.15.55 — orphan identity sweep + canonical Project Users
 
@@ -102,4 +110,4 @@ Use LOOM Bridge Suite for transactional FTP/SFTP deployment and optional Git/Git
 
 See `BLUEPRINT.md`, `docs/`, and `CHANGELOG.md` for architecture, standards, and release history.
 
-<!-- @loom-file release=0.15.55 revision=73 policy=package-priority -->
+<!-- @loom-file release=0.15.56 revision=74 policy=package-priority -->

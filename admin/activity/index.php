@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.55 revision=39 policy=package-priority
+// @loom-file release=0.15.56 revision=42 policy=package-priority
 require __DIR__.'/../../api/_common.php';
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -12,7 +12,7 @@ loom_native_admin_page_guard('Activity Explorer','../../');
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 
-<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.21">
+<link rel="icon" type="image/png" href="../../assets/loom-logo.png?v=0.15.56">
 <style>
 :root{--ink:#132019;--muted:#6d7b72;--green:#168346;--line:#dce9df;--soft:#f5faf6;--red:#9f2929}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% -10%,#dff6e6,#f6faf6 45%,#edf4ee)}
@@ -35,7 +35,7 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   <section class="filters">
     <div class="filter-grid">
       <div class="field"><label>Project</label><select id="project"></select></div>
-      <div class="field"><label>User / guest client</label><select id="subject"><option value="">All users</option></select></div>
+      <div class="field"><label>User / Guest Identity</label><select id="subject"><option value="">All users</option></select></div>
       <div class="field"><label>Category</label><select id="category"><option value="all">Everything</option><option value="actions">User actions</option><option value="interactions">Clicks / inputs / scroll</option><option value="framed">Framed HTML</option><option value="sessions">Sessions</option><option value="modules">Module/runtime</option><option value="errors">Errors</option></select></div>
       <div class="field"><label>Session</label><select id="session"><option value="">All sessions</option></select></div>
       <div class="field"><label>From</label><input id="from" type="date"></div>
@@ -53,17 +53,17 @@ button,input,select{font:inherit}.wrap{width:min(1320px,calc(100% - 28px));margi
   </section>
 </div>
 <div id="loomShellFooter"></div>
-<script src="../../engine/deployment-guard.js?v=0.15.55"></script><script src="../../engine/loom-brand.js?v=0.15.55"></script>
-<script src="../../engine/identity.js?v=0.15.55"></script>
-<script src="../../engine/loom-global-profile.js?v=0.15.55"></script>
-<script src="../../engine/loom-toast.js?v=0.15.55"></script><script src="../../engine/share-referrals.js?v=0.15.55"></script><script src="../../engine/loom-shell.js?v=0.15.55"></script>
+<script src="../../engine/deployment-guard.js?v=0.15.56"></script><script src="../../engine/loom-brand.js?v=0.15.56"></script>
+<script src="../../engine/identity.js?v=0.15.56"></script>
+<script src="../../engine/loom-global-profile.js?v=0.15.56"></script>
+<script src="../../engine/loom-toast.js?v=0.15.56"></script><script src="../../engine/share-referrals.js?v=0.15.56"></script><script src="../../engine/loom-shell.js?v=0.15.56"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const identity=LoomIdentity.get('loom-admin');let latest=null,subjects=[];
 const fmt=v=>{if(!v)return'—';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString()};
 async function json(url,options={}){const r=await fetch(url,{cache:'no-store',...options});const j=await r.json();if(!r.ok||j.ok===false)throw new Error(j.error||j.message||`${r.status}`);return j}
 async function projects(){const j=await json(`../../api/projects.php?clientId=${encodeURIComponent(identity.clientId)}&_=${Date.now()}`);$('#project').innerHTML=(j.projects||[]).map(p=>`<option value="${esc(p.slug)}">${esc(p.name||p.slug)}</option>`).join('');const asked=new URLSearchParams(location.search).get('project');if(asked&&[...$('#project').options].some(o=>o.value===asked))$('#project').value=asked}
-async function loadSubjects(){const project=$('#project').value;const j=await json('../../api/admin-users.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',project,clientId:identity.clientId})});subjects=j.users||[];const keep=$('#subject').value;$('#subject').innerHTML='<option value="">All users</option>'+subjects.map(u=>`<option value="${esc(u.subjectType+':'+u.subjectId)}">${u.registered?'👤':'🟢'} ${esc(u.username||u.subjectId)}${u.email?' · '+esc(u.email):''}</option>`).join('');if(keep&&[...$('#subject').options].some(o=>o.value===keep))$('#subject').value=keep;$('#pegboardLink').href=`../../pegboard/?project=${encodeURIComponent(project)}`}
+async function loadSubjects(){const project=$('#project').value;const j=await json('../../api/admin-users.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',project,clientId:identity.clientId})});subjects=j.users||[];const keep=$('#subject').value;$('#subject').innerHTML='<option value="">All users</option>'+subjects.map(u=>`<option value="${esc(u.subjectType+':'+u.subjectId)}">${u.kind==='permanent'?'👤':'🟢'} ${esc(u.displayName||u.email||u.subjectId)}${u.email?' · '+esc(u.email):''}</option>`).join('');if(keep&&[...$('#subject').options].some(o=>o.value===keep))$('#subject').value=keep;$('#pegboardLink').href=`../../pegboard/?project=${encodeURIComponent(project)}`}
 function params(){const p=new URLSearchParams({project:$('#project').value,category:$('#category').value,limit:$('#limit').value});const sub=$('#subject').value;if(sub){const i=sub.indexOf(':');p.set('subjectType',sub.slice(0,i));p.set('subjectId',sub.slice(i+1))}for(const id of ['session','from','to','q'])if($('#'+id).value)p.set(id==='session'?'sessionId':id,$('#'+id).value);return p}
 function summary(data){const c=data.counts||{};const defs=[['Matched',data.matched||0],['User actions',c.actions||0],['Interactions',c.interactions||0],['Framed HTML',c.framed||0],['Sessions',c.sessions||0],['Errors',c.errors||0]];$('#summary').innerHTML=defs.map(([n,v])=>`<div class="stat"><b>${esc(v)}</b><span>${esc(n)}</span></div>`).join('')}
 function detailText(d){try{return JSON.stringify(d||{},null,2)}catch{return String(d||'')}}

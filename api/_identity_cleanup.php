@@ -1,6 +1,6 @@
 <?php
-// @loom-file release=0.15.55 revision=3 policy=package-priority
-// LOOM v0.15.55 — Canonical user cleanup + legacy-orphan client sweeping.
+// @loom-file release=0.15.56 revision=4 policy=package-priority
+// LOOM v0.15.56 — Canonical user cleanup + legacy-orphan client sweeping.
 declare(strict_types=1);
 
 function loom_cleanup_bool(array $o,string $k,bool $default=true): bool { return array_key_exists($k,$o)?(bool)$o[$k]:$default; }

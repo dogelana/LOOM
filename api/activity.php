@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.10 revision=1 policy=package-priority
+// @loom-file release=0.15.56 revision=2 policy=package-priority
 declare(strict_types=1);
 require __DIR__.'/_common.php';
 
@@ -9,7 +9,7 @@ $project=safe_slug((string)($_GET['project']??''));
 if($project===''||!project_dir($project))json_out(['ok'=>false,'error'=>'invalid-project'],400);
 
 $subjectType=(string)($_GET['subjectType']??'');
-if(!in_array($subjectType,['','user','client'],true))$subjectType='';
+if(!in_array($subjectType,['','user','guest','client'],true))$subjectType='';
 $subjectId=safe_token((string)($_GET['subjectId']??''));
 $sessionId=safe_token((string)($_GET['sessionId']??''));
 $category=(string)($_GET['category']??'all');
@@ -33,14 +33,24 @@ function loom_activity_linked_clients(string $userId): array {
     $st=loom_db_pdo(true)->prepare("SELECT client_id FROM loom_user_clients WHERE user_id=?");
     $st->execute([$userId]);foreach($st->fetchAll() as $r)$out[(string)$r['client_id']]=true;
   }catch(Throwable $e){}
+  // Attached Guest Histories are proven account lineage and must remain visible
+  // when the permanent account is selected in Activity Explorer.
+  foreach(loom_guest_list_for_user($userId) as $g){$g=loom_guest_root($g);foreach(array_keys((array)($g['clients']??[])) as $cid)$out[(string)$cid]=true;$primary=(string)($g['primaryClientId']??'');if($primary!=='')$out[$primary]=true;}
+  return array_values(array_filter(array_keys($out),fn($cid)=>str_starts_with((string)$cid,'client_')));
+}
+function loom_activity_guest_clients(string $guestId): array {
+  $g=loom_guest_get($guestId);if(!$g)return [];$g=loom_guest_root($g);$out=[];
+  foreach(array_keys((array)($g['clients']??[])) as $cid){$cid=safe_token((string)$cid);if($cid!==''&&str_starts_with($cid,'client_'))$out[$cid]=true;}
+  $primary=safe_token((string)($g['primaryClientId']??''));if($primary!==''&&str_starts_with($primary,'client_'))$out[$primary]=true;
   return array_keys($out);
 }
-$linkedClients=$subjectType==='user'&&$subjectId!==''?loom_activity_linked_clients($subjectId):[];
+$linkedClients=$subjectType==='user'&&$subjectId!==''?loom_activity_linked_clients($subjectId):($subjectType==='guest'&&$subjectId!==''?loom_activity_guest_clients($subjectId):[]);
 $linkedSet=array_fill_keys($linkedClients,true);
 
 function loom_activity_subject_match(array $row,string $type,string $id,array $linkedSet): bool {
   if($type===''||$id==='')return true;
   if($type==='client')return (string)($row['clientId']??'')===$id;
+  if($type==='guest')return isset($linkedSet[(string)($row['clientId']??'')]);
   return (string)($row['userId']??'')===$id||isset($linkedSet[(string)($row['clientId']??'')]);
 }
 function loom_activity_ts(array $row): string {

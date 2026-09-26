@@ -1,4 +1,17 @@
-# LOOM v0.15.55 — Canonical Global User Directory + Unified Moderation
+# LOOM v0.15.56 — Unified Users + Canonical Avatar Delivery
+
+## v0.15.56 — Unified Users + Canonical Avatar Delivery
+
+- Removed the hidden legacy Project Users DOM/event path and superseded duplicate user/identity handlers. Admin → Users is now the only people directory: **Global LOOM · All users** by default, optionally focused on a project, with an explicit count in every scope.
+- Hardened canonical user targeting so permanent-account, Guest Identity, legacy client, and compatible older target aliases resolve into `user` / `guest` subjects before detail or moderation actions. This prevents valid permanent rows from failing with `Invalid canonical user target` when stale UI/request shapes survive an upgrade.
+- Added stable canonical avatar URLs for Users. Requests now carry `subjectType` + `subjectId`, optionally a proven client for migration fallback, and a deterministic avatar revision instead of timestamp cache busting.
+- Rebuilt `profile-avatar.php` image resolution around canonical subjects. Protected custom global/project images, preset avatars, and safe legacy client/user avatar locations can be served without exposing storage paths; valid identities with no custom image receive the LOOM default avatar rather than a noisy 404.
+- Fixed the ManagerNeil-class case where a real Guest Identity had project identity/activity evidence but no permanent `userId`: project scope now continues to resolve participation from the canonical Guest's proven clients instead of implying that the person never entered the project.
+- Added clearer canonical identity detail (subject, linked browser lineage, global display/avatar mode, timestamps, privilege) to the unified inspector while preserving global/project bans, project/LOOM Admin management, continuity/referrals, email management, password replacement, Guest recovery/attachment/conversion, network context, and Identity Cleanup.
+- Made the Users directory layout overlap-safe: the project selector/count wrap cleanly, search spans the directory column, filter/refresh share a bounded row, cards/details are min-width safe, and mobile collapses to one column.
+- Updated Activity Explorer to consume the canonical user-directory schema and to filter `guest` subjects through their proven browser-client lineage. Permanent-account activity selection now also includes explicitly attached Guest Histories.
+- Synchronized active runtime/cache release constants to 0.15.56. Untouched older `@loom-file release=` markers remain legitimate per-file provenance; they are not treated as runtime-version authority.
+- Verified the supplied release manifest before modification: all 346 release-managed entries matched their recorded hash/size. Live `instance/**` content remains installation-owned and outside release ownership.
 
 ## v0.15.55 — Canonical Global User Directory + Unified Moderation
 
@@ -709,7 +722,7 @@ Maintenance included: field-level deployment ownership for active project metada
 - Wordmark fitting now measures font metrics offscreen and responds only to stable container/viewport width changes.
 - Logo host sizing now changes through CSS breakpoint rules instead of a one-time JavaScript media-query decision.
 
-<!-- @loom-file release=0.15.55 revision=74 policy=package-priority -->
+<!-- @loom-file release=0.15.56 revision=76 policy=package-priority -->
 # LOOM 0.12.04 — Deployment Metadata & Authority
 
 - Added `/.loom-deployment.json`, covering every shipped file with per-file revision, release, hash and deployment policy.
