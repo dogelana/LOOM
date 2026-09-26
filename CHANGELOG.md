@@ -1,3 +1,14 @@
+# LOOM 0.15.68 — Portable Guests + System Owner migration bootstrap
+
+- Backup & Restore → Users now exports **standalone Guests** as first-class portable people in addition to permanent accounts.
+- Guest portability follows canonical/merged Guest Histories, linked clients, Guest Profiles/generations/installations, LOOM/project profile state, avatars/media, project module state, grants, moderation, continuity/referrals, network/history metadata, replay/activity/audit streams, and attributable database rows.
+- A Guest attached to a permanent User is not exported separately; it remains part of the complete permanent-user bundle.
+- Portable User and Guest bundles record whether the person was the source installation's System Owner, while ordinary import still never transfers owner authority.
+- Blank-install Home and Guided Admin Setup now offer **Import Previous System Owner**. It accepts only a verified portable person bundle marked as the prior owner, restores that person first, binds the fresh browser to them, and creates a new destination Admin credential.
+- Project export UI now explains the ownership split: **Project + Data** is the project-owned vertical slice; portable User/Guest bundles are person-owned horizontal slices.
+- Clean migration guidance is now explicit: export owner + other people + desired Project + Data bundles, verify them, install blank LOOM, restore owner, restore other people, then restore projects.
+- Release packages remain clean-instance artifacts and contain no live `instance/**` data.
+
 # LOOM 0.15.67 — Runtime liveness and identity recursion recovery
 
 - Fixed a global-profile / project-identity recursion in which repairing a visible LOOM name could invoke global project-username collision checks, which enriched the same project rows by ensuring the same global profile again. On affected identities this could run until PHP's execution timeout and exhaust shared-host PHP workers, surfacing as broad 503 failures.

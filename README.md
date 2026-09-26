@@ -1,3 +1,13 @@
+# LOOM 0.15.68
+
+LOOM 0.15.68 is the migration-preparation release that makes **portable people** symmetrical: permanent Users and standalone Guests can both be exported and restored as complete identity graphs. A Guest bundle follows canonical Guest History, linked browser/client identities, Guest Profiles and generations, installation aliases, LOOM-wide/project presentation, avatars/media, project state, project grants, moderation, continuity/referrals, network/history metadata, activity/replay/audit streams, and attributable database rows. Guests already attached to a permanent User remain inside that User bundle and are intentionally not exported twice.
+
+Backup & Restore keeps its three scopes — **Global LOOM**, **Projects**, and **Users** — while the Users tab now lists both permanent Users and standalone Guests. The Projects tab explicitly describes **Project + Data** as a vertical project slice rather than a substitute for complete person identity.
+
+A portable person exported from the source installation's System Owner is marked as prior System Owner without carrying the source Admin credential. On a truly blank destination, Home first-run setup and `/admin/setup/` expose **Import Previous System Owner**. LOOM verifies that marked User/Guest bundle, restores the person, attaches the fresh browser, and creates a new destination Admin token. Ordinary later imports never transfer System Owner authority.
+
+See `docs/USER-PORTABILITY-STANDARD.md` and `docs/FIRST-RUN-IDENTITY-ADMIN.md` for the migration contract and recommended clean-reset order.
+
 # LOOM 0.15.67
 
 LOOM 0.15.67 is a runtime-liveness recovery release. It removes a recursive identity-resolution cycle that could keep `global-profile.php` executing until PHP's worker timeout, eventually causing host-level 503 responses across otherwise healthy APIs. Global-profile repair and project-username collision checks are now non-recursive, with an additional recursion fuse around profile normalization.

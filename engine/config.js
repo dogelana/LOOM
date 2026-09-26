@@ -1,6 +1,6 @@
-// @loom-file release=0.15.67 revision=80 policy=package-priority
+// @loom-file release=0.15.68 revision=81 policy=package-priority
 window.LoomConfig = Object.freeze({
-  engineVersion: '0.15.67',
+  engineVersion: '0.15.68',
   discoveryIntervalMs: 4000,
   heartbeatIntervalMs: 5000,
   heartbeatLeaseMs: 90000,
@@ -9,7 +9,7 @@ window.LoomConfig = Object.freeze({
   heartbeatRetryMs: 2500,
   sessionRefreshMs: 1800,
   telemetryRefreshMs: 900,
-  cacheBust: { enabled:true, staticVersion:'0.15.67', assetStrategy:'content-hash', moduleStrategy:'fingerprint' },
+  cacheBust: { enabled:true, staticVersion:'0.15.68', assetStrategy:'content-hash', moduleStrategy:'fingerprint' },
   moduleOrdering: { digits:5, defaultOrder:50000, reservedFirstActionId:'core.ui.header-bar', reservedFirstOrder:1, reservedProfileActionId:'core.user.profile', reservedProfileOrder:10, reservedLastActionId:'project.system.update-log', reservedLastOrder:99999, minNonReservedOrder:1 },
   pegboard: { autoFollowLiveDefault:true, liveSwitchDebounceMs:100, userActionPulseMs:900, moduleColumns:3 },
   branding: { productName:'LOOM', visualName:'Pegboard' },

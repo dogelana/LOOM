@@ -1,3 +1,17 @@
+# LOOM Blueprint — 0.15.68
+
+## 0.15.68 Portable-person and owner-migration invariants
+
+- A canonical person may be either a permanent User or a standalone Guest. Both are first-class portable identity aggregates.
+- A Guest already attached to a permanent User must travel inside that permanent User bundle and must not be exported independently.
+- Standalone Guest portability follows the same ownership graph used by cleanup/user portability: Guest History aliases, clients, Guest Profiles/generations/installations, presentation, project identities/state, media, grants, moderation, continuity/referrals, network/history metadata, streams, and attributable database rows.
+- Stable Guest/client/profile IDs are preserved on a clean restore. Ordinary import is create/merge-only and must never steal an identity key from a different person.
+- `wasSystemOwner` is provenance, not authority. Ordinary portable import never transfers System Owner.
+- Only a truly blank installation may bootstrap from **Import Previous System Owner**, and only from a verified User/Guest bundle marked as the source System Owner. The destination always creates a fresh Admin credential.
+- Project + Data and person bundles intentionally overlap only at attributable project state: Project + Data is the complete project vertical slice; a portable User/Guest is the complete person horizontal slice across projects. Neither substitutes for the other in a clean migration.
+- Preferred clean rebuild order is: verify person/project exports → blank release → restore System Owner → restore remaining people → restore Project + Data bundles → integrity verification.
+- Release ZIPs remain clean-instance artifacts; no live `instance/**` tree may be shipped to accomplish portability.
+
 # LOOM Blueprint — 0.15.67
 
 ## Runtime-liveness and identity-resolution invariants
