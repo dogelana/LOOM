@@ -1,4 +1,4 @@
--- @loom-file release=0.15.62 revision=5 policy=package-priority
+-- @loom-file release=0.15.65 revision=6 policy=package-priority
 -- LOOM v0.12.00 MySQL / MariaDB persistence schema.
 -- Designed for Hostinger MySQL/MariaDB with utf8mb4.
 
@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS loom_project_identities (
   owner_id VARCHAR(96) NOT NULL,
   identity_id VARCHAR(96) NOT NULL,
   username_mode VARCHAR(16) NOT NULL DEFAULT 'global',
+  username_explicit TINYINT(1) NULL DEFAULT NULL,
   username VARCHAR(64) NULL,
   username_norm VARCHAR(64) NULL,
   avatar_mode VARCHAR(32) NOT NULL DEFAULT 'auto',

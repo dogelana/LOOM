@@ -1,8 +1,8 @@
 <?php
-// @loom-file release=0.15.60 revision=7 policy=package-priority
+// @loom-file release=0.15.65 revision=8 policy=package-priority
 require __DIR__.'/_common.php';
 $method=$_SERVER['REQUEST_METHOD']??'GET';
-function loom_global_profile_api_public(array $p,string $clientId): array { $visible=function_exists('loom_global_profile_display_name')?loom_global_profile_display_name($p):loom_clean_username((string)($p['displayName']??''));if($visible==='')$visible=function_exists('loom_guest_profile_visible_name_for_client')?loom_guest_profile_visible_name_for_client($clientId):'';$internal=(string)($p['username']??'');$p['displayName']=$visible!==''?$visible:'LOOM User';$p['username']=$p['displayName'];$p['internalHandle']=$internal?:null;return $p; }
+function loom_global_profile_api_public(array $p,string $clientId): array { return function_exists('loom_global_profile_public')?loom_global_profile_public($p,$clientId):$p; }
 if($method==='GET'){$clientId=safe_token((string)($_GET['clientId']??''));if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['ok'=>false,'error'=>'Invalid client identity'],400);$p=loom_global_profile_ensure($clientId);$a=loom_global_avatar_state($clientId);json_out(['ok'=>true,'profile'=>loom_global_profile_api_public($p,$clientId),'avatar'=>$a]);}
 if($method!=='POST')json_out(['ok'=>false,'error'=>'GET or POST required'],405);
 $ct=(string)($_SERVER['CONTENT_TYPE']??'');

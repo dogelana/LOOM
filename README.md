@@ -1,3 +1,9 @@
+# LOOM 0.15.65
+
+LOOM 0.15.65 makes project username inheritance truly dynamic. A project using **Use LOOM Username** stores no frozen username of its own; it resolves the person's current LOOM-wide visible name every time. Only an explicitly saved project username becomes a static override. Legacy copied identities are conservatively repaired when LOOM can prove the old value came from the person's historical LOOM/Guest/browser identity lineage.
+
+The User Profile module also stops exposing internal `GuestHandle-*` allocation handles as the LOOM-wide username, and project overrides can no longer contaminate the browser-global username cache.
+
 # LOOM 0.15.64
 
 LOOM 0.15.64 makes Project Settings module positioning authoritative end-to-end. The server-resolved Positioning Index now survives registry normalization and runtime mounting, with standard soft layout defaults of Header Bar `1`, Showcase `2`, and Footer Bar `99`. Explicit project choices always outrank those defaults.

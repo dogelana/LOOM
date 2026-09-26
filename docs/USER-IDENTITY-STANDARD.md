@@ -1,4 +1,4 @@
-<!-- @loom-file release=0.15.07 revision=3 policy=package-priority -->
+<!-- @loom-file release=0.15.65 revision=4 policy=package-priority -->
 # LOOM User Identity Standard — v0.11.0
 
 ## Identity layers
@@ -58,3 +58,12 @@ This allows `Pull Picture from Project` to copy a project's packaged default art
 The shared first-run / Switch User surface is a full-screen application dialog, not a desktop card that happens to shrink. On narrow or short viewports it must use the dynamic viewport (`dvh` where available), reserve a `minmax(0,1fr)` scroll region for identity content, respect safe-area insets, keep every action reachable, and stack primary identity actions to full-width touch targets. The page behind the chooser must not scroll while identity selection is active.
 
 The mobile contract applies to every state: first guest acknowledgement, guest chooser, create-guest, permanent-account switch, and permanent-account login. No state may hide its final submit/switch/continue controls below an unscrollable viewport.
+
+
+## Dynamic project username inheritance (v0.15.65)
+
+Project username inheritance is reference-based, never copy-once. A project identity in `global` mode stores no authoritative project username; each read resolves the current LOOM-wide visible username. Changing the LOOM-wide display name therefore changes every inheriting project immediately.
+
+A project stores a static username only after an explicit project-level save. New identity rows carry `usernameExplicit`, and SQL uses nullable `username_explicit` so pre-0.15.65 rows can be distinguished from newly intentional overrides. Legacy project rows are reconciled conservatively: copied browser/global/Guest aliases revert to live global inheritance unless LOOM can prove a project-username save action, while unknown historical nicknames are preserved as explicit overrides rather than guessed away.
+
+Browser identity cache is global presentation state. Project-specific usernames must never be written into the browser's global LOOM label. The global profile UI must display `visibleUsername` / `displayName`; internal allocation handles such as `GuestHandle-*`, `ProfileHandle-*`, and `acct_*` are never human-facing LOOM-wide usernames.

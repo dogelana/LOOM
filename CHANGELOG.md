@@ -1,3 +1,13 @@
+# LOOM 0.15.65 — Dynamic project identity inheritance + canonical global profile
+
+- Project usernames now have an explicit ownership contract: **Global / inherited** identities resolve the current LOOM-wide visible username live, while **Project override** identities remain static only after an explicit project username save.
+- Removed legacy copy-once inheritance for new identities. A project that merely inherited `MintDeck...` years ago no longer freezes that old LOOM-wide name forever.
+- Added conservative legacy repair using identity lineage and audit evidence. Old project values proven to be copied LOOM/Guest/browser labels migrate back to live inheritance; unknown historical project nicknames are preserved rather than guessed away.
+- Project-specific usernames no longer write into the browser-global identity cache, eliminating cross-project username contamination.
+- The User Profile LOOM-wide section now renders the canonical visible global profile name (`displayName` / `visibleUsername`) rather than the internal allocation handle (`GuestHandle-*`, `ProfileHandle-*`, etc.). Internal handles remain available for identity lineage but are never human-facing profile names.
+- Added `username_explicit` / `usernameExplicit` provenance so future migrations can distinguish inherited legacy copies from intentional project overrides.
+- Admin Users reconciliation now normalizes project identities as part of the normal person-read path.
+
 # LOOM 0.15.64 — Authoritative module positioning + default project composition
 
 - Fixed the Positioning Index runtime break: the browser registry client no longer overwrites the server-resolved per-project order with manifest order.

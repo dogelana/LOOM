@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.62 revision=11 policy=package-priority
+// @loom-file release=0.15.65 revision=12 policy=package-priority
 declare(strict_types=1);
 
 // LOOM Global Profile Standard v0.11.20
@@ -48,11 +48,50 @@ function loom_global_profile_display_name(array $profile): string {
 }
 function loom_global_profile_visible_name_for_owner(string $type,string $id): string { $p=loom_global_profile_ensure_for_owner($type,$id);return loom_global_profile_display_name($p); }
 function loom_global_profile_write(array $row): array { $r=loom_global_profile_normalize($row);$type=$r['ownerType'];$id=safe_token($r['ownerId']);if(!in_array($type,['client','user'],true)||$id==='')throw new RuntimeException('Invalid LOOM profile.');$r['ownerId']=$id;$r['profileId']=$r['profileId']?:loom_global_profile_id($type,$id);$r['username']=loom_clean_username($r['username']);if($r['username']==='')throw new RuntimeException('LOOM username cannot be empty.');$r['usernameNorm']=loom_username_norm($r['username']);$r['displayName']=loom_clean_username((string)($r['displayName']??''))?:null;$mode=(string)($r['avatarMode']??'');$canonical=loom_global_avatar_preset_normalize($mode);$r['avatarMode']=$mode==='custom'?'custom':($canonical??loom_global_avatar_repair_preset($type,$id));$r['createdAt']=$r['createdAt']?:server_timestamp();$r['updatedAt']=$r['updatedAt']?:server_timestamp();$other=loom_global_profile_username_owner($r['username']);if($other&&!(($other['ownerType']===$type)&&($other['ownerId']===$id)))throw new RuntimeException('That LOOM username is already taken.');
-  if(loom_global_profile_get($type,$id)!==null && function_exists('loom_project_identity_global_username_conflicts')){$conf=loom_project_identity_global_username_conflicts($type,$id,$r['username']);if($conf)throw new RuntimeException('That LOOM username conflicts with a project identity that currently inherits the LOOM username.');}
+  if(loom_global_profile_get($type,$id)!==null && function_exists('loom_project_identity_global_username_conflicts')){$candidate=loom_global_profile_display_name($r);if($candidate!==''&&loom_project_identity_global_username_conflicts($type,$id,$candidate))throw new RuntimeException('That LOOM username conflicts with another identity inside a project that inherits the LOOM username.');}
   $s=loom_global_profile_store();$s['profiles'][loom_global_profile_key($type,$id)]=$r;loom_write_global_profile_store($s);loom_global_profile_db_table();if(loom_db_ready()){$pdo=loom_db_pdo(true);$st=$pdo->prepare("INSERT INTO loom_global_profiles(owner_type,owner_id,profile_id,username,username_norm,display_name,avatar_mode,custom_ext,mime_type,byte_size,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE profile_id=VALUES(profile_id),username=VALUES(username),username_norm=VALUES(username_norm),display_name=VALUES(display_name),avatar_mode=VALUES(avatar_mode),custom_ext=VALUES(custom_ext),mime_type=VALUES(mime_type),byte_size=VALUES(byte_size),updated_at=VALUES(updated_at)");$st->execute([$type,$id,$r['profileId'],$r['username'],$r['usernameNorm'],$r['displayName'],$r['avatarMode'],$r['customExt'],$r['mimeType'],$r['byteSize'],loom_db_dt($r['createdAt'])?:gmdate('Y-m-d H:i:s.000'),loom_db_dt($r['updatedAt'])?:gmdate('Y-m-d H:i:s.000')]);}return $r;
 }
-function loom_global_profile_seed_username(string $type,string $id): string { if(function_exists('loom_project_identity_list_for_owner')){foreach(loom_project_identity_list_for_owner($type,$id) as $x){$u=loom_clean_username((string)($x['username']??''));if($u!==''){$owner=loom_global_profile_username_owner($u);if(!$owner||($owner['ownerType']===$type&&$owner['ownerId']===$id))return $u;}}}return loom_global_default_username($type,$id); }
-function loom_global_profile_ensure_for_owner(string $type,string $id): array { $r=loom_global_profile_get($type,$id);if($r){$dirty=false;if(preg_match('/^LOOMUser-[0-9A-F]{6}(?:-[0-9]+)?$/i',(string)$r['username'])){$r['username']=loom_global_default_username($type,$id);$dirty=true;}if((string)($r['avatarMode']??'')==='loom-default'||(!loom_global_avatar_preset_valid((string)($r['avatarMode']??''))&&(string)($r['avatarMode']??'')!=='custom')){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$dirty=true;}elseif(($canonical=loom_global_avatar_preset_normalize((string)($r['avatarMode']??'')))!==null&&$canonical!==(string)$r['avatarMode']){$r['avatarMode']=$canonical;$dirty=true;}if((string)($r['avatarMode']??'')==='custom'&&!loom_global_avatar_find($type,$id)){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$r['customExt']=$r['mimeType']=$r['byteSize']=null;$dirty=true;}if($dirty){$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);}return $r;}$seed=loom_global_profile_seed_username($type,$id);return loom_global_profile_write(['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>$seed,'displayName'=>$seed,'avatarMode'=>loom_global_avatar_random_preset(),'createdAt'=>server_timestamp(),'updatedAt'=>server_timestamp()]); }
+function loom_global_profile_owner_clients(string $type,string $id): array {
+  $ids=[];$add=function($v)use(&$ids){$v=safe_token((string)$v);if($v!==''&&str_starts_with($v,'client_'))$ids[$v]=true;};
+  if($type==='client')$add($id);
+  if($type==='user'){$uid=safe_token($id);$tmp=loom_temp_account_store();foreach(($tmp['clients']??[]) as $cid=>$mapped)if(safe_token((string)$mapped)===$uid)$add($cid);if(loom_db_ready())try{$st=loom_db_pdo(true)->prepare("SELECT client_id FROM loom_user_clients WHERE user_id=?");$st->execute([$uid]);foreach($st->fetchAll() as $x)$add($x['client_id']??'');}catch(Throwable $e){}if(function_exists('loom_guest_list_for_user'))foreach(loom_guest_list_for_user($uid) as $g)$add($g['primaryClientId']??'');}
+  return array_keys($ids);
+}
+function loom_global_profile_seed_display_name(string $type,string $id): string {
+  $clean=function($raw){$n=loom_clean_username((string)$raw);return ($n!==''&&!preg_match('/^(?:GuestHandle-|ProfileHandle-|acct_|LOOMUser-)/i',$n))?$n:'';};
+  foreach(loom_global_profile_owner_clients($type,$id) as $cid){
+    if(function_exists('loom_guest_profile_for_client')){$guest=loom_guest_profile_for_client($cid);if(is_array($guest)){$n=$clean($guest['displayName']??'');if($n!=='')return $n;}}
+    $p=read_json_file(loom_data_dir().'/users/'.hash('sha256',$cid).'.json')?:[];if(loom_db_ready()&&function_exists('loom_db_read_client_profile')){$dbp=loom_db_read_client_profile($cid);if(is_array($dbp))$p=array_replace($p,$dbp);}foreach(['displayName','display_name','username','_userLabel','userLabel'] as $k){$n=$clean($p[$k]??'');if($n!=='')return $n;}
+  }
+  if($type==='user'){$u=loom_account_user_by_id($id);if(is_array($u)){foreach(['displayName','display_name','username'] as $k){$n=$clean($u[$k]??'');if($n!=='')return $n;}}}
+  return '';
+}
+// Internal global handles are allocation keys, not presentation identity. Never
+// seed a new LOOM-wide profile from a project-specific row: that made an old
+// copied project name capable of becoming global again after a reset.
+function loom_global_profile_seed_username(string $type,string $id): string { return loom_global_default_username($type,$id); }
+function loom_global_profile_ensure_for_owner(string $type,string $id): array {
+  $r=loom_global_profile_get($type,$id);
+  if($r){
+    $dirty=false;
+    if(preg_match('/^LOOMUser-[0-9A-F]{6}(?:-[0-9]+)?$/i',(string)$r['username'])){$r['username']=loom_global_default_username($type,$id);$dirty=true;}
+    $visible=loom_clean_username((string)($r['displayName']??''));
+    if($visible===''||preg_match('/^(?:GuestHandle-|ProfileHandle-|acct_|LOOMUser-)/i',$visible)){$seedDisplay=loom_global_profile_seed_display_name($type,$id);if($seedDisplay!==''){$r['displayName']=$seedDisplay;$dirty=true;}}
+    if((string)($r['avatarMode']??'')==='loom-default'||(!loom_global_avatar_preset_valid((string)($r['avatarMode']??''))&&(string)($r['avatarMode']??'')!=='custom')){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$dirty=true;}
+    elseif(($canonical=loom_global_avatar_preset_normalize((string)($r['avatarMode']??'')))!==null&&$canonical!==(string)$r['avatarMode']){$r['avatarMode']=$canonical;$dirty=true;}
+    if((string)($r['avatarMode']??'')==='custom'&&!loom_global_avatar_find($type,$id)){$r['avatarMode']=loom_global_avatar_repair_preset($type,$id);$r['customExt']=$r['mimeType']=$r['byteSize']=null;$dirty=true;}
+    if($dirty){$r['updatedAt']=server_timestamp();return loom_global_profile_write($r);}return $r;
+  }
+  $handle=loom_global_profile_seed_username($type,$id);$display=loom_global_profile_seed_display_name($type,$id);if($display==='')$display=$handle;
+  return loom_global_profile_write(['ownerType'=>$type,'ownerId'=>$id,'profileId'=>loom_global_profile_id($type,$id),'username'=>$handle,'displayName'=>$display,'avatarMode'=>loom_global_avatar_random_preset(),'createdAt'=>server_timestamp(),'updatedAt'=>server_timestamp()]);
+}
+function loom_global_profile_public(array $profile,string $clientId=''): array {
+  $p=loom_global_profile_normalize($profile);$visible=loom_global_profile_display_name($p);
+  if($visible===''&&$clientId!==''&&function_exists('loom_guest_profile_visible_name_for_client'))$visible=loom_guest_profile_visible_name_for_client($clientId);
+  if($visible==='')$visible='LOOM User';
+  $internal=(string)($p['username']??'');$p['visibleUsername']=$visible;$p['displayName']=$visible;$p['internalHandle']=$internal?:null;
+  return $p;
+}
 function loom_global_profile_ensure(string $clientId): array { $o=loom_global_profile_owner_for_client($clientId);return loom_global_profile_ensure_for_owner($o['type'],$o['id']); }
 function loom_global_profile_set_username(string $clientId,string $username): array {
   loom_global_profile_assert_mutation_access($clientId);$name=loom_clean_username($username);if($name==='')throw new RuntimeException('LOOM display name cannot be empty.');$o=loom_global_profile_owner_for_client($clientId);

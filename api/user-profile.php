@@ -1,5 +1,5 @@
 <?php
-// @loom-file release=0.15.17 revision=5 policy=package-priority
+// @loom-file release=0.15.65 revision=6 policy=package-priority
 require __DIR__.'/_common.php';
 
 function user_profiles_dir(): string { return loom_data_dir().'/users'; }
@@ -102,20 +102,20 @@ $method=$_SERVER['REQUEST_METHOD']??'GET';
 if($method==='POST'){
   $body=json_decode((string)file_get_contents('php://input'),true);if(!is_array($body))json_out(['error'=>'Invalid JSON'],400);
   $clientId=safe_token((string)($body['clientId']??''));$project=safe_slug((string)($body['project']??''));$username=clean_username((string)($body['username']??''));
+  $scope=(string)($body['scope']??'project');$mode=(string)($body['mode']??'');
   if($clientId===''||!str_starts_with($clientId,'client_'))json_out(['error'=>'Invalid client identity'],400);
-  if($username==='')json_out(['error'=>'Username cannot be empty once identity naming is used.'],400);
+  if($scope==='global'&&$username==='')json_out(['error'=>'LOOM username cannot be empty.'],400);
+  if($scope!=='global'&&$mode!=='global'&&$username==='')json_out(['error'=>'Project username cannot be empty.'],400);
   if($project!==''&&!project_dir($project))json_out(['error'=>'Invalid project'],400);
   if($project!==''){loom_capture_request_ip($clientId,$project);loom_enforce_project_access($project,$clientId);}
 
-
-  $scope=(string)($body['scope']??'project');$mode=(string)($body['mode']??'');
   try{
     if($scope==='global'){$global=loom_global_profile_set_username($clientId,$username);$identity=loom_project_identity_ensure($project,$clientId,true);}
     elseif($mode==='global'){$identity=loom_project_identity_set_username_mode($project,$clientId,'global');$global=loom_global_profile_ensure($clientId);}
     else{$identity=loom_project_identity_set_username($project,$clientId,$username);$global=loom_global_profile_ensure($clientId);}
   }catch(Throwable $e){json_out(['error'=>$e->getMessage()],409);}
   $profile=read_user_profile($clientId,$project);$priv=loom_bootstrap_or_privilege($clientId,false);$profile['privilege']=$priv['privilege'];
-  json_out(['ok'=>true,'profile'=>$profile,'globalProfile'=>$global??loom_global_profile_ensure($clientId),'projectIdentity'=>$identity,'identities'=>loom_project_identity_list_for_client($clientId),'privilege'=>$priv,'account'=>loom_account_public_status($clientId,$project)]);
+  $globalRaw=$global??loom_global_profile_ensure($clientId);$globalPublic=function_exists('loom_global_profile_public')?loom_global_profile_public($globalRaw,$clientId):$globalRaw;json_out(['ok'=>true,'profile'=>$profile,'globalProfile'=>$globalPublic,'projectIdentity'=>$identity,'identities'=>loom_project_identity_list_for_client($clientId),'privilege'=>$priv,'account'=>loom_account_public_status($clientId,$project)]);
 }
 if($method!=='GET')json_out(['error'=>'GET or POST required'],405);
 $clientId=safe_token((string)($_GET['clientId']??''));$project=safe_slug((string)($_GET['project']??''));$sessionId=safe_token((string)($_GET['sessionId']??''));
@@ -131,7 +131,7 @@ $beforeCreated=(string)($profile['createdAt']??'');$beforeUpdated=(string)($prof
 $profile=hydrate_profile_timestamps($clientId,$profile,$analytics);
 
 json_out([
-  'ok'=>true,'profile'=>$profile,'globalProfile'=>loom_global_profile_ensure($clientId),'projectIdentity'=>loom_project_identity_ensure($project,$clientId,true),'identities'=>loom_project_identity_list_for_client($clientId),'privilege'=>$priv,'account'=>loom_account_public_status($clientId,$project),
+  'ok'=>true,'profile'=>$profile,'globalProfile'=>loom_global_profile_public(loom_global_profile_ensure($clientId),$clientId),'projectIdentity'=>loom_project_identity_ensure($project,$clientId,true),'identities'=>loom_project_identity_list_for_client($clientId),'privilege'=>$priv,'account'=>loom_account_public_status($clientId,$project),
   'storage'=>['mode'=>loom_db_ready()?'database':'durable-local','database'=>loom_db_status()],
   'network'=>$network,
   'projectAccess'=>loom_project_access_status($project,$clientId),
